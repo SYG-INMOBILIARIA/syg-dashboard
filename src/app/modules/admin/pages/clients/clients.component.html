@@ -1,0 +1,556 @@
+
+<div class="flex flex-wrap ">
+  <div class="flex-none w-full max-w-full px-3">
+    <div class="relative flex flex-col min-w-0 mb-6 break-words bg-white border-solid shadow-md dark:bg-slate-850 dark:shadow-dark-md rounded-2xl bg-clip-border   dark:bg-gray-700">
+
+      <div class="flex justify-between p-6 pb-2">
+        <div class=" border-b-0 border-b-solid rounded-t-2xl border-b-transparen">
+          <h6 class=" dark:text-white">Clientes</h6>
+        </div>
+
+        <div class="flex items-center ">
+
+          <div class="pr-4">
+            <div class="relative flex flex-wrap items-stretch w-full transition-all rounded-lg ease">
+              <span class="text-sm ease leading-5.6 absolute z-50 -ml-px flex h-full items-center whitespace-nowrap rounded-lg rounded-tr-none rounded-br-none border border-r-0 border-transparent bg-transparent py-2 px-2.5 text-center font-normal text-slate-500 transition-all">
+                <svg
+                  class="w-5 h-5 text-gray-500 dark:text-gray-400"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    clip-rule="evenodd"
+                    d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+                  ></path>
+                </svg>
+              </span>
+              <input
+                type="text"
+                class="pl-9 text-sm focus:shadow-primary-outline ease w-1/100 leading-5.6 relative -ml-px block min-w-0 flex-auto rounded-lg border border-solid dark:bg-gray-800 dark:text-white bg-white bg-clip-padding py-2 pr-3 text-gray-700 transition-all placeholder:text-gray-500 "
+                placeholder="Buscar..."
+                [formControl]="searchInput"
+                [class.border-gray-300]="isInvalidSearchInput == false"
+                [class.border-red-400]="isInvalidSearchInput == true"
+                (keyup.enter)="onSearch()"
+              />
+            </div>
+          </div>
+
+          <div class="">
+            <button
+              #btnShowClientModal
+              type="button"
+              data-modal-target="client-modal"
+              data-modal-toggle="client-modal"
+              class="inline-block px-6 py-3 mr-3 font-bold text-center text-white uppercase align-middle transition-all rounded-lg cursor-pointer bg-gradient-to-tl from-blue-500 to-violet-500 leading-normal text-xs ease-in tracking-tight-rem shadow-xs bg-150 bg-x-25 hover:-translate-y-px active:opacity-85 hover:shadow-md "
+              >
+              <i class="fa fa-plus" aria-hidden="true"></i>
+              &nbsp;Nuevo
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+
+      <div class="flex-auto px-0 pt-0 pb-2">
+        <div class="p-0 overflow-x-auto">
+          <table class="items-center w-full mb-0 align-top border-collapse dark:border-white/40 text-slate-500">
+            <thead class="align-bottom">
+              <tr>
+                <th class="px-6 py-3 font-bold text-left uppercase align-middle bg-transparent border-b border-collapse shadow-none dark:border-white/40 text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Apellidos y Nombre / Razon social</th>
+
+                <th class="px-6 py-3 pl-2 font-bold text-left uppercase align-middle bg-transparent border-b border-collapse shadow-none dark:border-white/40 text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Documento</th>
+
+                <th class="px-6 py-3 pl-2 font-bold text-left uppercase align-middle bg-transparent border-b border-collapse shadow-none dark:border-white/40 text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Email</th>
+
+                <th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-collapse shadow-none dark:border-white/40 text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Estado</th>
+                <th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-collapse shadow-none dark:border-white/40 text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">F. creación</th>
+                <th class="px-6 py-3 font-semibold capitalize align-middle bg-transparent border-b border-collapse border-solid shadow-none dark:border-white/40 tracking-none whitespace-nowrap text-slate-400 opacity-70"></th>
+              </tr>
+            </thead>
+            <tbody>
+
+              @for ( client of clients(); track client.id) {
+                <tr>
+
+                  <td class="p-2 align-middle bg-transparent border-b dark:border-white/40 whitespace-nowrap shadow-transparent">
+                    <div class="flex px-2 py-1">
+                      <!-- <div>
+                        <img src="../assets/img/team-2.jpg" class="inline-flex items-center justify-center mr-4 text-sm text-white transition-all duration-200 ease-in-out h-9 w-9 rounded-xl" alt="user1" />
+                      </div> -->
+                      <div class="flex flex-col justify-center">
+                        <h6 class="mb-0 text-sm leading-normal dark:text-gray-300 ">
+                          {{ client.fullname }}
+                        </h6>
+                        <p class="mb-0 text-xs leading-tight  dark:opacity-80 text-slate-400 dark:text-gray-300">
+                          @if ( client?.address && client.address.length > 35 ) {
+                            {{ client.address | slice:0:35 }}...
+                          } @else {
+                            {{ client.address  }}
+                          }
+                        </p>
+                      </div>
+                    </div>
+                  </td>
+
+                  <td class="p-2 align-middle bg-transparent border-b dark:border-white/40 whitespace-nowrap shadow-transparent dark:text-gray-300">
+
+                    <div class="flex flex-wrap justify-start items-center">
+                      <span class="text-xs font-bold w-24">{{ client.identityDocument.shortDescription }}:&nbsp;&nbsp;</span>
+                      <span>{{ client.identityNumber }}</span>
+                    </div>
+
+                  </td>
+
+                  <td class="p-2 align-middle bg-transparent border-b dark:border-white/40 whitespace-nowrap shadow-transparent dark:text-gray-300">
+                    {{ client.email }}
+                  </td>
+
+                  <td class="p-2 text-sm leading-normal text-center align-middle bg-transparent border-b dark:border-white/40 whitespace-nowrap shadow-transparent">
+
+                    <span
+                      class=" text-xs font-medium me-2 px-2.5 py-0.5 rounded 0 dark:text-gray-300"
+
+                      [ngClass]="{
+                        'bg-gray-100': !client.isActive,
+                        'text-gray-800': !client.isActive,
+                        'dark:bg-gray-700': !client.isActive,
+                        'dark:text-gray-30': !client.isActive,
+
+                        'bg-green-100': client.isActive,
+                        'text-green-800': client.isActive,
+                        'dark:bg-green-900': client.isActive,
+                        'dark:text-green-300': client.isActive,
+                      }"
+
+                    >
+                      Activo
+                    </span>
+
+                  </td>
+
+                  <td  class=" text-center align-middle bg-transparent border-b dark:border-white/40 whitespace-nowrap shadow-transparent">
+                    <span class="text-xs uppercase font-semibold leading-tight dark:text-gray-300 dark:opacity-80 text-slate-400">
+                      {{ client.createAt | moment:'createAt'  }}
+                    </span>
+                  </td>
+
+                  <td class=" bg-transparent border-b dark:border-white/40 whitespace-nowrap shadow-transparent">
+                    <div class="flex  gap-3 justify-end pr-6">
+                      <a href="javascript:;" class="flex gap-1 text-xs font-semibold leading-tight uppercase dark:opacity-80 text-slate-400 dark:text-gray-300" (click)="onLoadToUpdate( client )">
+                        <i class="fa fa-pencil" aria-hidden="true"></i>
+                        Editar
+                      </a>
+
+                      <a href="javascript:;" class="flex gap-2 text-xs font-semibold leading-tight uppercase dark:opacity-80 text-red-500" (click)="onRemoveConfirm( client )" >
+                        <i class="fa fa-trash" aria-hidden="true"></i>
+                        Eliminar
+                      </a>
+                    </div>
+
+                  </td>
+                </tr>
+              } @empty {
+
+                @if (!isLoading()) {
+                  <tr>
+                    <td rowspan="5">
+                      <div class="col-12 h-10">
+                        <h3>Sin registros</h3>
+                      </div>
+                    </td>
+                  </tr>
+                }
+              }
+
+            </tbody>
+          </table>
+        </div>
+        <div class="" >
+
+          <!-- (onChangePage)="" -->
+          <app-pagination [totalItems]="totalClients()" (onChangePage)="onGetClients( $event )"  >
+
+          </app-pagination>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <!-- Main modal -->
+  <div id="client-modal" data-modal-backdrop="true" tabindex="-1" aria-hidden="false" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+    <div class="relative p-4 w-full max-w-2xl max-h-full">
+
+        <!-- Modal content -->
+        <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+            <!-- Modal header -->
+            <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+                    {{ clientModalTitle }}
+                </h3>
+                <button
+                  #btnCloseClientModal
+                  type="button"
+                  data-modal-toggle="client-modal"
+                  class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+                  (click)="onResetAfterSubmit()"
+                >
+                    <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                    </svg>
+                    <span class="sr-only">Close modal</span>
+                </button>
+            </div>
+            <!-- Modal body -->
+            <form [formGroup]="clientForm" (ngSubmit)="onSubmit()" class="p-4">
+
+                <div class="grid gap-4 mb-4 grid-cols-6">
+
+                  <div class="col-span-3 xs:col-span-6 mb-0">
+                    <label for="cbxPersonType" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                      Tipo *
+                    </label>
+                    <ng-select
+                      id="cbxPersonType"
+                      class="bg-gray-50 border text-gray-900 text-sm rounded-lg block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                      [items]="personTypes()"
+                      (ngModelChange)="onChangePersonType( $event )"
+                      bindLabel="label"
+                      bindValue="value"
+                      placeholder="Seleccione tipo de persona"
+                      formControlName="personType"
+                      [class.border-red-400]=" inputErrors('personType') && isTouched('personType') "
+                    >
+                    </ng-select>
+
+                    @if (isTouched('personType')) {
+                      <span
+                        class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                        inputErrors
+                        [errors]="inputErrors('personType')"
+                        inputLabel="Tipo" >
+                      </span>
+                    }
+                  </div>
+
+                  <div class="col-span-3 xs:col-span-6 mb-0">
+                    <label for="cbxIdentityDocument" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                      Documento de identidad *
+                    </label>
+                    <ng-select
+                      id="cbxIdentityDocument"
+                      class="bg-gray-50 border text-gray-900 text-sm rounded-lg block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                      [items]="identityDocuments()"
+                      (change)="onChangeIdentityDocument( $event )"
+                      bindLabel="shortDescription"
+                      bindValue="id"
+                      placeholder="Seleccione documento de identidad"
+                      formControlName="identityDocumentId"
+                      [class.border-red-400]=" inputErrors('identityDocumentId') && isTouched('identityDocumentId') "
+                    >
+                    </ng-select>
+
+                    @if (isTouched('identityDocumentId')) {
+                      <span
+                        class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                        inputErrors
+                        [errors]="inputErrors('identityDocumentId')"
+                        inputLabel="Documento de identidad" >
+                      </span>
+                    }
+                  </div>
+
+                  @if ( !isJuridicPerson() ) {
+
+                    <div class="col-span-3 xs:col-span-6 mb-0">
+                        <label for="txtNames" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                          Nombres *
+                        </label>
+                        <input
+                          type="text"
+                          id="txtNames"
+                          class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                          placeholder="Enter Name"
+                          formControlName="name"
+                          [class.border-red-400]=" inputErrors('name') && isTouched('name') "
+                        >
+
+                        @if (isTouched('name')) {
+                          <span
+                            class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                            inputErrors
+                            [errors]="inputErrors('name')"
+                            inputLabel="Nombres" >
+                          </span>
+                        }
+                    </div>
+
+                    <div class="col-span-3 xs:col-span-6 mb-0">
+                        <label for="txtSurname" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                          Apellidos *
+                        </label>
+                        <input
+                          type="text"
+                          id="txtSurname"
+                          class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                          placeholder="Enter Surname"
+                          formControlName="surname"
+                          [class.border-red-400]=" inputErrors('surname') && isTouched('surname') "
+                        >
+
+                        @if (isTouched('surname')) {
+                          <span
+                            class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                            inputErrors
+                            [errors]="inputErrors('surname')"
+                            inputLabel="Apellidos" >
+                          </span>
+                        }
+                    </div>
+
+                  } @else {
+
+                    <div class="col-span-6 xs:col-span-6 mb-0">
+                        <label for="txtBussinessName" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                          Razón social *
+                        </label>
+                        <input
+                          type="text"
+                          id="txtBussinessName"
+                          class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                          placeholder="Enter Bussiness Name"
+                          formControlName="bussinessName"
+                          [class.border-red-400]=" inputErrors('bussinessName') && isTouched('bussinessName') "
+                        >
+
+                        @if (isTouched('bussinessName')) {
+                          <span
+                            class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                            inputErrors
+                            [errors]="inputErrors('bussinessName')"
+                            inputLabel="Razón social" >
+                          </span>
+                        }
+                    </div>
+
+                  }
+
+                  <div class="col-span-6 xs:col-span-6 mb-0">
+                    <label for="txtAddress" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                      Dirección *
+                    </label>
+                    <input
+                      type="text"
+                      id="txtAddress"
+                      class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                      placeholder="Enter Address"
+                      formControlName="address"
+                      [class.border-red-400]=" inputErrors('address') && isTouched('address') "
+                    >
+
+                    @if (isTouched('address')) {
+                      <span
+                        class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                        inputErrors
+                        [errors]="inputErrors('address')"
+                        inputLabel="Dirección" >
+                      </span>
+                    }
+                  </div>
+
+                  <div class="col-span-2 xs:col-span-3 mb-0">
+                      <label for="txtDocumentNumber" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                        Nro Documento *
+                      </label>
+                      <input
+                        type="text"
+                        id="txtDocumentNumber"
+                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                        placeholder="#######"
+                        formControlName="identityNumber"
+                        [class.border-red-400]=" inputErrors('identityNumber') && isTouched('identityNumber') "
+                      >
+
+                      @if (isTouched('identityNumber')) {
+                        <span
+                          class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                          inputErrors
+                          [errors]="inputErrors('identityNumber')"
+                          inputLabel="Nro documento" >
+                        </span>
+                      }
+                  </div>
+
+                  <div class="col-span-4 xs:col-span-3 mb-0">
+                      <label for="txtEmail" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                        Email *
+                      </label>
+                      <input
+                        type="text"
+                        id="txtEmail"
+                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                        placeholder="example@domain.com"
+                        formControlName="email"
+                        [class.border-red-400]=" inputErrors('email') && isTouched('email') "
+                      >
+
+                      @if (isTouched('email')) {
+                        <span
+                          class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                          inputErrors
+                          [errors]="inputErrors('email')"
+                          inputLabel="Email" >
+                        </span>
+                      }
+                  </div>
+
+                  <div class="col-span-2 xs:col-span-6 mb-0">
+                    <label for="txtBirthDate" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                      Fecha de nacimiento *
+                    </label>
+                    <input
+                      #birthDateInput
+                      type="text"
+                      id="txtBirthDate"
+                      mwlFlatpickr
+                      locale="Spanish"
+                      [altInput]="true"
+                      [maxDate]="maxBirthDate"
+                      class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                      placeholder="YYYY-MM-DD"
+                      formControlName="birthDate"
+                      [class.border-red-400]=" inputErrors('birthDate') && isTouched('birthDate') "
+                    >
+
+                    @if (isTouched('birthDate')) {
+                      <span
+                        class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                        inputErrors
+                        [errors]="inputErrors('birthDate')"
+                        inputLabel="fecha de nacimiento" >
+                      </span>
+                    }
+                  </div>
+
+                  <div class="col-span-2 xs:col-span-6 mb-0">
+                    <label for="txtPhone" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                      Teléfono *
+                    </label>
+                    <input
+                      type="text"
+                      id="txtPhone"
+                      class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                      placeholder="+00 000 000 000"
+                      formControlName="phone"
+                      [class.border-red-400]=" inputErrors('phone') && isTouched('phone') "
+                    >
+
+                    @if (isTouched('phone')) {
+                      <span
+                        class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                        inputErrors
+                        [errors]="inputErrors('phone')"
+                        inputLabel="Teléfono" >
+                      </span>
+                    }
+                  </div>
+
+                  <div class="col-span-2 xs:col-span-6 mb-0">
+                    <label for="txtPhone" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                      Teléfono 2
+                    </label>
+                    <input
+                      type="text"
+                      id="txtPhone"
+                      class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                      placeholder="+00 000 000 000"
+                      formControlName="secondaryPhone"
+                      [class.border-red-400]=" inputErrors('secondaryPhone') && isTouched('secondaryPhone') "
+                    >
+
+                    @if (isTouched('secondaryPhone')) {
+                      <span
+                        class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                        inputErrors
+                        [errors]="inputErrors('secondaryPhone')"
+                        inputLabel="Teléfono 2" >
+                      </span>
+                    }
+                  </div>
+
+                  <div class="col-span-3 xs:col-span-6 mb-6">
+                    <label for="cbxPersonType" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                      Estado civil *
+                    </label>
+                    <ng-select
+                      id="cbxPersonType"
+                      class="bg-gray-50 border text-gray-900 text-sm rounded-lg block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                      [items]="civilStatus()"
+                      bindLabel="label"
+                      bindValue="value"
+                      placeholder="Seleccione estado civil"
+                      formControlName="civilStatus"
+                      [class.border-red-400]=" inputErrors('civilStatus') && isTouched('civilStatus') "
+                    >
+                    </ng-select>
+
+                    @if (isTouched('civilStatus')) {
+                      <span
+                        class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                        inputErrors
+                        [errors]="inputErrors('civilStatus')"
+                        inputLabel="Estado civil" >
+                      </span>
+                    }
+                  </div>
+
+                  <div class="col-span-3 xs:col-span-6 mb-6">
+                    <label for="cbxPersonType" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                      Género *
+                    </label>
+                    <ng-select
+                      id="cbxPersonType"
+                      class="bg-gray-50 border text-gray-900 text-sm rounded-lg block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                      [items]="genders()"
+                      bindLabel="label"
+                      bindValue="value"
+                      placeholder="Seleccione genero"
+                      formControlName="gender"
+                      [class.border-red-400]=" inputErrors('gender') && isTouched('gender') "
+                    >
+                    </ng-select>
+
+                    @if (isTouched('gender')) {
+                      <span
+                        class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                        inputErrors
+                        [errors]="inputErrors('gender')"
+                        inputLabel="Genero" >
+                      </span>
+                    }
+                  </div>
+
+                </div>
+
+                <button
+                  type="submit"
+                  class="text-white cursor-pointer inline-flex justify-center items-center w-full bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                >
+                  <span *ngIf="!isSaving() else singinSpinner" >
+                    Guardar
+                  </span>
+                </button>
+
+            </form>
+        </div>
+    </div>
+  </div>
+
+  <ng-template #singinSpinner>
+    <spinner></spinner>
+  </ng-template>

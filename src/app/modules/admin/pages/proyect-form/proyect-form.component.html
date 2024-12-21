@@ -1,0 +1,123 @@
+
+
+<aside id="default-sidebar" class="fixed top-40 right-0 z-40 w-100 h-250 transition-transform -translate-x-full sm:translate-x-0" aria-label="Sidebar">
+  <div class="h-full px-3 py-4 overflow-y-auto ">
+
+    <div class="w-full max-w-lg p-4 bg-white border border-gray-200 rounded-lg shadow sm:p-6 md:p-8 dark:bg-gray-800 dark:border-gray-700">
+      <form class="space-y-6" [formGroup]="proyectForm" (submit)="onSubmit()">
+          <h5 class="text-xl font-medium text-gray-900 dark:text-white">
+            {{ proyectTitleForm }}
+          </h5>
+          <div>
+              <label for="txtProyectName" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                Nombre proyecto
+              </label>
+              <input type="text"
+                id="txtProyectName"
+                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
+                placeholder="Enter Proyect Name"
+                formControlName="name"
+                [class.border-red-400]=" inputErrors('name') && isTouched('name') "
+              />
+
+              @if (isTouched('name')) {
+                <span
+                  class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                  inputErrors
+                  [errors]="inputErrors('name')"
+                  inputLabel="Nombre" >
+                </span>
+              }
+          </div>
+          <div>
+
+              <label for="txtDescription" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                Descripción
+              </label>
+              <textarea
+                id="txtDescription"
+                rows="4"
+                class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                placeholder="Write proyect description here..."
+                formControlName="description"
+                [class.border-red-400]=" inputErrors('description') && isTouched('description') "
+                ></textarea>
+
+                @if (isTouched('description')) {
+                  <span
+                    class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                    inputErrors
+                    [errors]="inputErrors('description')"
+                    inputLabel="Descripción" >
+                  </span>
+                }
+
+          </div>
+          <div>
+            <label for="txtAdquisitionDate" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+              Fecha de adquisición *
+            </label>
+            <input
+              #birthDateInput
+              type="text"
+              id="txtAdquisitionDate"
+              mwlFlatpickr
+              locale="Spanish"
+              [altInput]="true"
+              [maxDate]="maxBirthDate"
+              class="bg-gray-50 border text-center border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+              placeholder="YYYY-MM-DD"
+              formControlName="adquisitionDate"
+              [class.border-red-400]=" inputErrors('adquisitionDate') && isTouched('adquisitionDate') "
+            >
+
+            @if (isTouched('adquisitionDate')) {
+              <span
+                class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                inputErrors
+                [errors]="inputErrors('adquisitionDate')"
+                inputLabel="fecha de adquisición" >
+              </span>
+            }
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-900 dark:text-white">
+              Subir plano *
+            </label>
+          </div>
+
+          <div class="pb-2 grid-cols-1 flex justify-center">
+            <label for="countryFile" >
+              <img class="w-20 h-20 rounded-full cursor-pointer" [src]="fileUrl()" alt="Rounded avatar">
+            </label>
+
+            <input type="file" id="countryFile" class="hidden" (change)="onChangeFile( $event.target )" />
+
+          </div>
+
+          <button
+            type="submit"
+            class="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+            Guardar Proyecto
+          </button>
+
+      </form>
+    </div>
+
+  </div>
+</aside>
+
+
+<div class="p-4 sm:mr-72">
+
+  <polygon-map-handler
+    [flatImageUrl]="fileUrl()"
+    [polygonCoords]="polygonCoords()"
+    [centerMap]="centerCoord()"
+    (updatedPolygonCoords)="onCurrentPolygonCoords( $event )"
+    (updatedCenterCoord)="onCurrentCenterCoord( $event )"
+  >
+  </polygon-map-handler>
+
+</div>
