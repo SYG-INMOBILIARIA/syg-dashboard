@@ -5,4 +5,6 @@ export interface LoteDialogPayload {
   proyect: ProyectById;
   lotes: Lote[];
   loteStatus: Nomenclature[];
+
+  loteToUpdate?: Lote;
 }
