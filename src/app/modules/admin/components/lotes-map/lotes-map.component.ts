@@ -1,9 +1,10 @@
 import { Component, ElementRef, Input, ViewChild } from '@angular/core';
-import { LngLatLike, Map } from 'mapbox-gl';
+import { LngLatLike, Map, Marker } from 'mapbox-gl';
 import { v4 as uuid } from 'uuid';
 
 import { Coordinate, Lote } from '../../interfaces';
 import { LoteStatus } from '../../enum';
+import { onBuildRandomColor } from '@shared/helpers/utils.helper';
 
 @Component({
   selector: 'lotes-map',
@@ -28,7 +29,7 @@ export class LotesMapComponent {
   }
 
   @Input({ required: true }) set polygonCoords( coords: Coordinate[] ) {
-    if( coords.length > 0 ) {
+    if( coords && coords.length > 0 ) {
       // this.onBuildLotes( lotes );
       this._polygonCoords = coords;
       setTimeout(() => {
@@ -37,6 +38,11 @@ export class LotesMapComponent {
     }
   }
 
+  @Input({ required: false }) set flyToLote( lote: Lote | undefined ) {
+    if( lote ) {
+      this._flyToLote( lote );
+    }
+  }
 
   @Input({ required: true }) set lotesRegistered( lotes: Lote[] ) {
     if( lotes.length > 0 ) {
@@ -44,8 +50,10 @@ export class LotesMapComponent {
     }
   }
 
-  private _centerMap: LngLatLike = [ -80.6987307175805,-4.926770405375706 ];
-  private _zoom = 14;
+  private _lotesRegistered: Lote[] = [];
+
+  private _centerMap: [number, number] = [ -80.6987307175805,-4.926770405375706 ];
+  private _zoom = 17;
   private _allowDrawer = false;
   private _polygonCoords: Coordinate[] = [];
 
@@ -61,7 +69,21 @@ export class LotesMapComponent {
     });
 
     this._map.on('load', () => {
-      this.onBuildBorderPolygon( this.polygonCoords );
+      this.onBuildBorderPolygon( this._polygonCoords );
+
+      if( this._lotesRegistered.length > 0 ) {
+        for ( const key in this._lotesRegistered ) {
+          if (Object.prototype.hasOwnProperty.call(this._lotesRegistered, key)) {
+            const lote = this._lotesRegistered[key];
+            this._onBuildLotePolygon( lote );
+          }
+        }
+      }
+    });
+
+    this._map.on('moveend', () => {
+      this._centerMap = this._map?.getCenter().toArray() ?? [ -80.6987307175805,-4.926770405375706 ];
+      this._zoom = this._map?.getZoom() ?? this._zoom;
     });
 
   }
@@ -70,19 +92,30 @@ export class LotesMapComponent {
 
     if( !this._map ) throw new Error(`Map not found!!!`);
 
-    for ( const key in lotes ) {
-      if (Object.prototype.hasOwnProperty.call(lotes, key)) {
+    if( this._lotesRegistered.length > 0 ) {
 
-        const lote = lotes[key];
-        this._onBuildLotePolygon( lote );
+      this._map?.remove();
+      this._lotesRegistered = lotes;
+      this.ngAfterViewInit();
 
+    } else {
+
+      this._lotesRegistered = lotes;
+
+      for ( const key in lotes ) {
+        if (Object.prototype.hasOwnProperty.call(lotes, key)) {
+          const lote = lotes[key];
+          this._onBuildLotePolygon( lote );
+        }
       }
+
     }
+
 
   }
 
   onBuildBorderPolygon( polygonCoords: Coordinate[] ) {
-
+    if( !polygonCoords ) throw new Error(`PolygonCoords undefined!!!`);
     if( !this._map ) throw new Error(`Div map container not found!!!`);
 
     const points = polygonCoords.reduce<number[][]>( (acc: number[][], current) => {
@@ -90,7 +123,9 @@ export class LotesMapComponent {
       return acc;
     }, []);
 
-    this._map.addSource('eraser', {
+    const eraserId = uuid();
+
+    this._map.addSource( eraserId, {
         'type': 'geojson',
         'data': {
             'type': 'FeatureCollection',
@@ -112,9 +147,9 @@ export class LotesMapComponent {
     // add the clip layer and configure it to also remove symbols and trees.
     // clipping becomes active from zoom level 16 and below.
     this._map.addLayer({
-        'id': 'eraser',
+        'id': uuid(),
         'type': 'clip',
-        'source': 'eraser',
+        'source': eraserId,
         'layout': {
             // specify the layer types to be removed by this clip layer
             'clip-layer-types': ['symbol', 'model']
@@ -124,14 +159,25 @@ export class LotesMapComponent {
 
     // add a line layer to visualize the clipping region.
     this._map.addLayer({
-        'id': 'eraser-debug',
+        'id': uuid(),
         'type': 'line',
-        'source': 'eraser',
+        'source': eraserId,
         'paint': {
             'line-color': 'rgba(255, 0, 0, 0.9)',
             'line-dasharray': [0, 4, 3],
             'line-width': 5
         }
+    });
+
+  }
+
+  private _flyToLote( lote: Lote ) {
+
+    const { centerCoords } = lote;
+
+    this._map?.flyTo({
+      zoom: 21,
+      center: [ centerCoords[0], centerCoords[1] ]
     });
 
   }
@@ -145,7 +191,6 @@ export class LotesMapComponent {
       return acc;
     }, []);
 
-
     this._map.addSource( lote.id, {
       'type': 'geojson',
       'data': {
@@ -156,7 +201,7 @@ export class LotesMapComponent {
               'coordinates': [ points ],
           },
       }
-    });
+    })
 
     let fillColor = '#2d91ff';
 
@@ -184,7 +229,7 @@ export class LotesMapComponent {
       'source': lote.id,
       'paint': {
         'fill-color': fillColor,
-        'fill-opacity': 0.3
+        'fill-opacity': 0.3,
       },
     });
 
@@ -211,6 +256,10 @@ export class LotesMapComponent {
         }
     });
 
+  }
+
+  private _onRemoveLotePolygon( lote: Lote ) {
+    this._map?.removeSource( lote.id );
   }
 
   ngOnDestroy(): void {

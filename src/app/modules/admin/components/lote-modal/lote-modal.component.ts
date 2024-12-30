@@ -94,6 +94,8 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
   private _loteStatus = signal<Nomenclature[]>( [] );
   public loteStatus = computed( () => this._loteStatus() );
 
+  loteTitleModal = 'Crear nuevo lote';
+
   get isFormInvalid() { return this.loteForm.invalid; }
 
   inputErrors( field: string ) {
@@ -108,8 +110,19 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnInit(): void {
 
-    this._loteStatus.set( this.data.loteStatus );
-    this.loteForm.get('proyectId')?.setValue( this.data.proyect.id );
+    const { loteStatus, proyect, loteToUpdate } = this.data;
+
+    this._loteStatus.set( loteStatus );
+    this.loteForm.get('proyectId')?.setValue( proyect.id );
+
+    if( loteToUpdate ) {
+
+      const { polygonCoords, ...lote } = loteToUpdate;
+      this.loteTitleModal = `Actualizar lote ${ lote.code }`;
+
+      this.loteForm.reset( lote );
+
+    }
 
   }
 
@@ -143,8 +156,6 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
 
   }
 
-
-
   onBuildBorderPolygon( polygonCoords: Coordinate[] ) {
 
     if( !this._map ) throw new Error(`Div map container not found!!!`);
@@ -163,9 +174,7 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
                     'type': 'Feature',
                     'properties': {},
                     'geometry': {
-                        'coordinates': [
-                          points
-                        ],
+                        'coordinates': [ points ],
                         'type': 'Polygon'
                     }
                 }
@@ -204,6 +213,7 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
 
     if( !this._map ) throw new Error(`Div map container not found!!!`);
 
+
     this._draw = new MapboxDraw({
         displayControlsDefault: false,
         // Select which mapbox-gl-draw control buttons to add to the map.
@@ -217,6 +227,38 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
     });
 
     this._map.addControl( this._draw );
+
+    const { loteToUpdate } = this.data;
+
+    if( loteToUpdate ) {
+
+      const { polygonCoords } = loteToUpdate;
+
+      const center = polygonCoords[0];
+      this._map.setCenter( center );
+      this._map.setZoom( 20 );
+
+      const coordinates = polygonCoords.reduce<number[][]>( (acc, current) => {
+        acc.push([ current.lng, current.lat ]);
+        return acc;
+      }, []);
+
+      const originPolygonCoords = polygonCoords.map( (current) => {
+        return {
+          id: null,
+          lng: current.lng,
+          lat: current.lat,
+        };
+      });
+
+      this.loteForm.get('polygonCoords')?.setValue( originPolygonCoords );
+
+      this._draw!.add({
+        type: 'Polygon',
+        coordinates: [ coordinates ],
+      });
+
+    }
 
     this._map.on('draw.create', ( e ) => this.updateArea( e ));
     this._map.on('draw.delete', ( e ) => this.updateArea( e ));
@@ -263,6 +305,11 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
 
     if( !this._map ) throw new Error(`Map not found!!!`);
 
+    const { loteToUpdate } = this.data;
+    if( loteToUpdate ) {
+      lotes = lotes.filter( (lote) => lote.id != loteToUpdate.id );
+    }
+
     for ( const key in lotes ) {
       if (Object.prototype.hasOwnProperty.call(lotes, key)) {
 
@@ -283,7 +330,9 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
       return acc;
     }, []);
 
-    this._map.addSource( lote.id, {
+    const sourceId = uuid();
+
+    this._map.addSource( sourceId, {
       'type': 'geojson',
       'data': {
           'type': 'Feature',
@@ -318,7 +367,7 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
     this._map.addLayer({
       'id': uuid(),
       'type': 'fill',
-      'source': lote.id,
+      'source': sourceId,
       'paint': {
         'fill-color': fillColor,
         'fill-opacity': 0.3
@@ -328,7 +377,7 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
     this._map.addLayer({
         'id': uuid(),
         'type': 'clip',
-        'source': lote.id,
+        'source': sourceId,
         'layout': {
             // specify the layer types to be removed by this clip layer
             'clip-layer-types': ['symbol', 'model']
@@ -340,7 +389,7 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
     this._map.addLayer({
         'id': uuid(),
         'type': 'line',
-        'source': lote.id,
+        'source': sourceId,
         'paint': {
             'line-color': '#000',
             'line-dasharray': [0, 4, 3],
@@ -354,6 +403,7 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
     this._isSaving.set( false );
     this.loteForm.reset();
   }
+
 
   onSubmit() {
 
@@ -381,7 +431,7 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
     this._loteService.updateLote( id, body )
       .subscribe( (loteUpdate) => {
 
-        this._alertService.showAlert(`Lote #${ loteUpdate.code }, creado exitosamente`, undefined, 'success');
+        this._alertService.showAlert(`Lote #${ loteUpdate.code }, actualizado exitosamente`, undefined, 'success');
         this.onResetAfterSubmit();
         this.dialogRef.close( loteUpdate );
 

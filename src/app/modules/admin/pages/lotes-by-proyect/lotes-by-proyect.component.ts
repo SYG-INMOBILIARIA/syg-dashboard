@@ -39,6 +39,7 @@ export default class LotesByProyectComponent implements OnInit, OnDestroy {
   private _activatedRoute = inject( ActivatedRoute );
 
   private _lotes = signal<Lote[]>( [] );
+  private _loteToFly = signal<Lote | undefined>( undefined );
   private _centerProyect = signal<number[]>( [] );
   private _polygonCoords = signal<Coordinate[]>( [] );
   private _isBuildLotesInProgress = signal<boolean>( false );
@@ -47,6 +48,7 @@ export default class LotesByProyectComponent implements OnInit, OnDestroy {
   private _isSaving = signal( false );
   private _proyect = signal<ProyectById | undefined>( undefined );
   public isSaving = computed( () => this._isSaving() );
+  public loteToFly = computed( () => this._loteToFly() );
 
   loteModalTitle = 'Crear nuevo Lote';
 
@@ -106,7 +108,15 @@ export default class LotesByProyectComponent implements OnInit, OnDestroy {
 
   }
 
-  openDialog(): void {
+  onLoadToUpdate( lote: Lote ) {
+    this._loteService.getLoteById( lote.id )
+    .subscribe( (lote) => {
+
+      this.openDialog( lote );
+    });
+  }
+
+  openDialog( loteToUpdate?: Lote ): void {
 
     const dialogRef = this.dialog.open(LoteModalComponent, {
       width: '700px',
@@ -117,7 +127,8 @@ export default class LotesByProyectComponent implements OnInit, OnDestroy {
       data: {
         proyect: this._proyect(),
         loteStatus: this.loteStatus(),
-        lotes: this.lotes()
+        lotes: this.lotes(),
+        loteToUpdate
       }
     });
 
@@ -129,6 +140,10 @@ export default class LotesByProyectComponent implements OnInit, OnDestroy {
 
       this._dialog$?.unsubscribe();
     });
+  }
+
+  onLoteToFly( lote: Lote ) {
+    this._loteToFly.set( lote );
   }
 
   ngOnDestroy(): void {
