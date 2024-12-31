@@ -52,6 +52,8 @@ export default class LotesByProyectComponent implements OnInit, OnDestroy {
 
   loteModalTitle = 'Crear nuevo Lote';
 
+
+  public proyectName = computed( () => this._proyect()?.name ?? '' );
   public lotes = computed( () => this._lotes() );
   public centerProyect = computed( () => this._centerProyect() );
   public polygonCoords = computed( () => this._polygonCoords() );
@@ -113,6 +115,28 @@ export default class LotesByProyectComponent implements OnInit, OnDestroy {
     .subscribe( (lote) => {
 
       this.openDialog( lote );
+    });
+  }
+
+  async onRemoveConfirm( lote: Lote ) {
+
+    const responseConfirm = await this._alertService.showConfirmAlert(
+      'Verifique que no haya un contrato asociado a este lote',
+      `¿Está seguro de eliminar lote "${ lote.code }"?`
+    );
+
+    if( responseConfirm.isConfirmed ) {
+      this._onRemoveLote( lote.id );
+    }
+
+  }
+
+  private _onRemoveLote( loteId: string ) {
+    this._loteService.removeLote( loteId )
+    .subscribe( (loteDeleted) => {
+      this._alertService.showAlert(undefined, `Lote eliminado exitosamente`, 'success');
+
+      this.onGetLotes();
     });
   }
 

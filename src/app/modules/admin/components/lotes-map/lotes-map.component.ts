@@ -1,10 +1,11 @@
 import { Component, ElementRef, Input, ViewChild } from '@angular/core';
-import { LngLatLike, Map, Marker } from 'mapbox-gl';
+import { LngLatLike, Map, Marker, Popup } from 'mapbox-gl';
 import { v4 as uuid } from 'uuid';
 
 import { Coordinate, Lote } from '../../interfaces';
 import { LoteStatus } from '../../enum';
 import { onBuildRandomColor } from '@shared/helpers/utils.helper';
+import { formatNumber } from '@angular/common';
 
 @Component({
   selector: 'lotes-map',
@@ -18,6 +19,7 @@ export class LotesMapComponent {
   @ViewChild('lotesMap') mapContainer?: ElementRef<HTMLDivElement>;
 
   private _map?: Map;
+  private _popup?: Popup;
 
   @Input() set centerMap( coords: number[] ) {
     if( coords && coords.length > 0 ) {
@@ -180,6 +182,8 @@ export class LotesMapComponent {
       center: [ centerCoords[0], centerCoords[1] ]
     });
 
+    this._onShowLotePopup( lote, centerCoords as LngLatLike );
+
   }
 
   private _onBuildLotePolygon( lote: Lote ) {
@@ -191,17 +195,20 @@ export class LotesMapComponent {
       return acc;
     }, []);
 
-    this._map.addSource( lote.id, {
+    const souceId = uuid();
+
+    this._map.addSource( souceId, {
       'type': 'geojson',
       'data': {
           'type': 'Feature',
-          'properties': {},
+          'properties': { ...lote },
           'geometry': {
               'type': 'Polygon',
               'coordinates': [ points ],
           },
       }
-    })
+    });
+
 
     let fillColor = '#2d91ff';
 
@@ -223,32 +230,45 @@ export class LotesMapComponent {
         break;
     }
 
+    const polygonFillId = uuid();
+
     this._map.addLayer({
-      'id': uuid(),
+      'id': polygonFillId,
       'type': 'fill',
-      'source': lote.id,
+      'source': souceId,
+      'layout': {},
       'paint': {
         'fill-color': fillColor,
         'fill-opacity': 0.3,
       },
     });
 
-    this._map.addLayer({
-        'id': uuid(),
-        'type': 'clip',
-        'source': lote.id,
-        'layout': {
-            // specify the layer types to be removed by this clip layer
-            'clip-layer-types': ['symbol', 'model']
-        },
-        'maxzoom': 16
+    this._map.on('click', polygonFillId, (e) => {
+
+      const feature = e.features?.find((e, i) => i == 0);
+      const lote = feature?.properties as Lote;
+      this._onShowLotePopup( lote, e.lngLat );
+
     });
+
+    // Change the cursor to a pointer when
+    // the mouse is over the states layer.
+    this._map.on('mouseenter', polygonFillId, () => {
+      this._map!.getCanvas().style.cursor = 'pointer';
+    });
+
+    // Change the cursor back to a pointer
+    // when it leaves the states layer.
+    this._map.on('mouseleave', polygonFillId, () => {
+        this._map!.getCanvas().style.cursor = '';
+    });
+
 
     // add a line layer to visualize the clipping region.
     this._map.addLayer({
         'id': uuid(),
         'type': 'line',
-        'source': lote.id,
+        'source': souceId,
         'paint': {
             'line-color': '#000',
             'line-dasharray': [0, 4, 3],
@@ -256,6 +276,20 @@ export class LotesMapComponent {
         }
     });
 
+  }
+
+  private _onShowLotePopup( lote: Lote, point: LngLatLike) {
+
+    const { code, price, squareMeters } = lote;
+
+    const priceFormater = formatNumber( price, 'en-US', '.2-2' );
+
+    this._popup = new Popup()
+          .setLngLat( point )
+          .setHTML(
+            `<span class="font-extrabold text-md" >Lote: ${ code }</span><p class="text-md font-semibold">Área: ${ squareMeters } m2"<br>Precio: S/ ${ priceFormater }</p>`
+          )
+          .addTo(this._map!);
   }
 
   private _onRemoveLotePolygon( lote: Lote ) {

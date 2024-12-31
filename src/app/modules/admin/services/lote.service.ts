@@ -34,4 +34,8 @@ export class LoteService {
     return this._http.patch<Lote>(`${ this._baseUrl }/lote/${ id }`, body );
   }
 
+  removeLote( id: string ): Observable<Lote> {
+    return this._http.delete<Lote>(`${ this._baseUrl }/lote/${ id }` );
+  }
+
 }
