@@ -13,11 +13,18 @@ export function HandleErrorInterceptor(req: HttpRequest<unknown>, next: HttpHand
     .pipe(
       catchError( (err: HttpErrorResponse) => {
         // console.log({ err });
+
+        const navigationExtras: NavigationExtras = { state: { error: err.error } };
+
         switch (err.status) {
           case 500:
-            const navigationExtras: NavigationExtras = { state: { error: err.error } };
             router.navigateByUrl( '/500', navigationExtras );
             break;
+
+            case 404:
+              router.navigateByUrl( '/404', navigationExtras );
+              break;
+
 
           default:
             alertService.close();

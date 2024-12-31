@@ -32,4 +32,8 @@ export class NomenclatureService {
     return this._http.get<ListNomenclatureResponse>(`${ this._baseUrl }/nomenclature/lote-status`);
   }
 
+  getFinancingType() {
+    return this._http.get<ListNomenclatureResponse>(`${ this._baseUrl }/nomenclature/financing-type`);
+  }
+
 }

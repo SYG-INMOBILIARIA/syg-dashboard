@@ -1,0 +1,350 @@
+
+<div class="flex flex-wrap ">
+  <div class="flex-none w-full max-w-full px-3">
+    <div class="relative flex flex-col min-w-0 mb-6 break-words bg-white border-solid shadow-md dark:bg-slate-850 dark:shadow-dark-md rounded-2xl bg-clip-border   dark:bg-gray-700">
+
+      <div class="flex justify-between p-6 pb-2">
+        <div class=" border-b-0 border-b-solid rounded-t-2xl border-b-transparen">
+          <h6 class=" dark:text-white">
+            Financiamientos para: <span class="text-xl font-semibold"> {{ proyectName() }} </span>
+          </h6>
+        </div>
+
+        <div class="flex items-center mb-3">
+
+          <div class="pr-4">
+            <div class="relative flex flex-wrap items-stretch w-full transition-all rounded-lg ease">
+              <span class="text-sm ease leading-5.6 absolute z-50 -ml-px flex h-full items-center whitespace-nowrap rounded-lg rounded-tr-none rounded-br-none border border-r-0 border-transparent bg-transparent py-2 px-2.5 text-center font-normal text-slate-500 transition-all">
+                <svg
+                  class="w-5 h-5 text-gray-500 dark:text-gray-400"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    clip-rule="evenodd"
+                    d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+                  ></path>
+                </svg>
+              </span>
+              <input
+                type="text"
+                class="pl-9 text-sm focus:shadow-primary-outline ease w-1/100 leading-5.6 relative -ml-px block min-w-0 flex-auto rounded-lg border border-solid dark:bg-gray-800 dark:text-white bg-white bg-clip-padding py-2 pr-3 text-gray-700 transition-all placeholder:text-gray-500 "
+                placeholder="Buscar..."
+                [formControl]="searchInput"
+                [class.border-gray-300]="isInvalidSearchInput == false"
+                [class.border-red-400]="isInvalidSearchInput == true"
+                (keyup.enter)="onSearch()"
+              />
+            </div>
+          </div>
+
+          <div class="">
+            <button
+              #btnShowFinancingModal
+              type="button"
+              data-modal-target="financing-modal"
+              data-modal-toggle="financing-modal"
+              class="inline-block px-6 py-3 mr-3 font-bold text-center text-white uppercase align-middle transition-all rounded-lg cursor-pointer bg-gradient-to-tl from-blue-500 to-violet-500 leading-normal text-xs ease-in tracking-tight-rem shadow-xs bg-150 bg-x-25 hover:-translate-y-px active:opacity-85 hover:shadow-md "
+              >
+              <i class="fa fa-plus" aria-hidden="true"></i>
+              &nbsp;Nuevo
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+    <div class="grid gap-3 mb-4 grid-cols-6">
+
+
+      @for (financing of financings(); track financing.id) {
+
+        <div class="col-span-2 xs:col-span-3 mb-2 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
+          <!-- <img class="rounded-t-lg" src="https://flowbite.com/docs/images/blog/image-1.jpg" alt="" /> -->
+
+          <div class="flex justify-end px-4 pt-4">
+              <button id="dropdownButton" [attr.data-dropdown-toggle]="'mydropdown-' + financing.id" class="inline-block text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:ring-4 focus:outline-none focus:ring-gray-200 dark:focus:ring-gray-700 rounded-lg text-sm p-1.5" type="button">
+                  <span class="sr-only">Open dropdown</span>
+                  <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 3">
+                      <path d="M2 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm6.041 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM14 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Z"/>
+                  </svg>
+              </button>
+              <!-- Dropdown menu -->
+              <div [id]="'mydropdown-' + financing.id" class="z-10 hidden text-base list-none bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700">
+                  <ul class="py-2" aria-labelledby="dropdownButton">
+                  <li>
+                      <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Edit</a>
+                  </li>
+                  <li>
+                      <a href="#" class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Delete</a>
+                  </li>
+                  </ul>
+              </div>
+          </div>
+
+          <div class=" pb-3">
+
+            <h5 class="mb-2 text-xl text-center font-semibold tracking-tight text-gray-900 dark:text-white">
+              {{ financing.name }}
+            </h5>
+
+          </div>
+
+          <div class="relative overflow-x-auto">
+            <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                <thead class="text-xs text-gray-700 bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                    <tr>
+                        <th scope="col" class="px-4 py-2 w-24 uppercase">
+                            Inicial
+
+                        </th>
+                        @for (quota of financing.quotas; track quota.id) {
+
+                          <th scope="col" class="px-4 py-2 text-center">
+                            {{ quota.numberOfQuotes }}
+                            <p>
+                              meses
+                            </p>
+                          </th>
+                        }
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                        <th scope="row" class="px-4 py-2 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                          @if ( financing.financingType == 'AMOUNT' ) {
+                            <p> S/ {{ financing.initial | number: '.2-2' }} </p>
+                          } @else {
+
+                            <p> {{ financing.initial }}% </p>
+                          }
+                        </th>
+                        @for (quota of financing.quotas; track $index) {
+                          <td class="px-4 py-2 text-center">
+                              {{ quota.interestPercent }}%
+                              <p>
+                                interés
+                              </p>
+                          </td>
+                        }
+                    </tr>
+                </tbody>
+            </table>
+          </div>
+        </div>
+      }
+
+    </div>
+
+  </div>
+</div>
+
+
+  <!-- Main modal -->
+  <div id="financing-modal" data-modal-backdrop="true" tabindex="-1" aria-hidden="false" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+    <div class="relative p-4 w-full max-w-md max-h-full">
+
+        <!-- Modal content -->
+        <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+            <!-- Modal header -->
+            <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+                    {{ financingModalTitle }}
+                </h3>
+                <button
+                  #btnCloseFinancingModal
+                  type="button"
+                  data-modal-toggle="financing-modal"
+                  class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+                  (click)="onResetAfterSubmit()"
+                >
+                    <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                    </svg>
+                    <span class="sr-only">Close modal</span>
+                </button>
+            </div>
+            <!-- Modal body -->
+            <form [formGroup]="financingForm"  class="p-4">
+
+              <div class="grid gap-4 mb-2 grid-cols-1">
+
+                <div class="col-span-1 mb-0">
+                  <label for="cbxFinancingType" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                    Tipo de inicial *
+                  </label>
+                  <ng-select
+                    id="cbxFinancingType"
+                    class="bg-gray-50 border text-gray-900 text-sm rounded-lg block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                    [items]="financingTypes()"
+                    (ngModelChange)="onChangeFinancingType( $event )"
+                    bindLabel="label"
+                    bindValue="value"
+                    placeholder="Seleccione tipo de inicial"
+                    formControlName="financingType"
+                    [class.border-red-400]=" inputErrors('financingType') && isTouched('financingType') "
+                  >
+                  </ng-select>
+
+                  @if (isTouched('financingType')) {
+                    <span
+                      class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                      inputErrors
+                      [errors]="inputErrors('financingType')"
+                      inputLabel="Tipo" >
+                    </span>
+                  }
+                </div>
+
+                <div class="col-span-1 mb-0">
+                  <label for="txtFinancingName" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                    Nombre *
+                  </label>
+                  <input
+                    type="text"
+                    id="txtFinancingName"
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                    placeholder="Enter Name"
+                    formControlName="name"
+                    [class.border-red-400]=" inputErrors('name') && isTouched('name') "
+                  >
+
+                  @if (isTouched('name')) {
+                    <span
+                      class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                      inputErrors
+                      [errors]="inputErrors('name')"
+                      inputLabel="Nombre" >
+                    </span>
+                  }
+                </div>
+
+                <div class="col-span-1 mb-0">
+                  <label for="txtInitial" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                    Inicial *
+                  </label>
+                  <input
+                    type="number"
+                    id="txtInitial"
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                    placeholder="Enter Name"
+                    formControlName="initial"
+                    [class.border-red-400]=" inputErrors('initial') && isTouched('initial') "
+                  >
+
+                  @if (isTouched('initial')) {
+                    <span
+                      class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                      inputErrors
+                      [errors]="inputErrors('initial')"
+                      inputLabel="Inicial" >
+                    </span>
+                  }
+                </div>
+
+
+              </div>
+            </form>
+
+            <div class="pe-4 ps-4 pb-4">
+              <div class="flex justify-between items-center pb-2">
+
+                <h2 class="font-semibold  text-base text-gray-900 dark:text-white" >
+                  Cuotas de pago
+                </h2>
+
+                <button type="button" class="flex items-center gap-1 px-3 py-2 mr-3 font-bold text-center text-white align-middle transition-all rounded-lg cursor-pointer bg-gradient-to-tl from-blue-500 to-violet-500 leading-normal text-xs ease-in tracking-tight-rem shadow-xs bg-150 bg-x-25 hover:-translate-y-px active:opacity-85 hover:shadow-md "
+                  (click)="onAddHourRate()"
+                >
+                  <i class="fa fa-plus" aria-hidden="true"></i>
+                  &nbsp;Agregar
+                </button>
+
+              </div>
+
+              <div class="relative overflow-x-auto">
+                <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                    <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:text-slate-100">
+                        <tr>
+                            <th scope="col" class="px-6 py-3">
+                                Meses
+                            </th>
+                            <th scope="col" class="px-6 py-3">
+                                % interés
+                            </th>
+                            <th scope="col" class="px-6 py-3">
+
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                      @for ( quotaForm of quotesForm(); track $index) {
+
+                        <tr class="bg-white border-b dark:bg-gray-700 dark:text-gray-400">
+                            <th scope="row" class="px-4 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                              <input
+                                type="number"
+                                [id]="'txtquotes-' + quotaForm.auxId "
+                                class="block w-full p-2 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 text-xs focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                placeholder="0.00"
+                                [formControl]="quotaForm.numberOfQuotes"
+                                [class.border-red-400]="quotaForm.isInvalidNumberOfQuotes "
+                              >
+                            </th>
+                            <td class="px-4 py-4">
+                              <input
+                                type="number"
+                                [id]="'txtinterest-' + quotaForm.auxId "
+                                class="block w-full p-2 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 text-xs focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                placeholder="0.00"
+                                [formControl]="quotaForm.numberOfQuotes"
+                                [class.border-red-400]="quotaForm.isInvalidNumberOfQuotes "
+                              >
+                            </td>
+                            <td class="px-6 py-4">
+                                <i (click)="onRemoveHourRate( $index )"
+                                  class="fa fa-times text-lg text-red-600 cursor-pointer">
+
+                                </i>
+                            </td>
+                        </tr>
+                      } @empty {
+                        <tr>
+                          <td colspan="3" class="">
+                            <div class="p-1 font-semibold text-center text-base text-gray-400 dark:text-white border border-slate-300 rounded" >
+                              -- Agregue ítems --
+                            </div>
+                          </td>
+                        </tr>
+                      }
+
+                    </tbody>
+                </table>
+              </div>
+            </div>
+
+
+            <div class="p-4">
+              <button
+                type="button"
+                class="text-white cursor-pointer inline-flex justify-center items-center w-full bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                (click)="onSubmit()"
+              >
+                <span *ngIf="!isSaving() else singinSpinner" >
+                  Guardar
+                </span>
+              </button>
+            </div>
+
+        </div>
+    </div>
+  </div>
+
+  <ng-template #singinSpinner>
+    <spinner></spinner>
+  </ng-template>
+

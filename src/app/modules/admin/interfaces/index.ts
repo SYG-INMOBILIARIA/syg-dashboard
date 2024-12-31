@@ -12,3 +12,8 @@ export * from './lote.interface';
 export * from './list-lotes-response.interface';
 export * from './lote-dialog-payload.interface';
 export * from './lote-body.interface';
+export * from './quota.interface';
+export * from './financing.interface';
+export * from './list-financings-response.interface';
+
+export * from './financing-body.interface';

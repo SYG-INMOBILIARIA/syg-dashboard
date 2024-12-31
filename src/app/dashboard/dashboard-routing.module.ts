@@ -24,7 +24,14 @@ const routes: Routes = [
       { path: 'proyects', loadComponent: () => import('../modules/admin/pages/proyects/proyects.component') },
       { path: 'create-proyect', loadComponent: () => import('../modules/admin/pages/proyect-form/proyect-form.component') },
       { path: 'update-proyect/:proyectId', loadComponent: () => import('../modules/admin/pages/proyect-form/proyect-form.component') },
-      { path: 'lotes-by-proyect/:proyectId', loadComponent: () => import('../modules/admin/pages/lotes-by-proyect/lotes-by-proyect.component') },
+      {
+        path: 'lotes-by-proyect/:proyectId',
+        loadComponent: () => import('../modules/admin/pages/lotes-by-proyect/lotes-by-proyect.component')
+      },
+      {
+        path: 'financings-by-proyect/:proyectId',
+        loadComponent: () => import('../modules/admin/pages/financing-by-proyect/financing-by-proyect.component')
+      },
 
       { path: '**', redirectTo: 'home' }
     ]
