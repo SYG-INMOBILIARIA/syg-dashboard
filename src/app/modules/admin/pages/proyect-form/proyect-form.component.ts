@@ -12,7 +12,7 @@ import { PolygonMapHandlerComponent } from '../../components/polygon-map-handler
 import { Coordinate, ProyectBody } from '../../interfaces';
 import { ProyectService } from '../../services/proyect.service';
 import { UploadFileService } from '@shared/services/upload-file.service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { AlertService } from '@shared/services/alert.service';
 
 @Component({
@@ -30,6 +30,7 @@ import { AlertService } from '@shared/services/alert.service';
 })
 export default class ProyectFormComponent implements OnInit {
 
+  private _router = inject( Router );
   private _alertService = inject( AlertService );
   private _activatedRoute = inject( ActivatedRoute );
   private _proyectService = inject( ProyectService );
@@ -170,14 +171,14 @@ export default class ProyectFormComponent implements OnInit {
       this._proyectService.createProyect( body )
       .subscribe( async (proyectCreated) => {
 
-        console.log({proyectCreated});
-
         if( this._file ) {
           await this._uploadService.uploadFile( this._file, proyectCreated.id, 'flat-proyects' );
         }
 
         this._isSaving.set( false );
         this._alertService.showAlert('Proyecto creado exitosamente', undefined, 'success');
+
+        this._router.navigateByUrl('/dashboard/proyects');
 
       } );
 
@@ -186,14 +187,13 @@ export default class ProyectFormComponent implements OnInit {
       this._proyectService.updateProyect( id, body )
       .subscribe( async (proyectUpdated) => {
 
-        console.log({proyectUpdated});
-
         if( this._file ) {
           await this._uploadService.uploadFile( this._file, proyectUpdated.id, 'flat-proyects' );
         }
 
         this._isSaving.set( false );
         this._alertService.showAlert('Proyecto actualizado exitosamente', undefined, 'success');
+        this._router.navigateByUrl('/dashboard/proyects');
 
       } );
 

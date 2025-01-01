@@ -27,4 +27,12 @@ export class FinancingService {
     return this._http.post<Financing>(`${ this._baseUrl }/financing`, body );
   }
 
+  getFinancingById( id: string ): Observable<Financing> {
+    return this._http.get<Financing>(`${ this._baseUrl }/financing/${ id }` );
+  }
+
+  updateFinancing( id: string, body: any ): Observable<Financing> {
+    return this._http.patch<Financing>(`${ this._baseUrl }/financing/${ id }`, body );
+  }
+
 }

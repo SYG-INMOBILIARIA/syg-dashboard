@@ -10,11 +10,11 @@ export class QuotaForm {
   numberOfQuotes!: FormControl<number | null>;
   interestPercent!: FormControl<number | null>;
 
-  constructor( hour: number | null, rate: number, id: string | null = null, ) {
+  constructor( numberOfQuotes: number, interestPercent: number, id: string | null = null, ) {
 
     this._id = id ;
-    this.numberOfQuotes = new FormControl( hour, [ Validators.required, Validators.min(6), Validators.max(84) ] );
-    this.interestPercent = new FormControl( rate, [ Validators.required, Validators.min( 0 ), Validators.max(30) ] );
+    this.numberOfQuotes = new FormControl( numberOfQuotes, [ Validators.required, Validators.min(6), Validators.max(84) ] );
+    this.interestPercent = new FormControl( interestPercent, [ Validators.required, Validators.min( 0 ), Validators.max(30) ] );
 
   }
 

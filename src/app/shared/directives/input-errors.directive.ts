@@ -40,6 +40,19 @@ export class InputErrorsDirective {
       return;
     }
 
+    if( errors.includes( 'min' ) ) {
+      const min = this._errors['min'].min;
+      // const current = this._errors['min'].actual;
+      this._el.nativeElement.innerHTML = warningSvg + ` Valor mínimo ${ min }`;
+      return;
+    }
+
+    if( errors.includes( 'max' ) ) {
+      const max = this._errors['max'].max;
+      this._el.nativeElement.innerHTML = warningSvg + ` Valor máximo ${ max }`;
+      return;
+    }
+
     if( errors.includes( 'minlength' ) ) {
       const min = this._errors['minlength']?.requiredLength;
       const current = this._errors['minlength']?.actualLength;

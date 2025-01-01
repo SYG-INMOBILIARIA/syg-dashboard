@@ -19,6 +19,7 @@ import { InputErrorsDirective } from '@shared/directives/input-errors.directive'
 import { AlertService } from '@shared/services/alert.service';
 import { forkJoin } from 'rxjs';
 import { ProyectService } from '../../services/proyect.service';
+import { FinancingType } from '../../enum/financing-type.type';
 
 @Component({
   standalone: true,
@@ -141,12 +142,40 @@ export default class FinancingByProyectComponent implements OnInit {
 
   }
 
-
   onSearch() {
 
   }
 
   onLoadToUpdate( financing: Financing ) {
+
+    const { id } = financing;
+
+    this._financingService.getFinancingById( id )
+    .subscribe( (financingFinded) => {
+
+      console.log({financingFinded});
+
+      const { proyect, quotas } = financingFinded;
+
+      this._quotesForm.set([]);
+
+      quotas.forEach(quota => {
+        this._quotesForm.update( (current) => {
+          current.push( new QuotaForm( quota.numberOfQuotes, quota.interestPercent, quota.id ) );
+          return current;
+        } );
+      });
+
+      this.financingModalTitle = 'Actualizar financiamiento';
+      this.financingForm.reset( {
+        ...financingFinded,
+        proyectId: proyect.id
+      } );
+
+      this.btnShowFinancingModal.nativeElement.click();
+
+
+    } );
 
   }
 
@@ -169,7 +198,7 @@ export default class FinancingByProyectComponent implements OnInit {
       return acc;
     }, [] );
 
-    console.log({ elementsRepit, invalidQuotes });
+    // console.log({ elementsRepit, invalidQuotes });
 
     if( elementsRepit.length ) {
       this._alertService.showAlert(
@@ -179,7 +208,7 @@ export default class FinancingByProyectComponent implements OnInit {
         return;
     }
 
-    if( this.isFormInvalid || elementsRepit.length || this.isSaving() || invalidQuotes ) {
+    if( this.isFormInvalid || elementsRepit.length > 0 || this.isSaving() || invalidQuotes ) {
 
       this.financingForm.markAllAsTouched();
       return;
@@ -199,18 +228,32 @@ export default class FinancingByProyectComponent implements OnInit {
         this.onGetFinancings();
         this.onResetAfterSubmit();
         this.btnShowFinancingModal.nativeElement.click();
+        this._alertService.showAlert( 'Financiamiento creado exitosamente', undefined, 'success' );
 
       });
 
       return;
+    } else {
+      this._financingService.updateFinancing( id, body )
+      .subscribe( (financingUpdate) => {
+
+        this.onGetFinancings();
+        this.onResetAfterSubmit();
+        this.btnShowFinancingModal.nativeElement.click();
+        this._alertService.showAlert( 'Financiamiento actualizado exitosamente', undefined, 'success' );
+
+      });
     }
 
   }
 
   onResetAfterSubmit() {
     this.financingModalTitle = 'Crear nuevo financiamiento';
-    this.financingForm.reset();
+    this.financingForm.reset({
+      proyectId: this._proyectId
+    });
     this._isSaving.set( false );
+    this._quotesForm.set([]);
   }
 
   onAddHourRate() {
@@ -226,7 +269,19 @@ export default class FinancingByProyectComponent implements OnInit {
     } );
   }
 
-  onChangeFinancingType( type: Nomenclature ) {
+  onChangeFinancingType( value: string ) {
+
+    this.financingForm.get('initial')?.clearValidators();
+    this.financingForm.updateValueAndValidity();
+
+    if( value == FinancingType.amount ) {
+      this.financingForm.get('initial')?.addValidators([ Validators.min(5000) ]);
+    } else {
+      this.financingForm.get('initial')?.addValidators([ Validators.min(30), Validators.max(100) ]);
+    }
+
+    this.financingForm.get('initial')?.setValue(0);
+    this.financingForm.updateValueAndValidity();
 
   }
 

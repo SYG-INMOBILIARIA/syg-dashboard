@@ -1,3 +1,4 @@
+import { Proyect } from ".";
 import { Quota } from "./quota.interface";
 
 export interface Financing {
@@ -9,4 +10,5 @@ export interface Financing {
   financingType: string;
   quotas:        Quota[];
   initial: number
+  proyect: Proyect;
 }

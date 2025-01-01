@@ -77,7 +77,9 @@
               <div [id]="'mydropdown-' + financing.id" class="z-10 hidden text-base list-none bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700">
                   <ul class="py-2" aria-labelledby="dropdownButton">
                   <li>
-                      <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Edit</a>
+                      <a (click)="onLoadToUpdate( financing )" class="cursor-pointer block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">
+                        Edit
+                      </a>
                   </li>
                   <li>
                       <a href="#" class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Delete</a>
@@ -231,7 +233,7 @@
                     type="number"
                     id="txtInitial"
                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                    placeholder="Enter Name"
+                    placeholder="Enter Initial"
                     formControlName="initial"
                     [class.border-red-400]=" inputErrors('initial') && isTouched('initial') "
                   >
@@ -285,11 +287,11 @@
                       @for ( quotaForm of quotesForm(); track $index) {
 
                         <tr class="bg-white border-b dark:bg-gray-700 dark:text-gray-400">
-                            <th scope="row" class="px-4 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                            <th scope="row" class="px-2 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                               <input
                                 type="number"
                                 [id]="'txtquotes-' + quotaForm.auxId "
-                                class="block w-full p-2 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 text-xs focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                class="block w-full text-right text-gray-900 border border-gray-300 rounded-lg bg-gray-50 text-xs focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                 placeholder="0.00"
                                 [formControl]="quotaForm.numberOfQuotes"
                                 [class.border-red-400]="quotaForm.isInvalidNumberOfQuotes "
@@ -299,10 +301,10 @@
                               <input
                                 type="number"
                                 [id]="'txtinterest-' + quotaForm.auxId "
-                                class="block w-full p-2 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 text-xs focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                class="block w-full text-right text-gray-900 border border-gray-300 rounded-lg bg-gray-50 text-xs focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                 placeholder="0.00"
-                                [formControl]="quotaForm.numberOfQuotes"
-                                [class.border-red-400]="quotaForm.isInvalidNumberOfQuotes "
+                                [formControl]="quotaForm.interestPercent"
+                                [class.border-red-400]="quotaForm.isInvalidInterestPercent "
                               >
                             </td>
                             <td class="px-6 py-4">
