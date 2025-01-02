@@ -179,8 +179,24 @@ export default class FinancingByProyectComponent implements OnInit {
 
   }
 
-  onRemoveConfirm( financing: Financing ) {
+  async onRemoveConfirm( financing: Financing ) {
+    const responseConfirm = await this._alertService.showConfirmAlert(
+      'Verifique que no haya un contrato asociado a este financiamiento',
+      `¿Está seguro de eliminar el financiamiento: "${ financing.name }"?`
+    );
 
+    if( responseConfirm.isConfirmed ) {
+      this._onRemoveFinancing( financing.id );
+    }
+  }
+
+  private _onRemoveFinancing( id: string ) {
+    this._financingService.deleteFinancing( id )
+    .subscribe( (loteDeleted) => {
+      this._alertService.showAlert( `Financiamiento eliminado exitosamente`, undefined, 'success');
+
+      this.onGetFinancings();
+    });
   }
 
   onSubmit() {

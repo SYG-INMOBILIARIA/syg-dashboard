@@ -35,4 +35,8 @@ export class FinancingService {
     return this._http.patch<Financing>(`${ this._baseUrl }/financing/${ id }`, body );
   }
 
+  deleteFinancing( id: string ): Observable<Financing> {
+    return this._http.delete<Financing>(`${ this._baseUrl }/financing/${ id }` );
+  }
+
 }
