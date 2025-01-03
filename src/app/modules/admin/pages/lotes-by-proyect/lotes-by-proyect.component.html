@@ -26,7 +26,7 @@
 
     <lotes-map
       class="w-full h-full border-2 border-dashed rounded-lg"
-      [lotesRegistered]="lotes()"
+      [lotesRegistered]="lotesForMap()"
       [centerMap]="centerProyect()"
       [polygonCoords]="polygonCoords()"
       [flyToLote]="loteToFly()"
@@ -63,7 +63,9 @@
             type="text"
             id="input-group-1"
             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-            placeholder="Enter client name">
+            placeholder="Enter client name"
+            [formControl]="searchInput"
+          >
         </div>
       </div>
 
@@ -74,8 +76,15 @@
         <button
           type="button"
           class="inline-block w-full px-6 py-3 font-bold text-center text-white uppercase align-middle transition-all rounded-lg cursor-pointer bg-gradient-to-tl from-blue-500 to-violet-500 leading-normal text-xs ease-in tracking-tight-rem shadow-xs bg-150 bg-x-25 hover:-translate-y-px active:opacity-85 hover:shadow-md "
+          (click)="onSearchLotes()"
+          [disabled]="searchInProgress()"
         >
-          <i class="fa fa-plus" aria-hidden="true"></i>
+
+          @if ( searchInProgress() ) {
+            <i class="fa-solid fa-spinner fa-pulse"></i>
+          } @else {
+            <i class="fa fa-search" aria-hidden="true"></i>
+          }
           &nbsp;Buscar
         </button>
       </div>

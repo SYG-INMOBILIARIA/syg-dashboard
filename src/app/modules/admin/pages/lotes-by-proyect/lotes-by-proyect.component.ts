@@ -14,6 +14,8 @@ import { LoteModalComponent } from '../../components/lote-modal/lote-modal.compo
 import { NomenclatureService } from '@shared/services/nomenclature.service';
 import { Nomenclature } from '@shared/interfaces';
 import { PipesModule } from '@pipes/pipes.module';
+import { FormControl, Validators } from '@angular/forms';
+import { fullTextPatt } from '@shared/helpers/regex.helper';
 
 @Component({
   selector: 'app-lotes-by-proyect',
@@ -39,22 +41,26 @@ export default class LotesByProyectComponent implements OnInit, OnDestroy {
   private _activatedRoute = inject( ActivatedRoute );
 
   private _lotes = signal<Lote[]>( [] );
+  private _lotesForMap = signal<Lote[]>( [] );
   private _loteToFly = signal<Lote | undefined>( undefined );
   private _centerProyect = signal<number[]>( [] );
   private _polygonCoords = signal<Coordinate[]>( [] );
   private _isBuildLotesInProgress = signal<boolean>( false );
 
-  private _isLoading = signal( true );
+  private _searchInProgress = signal( false );
   private _isSaving = signal( false );
   private _proyect = signal<ProyectById | undefined>( undefined );
   public isSaving = computed( () => this._isSaving() );
+  public searchInProgress = computed( () => this._searchInProgress() );
   public loteToFly = computed( () => this._loteToFly() );
 
   loteModalTitle = 'Crear nuevo Lote';
 
+  public searchInput = new FormControl('', [ Validators.pattern( fullTextPatt ) ]);
 
   public proyectName = computed( () => this._proyect()?.name ?? '' );
   public lotes = computed( () => this._lotes() );
+  public lotesForMap = computed( () => this._lotesForMap() );
   public centerProyect = computed( () => this._centerProyect() );
   public polygonCoords = computed( () => this._polygonCoords() );
   public isBuildLotesInProgress = computed( () => this._isBuildLotesInProgress() );
@@ -67,6 +73,7 @@ export default class LotesByProyectComponent implements OnInit, OnDestroy {
   private _proyectId = '';
   private _loteStatus = signal<Nomenclature[]>( [] );
   public loteStatus = computed( () => this._loteStatus() );
+  get isInvalidSearchInput() { return this.searchInput.invalid; }
 
   ngOnInit(): void {
 
@@ -79,14 +86,35 @@ export default class LotesByProyectComponent implements OnInit, OnDestroy {
     this._proyectId = proyectId;
 
     this.onLoadData( proyectId );
+    this.onGetLotes();
 
   }
 
   onGetLotes() {
-    this._loteService.getLotes( this._proyectId, 1, '', 500 )
-    .subscribe( ({ lotes, total }) => {
+
+    const filter = this.searchInput.value ?? '';
+
+    forkJoin({
+      lotesForMap: this._loteService.getLotes( this._proyectId, 1, '', 500 ),
+      lotesForList: this._loteService.getLotes( this._proyectId, 1, filter, 500 ),
+    }).subscribe( ({ lotesForMap, lotesForList }) => {
+
+      this._lotes.set( lotesForList.lotes );
+      this._lotesForMap.set( lotesForMap.lotes );
+
+    } )
+  }
+
+  onSearchLotes() {
+
+    this._searchInProgress.set( true );
+
+    const filter = this.searchInput.value ?? '';
+    this._loteService.getLotes( this._proyectId, 1, filter, 500 )
+    .subscribe( ({ lotes }) => {
       this._lotes.set( lotes );
-    });
+      this._searchInProgress.set( false );
+    } );
   }
 
   onLoadData( proyectId: string ) {

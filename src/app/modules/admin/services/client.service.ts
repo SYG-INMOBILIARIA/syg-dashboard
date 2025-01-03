@@ -35,4 +35,8 @@ export class ClientService {
     return this._http.get<Client>(`${ this._baseUrl }/client/${ id }`);
   }
 
+  removeClient( id: string ): Observable<Client> {
+    return this._http.delete<Client>(`${ this._baseUrl }/client/${ id }` );
+  }
+
 }

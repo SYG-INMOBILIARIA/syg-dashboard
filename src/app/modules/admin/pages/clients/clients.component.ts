@@ -204,8 +204,26 @@ export default class ClientsComponent implements OnInit {
 
   }
 
-  onRemoveConfirm( client: Client ) {
+  async onRemoveConfirm( client: Client ) {
 
+    const responseConfirm = await this._alertService.showConfirmAlert(
+      'Verifique que no haya un contrato asociado a este cliente',
+      `¿Está seguro de eliminar cliente: "${ client.fullname }"?`
+    );
+
+    if( responseConfirm.isConfirmed ) {
+      this._onRemoveClient( client.id );
+    }
+
+  }
+
+  private _onRemoveClient( clientId: string ) {
+    this._clientService.removeClient( clientId )
+    .subscribe( (clientDeleted) => {
+      this._alertService.showAlert(`Cliente eliminado exitosamente`, undefined, 'success');
+
+      this.onGetClients();
+    });
   }
 
   onChangePersonType( personType: PersonType ) {
