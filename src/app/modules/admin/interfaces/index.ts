@@ -17,3 +17,6 @@ export * from './financing.interface';
 export * from './list-financings-response.interface';
 
 export * from './financing-body.interface';
+
+export * from './contract.interface';
+export * from './list-contract-response.interface';

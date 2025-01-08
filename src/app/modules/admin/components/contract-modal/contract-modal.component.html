@@ -1,0 +1,274 @@
+
+<div class="flex items-center justify-between p-4 md:p-5 border-b dark:border-gray-600 bg-white shadow dark:bg-gray-700">
+  <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+      Crear nuevo contrato
+  </h3>
+  <button
+    [mat-dialog-close]="undefined"
+    type="button"
+    class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+    (click)="onResetAfterSubmit()"
+  >
+      <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+      </svg>
+      <span class="sr-only">Close modal</span>
+  </button>
+</div>
+
+<mat-dialog-content class="bg-white shadow dark:bg-gray-700">
+
+  <custom-stepper #myStepper class="mb-4" [disabledHeaderChangeStep]="true" >
+
+    <cdk-step label="Propietario" aria-label="Cliente propietario" [stepControl]="contractFormOne" >
+
+      <form [formGroup]="contractFormOne" class="h-100" >
+        <div class="grid gap-4 grid-cols-6 pb-4">
+
+          <div class="col-span-6 xs:col-span-6 mb-0">
+            <label for="cbxPersonType" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+              Cliente *
+            </label>
+            <ng-select
+              id="cbxPersonType"
+              class="bg-gray-50 border text-gray-900 text-sm rounded-lg block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+              [items]="clients()"
+              (ngModelChange)="onChangeClient( $event )"
+              [searchable]="false"
+              bindLabel="fullname"
+              bindValue="id"
+              placeholder="Seleccione cliente"
+              formControlName="clientId"
+              [class.border-red-400]=" inputErrors('clientId') && isTouched('clientId') "
+            >
+
+            <ng-template ng-header-tmp>
+
+              <div class="flex justify-between gap-3">
+
+                <input
+                      type="text"
+                      id="txtSearchClient"
+                      class="block w-full p-2 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 text-xs focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                      placeholder="search"
+                      [formControl]="searchClientInput"
+                  >
+
+                  <button type="button" class=" w-36 px-3 py-2 text-xs font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                    (click)="onSearchClient()"
+                  >
+                    Buscar
+                  </button>
+              </div>
+            </ng-template>
+
+
+              <ng-template ng-option-tmp let-item="item" class="text-gray-900 whitespace-nowrap dark:text-white">
+
+                <div class="ps-3">
+                  <div class="text-normal font-semibold">
+                    {{ item.fullname }}
+                  </div>
+                  <div class="font-normal text-sm text-gray-500">
+                    {{ item.identityDocument.shortDescription }} : {{ item.identityNumber }}
+                  </div>
+                </div>
+
+              </ng-template>
+
+            </ng-select>
+
+            @if (isTouched('clientId')) {
+              <span
+                class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                inputErrors
+                [errors]="inputErrors('clientId')"
+                inputLabel="Cliente" >
+              </span>
+            }
+          </div>
+
+          <div class="col-span-6 xs:col-span-6 mb-0">
+
+            <label for="txtDocumentation" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+              Documentación
+            </label>
+
+            <textarea
+              id="txtDocumentation"
+              rows="5"
+              class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+              placeholder="Write proyect documentation here..."
+              formControlName="documentation"
+              [class.border-red-400]=" inputErrors('documentation') && isTouched('documentation') "
+              ></textarea>
+
+              @if (isTouched('documentation')) {
+                <span
+                  class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                  inputErrors
+                  [errors]="inputErrors('documentation')"
+                  inputLabel="Documentación" >
+                </span>
+              }
+
+          </div>
+
+          <div class="col-span-6 xs:col-span-6 mb-0">
+
+            <label for="txtObservation" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+              Observación
+            </label>
+
+            <textarea
+              id="txtObservation"
+              rows="3"
+              class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+              placeholder="Write proyect documentation here..."
+              formControlName="observation"
+              [class.border-red-400]=" inputErrors('observation') && isTouched('observation') "
+              ></textarea>
+
+              @if (isTouched('observation')) {
+                <span
+                  class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                  inputErrors
+                  [errors]="inputErrors('observation')"
+                  inputLabel="Documentación" >
+                </span>
+              }
+
+          </div>
+
+        </div>
+
+
+        <div class="flex justify-end">
+
+          <div class="w-96"></div>
+          <div class="w-96"></div>
+
+          <div class="w-full pt-6">
+            <button
+              (click)="onNextLoteStep()"
+              type="button"
+              class="text-white inline-flex justify-center items-center w-full bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+            >
+                Siguiente
+            </button>
+
+          </div>
+
+        </div>
+
+      </form>
+
+    </cdk-step>
+
+    <cdk-step label="Lotes" aria-label="Selecciona lotes" >
+
+      <form [formGroup]="contractFormTwo" >
+
+        <div class="grid gap-4 grid-cols-6 ">
+
+          <div class="col-span-6 xs:col-span-6 mb-4">
+            <label for="cbxProyect" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+              Proyecto inmobiliario *
+            </label>
+            <ng-select
+              id="cbxProyect"
+              class="bg-gray-50 border text-gray-900 text-sm rounded-lg block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+              [items]="proyects()"
+              (ngModelChange)="onChangeProyect( $event )"
+              bindLabel="name"
+              bindValue="id"
+              placeholder="Seleccione proyecto"
+              formControlName="proyectId"
+              [class.border-red-400]=" inputErrors('proyectId') && isTouched('proyectId') "
+            >
+
+            </ng-select>
+
+            @if (isTouched('proyectId')) {
+              <span
+                class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                inputErrors
+                [errors]="inputErrors('proyectId')"
+                inputLabel="Cliente" >
+              </span>
+            }
+          </div>
+
+        </div>
+
+
+        <div class="relative">
+          <div id="map" #map class="border rounded bg-slate-600" ></div>
+
+          @if (buildMapInProgress()) {
+            <div class=" absolute inset-y-0 start-0 w-full h-full flex items-center justify-center bg-slate-600 opacity-50" >
+              <div class="text-white text-xl font-semibold">
+
+                  <spinner></spinner>
+                  Espere
+              </div>
+            </div>
+          }
+        </div>
+
+        <div class="flex justify-end">
+
+          <div class="w-96"></div>
+
+          <div class="flex gap-2 pt-6">
+
+            <button
+              cdkStepperPrevious
+              type="button"
+              class="text-white inline-flex justify-center items-center w-full bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+            >
+                Anterior
+            </button>
+
+            <button
+              (click)="onNextLoteStep()"
+              type="button"
+              class="text-white inline-flex justify-center items-center w-full bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+            >
+                Siguiente
+            </button>
+
+          </div>
+
+        </div>
+      </form>
+
+    </cdk-step>
+
+    <cdk-step label="Financiamiento" aria-label="Elige un financiamiento a medida">
+      <p>This is any content of "Step 2"</p>
+    </cdk-step>
+  </custom-stepper>
+
+</mat-dialog-content>
+
+
+<!-- <mat-dialog-actions class="bg-white shadow dark:bg-gray-700">
+  <div class="p-4 w-full">
+    <button
+      (click)="onSubmit()"
+      type="button"
+      class="text-white inline-flex justify-center items-center w-full bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+    >
+      <span *ngIf="!isSaving() else singinSpinner" >
+        Guardar Contrato
+      </span>
+    </button>
+
+  </div>
+
+</mat-dialog-actions> -->
+
+<ng-template #singinSpinner>
+  <spinner></spinner>
+</ng-template>

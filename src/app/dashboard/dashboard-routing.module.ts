@@ -32,6 +32,7 @@ const routes: Routes = [
         path: 'financings-by-proyect/:proyectId',
         loadComponent: () => import('../modules/admin/pages/financing-by-proyect/financing-by-proyect.component')
       },
+      { path: 'contracts', loadComponent: () => import('../modules/admin/pages/contracts/contracts.component') },
 
       { path: '**', redirectTo: 'home' }
     ]

@@ -404,7 +404,6 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
     this.loteForm.reset();
   }
 
-
   onSubmit() {
 
     if( this.isFormInvalid || this.isSaving() ) {

@@ -95,8 +95,8 @@ export default class ClientsComponent implements OnInit {
   public personTypes = computed( () => this._personTypes() );
 
   public isLoading = computed( () => this._isLoading() );
-  public isJuridicPerson = computed( () => this._isJuridicPerson() );
   public isSaving = computed( () => this._isSaving() );
+  public isJuridicPerson = computed( () => this._isJuridicPerson() );
   public totalClients = computed( () => this._totalClients() );
 
   get isFormInvalid() { return this.clientForm.invalid; }

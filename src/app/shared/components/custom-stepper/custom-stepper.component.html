@@ -1,0 +1,61 @@
+  <!-- <header>
+    <h3 class="mb-4 text-lg font-medium leading-none text-gray-900 dark:text-white">
+      {{ selected?.label }}
+    </h3>
+  </header> -->
+
+
+<ol class="items-center w-full space-y-4 sm:flex sm:space-x-8 sm:space-y-0 rtl:space-x-reverse pb-6">
+
+  @for (step of steps; track step; let i = $index) {
+
+    <li
+      class="flex items-center space-x-2.5 rtl:space-x-reverse "
+      [ngClass]="{
+        'text-gray-500': selectedIndex != i,
+        'dark:text-gray-400': selectedIndex != i,
+        'text-blue-600': selectedIndex === i,
+        'dark:text-blue-500': selectedIndex === i,
+        'cursor-pointer': !disabled()
+      }"
+      (click)="selectStepByIndex(i)"
+    >
+      <span
+        class="flex items-center justify-center w-8 h-8 border rounded-full shrink-0 "
+        [ngClass]="{
+          'border-gray-500': selectedIndex != i,
+          'dark:border-gray-400': selectedIndex != i,
+          'border-blue-600': selectedIndex === i,
+          'dark:border-blue-500': selectedIndex === i,
+        }"
+      >
+          {{ i + 1 }}
+      </span>
+      <span>
+          <h3 class=" leading-tight"
+          [ngClass]="{
+            'font-medium': selectedIndex != i,
+            'font-semibold': selectedIndex === i,
+          }"
+          >
+            {{ step.label }}
+          </h3>
+          <p class="text-sm">
+            {{ step.ariaLabel }}
+          </p>
+      </span>
+    </li>
+
+  }
+
+</ol>
+
+
+<!-- <button class="example-nav-button" cdkStepperPrevious>&larr;</button>
+<button class="example-nav-button" cdkStepperNext>&rarr;</button> -->
+
+
+<div [style.display]="selected ? 'block' : 'none'">
+  <ng-container [ngTemplateOutlet]="selected ? selected.content : null"></ng-container>
+</div>
+

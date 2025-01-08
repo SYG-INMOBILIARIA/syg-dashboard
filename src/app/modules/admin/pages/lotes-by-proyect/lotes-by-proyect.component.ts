@@ -176,6 +176,7 @@ export default class LotesByProyectComponent implements OnInit, OnDestroy {
       enterAnimationDuration: '0ms',
       exitAnimationDuration: '0ms',
       closeOnNavigation: true,
+
       data: {
         proyect: this._proyect(),
         loteStatus: this.loteStatus(),
