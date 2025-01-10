@@ -3,7 +3,7 @@ import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { environments } from '@envs/environments';
-import { Contract, ListContractResponse } from '../interfaces';
+import { Contract, ContractLotesBusied, ListContractResponse } from '../interfaces';
 
 @Injectable({
   providedIn: 'root'
@@ -25,6 +25,10 @@ export class ContractService {
 
   createContract( body: any ): Observable<Contract> {
     return this._http.post<Contract>(`${ this._baseUrl }/contract`, body );
+  }
+
+  getContractsByProyect( proyectId: string ): Observable<ContractLotesBusied[]> {
+    return this._http.get<ContractLotesBusied[]>(`${ this._baseUrl }/contract/by-proyect/${ proyectId }`);
   }
 
 }

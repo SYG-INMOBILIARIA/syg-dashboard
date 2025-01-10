@@ -18,7 +18,7 @@ import { alphaNumericPatt, decimalPatt, fullTextPatt } from '@shared/helpers/reg
 import { InputErrorsDirective } from '@shared/directives/input-errors.directive';
 import { CommonModule } from '@angular/common';
 import { SpinnerComponent } from '@shared/components/spinner/spinner.component';
-import { Nomenclature } from '@shared/interfaces';
+import { Nomenclature, Photo } from '@shared/interfaces';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { LoteService } from '../../services/lote.service';
 import { AlertService } from '@shared/services/alert.service';
@@ -140,19 +140,33 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
 
     const { proyect, lotes } = this.data;
 
-    this._map.setCenter( proyect.centerCoords );
-    this._map.setZoom( 17 );
 
     this._map.on('load', () => {
-      this.onBuildBorderPolygon( proyect.polygonCoords );
-      this.onBuildLotes( lotes );
+
+      const { centerCoords, polygonCoords, flatImage } = proyect;
+      this._map!.setCenter( centerCoords );
+      this._map!.setZoom( 17 );
+
+      if( flatImage ) {
+        this._buildFlatProyect( flatImage, polygonCoords );
+
+      } else {
+
+        this.onBuildBorderPolygon( polygonCoords );
+        this.onAllowDrawer();
+        this.onBuildLotes( lotes );
+      }
+
+
+
+
     });
 
     this._map.on( 'moveend', (event) => {
       this.loteForm.get('centerCoords')?.setValue( this._map?.getCenter().toArray() );
     });
 
-    this.onAllowDrawer();
+
 
   }
 
@@ -182,19 +196,6 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
         }
     });
 
-    // add the clip layer and configure it to also remove symbols and trees.
-    // clipping becomes active from zoom level 16 and below.
-    this._map.addLayer({
-        'id': 'eraser',
-        'type': 'clip',
-        'source': 'eraser',
-        'layout': {
-            // specify the layer types to be removed by this clip layer
-            'clip-layer-types': ['symbol', 'model']
-        },
-        'maxzoom': 16
-    });
-
     // add a line layer to visualize the clipping region.
     this._map.addLayer({
         'id': 'eraser-debug',
@@ -205,6 +206,67 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
             'line-dasharray': [0, 4, 3],
             'line-width': 5
         }
+    });
+
+  }
+
+  private async _buildFlatProyect( flatImage: Photo, polygonCoords: Coordinate[] ) {
+
+    if( !this._map ) throw new Error(`Div map container not found!!!`);
+    const { urlImg } = flatImage;
+
+
+    const points = polygonCoords.reduce<number[][]>( (acc: number[][], current) => {
+      acc.push( [ current.lng, current.lat ] );
+      return acc;
+    }, []);
+
+    const polygonId = uuid();
+
+    this._map.addSource( polygonId, {
+      'type': 'geojson',
+      'data': {
+          'type': 'Feature',
+          'properties': {},
+          'geometry': {
+              'type': 'Polygon',
+              'coordinates': [
+                points
+              ]
+          }
+      }
+    });
+
+    this._alertService.showLoading();
+
+    this._map.loadImage( urlImg, (err, image) => {
+      // Throw an error if something goes wrong.
+      if (err) throw err;
+
+      const { lotes } = this.data;
+
+      const imageId = uuid();
+      // Add the image to the map style.
+      this._map!.addImage(imageId, image!, {
+        pixelRatio: 3
+      });
+
+
+      // Create a new layer and style it using `fill-pattern`.
+      this._map!.addLayer({
+        'id': uuid(),
+        'type': 'fill',
+        'source': polygonId,
+        'paint': {
+            'fill-pattern': imageId
+        }
+      });
+
+      this._alertService.close();
+
+      this.onAllowDrawer();
+      this.onBuildLotes( lotes );
+
     });
 
   }
@@ -330,7 +392,7 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
       return acc;
     }, []);
 
-    const sourceId = uuid();
+    const sourceId = lote.id;
 
     this._map.addSource( sourceId, {
       'type': 'geojson',
@@ -372,17 +434,6 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
         'fill-color': fillColor,
         'fill-opacity': 0.3
       },
-    });
-
-    this._map.addLayer({
-        'id': uuid(),
-        'type': 'clip',
-        'source': sourceId,
-        'layout': {
-            // specify the layer types to be removed by this clip layer
-            'clip-layer-types': ['symbol', 'model']
-        },
-        'maxzoom': 16
     });
 
     // add a line layer to visualize the clipping region.

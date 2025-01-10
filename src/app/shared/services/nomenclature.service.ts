@@ -36,4 +36,8 @@ export class NomenclatureService {
     return this._http.get<ListNomenclatureResponse>(`${ this._baseUrl }/nomenclature/financing-type`);
   }
 
+  getPaymentType() {
+    return this._http.get<ListNomenclatureResponse>(`${ this._baseUrl }/nomenclature/payment-type`);
+  }
+
 }

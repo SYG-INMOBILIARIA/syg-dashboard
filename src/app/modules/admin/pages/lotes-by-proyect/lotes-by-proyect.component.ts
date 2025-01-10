@@ -50,6 +50,7 @@ export default class LotesByProyectComponent implements OnInit, OnDestroy {
   private _searchInProgress = signal( false );
   private _isSaving = signal( false );
   private _proyect = signal<ProyectById | undefined>( undefined );
+  private _proyectAndLotes = signal<{ proyect: ProyectById, lotes: Lote[] } | undefined>( undefined );
   public isSaving = computed( () => this._isSaving() );
   public searchInProgress = computed( () => this._searchInProgress() );
   public loteToFly = computed( () => this._loteToFly() );
@@ -58,6 +59,8 @@ export default class LotesByProyectComponent implements OnInit, OnDestroy {
 
   public searchInput = new FormControl('', [ Validators.pattern( fullTextPatt ) ]);
 
+  public proyect = computed( () => this._proyect() );
+  public proyectAndLotes = computed( () => this._proyectAndLotes() );
   public proyectName = computed( () => this._proyect()?.name ?? '' );
   public lotes = computed( () => this._lotes() );
   public lotesForMap = computed( () => this._lotesForMap() );
@@ -86,7 +89,6 @@ export default class LotesByProyectComponent implements OnInit, OnDestroy {
     this._proyectId = proyectId;
 
     this.onLoadData( proyectId );
-    this.onGetLotes();
 
   }
 
@@ -95,12 +97,15 @@ export default class LotesByProyectComponent implements OnInit, OnDestroy {
     const filter = this.searchInput.value ?? '';
 
     forkJoin({
-      lotesForMap: this._loteService.getLotes( this._proyectId, 1, '', 500 ),
-      lotesForList: this._loteService.getLotes( this._proyectId, 1, filter, 500 ),
+      lotesForMap: this._loteService.getLotes( this._proyectId, 1, '', 1000 ),
+      lotesForList: this._loteService.getLotes( this._proyectId, 1, filter, 1000 ),
     }).subscribe( ({ lotesForMap, lotesForList }) => {
 
       this._lotes.set( lotesForList.lotes );
       this._lotesForMap.set( lotesForMap.lotes );
+
+      const proyect = this._proyect()!;
+      this._proyectAndLotes.set( { proyect: proyect, lotes: lotesForMap.lotes } )
 
     } )
   }
@@ -110,7 +115,7 @@ export default class LotesByProyectComponent implements OnInit, OnDestroy {
     this._searchInProgress.set( true );
 
     const filter = this.searchInput.value ?? '';
-    this._loteService.getLotes( this._proyectId, 1, filter, 500 )
+    this._loteService.getLotes( this._proyectId, 1, filter, 1000 )
     .subscribe( ({ lotes }) => {
       this._lotes.set( lotes );
       this._searchInProgress.set( false );
@@ -130,10 +135,13 @@ export default class LotesByProyectComponent implements OnInit, OnDestroy {
       const { nomenclatures } = loteStatusResponse;
 
       this._proyect.set( proyect );
+      this._lotesForMap.set( lotes );
       this._centerProyect.set( centerCoords );
       this._polygonCoords.set( polygonCoords );
       this._lotes.set( lotes );
       this._loteStatus.set( nomenclatures );
+
+      this._proyectAndLotes.set( { proyect, lotes } )
     });
 
   }
@@ -186,7 +194,6 @@ export default class LotesByProyectComponent implements OnInit, OnDestroy {
     });
 
     this._dialog$ = dialogRef.afterClosed().subscribe(result => {
-      console.log('The dialog was closed');
       if (result !== undefined) {
         this.onGetLotes();
       }

@@ -20,3 +20,7 @@ export * from './financing-body.interface';
 
 export * from './contract.interface';
 export * from './list-contract-response.interface';
+
+export * from './lote-selected-in-map.interface';
+export * from './contract-body.interface';
+export * from './contract-lotes-busied.interface';

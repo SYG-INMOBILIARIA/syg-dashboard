@@ -46,7 +46,7 @@ export default class ProyectFormComponent implements OnInit {
     description:        [ '', [ Validators.required, Validators.pattern( fullTextPatt ) ] ],
     adquisitionDate:    [ null, [ Validators.required ] ],
     centerCoords:       [ [], [] ],
-    polygonCoords:      [ [], [] ],
+    polygonCoords:      [ [], [ Validators.required, Validators.min(4) ] ],
   });
 
   public fileUrl = signal<string>( environments.defaultImgUrl );

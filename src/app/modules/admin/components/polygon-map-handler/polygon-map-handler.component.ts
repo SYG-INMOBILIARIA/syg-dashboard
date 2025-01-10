@@ -82,6 +82,8 @@ export class PolygonMapHandlerComponent implements AfterViewInit, OnDestroy {
 
   markers: MarkerAndColor[] = [];
 
+  get markersCount() { return this.markers.length; }
+
   ngAfterViewInit(): void {
 
     if( !this.mapContainer ) throw new Error(`Div map container not found!!!`);
@@ -97,47 +99,6 @@ export class PolygonMapHandlerComponent implements AfterViewInit, OnDestroy {
     this._map.on( 'moveend', (event) => {
       this.updatedCenterCoord.emit( this._map?.getCenter().toArray() );
     });
-
-    // const _draw = new MapboxDraw({
-    //     displayControlsDefault: false,
-    //     // Select which mapbox-gl-draw control buttons to add to the map.
-    //     controls: {
-    //         polygon: true,
-    //         trash: true,
-    //     },
-    //     // Set mapbox-gl-draw to draw by default.
-    //     // The user does not have to click the polygon control button first.
-    //     defaultMode: 'draw_polygon',
-    //     boxSelect: true
-    // });
-    // this._map.addControl(_draw);
-
-    // this._map.on('draw.create', updateArea);
-    // this._map.on('draw.delete', updateArea);
-    // this._map.on('draw.update', updateArea);
-
-    // function updateArea(e: any) {
-
-    //   if( !_draw ) throw new Error('Draw no loaded!!');
-
-    //   const data = _draw.getAll();
-    //   console.log({data});
-    //   const answer = document.getElementById('calculated-area');
-    //   if (data.features.length > 0) {
-    //       const area = turf.area(data);
-    //       // Restrict the area to 2 decimal points.
-    //       const rounded_area = Math.round(area * 100) / 100;
-    //       console.log({area: rounded_area});
-    //       answer!.innerHTML = `<p><strong>${rounded_area}</strong></p><p>square meters</p>`;
-    //   } else {
-    //       answer!.innerHTML = '';
-    //       if (e.type !== 'draw.delete')
-    //           alert('Click the map to draw a polygon.');
-    //   }
-    // }
-
-
-    // this.onReadStorage();
 
     this.onReadStorage();
   }
@@ -228,6 +189,12 @@ export class PolygonMapHandlerComponent implements AfterViewInit, OnDestroy {
       return ;
     }
 
+    if( this._polygonFillId ) {
+      this._map.removeLayer( this._polygonFillId );
+      this._polygonFillId = undefined;
+    }
+
+
     this._isLoadingFlatImage.set( true );
     // Load an image to use as the pattern from an external URL.
     this._map.loadImage( this._flatImageUrl, (err, image) => {
@@ -240,7 +207,9 @@ export class PolygonMapHandlerComponent implements AfterViewInit, OnDestroy {
 
         this._sourceImageId = uuid();
         // Add the image to the map style.
-        this._map!.addImage(this._sourceImageId, image!);
+        this._map!.addImage(this._sourceImageId, image!, {
+          pixelRatio: 3
+        });
 
         if( this._polygonImageId ) {
           this._map?.removeLayer( this._polygonImageId );

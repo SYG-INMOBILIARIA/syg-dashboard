@@ -10,7 +10,7 @@ export const onValidImg = ( extension: string, size: number ): boolean => {
     isValidFile = false;
   }
 
-  if ( sizeMegabytes > 5 ) {
+  if ( sizeMegabytes > 6 ) {
     isValidFile = false;
   }
 

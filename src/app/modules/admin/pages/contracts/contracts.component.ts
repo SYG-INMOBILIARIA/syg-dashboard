@@ -10,7 +10,9 @@ import { Contract } from '../../interfaces';
 import { PipesModule } from '@pipes/pipes.module';
 import { MatDialog } from '@angular/material/dialog';
 import { ContractModalComponent } from '../../components/contract-modal/contract-modal.component';
-import { Subscription } from 'rxjs';
+import { Subscription, forkJoin } from 'rxjs';
+import { ProyectService } from '../../services/proyect.service';
+import { Nomenclature } from '@shared/interfaces';
 
 @Component({
   selector: 'app-contracts',
@@ -21,6 +23,7 @@ import { Subscription } from 'rxjs';
     FormsModule,
     PaginationComponent,
     PipesModule,
+    ContractModalComponent
   ],
   templateUrl: './contracts.component.html',
   styles: ``
@@ -36,6 +39,7 @@ export default class ContractsComponent implements OnInit, OnDestroy {
 
   private _nomenclatureService = inject( NomenclatureService );
   private _alertService = inject( AlertService );
+  private _proyectService = inject( ProyectService );
   private _formBuilder = inject( UntypedFormBuilder );
   private _contractService = inject( ContractService );
   readonly dialog = inject( MatDialog );
@@ -46,17 +50,20 @@ export default class ContractsComponent implements OnInit, OnDestroy {
   private _isSaving = signal( false );
   private _totalContracts = signal<number>( 0 );
   private _contracts = signal<Contract[]>( [] );
+  private _paymentTypes = signal<Nomenclature[]>( [] );
 
   public isLoading = computed( () => this._isLoading() );
   public isSaving = computed( () => this._isSaving() );
   public totalContracts = computed( () => this._totalContracts() );
   public contracts = computed( () => this._contracts() );
+  public paymentTypes = computed( () => this._paymentTypes() );
 
   get isInvalidSearchInput() { return this.searchInput.invalid; }
 
   ngOnInit(): void {
 
     this.onGetContracts();
+    this.onGetPaymentTypes();
   }
 
   onGetContracts( page = 1 ) {
@@ -79,24 +86,19 @@ export default class ContractsComponent implements OnInit, OnDestroy {
 
   }
 
-  onShowModal( ): void {
-
-    const dialogRef = this.dialog.open( ContractModalComponent, {
-      width: '700px',
-      height: '760px',
-      enterAnimationDuration: '0ms',
-      exitAnimationDuration: '0ms',
-      closeOnNavigation: true,
+  onGetPaymentTypes() {
+    this._nomenclatureService.getPaymentType()
+    .subscribe( ({ nomenclatures }) => {
+      this._paymentTypes.set( nomenclatures );
     });
+  }
 
-    this._dialog$ = dialogRef.afterClosed().subscribe(result => {
-      console.log('The dialog was closed');
-      if (result !== undefined) {
-        // this.onGetLotes();
-      }
+  onListenCreate( contractCreated?: Contract ) {
 
-      this._dialog$?.unsubscribe();
-    });
+    if( contractCreated ) {
+      this.onGetContracts();
+    }
+
   }
 
   onLoadToUpdate( contract: Contract ) {

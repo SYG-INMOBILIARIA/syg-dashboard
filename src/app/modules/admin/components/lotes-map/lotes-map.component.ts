@@ -1,11 +1,12 @@
-import { Component, ElementRef, Input, ViewChild } from '@angular/core';
-import { LngLatLike, Map, Marker, Popup } from 'mapbox-gl';
+import { Component, ElementRef, Input, ViewChild, inject } from '@angular/core';
+import { LngLatLike, Map, Popup } from 'mapbox-gl';
 import { v4 as uuid } from 'uuid';
 
-import { Coordinate, Lote } from '../../interfaces';
+import { Coordinate, Lote, ProyectById } from '../../interfaces';
 import { LoteStatus } from '../../enum';
-import { onBuildRandomColor } from '@shared/helpers/utils.helper';
 import { formatNumber } from '@angular/common';
+import { Photo } from '@shared/interfaces';
+import { AlertService } from '@shared/services/alert.service';
 
 @Component({
   selector: 'lotes-map',
@@ -21,21 +22,25 @@ export class LotesMapComponent {
   private _map?: Map;
   private _popup?: Popup;
 
-  @Input() set centerMap( coords: number[] ) {
-    if( coords && coords.length > 0 ) {
-      this._centerMap = [ coords[0], coords[1] ];
-      this._zoom = 17;
+  private _alertService = inject( AlertService );
+  private _flatImage?: Photo;
+
+  @Input({ required: true }) set proyectAndLotes( value: { proyect: ProyectById, lotes: Lote[] } | undefined ) {
+    if( value ) {
+
+      const { proyect, lotes } = value;
+
+      const { centerCoords, polygonCoords, flatImage } = proyect;
+      this._centerMap = centerCoords;
+      this._zoom = 17.8;
+
       this._map?.setCenter( this._centerMap );
       this._map?.setZoom( this._zoom );
-    }
-  }
+      this._polygonCoords = polygonCoords;
+      this._flatImage = flatImage;
 
-  @Input({ required: true }) set polygonCoords( coords: Coordinate[] ) {
-    if( coords && coords.length > 0 ) {
-      // this.onBuildLotes( lotes );
-      this._polygonCoords = coords;
       setTimeout(() => {
-        this.onBuildBorderPolygon( coords );
+        this._onUpdateLotesRegistered( lotes );
       }, 400);
     }
   }
@@ -46,17 +51,10 @@ export class LotesMapComponent {
     }
   }
 
-  @Input({ required: true }) set lotesRegistered( lotes: Lote[] ) {
-    if( lotes.length > 0 ) {
-      this.onBuildLotes( lotes );
-    }
-  }
-
   private _lotesRegistered: Lote[] = [];
 
   private _centerMap: [number, number] = [ -80.6987307175805,-4.926770405375706 ];
   private _zoom = 17;
-  private _allowDrawer = false;
   private _polygonCoords: Coordinate[] = [];
 
   ngAfterViewInit(): void {
@@ -71,16 +69,14 @@ export class LotesMapComponent {
     });
 
     this._map.on('load', () => {
-      this.onBuildBorderPolygon( this._polygonCoords );
 
-      if( this._lotesRegistered.length > 0 ) {
-        for ( const key in this._lotesRegistered ) {
-          if (Object.prototype.hasOwnProperty.call(this._lotesRegistered, key)) {
-            const lote = this._lotesRegistered[key];
-            this._onBuildLotePolygon( lote );
-          }
-        }
+      if( this._flatImage ) {
+        this._buildFlatProyect( this._flatImage );
+
+      } else {
+        this.onBuildBorderPolygon( this._polygonCoords );
       }
+
     });
 
     this._map.on('moveend', () => {
@@ -90,7 +86,17 @@ export class LotesMapComponent {
 
   }
 
-  onBuildLotes( lotes: Lote[] ) {
+  onBuildPolygonByLotesRegistered() {
+
+    console.log('onBuildPolygonByLotesRegistered :::');
+
+    this._lotesRegistered.forEach( (lote) => {
+      this._onBuildLotePolygon( lote );
+    });
+
+  }
+
+  private _onUpdateLotesRegistered( lotes: Lote[] ) {
 
     if( !this._map ) throw new Error(`Map not found!!!`);
 
@@ -104,15 +110,13 @@ export class LotesMapComponent {
 
       this._lotesRegistered = lotes;
 
-      for ( const key in lotes ) {
-        if (Object.prototype.hasOwnProperty.call(lotes, key)) {
-          const lote = lotes[key];
-          this._onBuildLotePolygon( lote );
-        }
+      if( this._flatImage ) {
+        this._buildFlatProyect( this._flatImage );
+      } else {
+        this.onBuildBorderPolygon( this._polygonCoords );
       }
 
     }
-
 
   }
 
@@ -136,9 +140,7 @@ export class LotesMapComponent {
                     'type': 'Feature',
                     'properties': {},
                     'geometry': {
-                        'coordinates': [
-                          points
-                        ],
+                        'coordinates': [ points ],
                         'type': 'Polygon'
                     }
                 }
@@ -171,6 +173,72 @@ export class LotesMapComponent {
         }
     });
 
+    setTimeout(() => {
+      if( this._lotesRegistered.length > 0 ) {
+        this.onBuildPolygonByLotesRegistered();
+      }
+    }, 400);
+
+  }
+
+  private async _buildFlatProyect( flatImage: Photo ) {
+
+    if( !this._map ) throw new Error(`Div map container not found!!!`);
+    const { urlImg } = flatImage;
+
+    const points = this._polygonCoords.reduce<number[][]>( (acc: number[][], current) => {
+      acc.push( [ current.lng, current.lat ] );
+      return acc;
+    }, []);
+
+    const polygonId = uuid();
+
+    this._map.addSource( polygonId, {
+      'type': 'geojson',
+      'data': {
+          'type': 'Feature',
+          'properties': {},
+          'geometry': {
+              'type': 'Polygon',
+              'coordinates': [
+                points
+              ]
+          }
+      }
+    });
+
+    this._alertService.showLoading();
+
+
+    this._map.loadImage( urlImg, (err, image) => {
+      // Throw an error if something goes wrong.
+      if (err) throw err;
+
+      const imageId = uuid();
+      // Add the image to the map style.
+      this._map!.addImage(imageId, image!, {
+        pixelRatio: 3,
+      });
+
+
+      // Create a new layer and style it using `fill-pattern`.
+      this._map!.addLayer({
+        'id': uuid(),
+        'type': 'fill',
+        'source': polygonId,
+        'paint': {
+            'fill-pattern': imageId,
+        }
+      });
+
+      this._alertService.close();
+
+      if( this._lotesRegistered.length > 0 ) {
+        this.onBuildPolygonByLotesRegistered();
+      }
+
+    });
+
   }
 
   private _flyToLote( lote: Lote ) {
@@ -178,7 +246,7 @@ export class LotesMapComponent {
     const { centerCoords } = lote;
 
     this._map?.flyTo({
-      zoom: 21,
+      zoom: 17.8,
       center: [ centerCoords[0], centerCoords[1] ]
     });
 
