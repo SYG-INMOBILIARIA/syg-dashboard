@@ -140,7 +140,6 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
 
     const { proyect, lotes } = this.data;
 
-
     this._map.on('load', () => {
 
       const { centerCoords, polygonCoords, flatImage } = proyect;
@@ -157,16 +156,11 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
         this.onBuildLotes( lotes );
       }
 
-
-
-
     });
 
     this._map.on( 'moveend', (event) => {
       this.loteForm.get('centerCoords')?.setValue( this._map?.getCenter().toArray() );
     });
-
-
 
   }
 

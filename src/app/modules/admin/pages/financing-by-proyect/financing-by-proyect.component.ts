@@ -7,7 +7,7 @@ import { validate as ISUUID } from 'uuid';
 import { FinancingService } from '../../services/financing.service';
 import { NomenclatureService } from '@shared/services/nomenclature.service';
 import { Nomenclature } from '@shared/interfaces';
-import { Financing, FinancingBody, ProyectById } from '../../interfaces';
+import { Financing, FinancingBody, Proyect } from '../../interfaces';
 import { PaginationComponent } from '../../../../shared/components/pagination/pagination.component';
 import { PipesModule } from '@pipes/pipes.module';
 import { fullTextPatt } from '@shared/helpers/regex.helper';
@@ -81,7 +81,7 @@ export default class FinancingByProyectComponent implements OnInit {
   public financingTypes = computed( () => this._financingTypes() );
   public financings = computed( () => this._financings() );
   public quotesForm = computed( () => this._quotesForm() );
-  private _proyect = signal<ProyectById | undefined>( undefined );
+  private _proyect = signal<Proyect | undefined>( undefined );
 
   public proyectName = computed( () => this._proyect()?.name ?? '' );
   get isFormInvalid() { return this.financingForm.invalid; }

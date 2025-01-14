@@ -1,8 +1,8 @@
 import { Nomenclature } from "@shared/interfaces";
-import { Lote, ProyectById } from ".";
+import { Lote, Proyect } from ".";
 
 export interface LoteDialogPayload {
-  proyect: ProyectById;
+  proyect: Proyect;
   lotes: Lote[];
   loteStatus: Nomenclature[];
 

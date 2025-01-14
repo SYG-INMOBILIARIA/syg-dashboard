@@ -2,7 +2,7 @@ import { Component, ElementRef, Input, ViewChild, inject } from '@angular/core';
 import { LngLatLike, Map, Popup } from 'mapbox-gl';
 import { v4 as uuid } from 'uuid';
 
-import { Coordinate, Lote, ProyectById } from '../../interfaces';
+import { Coordinate, Lote, Proyect } from '../../interfaces';
 import { LoteStatus } from '../../enum';
 import { formatNumber } from '@angular/common';
 import { Photo } from '@shared/interfaces';
@@ -25,7 +25,7 @@ export class LotesMapComponent {
   private _alertService = inject( AlertService );
   private _flatImage?: Photo;
 
-  @Input({ required: true }) set proyectAndLotes( value: { proyect: ProyectById, lotes: Lote[] } | undefined ) {
+  @Input({ required: true }) set proyectAndLotes( value: { proyect: Proyect, lotes: Lote[] } | undefined ) {
     if( value ) {
 
       const { proyect, lotes } = value;

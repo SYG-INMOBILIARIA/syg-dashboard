@@ -14,10 +14,11 @@ export interface Proyect {
   centerCoords:    [number, number];
   photos:          Photo[];
   flatImage?:      Photo;
-}
-
-
-export interface ProyectById extends Proyect {
   polygonCoords:   Coordinate[];
 }
+
+
+// export interface ProyectById extends Proyect {
+//   polygonCoords:   Coordinate[];
+// }
 

@@ -5,7 +5,7 @@ import { Subscription, forkJoin } from 'rxjs';
 
 import { AlertService } from '@shared/services/alert.service';
 import { LoteService } from '../../services/lote.service';
-import { Coordinate, Lote, ProyectById } from '../../interfaces';
+import { Coordinate, Lote, Proyect } from '../../interfaces';
 import { ProyectService } from '../../services/proyect.service';
 
 import { LotesModule } from './lotes-module.module';
@@ -49,8 +49,8 @@ export default class LotesByProyectComponent implements OnInit, OnDestroy {
 
   private _searchInProgress = signal( false );
   private _isSaving = signal( false );
-  private _proyect = signal<ProyectById | undefined>( undefined );
-  private _proyectAndLotes = signal<{ proyect: ProyectById, lotes: Lote[] } | undefined>( undefined );
+  private _proyect = signal<Proyect | undefined>( undefined );
+  private _proyectAndLotes = signal<{ proyect: Proyect, lotes: Lote[] } | undefined>( undefined );
   public isSaving = computed( () => this._isSaving() );
   public searchInProgress = computed( () => this._searchInProgress() );
   public loteToFly = computed( () => this._loteToFly() );

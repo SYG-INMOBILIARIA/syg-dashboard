@@ -54,6 +54,7 @@ export default class ContractsComponent implements OnInit, OnDestroy {
 
   private _isLoading = signal( true );
   private _isSaving = signal( false );
+  private _downloadInProgress = signal( false );
   private _totalContracts = signal<number>( 0 );
   private _contracts = signal<Contract[]>( [] );
   private _contractIdByModal = signal< string | null >( null );
@@ -62,6 +63,7 @@ export default class ContractsComponent implements OnInit, OnDestroy {
   private _contractSchedule = signal<Schedule[]>( [] );
 
   public contractSchedule = computed( () => this._contractSchedule() );
+  public downloadInProgress = computed( () => this._downloadInProgress() );
   public isLoading = computed( () => this._isLoading() );
   public isSaving = computed( () => this._isSaving() );
   public totalContracts = computed( () => this._totalContracts() );
@@ -166,7 +168,12 @@ export default class ContractsComponent implements OnInit, OnDestroy {
   }
 
   async onDonwloadSchedule() {
-    this._contractService.getDowlandPaymentSchedule('scheduleContractdiv');
+
+    if( this.downloadInProgress() ) return;
+
+    this._downloadInProgress.set( true );
+    await this._contractService.getDowlandPaymentSchedule('scheduleContractdiv');
+    this._downloadInProgress.set( false);
   }
 
   ngOnDestroy(): void {

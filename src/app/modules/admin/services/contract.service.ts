@@ -40,26 +40,32 @@ export class ContractService {
     return this._http.get<PaymentSchedule>(`${ this._baseUrl }/contract/payment-schedule/${ contractId }`);
   }
 
-  getDowlandPaymentSchedule( divHtmlId: string ) {
+  getDowlandPaymentSchedule( divHtmlId: string ): Promise<void> {
 
     const element = document.getElementById( divHtmlId );
 
     if( !element ) throw new Error('Not found html element to pdf!!');
 
-    const doc = new jsPDF({
-      orientation: 'p',
-      unit: 'mm',
-      format: 'a4',
-      putOnlyUsedFonts:true
-    });
+    return new Promise( (resolve, reject) => {
 
-    doc.html( element, { callback: ( pdf ) => {
-        pdf.save('shedule.pdf')
-      }
-      , x: 15
-      , y: 10
-      , html2canvas: { scale: 0.3 }
-    } );
+      const doc = new jsPDF({
+        orientation: 'p',
+        unit: 'mm',
+        format: 'a4',
+        putOnlyUsedFonts:true
+      });
+
+      doc.html( element, { callback: ( pdf ) => {
+          pdf.save('shedule.pdf');
+
+          return resolve();
+        }
+        , x: 15
+        , y: 10
+        , html2canvas: { scale: 0.3 }
+      } );
+
+    });
 
   }
 
