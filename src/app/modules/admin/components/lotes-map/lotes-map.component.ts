@@ -56,6 +56,7 @@ export class LotesMapComponent {
   private _centerMap: [number, number] = [ -80.6987307175805,-4.926770405375706 ];
   private _zoom = 17;
   private _polygonCoords: Coordinate[] = [];
+  private _imageMapId?: string;
 
   ngAfterViewInit(): void {
 
@@ -65,7 +66,9 @@ export class LotesMapComponent {
       container: this.mapContainer.nativeElement,
       style: 'mapbox://styles/mapbox/streets-v12', // style URL
       center: this._centerMap, // starting position [lng, lat]
-      zoom: this._zoom, //
+      zoom: this._zoom,
+      // maxZoom: 18,
+      // minZoom: 17.0
     });
 
     this._map.on('load', () => {
@@ -214,9 +217,9 @@ export class LotesMapComponent {
       // Throw an error if something goes wrong.
       if (err) throw err;
 
-      const imageId = uuid();
+      this._imageMapId = uuid();
       // Add the image to the map style.
-      this._map!.addImage(imageId, image!, {
+      this._map!.addImage(this._imageMapId, image!, {
         pixelRatio: 3,
       });
 
@@ -226,9 +229,7 @@ export class LotesMapComponent {
         'id': uuid(),
         'type': 'fill',
         'source': polygonId,
-        'paint': {
-            'fill-pattern': imageId,
-        }
+        'paint': { 'fill-pattern': this._imageMapId }
       });
 
       this._alertService.close();

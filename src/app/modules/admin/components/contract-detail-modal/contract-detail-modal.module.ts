@@ -1,8 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MatDialogActions, MatDialogClose, MatDialogContent } from '@angular/material/dialog';
 import { NgSelectModule } from '@ng-select/ng-select';
+import { PipesModule } from '@pipes/pipes.module';
 
 import { SpinnerComponent } from '@shared/components/spinner/spinner.component';
 import { InputErrorsDirective } from '@shared/directives/input-errors.directive';
@@ -12,23 +12,19 @@ import { InputErrorsDirective } from '@shared/directives/input-errors.directive'
     CommonModule,
     ReactiveFormsModule,
     FormsModule,
-    MatDialogActions,
-    MatDialogClose,
-    MatDialogContent,
     SpinnerComponent,
     NgSelectModule,
-    InputErrorsDirective
+    InputErrorsDirective,
+    PipesModule
   ],
   exports: [
     CommonModule,
     ReactiveFormsModule,
     FormsModule,
-    MatDialogActions,
-    MatDialogClose,
-    MatDialogContent,
     SpinnerComponent,
     NgSelectModule,
-    InputErrorsDirective
+    InputErrorsDirective,
+    PipesModule
   ],
 })
-export class ContractModalModule { }
+export class ContractDetailModalModule { }

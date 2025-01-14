@@ -7,7 +7,7 @@ import { PaymentType } from '../modules/admin/enum';
 })
 
 export class PaymentTypePipe implements PipeTransform {
-  transform(value: PaymentType, ...args: any[]): any {
+  transform(value?: PaymentType, ...args: any[]): any {
     return value == PaymentType.cash ? 'Al contrado' : 'Crédito';
   }
 }

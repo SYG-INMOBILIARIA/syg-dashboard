@@ -1,0 +1,287 @@
+
+<div id="contract-detail-modal" data-modal-backdrop="true" tabindex="-1" aria-hidden="false" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+  <div class="relative p-4 w-full max-w-2xl max-h-full">
+
+    <!-- Modal content -->
+    <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+
+      <button
+        #btnCloseContractDetailModal
+        type="button"
+        class="absolute top-3 end-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+        data-modal-hide="contract-detail-modal"
+        (click)="onReset()"
+      >
+        <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+        </svg>
+        <span class="sr-only">Close modal</span>
+      </button>
+
+      <div class="p-4 md:p-5 text-center">
+
+        <!-- <svg class="mx-auto mb-4 text-gray-400 w-12 h-12 dark:text-gray-200" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+        </svg>
+        <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
+          Are you sure you want to delete this product?
+        </h3> -->
+
+        <div class="flex flex-col items-center pt-5 pb-7">
+          <h5 class="mb-1 text-2xl font-medium text-gray-900 dark:text-white">
+            # {{ contractById()?.code }}
+          </h5>
+          <span class="text-md text-gray-500 dark:text-gray-400">
+            {{ contractById()?.proyect?.name }}
+          </span>
+        </div>
+
+        <custom-stepper #myStepper class="mb-4" (selectedIndexChange)="onMapInterective( $event )"  >
+
+          <cdk-step label="Propietario" aria-label="Cliente propietario" >
+
+            <div class="grid gap-4 grid-cols-6 pb-3">
+
+              <div class="col-span-3 xs:col-span-6 ">
+
+                <div class="flex items-center gap-4">
+
+                  <div class="relative inline-flex items-center justify-center w-10 h-10 overflow-hidden bg-gray-100 rounded-full dark:bg-gray-600">
+                    <span class="font-medium text-gray-600 dark:text-gray-300">
+                      {{ client()?.name | slice:0:1 }}{{ client()?.surname | slice:0:1 }}
+                    </span>
+                  </div>
+
+                  <div class="font-medium dark:text-white text-left">
+                      <div>
+                        {{ client()?.fullname }}
+                      </div>
+                      <div class="font-normal text-sm text-gray-500 dark:text-gray-400">
+                        {{ client()?.identityDocument?.shortDescription }}:
+                        {{ client()?.identityNumber }}
+                      </div>
+                  </div>
+                </div>
+
+              </div>
+
+              <div class="col-span-3 xs:col-span-6 ">
+                <div class="font-medium dark:text-white text-left">
+                  <div>
+                    <i class="fa-regular fa-envelope pr-1"></i>
+                    {{ client()?.email }}
+                  </div>
+                  <div class="font-normal text-sm text-gray-500 dark:text-gray-400">
+                    <i class="fa-solid fa-phone pr-1"></i>
+                    {{ client()?.phone }}
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-span-6 xs:col-span-6 ">
+
+                <section class=" ">
+                  <div class="py-2 px-2 mx-auto ">
+                      <h1 class="text-left mb-2 text-md font-semibold tracking-tight leading-none text-gray-900 dark:text-white">
+                        Documentación
+                      </h1>
+                      <p class="text-left font-normal text-gray-500 dark:text-gray-400">
+                        {{ contractById()?.documentation }}
+                      </p>
+                  </div>
+                </section>
+
+              </div>
+
+              <div class="col-span-6 xs:col-span-6 ">
+
+                <section class=" ">
+                  <div class="py-2 px-2 mx-auto ">
+                      <h1 class="text-left mb-2 text-md font-semibold tracking-tight leading-none text-gray-900 dark:text-white">
+                        Observación
+                      </h1>
+                      <p class="text-left font-normal text-gray-500 dark:text-gray-400">
+                        {{ contractById()?.observation }}
+                      </p>
+                  </div>
+                </section>
+
+              </div>
+
+              <div class="col-span-6 xs:col-span-6 ">
+
+                <section class=" ">
+                  <div class="py-2 px-2 mx-auto ">
+                      <h1 class="text-left mb-2 text-md font-semibold tracking-tight leading-none text-gray-900 dark:text-white">
+                        Vendedor
+                      </h1>
+                      <p class="text-left font-normal text-gray-500 dark:text-gray-400">
+                        Fulanito de tal
+                      </p>
+                  </div>
+                </section>
+
+              </div>
+
+              <div class="col-span-6 xs:col-span-6 ">
+
+                <section class=" ">
+                  <div class="py-3 px-2 mx-auto ">
+                      <h1 class="text-left mb-2 text-md font-semibold tracking-tight leading-none text-gray-900 dark:text-white">
+                        F. Creación
+                      </h1>
+                      <p class="text-left font-normal text-gray-500 dark:text-gray-400">
+                        {{ contractById()?.createAt! | moment }}
+                      </p>
+                  </div>
+                </section>
+
+              </div>
+
+            </div>
+
+          </cdk-step>
+
+          <cdk-step label="Lotes" aria-label="Lotes Seleccionados" >
+
+            <div id="map" #map class="border rounded bg-slate-600" ></div>
+
+          </cdk-step>
+
+          <cdk-step label="Financiamiento"  >
+
+            <div class="grid gap-4 grid-cols-6 pb-3">
+
+              <div class="col-span-2 xs:col-span-6 ">
+
+                <div class="font-semibold text-md dark:text-white text-left">
+                  <h1 class="text-left mb-2 text-md font-semibold tracking-tight leading-none text-gray-900 dark:text-white">
+                    Tipo de pago
+                  </h1>
+                  <div class="font-normal text-sm text-gray-500 dark:text-gray-400">
+                    {{ contractById()?.paymentType | paymentType }}
+                  </div>
+                </div>
+
+              </div>
+
+              <div class="col-span-4 xs:col-span-6 ">
+
+                @if ( !isPaymentToCash ) {
+
+                  <div class="flex justify-around items-center gap-3">
+
+                    <div class="text-left">
+                      <h1 class=" mb-2 text-md font-semibold tracking-tight leading-none text-gray-900 dark:text-white">
+                        {{ contractById()?.financing?.name }}
+                      </h1>
+                      <div class="font-normal text-sm text-gray-500 dark:text-gray-400">
+                        Interés: {{ contractById()?.interestPercent }}% - {{ numberOfQuotes }} Cuotas
+                      </div>
+                    </div>
+
+                    <div class="text-left">
+                      <h1 class=" mb-2 text-md font-semibold tracking-tight leading-none text-gray-900 dark:text-white">
+                        Inicial
+                      </h1>
+                      <div class="font-normal text-sm text-gray-500 dark:text-gray-400">
+                        S/ {{ contractById()?.initialAmount | number:'.2-2' }}
+                      </div>
+                    </div>
+
+                  </div>
+
+                } @else {
+
+                  <div class="text-left">
+                    <h1 class=" mb-2 text-md font-semibold tracking-tight leading-none text-gray-900 dark:text-white">
+                      Inicial
+                    </h1>
+                    <div class="font-normal text-sm text-gray-500 dark:text-gray-400">
+                      S/ {{ contractById()?.initialAmount | number:'.2-2' }}
+                    </div>
+                  </div>
+
+                }
+
+              </div>
+
+            </div>
+
+            <div class="relative overflow-x-auto pt-6 pb-2">
+              <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                  <thead class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-gray-700 dark:text-gray-400">
+                      <tr>
+                          <th scope="col" class="px-6 py-3 rounded-s-lg">
+                              Lotes a comprar
+                          </th>
+                          <th scope="col" class="px-6 py-3 rounded-e-lg text-center">
+                              Precio
+                          </th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                    @for ( lote of lotes(); track $index) {
+                      <tr class="bg-white dark:bg-gray-800">
+
+
+                          <th scope="row" class="px-6 py-2 text-gray-900 whitespace-nowrap dark:text-white">
+
+                            <div class="">
+                              <div class="text-base font-semibold">
+                                {{ lote.code }}
+                              </div>
+                              <div class="font-normal text-gray-500">
+                                {{  lote.ubication }} ( {{ lote.squareMeters }} m2 )
+                              </div>
+                            </div>
+
+
+                          </th>
+
+                          <td class="px-6 py-2 text-right">
+                              S/ {{ lote.price | number: '.2-2' }}
+                          </td>
+                      </tr>
+                    }
+                  </tbody>
+                  <tfoot>
+                      <tr class="font-semibold text-gray-900 dark:text-white">
+                          <th scope="row" class="px-6 py-1 text-base">Total</th>
+                          <td class="px-6 py-1 text-right">
+                            S/ {{ lotesAmount | number: '.2-2' }}
+                          </td>
+                      </tr>
+                      <tr class="font-semibold text-gray-900 dark:text-white">
+                        <th scope="row" class="px-6 py-1 text-base">Interés</th>
+                        <td class="px-6 py-1 text-right">
+                          {{ interestPercent }}%
+                        </td>
+                      </tr>
+                      <tr class="font-semibold text-gray-900 dark:text-white">
+                        <th scope="row" class="px-6 py-1 text-base">Total a financiar</th>
+                        <td class="px-6 py-1 text-right">
+                          S/ {{ amountToFinancing | number: '.2-2' }}
+                        </td>
+                      </tr>
+                      <tr class="font-semibold text-gray-900 dark:text-white">
+                        <th scope="row" class="px-6 py-1 text-base">Monto por cuota</th>
+                        <td class="px-6 py-1 text-right">
+                          S/ {{ amountToQuota | number: '.2-2' }}
+                        </td>
+                      </tr>
+                  </tfoot>
+              </table>
+            </div>
+
+
+          </cdk-step>
+
+        </custom-stepper>
+
+      </div>
+
+    </div>
+
+  </div>
+</div>

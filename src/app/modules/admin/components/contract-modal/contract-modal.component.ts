@@ -183,11 +183,9 @@ export class ContractModalComponent implements OnInit, AfterViewInit, OnDestroy 
     this._map = new Map({
       container: this.mapContainer.nativeElement,
       style: 'mapbox://styles/mapbox/streets-v12', // style URL
-      // style: 'mapbox://styles/mapbox/satellite-v9', // style URL
       center: [ -80.6987307175805,-4.926770405375706 ], // starting position [lng, lat]
       zoom: 14, //
     });
-
 
   }
 
@@ -300,7 +298,7 @@ export class ContractModalComponent implements OnInit, AfterViewInit, OnDestroy 
 
   }
 
-  onBuildBorderProyect(  ) {
+  onBuildBorderProyect() {
     if( !this._map ) throw new Error(`Div map container not found!!!`);
 
     const points = this._polygonCoords.reduce<number[][]>( (acc: number[][], current) => {

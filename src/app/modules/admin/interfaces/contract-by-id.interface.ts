@@ -1,7 +1,7 @@
-import { Client, Lote, Proyect } from ".";
+import { Client, Financing, Lote, Proyect } from ".";
 import { PaymentType } from "../enum";
 
-export interface Contract {
+export interface ContractByID {
   isActive:           boolean;
   userCreate:         string;
   createAt:           Date;
@@ -24,6 +24,7 @@ export interface Contract {
   anulateAt:          null;
   userAnulate:        null;
   lotes:              Lote[];
-  proyect:            Proyect;
   client:             Client;
+  proyect:            Proyect;
+  financing:          Financing;
 }

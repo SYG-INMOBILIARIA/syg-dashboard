@@ -6,13 +6,14 @@ import { PaginationComponent } from '@shared/components/pagination/pagination.co
 import { NomenclatureService } from '@shared/services/nomenclature.service';
 import { AlertService } from '@shared/services/alert.service';
 import { fullTextPatt } from '@shared/helpers/regex.helper';
-import { Contract } from '../../interfaces';
+import { Contract, Proyect, Schedule } from '../../interfaces';
 import { PipesModule } from '@pipes/pipes.module';
 import { MatDialog } from '@angular/material/dialog';
 import { ContractModalComponent } from '../../components/contract-modal/contract-modal.component';
 import { Subscription, forkJoin } from 'rxjs';
 import { ProyectService } from '../../services/proyect.service';
 import { Nomenclature } from '@shared/interfaces';
+import { ContractDetailModalComponent } from '../../components/contract-detail-modal/contract-detail-modal.component';
 
 @Component({
   selector: 'app-contracts',
@@ -23,7 +24,8 @@ import { Nomenclature } from '@shared/interfaces';
     FormsModule,
     PaginationComponent,
     PipesModule,
-    ContractModalComponent
+    ContractModalComponent,
+    ContractDetailModalComponent
   ],
   templateUrl: './contracts.component.html',
   styles: ``
@@ -34,6 +36,10 @@ export default class ContractsComponent implements OnInit, OnDestroy {
 
   @ViewChild('btnCloseContractModal') btnCloseContractModal!: ElementRef<HTMLButtonElement>;
   @ViewChild('btnShowContractModal') btnShowContractModal!: ElementRef<HTMLButtonElement>;
+  @ViewChild('btnShowDetailContractModal') btnShowDetailContractModal!: ElementRef<HTMLButtonElement>;
+  @ViewChild('btnShowScheduleContractModal') btnShowScheduleContractModal!: ElementRef<HTMLButtonElement>;
+
+
 
   public contractModalTitle = 'Crear nuevo contrato';
 
@@ -50,15 +56,43 @@ export default class ContractsComponent implements OnInit, OnDestroy {
   private _isSaving = signal( false );
   private _totalContracts = signal<number>( 0 );
   private _contracts = signal<Contract[]>( [] );
+  private _contractIdByModal = signal< string | null >( null );
+  private _contractById = signal< Contract | null >( null );
   private _paymentTypes = signal<Nomenclature[]>( [] );
+  private _contractSchedule = signal<Schedule[]>( [] );
 
+  public contractSchedule = computed( () => this._contractSchedule() );
   public isLoading = computed( () => this._isLoading() );
   public isSaving = computed( () => this._isSaving() );
   public totalContracts = computed( () => this._totalContracts() );
   public contracts = computed( () => this._contracts() );
   public paymentTypes = computed( () => this._paymentTypes() );
+  public contractById = computed( () => this._contractById() );
+  public contractIdByModal = computed( () => this._contractIdByModal() );
+  public lotes = computed( () => this._contractById()?.lotes ?? [] );
+  public client = computed( () => this._contractById()?.client );
 
   get isInvalidSearchInput() { return this.searchInput.invalid; }
+
+  get lotesAmount() {
+    return this.contractById()?.loteAmount ?? 0;
+  }
+
+  get interestPercent() {
+    return this.contractById()?.interestPercent ?? 0;
+  }
+
+  get amountToFinancing() {
+    return this.contractById()?.amountToFinancing ?? 0;
+  }
+
+  get amountToQuota() {
+    return this.contractById()?.quotesAmount ?? 0;
+  }
+
+  get numberOfQuotes() {
+    return this.contractById()?.numberOfQuotes ?? 0;
+  }
 
   ngOnInit(): void {
 
@@ -107,6 +141,32 @@ export default class ContractsComponent implements OnInit, OnDestroy {
 
   onRemoveConfirm( contract: Contract ) {
 
+  }
+
+  onShowDetailModal( contract: Contract ) {
+
+    const { id } = contract;
+
+    this._contractIdByModal.set( id );
+
+    this.btnShowDetailContractModal.nativeElement.click();
+  }
+
+  onShowScheduleModal( contract: Contract ) {
+
+    this._contractById.set( contract );
+
+    this._contractService.getPaymentScheduleByContract( contract.id )
+    .subscribe( ({ schedule }) => {
+
+      this._contractSchedule.set( schedule );
+      this.btnShowScheduleContractModal.nativeElement.click();
+    });
+
+  }
+
+  async onDonwloadSchedule() {
+    this._contractService.getDowlandPaymentSchedule('scheduleContractdiv');
   }
 
   ngOnDestroy(): void {
