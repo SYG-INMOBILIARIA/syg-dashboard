@@ -33,7 +33,13 @@
 
   </ul>
 
-  <button type="button" class="w-48 inline-flex items-center gap-2 btn-marker text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" (click)="createMarker()">
+  <button
+    type="button"
+    class="w-48 inline-flex items-center gap-2 btn-marker text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+    (click)="createMarker()"
+    [disabled]="markersCount >= 4"
+    [ngClass]="{'hidden': markersCount >= 4 }"
+  >
       <i class="fa-solid fa-location-dot"></i>
       Agregar marcador
   </button>

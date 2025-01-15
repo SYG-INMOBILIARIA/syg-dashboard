@@ -94,6 +94,10 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
   private _loteStatus = signal<Nomenclature[]>( [] );
   public loteStatus = computed( () => this._loteStatus() );
 
+  private _isBuildingMap = signal<boolean>( false );
+
+  public isBuildingMap = computed( () => this._isBuildingMap() );
+
   loteTitleModal = 'Crear nuevo lote';
 
   get isFormInvalid() { return this.loteForm.invalid; }
@@ -116,12 +120,10 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
     this.loteForm.get('proyectId')?.setValue( proyect.id );
 
     if( loteToUpdate ) {
-
       const { polygonCoords, ...lote } = loteToUpdate;
       this.loteTitleModal = `Actualizar lote ${ lote.code }`;
 
       this.loteForm.reset( lote );
-
     }
 
   }
@@ -129,6 +131,8 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
   ngAfterViewInit(): void {
 
     if( !this.mapContainer ) throw new Error(`Div map container not found!!!`);
+
+    this._isBuildingMap.set( true );
 
     this._map = new Map({
       container: this.mapContainer.nativeElement,
@@ -138,7 +142,7 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
       zoom: 14, //
     });
 
-    const { proyect, lotes } = this.data;
+    const { proyect } = this.data;
 
     this._map.on('load', () => {
 
@@ -148,12 +152,8 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
 
       if( flatImage ) {
         this._buildFlatProyect( flatImage, polygonCoords );
-
       } else {
-
-        this.onBuildBorderPolygon( polygonCoords );
-        this.onAllowDrawer();
-        this.onBuildLotes( lotes );
+        this._onBuildBorderPolygon( polygonCoords );
       }
 
     });
@@ -164,9 +164,11 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
 
   }
 
-  onBuildBorderPolygon( polygonCoords: Coordinate[] ) {
+  private _onBuildBorderPolygon( polygonCoords: Coordinate[] ) {
 
     if( !this._map ) throw new Error(`Div map container not found!!!`);
+
+    const { lotes } = this.data;
 
     const points = polygonCoords.reduce<number[][]>( (acc: number[][], current) => {
       acc.push( [ current.lng, current.lat ] );
@@ -181,10 +183,7 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
                 {
                     'type': 'Feature',
                     'properties': {},
-                    'geometry': {
-                        'coordinates': [ points ],
-                        'type': 'Polygon'
-                    }
+                    'geometry': { 'coordinates': [ points ], 'type': 'Polygon' }
                 }
             ]
         }
@@ -202,6 +201,13 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
         }
     });
 
+    this.onAllowDrawer();
+    this.onBuildLotes( lotes );
+
+    setTimeout(() => {
+      this._isBuildingMap.set( false );
+    }, 400);
+
   }
 
   private async _buildFlatProyect( flatImage: Photo, polygonCoords: Coordinate[] ) {
@@ -209,59 +215,71 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
     if( !this._map ) throw new Error(`Div map container not found!!!`);
     const { urlImg } = flatImage;
 
+    const { lotes } = this.data;
 
-    const points = polygonCoords.reduce<number[][]>( (acc: number[][], current) => {
+    const points = polygonCoords.reduce<any>( (acc: number[][], current) => {
       acc.push( [ current.lng, current.lat ] );
       return acc;
     }, []);
 
-    const polygonId = uuid();
+    const imgSourceId = uuid();
 
-    this._map.addSource( polygonId, {
-      'type': 'geojson',
-      'data': {
-          'type': 'Feature',
-          'properties': {},
-          'geometry': {
-              'type': 'Polygon',
-              'coordinates': [
-                points
-              ]
-          }
-      }
+    // Add an image source
+    this._map.addSource(imgSourceId, {
+      'type': 'image',
+      'url': urlImg,
+      'coordinates': points
     });
 
-    this._alertService.showLoading();
-
-    this._map.loadImage( urlImg, (err, image) => {
-      // Throw an error if something goes wrong.
-      if (err) throw err;
-
-      const { lotes } = this.data;
-
-      const imageId = uuid();
-      // Add the image to the map style.
-      this._map!.addImage(imageId, image!, {
-        pixelRatio: 3
-      });
-
-
-      // Create a new layer and style it using `fill-pattern`.
-      this._map!.addLayer({
-        'id': uuid(),
-        'type': 'fill',
-        'source': polygonId,
-        'paint': {
-            'fill-pattern': imageId
-        }
-      });
-
-      this._alertService.close();
-
-      this.onAllowDrawer();
-      this.onBuildLotes( lotes );
-
+    // Add a layer for displaying the image
+    this._map.addLayer({
+      'id': uuid(),
+      'type': 'raster',
+      'source': imgSourceId,
+      'paint': { 'raster-opacity': 1.0 }
     });
+
+    this.onAllowDrawer();
+    this.onBuildLotes( lotes );
+
+    setTimeout(() => {
+      this._isBuildingMap.set( false );
+    }, 1200);
+
+    // const polygonId = uuid();
+
+    // this._map?.addSource( polygonId, {
+    //   'type': 'geojson',
+    //   'data': {
+    //       'type': 'Feature',
+    //       'properties': {},
+    //       'geometry': { 'type': 'Polygon', 'coordinates': [ points ] }
+    //   }
+    // });
+
+    // this._alertService.showLoading();
+
+    // this._map?.loadImage( urlImg, (err, image) => {
+    //   if (err) throw err;
+
+    //   const imageId = uuid();
+    //   // Add the image to the map style.
+    //   this._map!.addImage(imageId, image!, {
+    //     pixelRatio: 3
+    //   });
+
+    //   // Create a new layer and style it using `fill-pattern`.
+    //   this._map!.addLayer({
+    //     'id': uuid(),
+    //     'type': 'fill',
+    //     'source': polygonId,
+    //     'paint': { 'fill-pattern': imageId }
+    //   });
+
+    //   this._alertService.close();
+    //   this.onAllowDrawer();
+    //   this.onBuildLotes( lotes );
+    // });
 
   }
 
@@ -288,11 +306,10 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
 
     if( loteToUpdate ) {
 
-      const { polygonCoords } = loteToUpdate;
+      const { polygonCoords, centerCoords } = loteToUpdate;
 
-      const center = polygonCoords[0];
-      this._map.setCenter( center );
-      this._map.setZoom( 20 );
+      this._map.setCenter( centerCoords );
+      this._map.setZoom( 19.2 );
 
       const coordinates = polygonCoords.reduce<number[][]>( (acc, current) => {
         acc.push([ current.lng, current.lat ]);

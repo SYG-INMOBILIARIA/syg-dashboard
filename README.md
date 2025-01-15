@@ -25,3 +25,30 @@ Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To u
 ## Further help
 
 To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+
+## Config firebase (storage) cors
+1. Auth and set config
+```bash
+# auth google console
+ gcloud auth login
+
+#Set config to firebase
+ gcloud config set project your-project-id
+```
+2. Create file cors.json
+```json
+[
+  {
+    "origin": ["*"],  // or specify your frontend domain, e.g., "https://your-angular-app.com"
+    "responseHeader": ["Content-Type"],
+    "method": ["GET", "OPTIONS"],
+    "maxAgeSeconds": 3600
+  }
+]
+
+```
+3. Apply cors configuration to firebase storage
+```bash
+gsutil cors set cors.json gs://your-firebase-storage-bucket-name
+```
+

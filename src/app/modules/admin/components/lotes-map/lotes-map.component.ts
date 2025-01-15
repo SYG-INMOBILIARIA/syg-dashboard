@@ -1,19 +1,20 @@
-import { Component, ElementRef, Input, ViewChild, inject } from '@angular/core';
+import { Component, ElementRef, Input, ViewChild, computed, inject, signal } from '@angular/core';
 import { LngLatLike, Map, Popup } from 'mapbox-gl';
 import { v4 as uuid } from 'uuid';
 
 import { Coordinate, Lote, Proyect } from '../../interfaces';
 import { LoteStatus } from '../../enum';
-import { formatNumber } from '@angular/common';
+import { CommonModule, formatNumber } from '@angular/common';
 import { Photo } from '@shared/interfaces';
 import { AlertService } from '@shared/services/alert.service';
 
 @Component({
   selector: 'lotes-map',
   standalone: true,
-  imports: [],
+  imports: [
+    CommonModule
+  ],
   templateUrl: './lotes-map.component.html',
-  styleUrl: './lotes-map.component.css'
 })
 export class LotesMapComponent {
 
@@ -58,9 +59,15 @@ export class LotesMapComponent {
   private _polygonCoords: Coordinate[] = [];
   private _imageMapId?: string;
 
+  private _isBuildingMap = signal<boolean>( false );
+
+  public isBuildingMap = computed( () => this._isBuildingMap() );
+
   ngAfterViewInit(): void {
 
     if( !this.mapContainer ) throw new Error(`Div map container not found!!!`);
+
+    this._isBuildingMap.set( true );
 
     this._map = new Map({
       container: this.mapContainer.nativeElement,
@@ -72,12 +79,13 @@ export class LotesMapComponent {
     });
 
     this._map.on('load', () => {
+      // this._map!.resize();
 
       if( this._flatImage ) {
         this._buildFlatProyect( this._flatImage );
 
       } else {
-        this.onBuildBorderPolygon( this._polygonCoords );
+        this._onBuildBorderPolygon( this._polygonCoords );
       }
 
     });
@@ -90,8 +98,6 @@ export class LotesMapComponent {
   }
 
   onBuildPolygonByLotesRegistered() {
-
-    console.log('onBuildPolygonByLotesRegistered :::');
 
     this._lotesRegistered.forEach( (lote) => {
       this._onBuildLotePolygon( lote );
@@ -116,14 +122,14 @@ export class LotesMapComponent {
       if( this._flatImage ) {
         this._buildFlatProyect( this._flatImage );
       } else {
-        this.onBuildBorderPolygon( this._polygonCoords );
+        this._onBuildBorderPolygon( this._polygonCoords );
       }
 
     }
 
   }
 
-  onBuildBorderPolygon( polygonCoords: Coordinate[] ) {
+  private _onBuildBorderPolygon( polygonCoords: Coordinate[] ) {
     if( !polygonCoords ) throw new Error(`PolygonCoords undefined!!!`);
     if( !this._map ) throw new Error(`Div map container not found!!!`);
 
@@ -180,7 +186,9 @@ export class LotesMapComponent {
       if( this._lotesRegistered.length > 0 ) {
         this.onBuildPolygonByLotesRegistered();
       }
-    }, 400);
+
+      this._isBuildingMap.set( false );
+    }, 200);
 
   }
 
@@ -189,56 +197,76 @@ export class LotesMapComponent {
     if( !this._map ) throw new Error(`Div map container not found!!!`);
     const { urlImg } = flatImage;
 
-    const points = this._polygonCoords.reduce<number[][]>( (acc: number[][], current) => {
+    const points = this._polygonCoords.reduce<any>( (acc: number[][], current) => {
       acc.push( [ current.lng, current.lat ] );
       return acc;
     }, []);
 
-    const polygonId = uuid();
+    const imgSourceId = uuid();
 
-    this._map.addSource( polygonId, {
-      'type': 'geojson',
-      'data': {
-          'type': 'Feature',
-          'properties': {},
-          'geometry': {
-              'type': 'Polygon',
-              'coordinates': [
-                points
-              ]
-          }
-      }
+    // Add an image source
+    this._map.addSource(imgSourceId, {
+      'type': 'image',
+      'url': urlImg,
+      'coordinates': points
     });
 
-    this._alertService.showLoading();
+    // Add a layer for displaying the image
+    this._map.addLayer({
+      'id': uuid(),
+      'type': 'raster',
+      'source': imgSourceId,
+      'paint': { 'raster-opacity': 1.0 }
+    });
 
-
-    this._map.loadImage( urlImg, (err, image) => {
-      // Throw an error if something goes wrong.
-      if (err) throw err;
-
-      this._imageMapId = uuid();
-      // Add the image to the map style.
-      this._map!.addImage(this._imageMapId, image!, {
-        pixelRatio: 3,
-      });
-
-
-      // Create a new layer and style it using `fill-pattern`.
-      this._map!.addLayer({
-        'id': uuid(),
-        'type': 'fill',
-        'source': polygonId,
-        'paint': { 'fill-pattern': this._imageMapId }
-      });
-
-      this._alertService.close();
-
+    setTimeout(() => {
       if( this._lotesRegistered.length > 0 ) {
         this.onBuildPolygonByLotesRegistered();
       }
+    }, 200);
 
-    });
+    setTimeout(() => {
+      this._isBuildingMap.set( false );
+    }, 1500);
+
+    // const polygonId = uuid();
+
+    // this._map?.addSource( polygonId, {
+    //   'type': 'geojson',
+    //   'data': {
+    //       'type': 'Feature',
+    //       'properties': {},
+    //       'geometry': { 'type': 'Polygon', 'coordinates': [ points ] }
+    //   }
+    // });
+
+    // this._alertService.showLoading();
+
+    // this._map?.loadImage( urlImg, (err, image) => {
+    //   // Throw an error if something goes wrong.
+    //   if (err) throw err;
+
+    //   this._imageMapId = uuid();
+    //   // Add the image to the map style.
+    //   this._map!.addImage(this._imageMapId, image!, {
+    //     pixelRatio: 3,
+    //   });
+
+    //   // Create a new layer and style it using `fill-pattern`.
+    //   this._map!.addLayer({
+    //     'id': uuid(),
+    //     'type': 'fill',
+    //     'source': polygonId,
+    //     'paint': { 'fill-pattern': this._imageMapId }
+    //   });
+
+    //   this._alertService.close();
+
+    //   if( this._lotesRegistered.length > 0 ) {
+    //     this.onBuildPolygonByLotesRegistered();
+    //   }
+
+    // });
 
   }
 

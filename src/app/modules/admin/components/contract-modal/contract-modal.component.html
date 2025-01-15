@@ -395,61 +395,64 @@
                   }
                 </div>
 
-                <div class="col-span-3 xs:col-span-6">
-                  <label for="cbxProyect" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                    Financiamiento *
-                  </label>
-                  <ng-select
-                    id="cbxProyect"
-                    class="bg-gray-50 border text-gray-900 text-sm rounded-lg block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                    [items]="financings()"
-                    bindLabel="name"
-                    (change)="onChangeFinancing( $event )"
-                    bindValue="id"
-                    placeholder="Seleccione financimaiento"
-                    formControlName="financingId"
-                    [class.border-red-400]=" inputErrorsThree('financingId') && isTouchedThree('financingId') "
-                  >
+                @if (!paymentTypeIsCash) {
 
-                  </ng-select>
+                  <div class="col-span-3 xs:col-span-6">
+                    <label for="cbxProyect" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                      Financiamiento *
+                    </label>
+                    <ng-select
+                      id="cbxProyect"
+                      class="bg-gray-50 border text-gray-900 text-sm rounded-lg block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                      [items]="financings()"
+                      bindLabel="name"
+                      (change)="onChangeFinancing( $event )"
+                      bindValue="id"
+                      placeholder="Seleccione financimaiento"
+                      formControlName="financingId"
+                      [class.border-red-400]=" inputErrorsThree('financingId') && isTouchedThree('financingId') "
+                    >
 
-                  @if (isTouchedThree('financingId')) {
-                    <span
-                      class="flex items-center ms-1 mt-2 text-xs text-red-500"
-                      inputErrors
-                      [errors]="inputErrorsThree('financingId')"
-                      inputLabel="Financiamiento" >
-                    </span>
-                  }
-                </div>
+                    </ng-select>
 
-                <div class="col-span-3 xs:col-span-6">
-                  <label for="cbxProyect" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                    Coutas de pago *
-                  </label>
-                  <ng-select
-                    id="cbxProyect"
-                    class="bg-gray-50 border text-gray-900 text-sm rounded-lg block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                    [items]="quotas()"
-                    bindLabel="numberOfQuotes"
-                    bindValue="id"
-                    placeholder="Seleccione cuotas"
-                    (change)="onChangeQuota( $event )"
-                    formControlName="quotaId"
-                    [class.border-red-400]=" inputErrorsThree('quotaId') && isTouchedThree('quotaId') "
-                  >
+                    @if (isTouchedThree('financingId')) {
+                      <span
+                        class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                        inputErrors
+                        [errors]="inputErrorsThree('financingId')"
+                        inputLabel="Financiamiento" >
+                      </span>
+                    }
+                  </div>
 
-                  </ng-select>
+                  <div class="col-span-3 xs:col-span-6">
+                    <label for="cbxProyect" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                      Coutas de pago *
+                    </label>
+                    <ng-select
+                      id="cbxProyect"
+                      class="bg-gray-50 border text-gray-900 text-sm rounded-lg block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                      [items]="quotas()"
+                      bindLabel="numberOfQuotes"
+                      bindValue="id"
+                      placeholder="Seleccione cuotas"
+                      (change)="onChangeQuota( $event )"
+                      formControlName="quotaId"
+                      [class.border-red-400]=" inputErrorsThree('quotaId') && isTouchedThree('quotaId') "
+                    >
 
-                  @if (isTouchedThree('quotaId')) {
-                    <span
-                      class="flex items-center ms-1 mt-2 text-xs text-red-500"
-                      inputErrors
-                      [errors]="inputErrorsThree('quotaId')"
-                      inputLabel="Cuotas" >
-                    </span>
-                  }
-                </div>
+                    </ng-select>
+
+                    @if (isTouchedThree('quotaId')) {
+                      <span
+                        class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                        inputErrors
+                        [errors]="inputErrorsThree('quotaId')"
+                        inputLabel="Cuotas" >
+                      </span>
+                    }
+                  </div>
+                }
 
               </div>
 

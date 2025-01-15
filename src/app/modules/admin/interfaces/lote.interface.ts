@@ -13,7 +13,7 @@ export interface Lote {
   price:           number;
   year:            number;
   loteStatus:      string;
-  centerCoords:    number[];
+  centerCoords:    [number, number];
   photos:          any[];
   polygonCoords:   Coordinate[];
 }

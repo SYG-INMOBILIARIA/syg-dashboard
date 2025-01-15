@@ -161,6 +161,11 @@ export class ContractModalComponent implements OnInit, AfterViewInit, OnDestroy 
     }, []);
   }
 
+  get paymentTypeIsCash() {
+    const paymentType = this.contractFormThree.get('paymentType')?.value;
+    return paymentType == PaymentType.cash;
+  }
+
   ngOnInit(): void {
 
     if( !this.paymentTypes ) throw new Error('Payments type no receibed!!!');
@@ -217,10 +222,11 @@ export class ContractModalComponent implements OnInit, AfterViewInit, OnDestroy 
     });
   }
 
-  onBuildLotes( lotes: Lote[] ) {
+  private _onBuildLotes( ) {
 
     if( !this._map ) throw new Error(`Map not found!!!`);
 
+    const lotes = this._lotes();
     const lotesBusiedId = this.lotesIdsBusied;
 
     lotes.forEach(lote => {
@@ -339,7 +345,7 @@ export class ContractModalComponent implements OnInit, AfterViewInit, OnDestroy 
         }
     });
 
-    this.onBuildLotes( this._lotes() );
+    this._onBuildLotes();
 
   }
 
@@ -404,56 +410,65 @@ export class ContractModalComponent implements OnInit, AfterViewInit, OnDestroy 
     if( !this._map ) throw new Error(`Div map container not found!!!`);
     const { urlImg } = flatImage;
 
-    const points = this._polygonCoords.reduce<number[][]>( (acc: number[][], current) => {
+    const points = this._polygonCoords.reduce<any>( (acc: number[][], current) => {
       acc.push( [ current.lng, current.lat ] );
       return acc;
     }, []);
 
-    const polygonId = uuid();
+    const imgSourceId = uuid();
 
-    this._map.addSource( polygonId, {
-      'type': 'geojson',
-      'data': {
-          'type': 'Feature',
-          'properties': {},
-          'geometry': {
-              'type': 'Polygon',
-              'coordinates': [
-                points
-              ]
-          }
-      }
+    // Add an image source
+    this._map.addSource(imgSourceId, {
+      'type': 'image',
+      'url': urlImg,
+      'coordinates': points
     });
 
-    this._alertService.showLoading();
-
-
-    this._map.loadImage( urlImg, (err, image) => {
-      // Throw an error if something goes wrong.
-      if (err) throw err;
-
-      const imageId = uuid();
-      // Add the image to the map style.
-      this._map!.addImage(imageId, image!, {
-        pixelRatio: 3,
-      });
-
-
-      // Create a new layer and style it using `fill-pattern`.
-      this._map!.addLayer({
-        'id': uuid(),
-        'type': 'fill',
-        'source': polygonId,
-        'paint': {
-            'fill-pattern': imageId,
-        }
-      });
-
-      this._alertService.close();
-
-      this.onBuildLotes( this._lotes() );
-
+    // Add a layer for displaying the image
+    this._map.addLayer({
+      'id': uuid(),
+      'type': 'raster',
+      'source': imgSourceId,
+      'paint': { 'raster-opacity': 1.0 }
     });
+
+    this._onBuildLotes();
+
+    // const polygonId = uuid();
+
+    // this._map.addSource( polygonId, {
+    //   'type': 'geojson',
+    //   'data': {
+    //       'type': 'Feature',
+    //       'properties': {},
+    //       'geometry': { 'type': 'Polygon', 'coordinates': [ points ] }
+    //   }
+    // });
+
+    // this._alertService.showLoading();
+
+    // this._map.loadImage( urlImg, (err, image) => {
+    //   // Throw an error if something goes wrong.
+    //   if (err) throw err;
+
+    //   const imageId = uuid();
+    //   // Add the image to the map style.
+    //   this._map!.addImage(imageId, image!, {
+    //     pixelRatio: 3,
+    //   });
+
+    //   // Create a new layer and style it using `fill-pattern`.
+    //   this._map!.addLayer({
+    //     'id': uuid(),
+    //     'type': 'fill',
+    //     'source': polygonId,
+    //     'paint': { 'fill-pattern': imageId }
+    //   });
+
+    //   this._alertService.close();
+    //   this.onBuildLotes( this._lotes() );
+
+    // });
 
   }
 

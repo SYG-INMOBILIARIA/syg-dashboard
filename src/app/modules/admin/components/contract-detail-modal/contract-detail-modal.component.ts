@@ -51,8 +51,9 @@ export class ContractDetailModalComponent implements AfterViewInit, OnDestroy {
 
   private _contractId?: string;
   private _contractById = signal<ContractByID | null>( null );
+  private _isBuildingMap = signal<boolean>( false );
 
-
+  public isBuildingMap = computed( () => this._isBuildingMap() );
   public contractById = computed( () => this._contractById() );
   public client = computed( () => this._contractById()?.client );
   public lotes = computed( () => this._contractById()?.lotes ?? [] );
@@ -97,6 +98,8 @@ export class ContractDetailModalComponent implements AfterViewInit, OnDestroy {
       center: [ -80.6987307175805,-4.926770405375706 ], // starting position [lng, lat]
       zoom: 14, //
     });
+
+    this._isBuildingMap.set( true );
   }
 
   onLoadContract() {
@@ -104,6 +107,9 @@ export class ContractDetailModalComponent implements AfterViewInit, OnDestroy {
     if( !this._contractId ) throw new Error('Not recibed contractId');
 
     this._alertService.showLoading();
+
+    this._map?.remove();
+    this.onBuildMap();
 
     this._contractService.getContractById( this._contractId )
     .subscribe( ( contractById ) => {
@@ -244,7 +250,11 @@ export class ContractDetailModalComponent implements AfterViewInit, OnDestroy {
         }
     });
 
-    this.onBuildLotes( this.lotes() ?? [] );
+    this.onBuildLotes( this.lotes() );
+
+    setTimeout(() => {
+      this._isBuildingMap.set( false );
+    }, 1000);
 
   }
 
@@ -253,51 +263,72 @@ export class ContractDetailModalComponent implements AfterViewInit, OnDestroy {
     if( !this._map ) throw new Error(`Div map container not found!!!`);
     const { urlImg } = flatImage;
 
-    const points = this._polygonCoords.reduce<number[][]>( (acc: number[][], current) => {
+    const points = this._polygonCoords.reduce<any>( (acc: number[][], current) => {
       acc.push( [ current.lng, current.lat ] );
       return acc;
     }, []);
 
-    const polygonId = uuid();
+    const imgSourceId = uuid();
 
-    this._map.addSource( polygonId, {
-      'type': 'geojson',
-      'data': {
-          'type': 'Feature',
-          'properties': {},
-          'geometry': {
-              'type': 'Polygon',
-              'coordinates': [
-                points
-              ]
-          }
-      }
+    // Add an image source
+    this._map.addSource(imgSourceId, {
+      'type': 'image',
+      'url': urlImg,
+      'coordinates': points
     });
 
-    this._map.loadImage( urlImg, (err, image) => {
-      // Throw an error if something goes wrong.
-      if (err) throw err;
-
-      const imageId = uuid();
-      // Add the image to the map style.
-      this._map!.addImage(imageId, image!, {
-        pixelRatio: 3,
-      });
-
-
-      // Create a new layer and style it using `fill-pattern`.
-      this._map!.addLayer({
-        'id': uuid(),
-        'type': 'fill',
-        'source': polygonId,
-        'paint': {
-            'fill-pattern': imageId,
-        }
-      });
-
-      this.onBuildLotes( this.lotes() ?? [] );
-
+    // Add a layer for displaying the image
+    this._map.addLayer({
+      'id': uuid(),
+      'type': 'raster',
+      'source': imgSourceId,
+      'paint': { 'raster-opacity': 1.0 }
     });
+
+    this.onBuildLotes( this.lotes() );
+
+    setTimeout(() => {
+      this._isBuildingMap.set( false );
+    }, 1600);
+
+    // const polygonId = uuid();
+
+    // this._map.addSource( polygonId, {
+    //   'type': 'geojson',
+    //   'data': {
+    //       'type': 'Feature',
+    //       'properties': {},
+    //       'geometry': {
+    //           'type': 'Polygon',
+    //           'coordinates': [
+    //             points
+    //           ]
+    //       }
+    //   }
+    // });
+
+    // this._map.loadImage( urlImg, (err, image) => {
+    //   // Throw an error if something goes wrong.
+    //   if (err) throw err;
+
+    //   const imageId = uuid();
+    //   // Add the image to the map style.
+    //   this._map!.addImage(imageId, image!, {
+    //     pixelRatio: 3,
+    //   });
+
+
+    //   // Create a new layer and style it using `fill-pattern`.
+    //   this._map!.addLayer({
+    //     'id': uuid(),
+    //     'type': 'fill',
+    //     'source': polygonId,
+    //     'paint': { 'fill-pattern': imageId }
+    //   });
+
+    //   this.onBuildLotes( this.lotes() ?? [] );
+
+    // });
 
   }
 
