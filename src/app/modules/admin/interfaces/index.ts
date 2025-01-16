@@ -26,3 +26,5 @@ export * from './contract-body.interface';
 export * from './contract-lotes-busied.interface';
 export * from './contract-by-id.interface';
 export * from './payment-schedule.interface';
+
+export * from './map-props.interface';

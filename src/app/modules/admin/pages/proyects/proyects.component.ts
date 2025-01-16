@@ -6,6 +6,7 @@ import { MiniMapComponent } from '@shared/components/mini-map/mini-map.component
 import { fullTextPatt } from '@shared/helpers/regex.helper';
 import { ProyectService } from '../../services/proyect.service';
 import { Proyect } from '../../interfaces';
+import { initFlowbite } from 'flowbite';
 
 @Component({
   standalone: true,
@@ -54,6 +55,10 @@ export default class ProyectsComponent implements OnInit {
 
       this._proyects.set( proyects );
       this._totalProyects.set( total );
+
+      setTimeout(() => {
+        initFlowbite();
+      }, 400);
 
     } )
   }

@@ -15,8 +15,10 @@ export interface Proyect {
   photos:          Photo[];
   flatImage?:      Photo;
   polygonCoords:   Coordinate[];
+  pitchMap:        number;
+  bearingMap:      number;
+  zoomMap:         number;
 }
-
 
 // export interface ProyectById extends Proyect {
 //   polygonCoords:   Coordinate[];

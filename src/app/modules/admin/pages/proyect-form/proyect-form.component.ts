@@ -9,7 +9,7 @@ import { onValidImg } from '@shared/helpers/files.helper';
 import { fullTextPatt } from '@shared/helpers/regex.helper';
 import { InputErrorsDirective } from '@shared/directives/input-errors.directive';
 import { PolygonMapHandlerComponent } from '../../components/polygon-map-handler/polygon-map-handler.component';
-import { Coordinate, ProyectBody } from '../../interfaces';
+import { Coordinate, MapProps, ProyectBody } from '../../interfaces';
 import { ProyectService } from '../../services/proyect.service';
 import { UploadFileService } from '@shared/services/upload-file.service';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -47,15 +47,19 @@ export default class ProyectFormComponent implements OnInit {
     adquisitionDate:    [ null, [ Validators.required ] ],
     centerCoords:       [ [], [] ],
     polygonCoords:      [ [], [ Validators.required, Validators.min(4) ] ],
+
+    pitchMap:           [ 0, [] ],
+    bearingMap:         [ 0, [] ],
+    zoomMap:            [ 0, [] ],
   });
 
   public fileUrl = signal<string>( environments.defaultImgUrl );
   private _file?: File;
   private _isSaving = signal<boolean>( false );
   private _polygonCoords = signal<Coordinate[]>([]);
-  private _centerCoord = signal<[number, number] | undefined>( undefined );
+  private _mapProps = signal< MapProps | undefined>( undefined );
   public polygonCoords = computed( () => this._polygonCoords() );
-  public centerCoord = computed( () => this._centerCoord() );
+  public mapProps = computed( () => this._mapProps() );
 
   proyectTitleForm = 'Crear nuevo proyecto';
 
@@ -88,14 +92,17 @@ export default class ProyectFormComponent implements OnInit {
     this._proyectService.getProyectById( proyectId )
     .subscribe( ( proyect ) => {
 
-      const { polygonCoords, centerCoords, flatImage, ...body } = proyect;
+      const { polygonCoords, centerCoords, pitchMap, bearingMap, zoomMap, flatImage, ...body } = proyect;
 
-      this._centerCoord.set( centerCoords );
+      this._mapProps.set( { centerCoords, pitch: pitchMap, bearing: bearingMap, zoom: zoomMap } );
       this._polygonCoords.set( polygonCoords );
 
       this.proyectForm.reset({
         ...body,
-        centerCoords
+        centerCoords,
+        pitchMap,
+        bearingMap,
+        zoomMap
       });
 
       if( flatImage ) {
@@ -126,8 +133,15 @@ export default class ProyectFormComponent implements OnInit {
     this.proyectForm.get('polygonCoords')?.setValue( polygonCoords );
   }
 
-  onCurrentCenterCoord( coords: number[] ) {
-    this.proyectForm.get('centerCoords')?.setValue( coords );
+  onCurrentMapProps( papProps: MapProps ) {
+
+    const { centerCoords, pitch, bearing, zoom } = papProps;
+
+    this.proyectForm.get('centerCoords')?.setValue( centerCoords );
+    this.proyectForm.get('pitchMap')?.setValue( pitch );
+    this.proyectForm.get('bearingMap')?.setValue( bearing );
+    this.proyectForm.get('zoomMap')?.setValue( zoom );
+
   }
 
   onChangeFile( event?: any ) {

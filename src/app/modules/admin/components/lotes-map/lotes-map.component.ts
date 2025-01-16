@@ -157,19 +157,6 @@ export class LotesMapComponent {
         }
     });
 
-    // add the clip layer and configure it to also remove symbols and trees.
-    // clipping becomes active from zoom level 16 and below.
-    this._map.addLayer({
-        'id': uuid(),
-        'type': 'clip',
-        'source': eraserId,
-        'layout': {
-            // specify the layer types to be removed by this clip layer
-            'clip-layer-types': ['symbol', 'model']
-        },
-        'maxzoom': 16
-    });
-
     // add a line layer to visualize the clipping region.
     this._map.addLayer({
         'id': uuid(),

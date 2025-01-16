@@ -115,9 +115,9 @@
   <polygon-map-handler
     [flatImageUrl]="fileUrl()"
     [polygonCoords]="polygonCoords()"
-    [centerMap]="centerCoord()"
+    [mapProps]="mapProps()"
     (updatedPolygonCoords)="onCurrentPolygonCoords( $event )"
-    (updatedCenterCoord)="onCurrentCenterCoord( $event )"
+    (updatedMapProps)="onCurrentMapProps( $event )"
   >
   </polygon-map-handler>
 
