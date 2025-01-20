@@ -364,7 +364,7 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
         // Restrict the area to 2 decimal points.
         const rounded_area = Math.round(area * 100) / 100;
 
-        console.log({area: rounded_area});
+        // console.log({area: rounded_area});
         this.loteForm.get('squareMeters')?.setValue( rounded_area );
         // answer!.innerHTML = `<p><strong>${rounded_area}</strong></p><p>square meters</p>`;
     } else {

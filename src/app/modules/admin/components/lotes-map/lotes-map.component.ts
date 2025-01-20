@@ -31,12 +31,16 @@ export class LotesMapComponent {
 
       const { proyect, lotes } = value;
 
-      const { centerCoords, polygonCoords, flatImage } = proyect;
+      const { centerCoords, polygonCoords, flatImage, bearingMap, pitchMap, zoomMap } = proyect;
       this._centerMap = centerCoords;
-      this._zoom = 17.8;
+      this._zoom = zoomMap;
+      this._bearing = bearingMap;
+      this._pitch = pitchMap;
 
       this._map?.setCenter( this._centerMap );
       this._map?.setZoom( this._zoom );
+      this._map?.setBearing( this._bearing );
+      this._map?.setPitch( this._pitch );
       this._polygonCoords = polygonCoords;
       this._flatImage = flatImage;
 
@@ -56,6 +60,8 @@ export class LotesMapComponent {
 
   private _centerMap: [number, number] = [ -80.6987307175805,-4.926770405375706 ];
   private _zoom = 17;
+  private _bearing = 0;
+  private _pitch = 0;
   private _polygonCoords: Coordinate[] = [];
   private _imageMapId?: string;
 
@@ -74,6 +80,8 @@ export class LotesMapComponent {
       style: 'mapbox://styles/mapbox/streets-v12', // style URL
       center: this._centerMap, // starting position [lng, lat]
       zoom: this._zoom,
+      bearing: this._bearing,
+      pitch: this._pitch
       // maxZoom: 18,
       // minZoom: 17.0
     });
