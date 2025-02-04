@@ -132,25 +132,37 @@ export default class PermissionsComponent implements OnInit {
 
     let result = menus.map( (menu) => {
 
+      const permissionMenu = permissions.find( (permission) => permission.menu.id == menu.id );
+
       return {
         ...menu,
+        permissionId: permissionMenu?.id,
         selected: permissions.some( (permission) => permission.menu.id == menu.id ),
         menuMethods: permissionMethods.map( (nomenclature) => {
 
-          const permissionMenu = permissions.find( (permission) => permission.menu.id == menu.id && permission.method == nomenclature.value )
+          const permissionMenuMehod = permissions.find( (permission) => permission.menu.id == menu.id && permission.methods.includes( nomenclature.value ) );
 
-          if( permissionMenu ) {
-            return { id: permissionMenu.id, method: permissionMenu.method, label: nomenclature.label, selected: true };
+          if( permissionMenuMehod ) {
+            return {
+              // id: permissionMenu.id,
+              method: nomenclature.value,
+              label: nomenclature.label,
+              selected: true
+            };
           }
 
-          return { id: null, method: nomenclature.value, label: nomenclature.label, selected: false };
+          return {
+            // id: null,
+            method: nomenclature.value,
+            label: nomenclature.label,
+            selected: false
+          };
 
         }),
         children: this._buildMenuByRolePermissions( menu.children, permissions )
       };
 
     } );
-
 
     return result;
 
@@ -273,7 +285,7 @@ export default class PermissionsComponent implements OnInit {
 
   onSubmit() {
 
-    if(  !this.isValidForm && !this.isPartialSelectedMenu ) return;
+    if( !this.isValidForm && !this.isPartialSelectedMenu ) return;
 
     const menuSelected = this.dataSource.data.filter( (menu) => menu.selected );
 
@@ -286,25 +298,30 @@ export default class PermissionsComponent implements OnInit {
 
     menuSelected.forEach((menu) => {
 
-      menu.menuMethods.forEach((method) => {
-
-        if( method.selected ){
-          permissions.push({ id: method.id, menuId: menu.id, method: method.method })
-        }
+      permissions.push({
+        id: menu.permissionId,
+        menuId: menu.id,
+        methods: menu.menuMethods.reduce<string[]>( (acc, current) => {
+          if( current.selected ) acc.push( current.method );
+          return acc;
+        }, [])
       });
 
       menu.children.forEach( (children) => {
-        children.menuMethods.forEach((method) => {
 
-          if( method.selected ){
-            permissions.push({ id: method.id, menuId: children.id, method: method.method })
-          }
-        });
+        permissions.push({
+          id: children.permissionId,
+          menuId: children.id,
+          methods: children.menuMethods.reduce<string[]>( (acc, current) => {
+            if( current.selected ) acc.push( current.method );
+            return acc;
+          }, [])
+        })
       });
 
     });
 
-    permissionBody.permissions = permissions
+    permissionBody.permissions = permissions;
 
     this._lockedTree.set( true );
     this._isLoading.set( true );

@@ -6,5 +6,5 @@ export interface PermissionBody {
 export interface PermissionItem {
   id?:     string | null;
   menuId: string;
-  method: string;
+  methods: string[];
 }

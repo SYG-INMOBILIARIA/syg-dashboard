@@ -12,6 +12,7 @@ export class AppMenu {
   parentId!:   null | string;
   children!: AppMenu[];
   type: any;
+  isHidden!: boolean;
   isLoading!: boolean;
   iconClass!: string;
 
@@ -86,6 +87,7 @@ export class MenuHandler {
           node.isLoading = false;
           node.iconClass = value.iconClass;
           node.badge = value.badge ?? undefined;
+          node.isHidden = value.isHidden;
           /**
            * Make sure your node has an id so we can properly rearrange the tree during drag'n'drop.
            * By passing parentId to buildFileTree, it constructs a path of indexes which make
@@ -128,6 +130,7 @@ export class MenuHandler {
     newAppMenu.label = menuCreated.label;
     newAppMenu.level = menuCreated.level;
     newAppMenu.parentId = menuCreated.parentId;
+    newAppMenu.isHidden = menuCreated.isHidden;
 
     // if( parent ) {
     //   if (!parent.children) {
@@ -153,6 +156,8 @@ export class MenuHandler {
   updateItemToFrm( node: AppMenu, menuUpdated: Menu) {
 
     node.label = menuUpdated.label;
+    node.isHidden = menuUpdated.isHidden;
+    node.iconClass = menuUpdated.iconClass;
 
     // node.level = menuUpdated.level;
     // node.order = menuUpdated.order;

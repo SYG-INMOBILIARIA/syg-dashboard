@@ -5,7 +5,7 @@ export interface Permission {
   userCreate: null;
   createAt:   Date;
   id:         string;
-  method:     string;
+  methods:     string[];
   role:       RoleInherited;
   menu:       MenuInherited;
 }

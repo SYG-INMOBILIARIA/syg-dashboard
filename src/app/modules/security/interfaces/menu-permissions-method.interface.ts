@@ -14,13 +14,13 @@ export interface MenuPermissionsMethod {
 
   menuMethods: MenuMethod[];
 
+  permissionId?:        string | null;
   selected: boolean;
 
 }
 
 export interface MenuMethod {
 
-  id?:        string | null;
   label:     string;
   method:     string;
   selected:   boolean;

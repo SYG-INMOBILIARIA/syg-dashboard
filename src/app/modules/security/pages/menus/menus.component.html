@@ -78,7 +78,17 @@
             >
               <!-- use a disabled button to provide padding for tree leaf -->
               <button mat-icon-button disabled></button>
-              <mat-icon class="w-6 h-6 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white mr-1">{{ node.iconClass }}</mat-icon>{{node.label}}
+              <mat-icon
+                class="w-6 h-6  transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white mr-1"
+                [class.text-gray-400]="node.isHidden"
+                [class.text-gray-500]="!node.isHidden"
+              >
+                {{ node.iconClass }}
+              </mat-icon>
+
+              <span class="" [class.text-gray-400]="node.isHidden" >
+                {{node.label}}
+              </span>
 
               @if ( node.badge ) {
                 <span class="text-slate-50 text-xs font-medium me-2 px-2.5 py-0.5 rounded-full ml-4 p-2"
@@ -86,6 +96,12 @@
                 >
                   {{ node.badge.text }}
                 </span>
+              }
+
+              @if ( node.isHidden ) {
+                <mat-icon class="ms-3 text-gray-300 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white text-xl ">
+                  visibility_off
+                </mat-icon>
               }
 
               <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Example icon-button with a menu">
@@ -177,7 +193,7 @@
 
   <!-- Main modal -->
   <div id="menu-modal" data-modal-backdrop="static" tabindex="-1" aria-hidden="false" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 mt-5 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
-    <div class="relative p-4 w-full max-w-xl max-h-full">
+    <div class="relative p-4 w-full max-w-2xl max-h-full">
 
         <!-- Modal content -->
         <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
@@ -202,9 +218,9 @@
             <!-- Modal body -->
             <form [formGroup]="menuForm" (ngSubmit)="onSubmit()" class="p-4">
 
-              <div class="grid gap-4 mb-4 grid-cols-4">
+              <div class="grid gap-4 mb-4 grid-cols-6">
 
-                <div class="col-span-3 xs:col-span-4">
+                <div class="col-span-4 xs:col-span-3">
                     <label for="txtMenuLabel" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
                       Label *
                     </label>
@@ -227,7 +243,7 @@
                     }
                 </div>
 
-                <div class="col-span-1 xs:col-span-4">
+                <div class="col-span-2 xs:col-span-3">
                   <label for="txtIconClass" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
                     Icono css
                   </label>
@@ -249,7 +265,7 @@
                   }
                 </div>
 
-                <div class="col-span-2 xs:col-span-4">
+                <div class="col-span-3 xs:col-span-6">
                   <label for="txtWebUrl" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
                     Web url
                   </label>
@@ -271,7 +287,7 @@
                   }
                 </div>
 
-                <div class="col-span-2 xs:col-span-4">
+                <div class="col-span-3 xs:col-span-6">
                   <label for="txtApiUrl" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
                     Api url
                   </label>
@@ -293,7 +309,7 @@
                   }
                 </div>
 
-                <div class="col-span-2 xs:col-span-4">
+                <div class="col-span-3 xs:col-span-3">
                   <div class="flex items-center mb-4">
                       <input
                         id="chkIsHidden"
@@ -307,7 +323,7 @@
                   </div>
                 </div>
 
-                <div class="col-span-2 xs:col-span-4">
+                <div class="col-span-3 xs:col-span-3">
                   <div class="flex items-center mb-4">
                       <input
                         id="chkHaveTranslate"
@@ -322,7 +338,7 @@
                   </div>
                 </div>
 
-                <div class="col-span-4">
+                <div class="col-span-6">
                   <div class="flex items-center mb-4">
                       <input
                         id="chkHaveBadge"
@@ -338,7 +354,7 @@
                 </div>
 
                 @if ( haveTranslate() ) {
-                  <div class="col-span-4">
+                  <div class="col-span-6">
                     <label for="txtLabelTranslate" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
                       Traducción
                     </label>
@@ -363,7 +379,7 @@
 
                 @if ( haveBadge() ) {
 
-                  <div class="col-span-2 xs:col-span-4">
+                  <div class="col-span-3 xs:col-span-4">
                     <label for="txtApiUrl" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
                       Texto insignia
                     </label>
@@ -385,7 +401,7 @@
                     }
                   </div>
 
-                  <div class="col-span-2 xs:col-span-4">
+                  <div class="col-span-3 xs:col-span-4">
                     <label for="txtApiUrl" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
                       Clase css insignia
                     </label>

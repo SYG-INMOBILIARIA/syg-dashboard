@@ -14,7 +14,6 @@ constructor(
 ) {}
 
   transform( photo: Photo | null ) {
-    console.log(photo?.urlImg);
 
     if( !photo ) return environments.defaultImgUrl;
 
