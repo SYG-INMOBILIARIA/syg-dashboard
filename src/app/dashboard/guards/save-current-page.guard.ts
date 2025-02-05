@@ -11,6 +11,11 @@ export const saveCurrentPageGuard: CanMatchFn = (route, segments) => {
     return true;
   }
 
+  // if( urlToNavigate == '/401' ) {
+  //   localStorage.setItem('currentPage', '/401');
+  //   return true;
+  // }
+
   localStorage.setItem('currentPage', `/dashboard${urlToNavigate}`);
 
   return true;

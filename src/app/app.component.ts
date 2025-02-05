@@ -41,6 +41,7 @@ export class AppComponent implements OnInit {
           break;
 
         default:
+          // this._router.navigateByUrl('/loading');
           break;
       }
 

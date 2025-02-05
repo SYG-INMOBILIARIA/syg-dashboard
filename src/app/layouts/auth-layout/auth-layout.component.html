@@ -1,23 +1,60 @@
-<div class="p-4 ">
-  <div class="p-4 border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700">
 
-    <div class="grid grid-cols-2 gap-4 mb-4">
+<!-- <div class="bg-white dark:bg-gray-900">
+  <div class="flex justify-center h-screen">
+      <div class="hidden bg-cover lg:block lg:w-2/3" style="background-image: url(https://images.unsplash.com/photo-1616763355603-9755a640a287?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80)">
+          <div class="flex items-center h-full px-20 bg-gray-900 bg-opacity-40">
+              <div>
+                  <h2 class="text-4xl font-bold text-white">Brand</h2>
 
-        <div class="flex items-center justify-center  rounded bg-gray-50 dark:bg-gray-800">
+                  <p class="max-w-xl mt-3 text-gray-300">Lorem ipsum dolor sit, amet consectetur adipisicing elit. In autem ipsa, nulla laboriosam dolores, repellendus perferendis libero suscipit nam temporibus molestiae</p>
+              </div>
+          </div>
+      </div>
 
-          <img src="assets/img/programing.png" alt="">
+      <div class="flex items-center w-full max-w-md px-6 mx-auto lg:w-2/6">
 
-        </div>
+        <router-outlet></router-outlet>
 
-        <div class="flex items-center justify-center rounded bg-gray-50 dark:bg-gray-800">
-
-          <router-outlet></router-outlet>
-
-        </div>
-
-     </div>
-
+      </div>
   </div>
+</div> -->
+
+
+<!-- component -->
+<link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
+<div
+	class="bg-purple-900 absolute top-0 left-0 bg-gradient-to-b from-gray-900 via-gray-900 to-purple-800 bottom-0 leading-5 h-full w-full overflow-hidden">
+
 </div>
+<div
+	class="relative   min-h-screen  sm:flex sm:flex-row  justify-center bg-transparent rounded-3xl shadow-xl">
+	<div class="flex-col flex  self-center lg:px-14 sm:max-w-4xl xl:max-w-md  z-10">
+		<div class="self-start hidden lg:flex flex-col  text-gray-300">
+
+			<h1 class="my-3 font-semibold text-4xl">Welcome back</h1>
+			<p class="pr-3 text-sm opacity-75">Lorem ipsum is placeholder text commonly used in the graphic, print,
+				and publishing industries for previewing layouts and visual mockups</p>
+		</div>
+	</div>
+	<div class="flex justify-center self-center  z-10">
+
+    <router-outlet></router-outlet>
 
 
+
+		</div>
+	</div>
+
+	<footer class="bg-transparent absolute w-full bottom-0 left-0 z-30">
+	<div class="container p-5 mx-auto  flex items-center justify-between ">
+		<div class="flex mr-auto">
+
+
+
+    </div>
+
+	</div>
+	</footer>
+
+<svg class="absolute bottom-0 left-0 " xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="#fff" fill-opacity="1" d="M0,0L40,42.7C80,85,160,171,240,197.3C320,224,400,192,480,154.7C560,117,640,75,720,74.7C800,75,880,117,960,154.7C1040,192,1120,224,1200,213.3C1280,203,1360,149,1400,122.7L1440,96L1440,320L1400,320C1360,320,1280,320,1200,320C1120,320,1040,320,960,320C880,320,800,320,720,320C640,320,560,320,480,320C400,320,320,320,240,320C160,320,80,320,40,320L0,320Z"></path></svg>
+<script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.js"></script>

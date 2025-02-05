@@ -1,7 +1,11 @@
+import { Photo } from "@shared/interfaces";
+
 export interface UserAuthenticated {
-  id:    string;
-  email: string;
-  roles: Role[];
+  id:          string;
+  fullname:    string;
+  email:       string;
+  roles:       Role[];
+  photo?:      Photo | null;
 }
 
 export interface Role {

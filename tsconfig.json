@@ -5,6 +5,7 @@
       "@envs/*": ["./src/environments/*"],
       "@shared/*": ["./src/app/shared/*"],
       "@pipes/*": ["./src/app/pipes/*"],
+      "@redux/*": ["./src/app/redux/*"],
     },
     "outDir": "./dist/out-tsc",
     "strict": true,

@@ -3,6 +3,7 @@ import { UntypedFormBuilder, Validators } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { emailPatt } from '@shared/helpers/regex.helper';
 import { initFlowbite } from 'flowbite';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-login',
@@ -13,7 +14,7 @@ export class LoginComponent implements OnInit {
 
   private _formBuilder = inject( UntypedFormBuilder );
   private _authService = inject( AuthService );
-
+  private _router = inject( Router );
 
   public singinForm = this._formBuilder.group({
     username: ['fulanito@gmail.com', [ Validators.required, Validators.pattern( emailPatt ) ] ],
@@ -57,7 +58,9 @@ export class LoginComponent implements OnInit {
 
     this._authService.onSingin( username, password ).subscribe({
       next: (authenticated) => {
+
         this._isLoading.update( (current) => !current );
+
       },
       error: () => {
         this._isLoading.update( (current) => !current );

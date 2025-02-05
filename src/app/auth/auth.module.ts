@@ -14,7 +14,7 @@ import { SpinnerComponent } from '@shared/components/spinner/spinner.component';
   declarations: [
     AuthLayoutComponent,
     LoginComponent,
-    ForgotPasswordComponent
+    ForgotPasswordComponent,
   ],
   imports: [
     CommonModule,

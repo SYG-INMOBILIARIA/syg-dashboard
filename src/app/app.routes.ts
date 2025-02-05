@@ -1,6 +1,8 @@
 import { Routes } from '@angular/router';
+import { Error401Component } from '@shared/pages/error401/error401.component';
 import { Error404Component } from '@shared/pages/error404/error404.component';
 import { Error500Component } from '@shared/pages/error500/error500.component';
+import { LoadingComponent } from '@shared/pages/loading/loading.component';
 
 export const routes: Routes = [
   {
@@ -12,11 +14,6 @@ export const routes: Routes = [
     loadChildren: () => import('./dashboard/dashboard.module')
   },
   {
-    path: '',
-    redirectTo: 'auth',
-    pathMatch: 'full'
-  },
-  {
     path: '404',
     // canMatch: [saveCurrentPageGuard],
     component: Error404Component
@@ -24,6 +21,19 @@ export const routes: Routes = [
   {
     path: '500',
     component: Error500Component
+  },
+  {
+    path: '401',
+    component: Error401Component
+  },
+  {
+    path: 'loading',
+    component: LoadingComponent
+  },
+  {
+    path: '',
+    redirectTo: 'loading',
+    pathMatch: 'full'
   },
   {
     path: '**',

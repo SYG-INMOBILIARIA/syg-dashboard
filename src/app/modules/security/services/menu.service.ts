@@ -15,7 +15,7 @@ export class MenuService {
 
   getMenus() {
 
-    let queryParams = `limit=100`;
+    let queryParams = `limit=200`;
     queryParams += `&page=1`;
 
     return this._http.get<ListMenuResponse>(`${ this._baseUrl }/menu?${ queryParams }`)

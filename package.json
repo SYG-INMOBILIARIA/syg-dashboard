@@ -22,6 +22,8 @@
     "@angular/router": "^18.2.0",
     "@mapbox/mapbox-gl-draw": "^1.5.0",
     "@ng-select/ng-select": "^13.9.0",
+    "@ngrx/store": "^18.1.1",
+    "@ngrx/store-devtools": "^18.1.1",
     "@turf/turf": "^7.1.0",
     "angularx-flatpickr": "^8.1.0",
     "flatpickr": "^4.6.13",

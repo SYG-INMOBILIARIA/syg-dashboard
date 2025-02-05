@@ -399,46 +399,10 @@ export default class MenusComponent implements OnInit, OnDestroy {
 
   private _moveMenu( menu: AppMenu ) {
 
-    // menu.isLoading = true;
-
     this._menuService.moveMenu( this.moveBody )
-    .subscribe({
-      next: (menuMoveed) => {
-
-        const { id, parentId } = menuMoveed;
-
-        // this.dataSource.data.forEach( (menu) => {
-
-        //   if( !parentId ) {
-
-        //     if( menu.id == id ) {
-        //       menu.isLoading = false;
-        //     }
-
-        //   } else {
-        //     if( menu.id == parentId ){
-
-        //       menu.children.forEach( (children) => {
-
-        //         if( children.id == id ) {
-        //           children.isLoading = false;
-        //         }
-
-        //       } )
-
-        //     }
-        //   }
-
-        // } );
-
-        // console.log({menuMoveed});
-        // menu.isLoading = false;
-
-      }, error: (err) => {
-
-        // menu.isLoading = false;
-      }
-    })
+    .subscribe((menuMoveed) => {
+      const { id, parentId } = menuMoveed;
+    });
   }
 
   ngOnDestroy(): void {

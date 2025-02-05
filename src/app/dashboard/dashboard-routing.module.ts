@@ -1,9 +1,14 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
+
 import { DashboardLayoutComponent } from '../layouts/dashboard-layout/dashboard-layout.component';
 import { HomeComponent } from './pages/home/home.component';
-import { saveCurrentPageGuard } from './guards/save-current-page.guard';
-import { isAuthenticatedGuard } from './guards/is-authenticated.guard';
+import {
+  saveCurrentPageGuard,
+  isAuthenticatedGuard,
+  verifyRoleMenuAllowedGuard
+} from './guards';
+
 
 const routes: Routes = [
   {
@@ -11,6 +16,7 @@ const routes: Routes = [
     canActivate: [ isAuthenticatedGuard ],
     canMatch: [ saveCurrentPageGuard ],
     component: DashboardLayoutComponent,
+    canActivateChild: [ verifyRoleMenuAllowedGuard ],
     children: [
       { path: '', component: HomeComponent },
       { path: 'home', component: HomeComponent },
