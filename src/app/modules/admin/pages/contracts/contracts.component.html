@@ -93,108 +93,121 @@
             </thead>
             <tbody>
 
-              @for ( contract of contracts(); track contract.id) {
-                <tr>
+              @if( allowList() ) {
 
-                  <td class="p-2 align-middle bg-transparent border-b dark:border-white/40 whitespace-nowrap shadow-transparent">
-                    <div class="flex px-2 py-1">
-                      <!-- <div>
-                        <img src="../assets/img/team-2.jpg" class="inline-flex items-center justify-center mr-4 text-sm text-white transition-all duration-200 ease-in-out h-9 w-9 rounded-xl" alt="user1" />
-                      </div> -->
-                      <div class="flex flex-col justify-center">
-                        <h6 class="mb-0 text-sm leading-normal dark:text-gray-300 ">
-                          {{ contract.client.fullname }}
-                        </h6>
-                        <p class="mb-0 text-xs leading-tight  dark:opacity-80 text-slate-400 dark:text-gray-300">
-                          @if ( contract.client.address && contract.client.address.length > 35 ) {
-                            {{ contract.client.address | slice:0:35 }}...
-                          } @else {
-                            {{ contract.client.address  }}
-                          }
-                        </p>
-                      </div>
-                    </div>
-                  </td>
-
-                  <td class="p-2 align-middle bg-transparent border-b dark:border-white/40 whitespace-nowrap shadow-transparent dark:text-gray-300">
-                    <span class="font-bold">
-                      {{ contract.code }}
-                    </span>
-                  </td>
-
-                  <td class="p-2 align-middle bg-transparent border-b dark:border-white/40 whitespace-nowrap shadow-transparent dark:text-gray-300">
-                    {{ contract?.proyect?.name }}
-                  </td>
-
-                  <td class="p-2 align-middle bg-transparent border-b dark:border-white/40 whitespace-nowrap shadow-transparent dark:text-gray-300">
-                    {{ contract.lotes | loteJoinCodes }}
-                  </td>
-
-                  <td class="p-2 align-middle bg-transparent border-b dark:border-white/40 whitespace-nowrap shadow-transparent dark:text-gray-300">
-                    {{ contract.paymentType | paymentType }}
-                  </td>
-
-                  <td class="p-2 text-sm leading-normal text-center align-middle bg-transparent border-b dark:border-white/40 whitespace-nowrap shadow-transparent">
-
-                    <span
-                      class=" text-xs font-medium me-2 px-2.5 py-0.5 rounded 0 dark:text-gray-300"
-
-                      [ngClass]="{
-                        'bg-gray-100': !contract.isActive,
-                        'text-gray-800': !contract.isActive,
-                        'dark:bg-gray-700': !contract.isActive,
-                        'dark:text-gray-30': !contract.isActive,
-
-                        'bg-green-100': contract.isActive,
-                        'text-green-800': contract.isActive,
-                        'dark:bg-green-900': contract.isActive,
-                        'dark:text-green-300': contract.isActive,
-                      }"
-
-                    >
-                      Activo
-                    </span>
-
-                  </td>
-
-                  <td  class=" text-center align-middle bg-transparent border-b dark:border-white/40 whitespace-nowrap shadow-transparent">
-                    <span class="text-xs uppercase font-semibold leading-tight dark:text-gray-300 dark:opacity-80 text-slate-400">
-                      {{ contract.createAt | moment:'createAt'  }}
-                    </span>
-                  </td>
-
-                  <td class=" bg-transparent border-b dark:border-white/40 whitespace-nowrap shadow-transparent">
-                    <div class="flex gap-3 justify-end pr-6">
-                      <a href="javascript:;" class="flex gap-1 text-xs font-semibold leading-tight uppercase dark:opacity-80 text-slate-400 dark:text-gray-300" (click)="onShowDetailModal( contract )">
-                        <i class="fa fa-eye"></i>
-                        Ver
-                      </a>
-
-                      <a href="javascript:;" class="flex gap-1 text-xs font-semibold leading-tight uppercase dark:opacity-80 text-slate-400 dark:text-gray-300" (click)="onShowScheduleModal( contract )">
-                        <i class="fa fa-eye"></i>
-                        Cronograma
-                      </a>
-
-                      <a href="javascript:;" class="flex gap-2 text-xs font-semibold leading-tight uppercase dark:opacity-80 text-red-500" (click)="onRemoveConfirm( contract )" >
-                        <i class="fa fa-trash" aria-hidden="true"></i>
-                        Anular
-                      </a>
-                    </div>
-
-                  </td>
-                </tr>
-              } @empty {
-
-                @if (!isLoading()) {
+                @for ( contract of contracts(); track contract.id) {
                   <tr>
-                    <td rowspan="5">
-                      <div class="col-12 h-10">
-                        <h3>Sin registros</h3>
+
+                    <td class="p-2 align-middle bg-transparent border-b dark:border-white/40 whitespace-nowrap shadow-transparent">
+                      <div class="flex px-2 py-1">
+                        <!-- <div>
+                          <img src="../assets/img/team-2.jpg" class="inline-flex items-center justify-center mr-4 text-sm text-white transition-all duration-200 ease-in-out h-9 w-9 rounded-xl" alt="user1" />
+                        </div> -->
+                        <div class="flex flex-col justify-center">
+                          <h6 class="mb-0 text-sm leading-normal dark:text-gray-300 ">
+                            {{ contract.client.fullname }}
+                          </h6>
+                          <p class="mb-0 text-xs leading-tight  dark:opacity-80 text-slate-400 dark:text-gray-300">
+                            @if ( contract.client.address && contract.client.address.length > 35 ) {
+                              {{ contract.client.address | slice:0:35 }}...
+                            } @else {
+                              {{ contract.client.address  }}
+                            }
+                          </p>
+                        </div>
                       </div>
                     </td>
+
+                    <td class="p-2 align-middle bg-transparent border-b dark:border-white/40 whitespace-nowrap shadow-transparent dark:text-gray-300">
+                      <span class="font-bold">
+                        {{ contract.code }}
+                      </span>
+                    </td>
+
+                    <td class="p-2 align-middle bg-transparent border-b dark:border-white/40 whitespace-nowrap shadow-transparent dark:text-gray-300">
+                      {{ contract?.proyect?.name }}
+                    </td>
+
+                    <td class="p-2 align-middle bg-transparent border-b dark:border-white/40 whitespace-nowrap shadow-transparent dark:text-gray-300">
+                      {{ contract.lotes | loteJoinCodes }}
+                    </td>
+
+                    <td class="p-2 align-middle bg-transparent border-b dark:border-white/40 whitespace-nowrap shadow-transparent dark:text-gray-300">
+                      {{ contract.paymentType | paymentType }}
+                    </td>
+
+                    <td class="p-2 text-sm leading-normal text-center align-middle bg-transparent border-b dark:border-white/40 whitespace-nowrap shadow-transparent">
+
+                      <span
+                        class=" text-xs font-medium me-2 px-2.5 py-0.5 rounded 0 dark:text-gray-300"
+
+                        [ngClass]="{
+                          'bg-gray-100': !contract.isActive,
+                          'text-gray-800': !contract.isActive,
+                          'dark:bg-gray-700': !contract.isActive,
+                          'dark:text-gray-30': !contract.isActive,
+
+                          'bg-green-100': contract.isActive,
+                          'text-green-800': contract.isActive,
+                          'dark:bg-green-900': contract.isActive,
+                          'dark:text-green-300': contract.isActive,
+                        }"
+
+                      >
+                        Activo
+                      </span>
+
+                    </td>
+
+                    <td  class=" text-center align-middle bg-transparent border-b dark:border-white/40 whitespace-nowrap shadow-transparent">
+                      <span class="text-xs uppercase font-semibold leading-tight dark:text-gray-300 dark:opacity-80 text-slate-400">
+                        {{ contract.createAt | moment:'createAt'  }}
+                      </span>
+                    </td>
+
+                    <td class=" bg-transparent border-b dark:border-white/40 whitespace-nowrap shadow-transparent">
+                      <div class="flex gap-3 justify-end pr-6">
+                        <a href="javascript:;" class="flex gap-1 text-xs font-semibold leading-tight uppercase dark:opacity-80 text-slate-400 dark:text-gray-300" (click)="onShowDetailModal( contract )">
+                          <i class="fa fa-eye"></i>
+                          Ver
+                        </a>
+
+                        <a href="javascript:;" class="flex gap-1 text-xs font-semibold leading-tight uppercase dark:opacity-80 text-slate-400 dark:text-gray-300" (click)="onShowScheduleModal( contract )">
+                          <i class="fa fa-eye"></i>
+                          Cronograma
+                        </a>
+
+                        <a href="javascript:;" class="flex gap-2 text-xs font-semibold leading-tight uppercase dark:opacity-80 text-red-500" (click)="onRemoveConfirm( contract )" >
+                          <i class="fa fa-trash" aria-hidden="true"></i>
+                          Anular
+                        </a>
+                      </div>
+
+                    </td>
                   </tr>
+                } @empty {
+
+                  @if (!isLoading()) {
+                    <tr>
+                      <td colspan="8">
+                        <div class="text-center p-4 border-b text-xl text-slate-400">
+                          <h3>Sin registros</h3>
+                        </div>
+                      </td>
+                    </tr>
+                  }
                 }
+
+              } @else {
+                <tr>
+                  <td colspan="8">
+                    <div class="text-center p-4 border-b text-xl text-slate-400">
+                      <h3>No tiene permiso para listar contratos</h3>
+                    </div>
+                  </td>
+                </tr>
               }
+
 
             </tbody>
           </table>
@@ -213,7 +226,11 @@
 </div>
 
 
-<contract-modal [paymentTypes]="paymentTypes()" (onCreated)="onListenCreate( $event )" >
+<contract-modal
+  [paymentTypes]="paymentTypes()"
+  [webUrlPermissionMethods]="webUrlPermissionMethods()"
+  (onCreated)="onListenCreate( $event )"
+>
 </contract-modal>
 
 <contract-detail-modal [contractId]="contractIdByModal()" >

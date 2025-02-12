@@ -1,7 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, OnInit, ViewChild, computed, inject, signal } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild, computed, inject, signal } from '@angular/core';
 import { FormControl, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { initFlowbite } from 'flowbite';
+import { Store } from '@ngrx/store';
+import { Subscription } from 'rxjs';
 
 import { RoleService } from '../../services/role.service';
 import { Role, RoleBody } from '../../interfaces';
@@ -13,6 +15,9 @@ import { SpinnerComponent } from '@shared/components/spinner/spinner.component';
 import { AlertService } from '@shared/services/alert.service';
 import { PaginationComponent } from '@shared/components/pagination/pagination.component';
 import { PipesModule } from '@pipes/pipes.module';
+import { AppState } from '../../../../app.config';
+import { WebUrlPermissionMethods } from '../../../../auth/interfaces';
+import { apiRole } from '@shared/helpers/web-apis.helper';
 
 @Component({
   selector: 'app-roles',
@@ -28,12 +33,17 @@ import { PipesModule } from '@pipes/pipes.module';
   templateUrl: './roles.component.html',
   styles: ``
 })
-export default class RolesComponent implements OnInit {
+export default class RolesComponent implements OnInit, OnDestroy {
+
+  private _authrx$?: Subscription;
 
   @ViewChild('btnCloseRoleModal') btnCloseRoleModal!: ElementRef<HTMLButtonElement>;
   @ViewChild('btnShowRoleModal') btnShowRoleModal!: ElementRef<HTMLButtonElement>;
 
   public roleModalTitle = 'Crear nuevo rol';
+
+  private _store = inject<Store<AppState>>( Store<AppState> );
+  private _webUrlPermissionMethods: WebUrlPermissionMethods[] = [];
 
   private _roleService = inject( RoleService );
   private _alertService = inject( AlertService );
@@ -42,6 +52,7 @@ export default class RolesComponent implements OnInit {
   private _roleToUpdate = signal<Role | null>( null );
   private _isLoading = signal( true );
   private _isSaving = signal( false );
+  private _allowList = signal( true );
   public searchInput = new FormControl('', [ Validators.pattern( fullTextPatt ) ]);
 
   private _totalRoles = signal<number>( 0 );
@@ -64,6 +75,7 @@ export default class RolesComponent implements OnInit {
   public isLoading = computed( () => this._isLoading() );
   public isSaving = computed( () => this._isSaving() );
   public totalRoles = computed( () => this._totalRoles() );
+  public allowList = computed( () => this._allowList() );
 
   get isFormInvalid() { return this.roleForm.invalid; }
   get roleBody(): RoleBody{ return  this.roleForm.value as RoleBody; }
@@ -81,8 +93,17 @@ export default class RolesComponent implements OnInit {
 
   ngOnInit(): void {
     initFlowbite();
-
+    this.onListenAuthRx();
     this.onGetRoles();
+  }
+
+  onListenAuthRx() {
+    this._authrx$ = this._store.select('auth')
+    .subscribe( (state) => {
+      const { webUrlPermissionMethods } = state;
+
+      this._webUrlPermissionMethods = webUrlPermissionMethods;
+    });
   }
 
   onSearch() {
@@ -91,6 +112,16 @@ export default class RolesComponent implements OnInit {
   }
 
   onGetRoles( page = 1 ) {
+
+    const allowList = this._webUrlPermissionMethods.some(
+      (permission) => permission.webApi == apiRole && permission.methods.includes( 'GET' )
+    );
+
+    if( !allowList ) {
+      this._allowList.set( false );
+      return;
+    }
+
     this._isLoading.set( true );
     this._roleService.getRoles( page, this._filter )
     .subscribe({
@@ -141,11 +172,21 @@ export default class RolesComponent implements OnInit {
 
     if( this.isFormInvalid || this.isSaving() ) return;
 
-    this._isSaving.set( true );
 
     const { id: _, ...bodyRole } = this.roleBody;
 
+    const allowCreate = this._webUrlPermissionMethods.some(
+      (permission) => permission.webApi == apiRole && permission.methods.includes( 'POST' )
+    );
+
+    if( !allowCreate ) {
+      this._alertService.showAlert( undefined, 'No tiene permiso para crear un Rol', 'warning');
+      return;
+    }
+
     if( !this._roleToUpdate() ) {
+
+      this._isSaving.set( true );
 
       this._roleService.createRole( bodyRole )
       .subscribe({
@@ -163,6 +204,17 @@ export default class RolesComponent implements OnInit {
 
       return;
     }
+
+    const allowUpdate = this._webUrlPermissionMethods.some(
+      (permission) => permission.webApi == apiRole && permission.methods.includes( 'PATCH' )
+    );
+
+    if( !allowUpdate ) {
+      this._alertService.showAlert( undefined, 'No tiene permiso para actulizar un Rol', 'warning');
+      return;
+    }
+
+    this._isSaving.set( true );
 
     this._roleService.updateRole( this._roleToUpdate()!.id, bodyRole )
       .subscribe({
@@ -194,6 +246,15 @@ export default class RolesComponent implements OnInit {
 
   private _removeRole( roleId: string ) {
 
+    const allowDelete = this._webUrlPermissionMethods.some(
+      (permission) => permission.webApi == apiRole && permission.methods.includes( 'DELETE' )
+    );
+
+    if( !allowDelete ) {
+      this._alertService.showAlert( undefined, 'No tiene permiso para eliminar un Rol', 'warning');
+      return;
+    }
+
     if( this._isRemoving ) return;
 
     this._isRemoving = true;
@@ -214,6 +275,10 @@ export default class RolesComponent implements OnInit {
       }
     });
 
+  }
+
+  ngOnDestroy(): void {
+      this._authrx$?.unsubscribe();
   }
 
 }

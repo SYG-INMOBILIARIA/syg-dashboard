@@ -6,14 +6,19 @@ import { PaginationComponent } from '@shared/components/pagination/pagination.co
 import { NomenclatureService } from '@shared/services/nomenclature.service';
 import { AlertService } from '@shared/services/alert.service';
 import { fullTextPatt } from '@shared/helpers/regex.helper';
-import { Contract, Proyect, Schedule } from '../../interfaces';
+import { Contract, Schedule } from '../../interfaces';
 import { PipesModule } from '@pipes/pipes.module';
 import { MatDialog } from '@angular/material/dialog';
 import { ContractModalComponent } from '../../components/contract-modal/contract-modal.component';
 import { Subscription, forkJoin } from 'rxjs';
-import { ProyectService } from '../../services/proyect.service';
+import { Store } from '@ngrx/store';
+
 import { Nomenclature } from '@shared/interfaces';
+import { ProyectService } from '../../services/proyect.service';
 import { ContractDetailModalComponent } from '../../components/contract-detail-modal/contract-detail-modal.component';
+import { AppState } from '../../../../app.config';
+import { WebUrlPermissionMethods } from '../../../../auth/interfaces';
+import { apiContract } from '@shared/helpers/web-apis.helper';
 
 @Component({
   selector: 'app-contracts',
@@ -32,6 +37,10 @@ import { ContractDetailModalComponent } from '../../components/contract-detail-m
 })
 export default class ContractsComponent implements OnInit, OnDestroy {
 
+  private _authrx$?: Subscription;
+  private _store = inject<Store<AppState>>( Store<AppState> );
+  private _webUrlPermissionMethods = signal<WebUrlPermissionMethods[]>([]);
+
   private _dialog$?: Subscription;
 
   @ViewChild('btnCloseContractModal') btnCloseContractModal!: ElementRef<HTMLButtonElement>;
@@ -39,14 +48,10 @@ export default class ContractsComponent implements OnInit, OnDestroy {
   @ViewChild('btnShowDetailContractModal') btnShowDetailContractModal!: ElementRef<HTMLButtonElement>;
   @ViewChild('btnShowScheduleContractModal') btnShowScheduleContractModal!: ElementRef<HTMLButtonElement>;
 
-
-
   public contractModalTitle = 'Crear nuevo contrato';
 
   private _nomenclatureService = inject( NomenclatureService );
   private _alertService = inject( AlertService );
-  private _proyectService = inject( ProyectService );
-  private _formBuilder = inject( UntypedFormBuilder );
   private _contractService = inject( ContractService );
   readonly dialog = inject( MatDialog );
 
@@ -54,6 +59,7 @@ export default class ContractsComponent implements OnInit, OnDestroy {
 
   private _isLoading = signal( true );
   private _isSaving = signal( false );
+  private _allowList = signal( true );
   private _downloadInProgress = signal( false );
   private _totalContracts = signal<number>( 0 );
   private _contracts = signal<Contract[]>( [] );
@@ -66,6 +72,7 @@ export default class ContractsComponent implements OnInit, OnDestroy {
   public downloadInProgress = computed( () => this._downloadInProgress() );
   public isLoading = computed( () => this._isLoading() );
   public isSaving = computed( () => this._isSaving() );
+  public allowList = computed( () => this._allowList() );
   public totalContracts = computed( () => this._totalContracts() );
   public contracts = computed( () => this._contracts() );
   public paymentTypes = computed( () => this._paymentTypes() );
@@ -73,6 +80,7 @@ export default class ContractsComponent implements OnInit, OnDestroy {
   public contractIdByModal = computed( () => this._contractIdByModal() );
   public lotes = computed( () => this._contractById()?.lotes ?? [] );
   public client = computed( () => this._contractById()?.client );
+  public webUrlPermissionMethods = computed( () => this._webUrlPermissionMethods() );
 
   get isInvalidSearchInput() { return this.searchInput.invalid; }
 
@@ -98,11 +106,32 @@ export default class ContractsComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
 
+    this.onListenAuthRx();
     this.onGetContracts();
     this.onGetPaymentTypes();
   }
 
+  onListenAuthRx() {
+    this._authrx$ = this._store.select('auth')
+    .subscribe( (state) => {
+      const { webUrlPermissionMethods } = state;
+
+      this._webUrlPermissionMethods.set( webUrlPermissionMethods );
+    });
+  }
+
   onGetContracts( page = 1 ) {
+
+    const webUrlPermissionMethods = this._webUrlPermissionMethods();
+
+    const allowList = webUrlPermissionMethods.some(
+      (permission) => permission.webApi == apiContract && permission.methods.includes( 'GET' )
+    );
+
+    if( !allowList ) {
+      this._allowList.set( false );
+      return;
+    }
 
     const filter = this.searchInput.value ?? '';
 
@@ -178,7 +207,7 @@ export default class ContractsComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this._dialog$?.unsubscribe();
+    this._authrx$?.unsubscribe();
   }
-
 
 }

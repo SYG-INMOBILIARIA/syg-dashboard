@@ -61,11 +61,8 @@
             <thead class="align-bottom">
               <tr>
                 <th class="px-6 py-3 font-bold text-left uppercase align-middle bg-transparent border-b border-collapse shadow-none dark:border-white/40 text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Apellidos y Nombre / Razon social</th>
-
                 <th class="px-6 py-3 pl-2 font-bold text-left uppercase align-middle bg-transparent border-b border-collapse shadow-none dark:border-white/40 text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Documento</th>
-
                 <th class="px-6 py-3 pl-2 font-bold text-left uppercase align-middle bg-transparent border-b border-collapse shadow-none dark:border-white/40 text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Email</th>
-
                 <th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-collapse shadow-none dark:border-white/40 text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Estado</th>
                 <th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-collapse shadow-none dark:border-white/40 text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">F. creación</th>
                 <th class="px-6 py-3 font-semibold capitalize align-middle bg-transparent border-b border-collapse border-solid shadow-none dark:border-white/40 tracking-none whitespace-nowrap text-slate-400 opacity-70"></th>
@@ -73,97 +70,109 @@
             </thead>
             <tbody>
 
-              @for ( client of clients(); track client.id) {
-                <tr>
+              @if ( allowList() ) {
 
-                  <td class="p-2 align-middle bg-transparent border-b dark:border-white/40 whitespace-nowrap shadow-transparent">
-                    <div class="flex px-2 py-1">
-                      <!-- <div>
-                        <img src="../assets/img/team-2.jpg" class="inline-flex items-center justify-center mr-4 text-sm text-white transition-all duration-200 ease-in-out h-9 w-9 rounded-xl" alt="user1" />
-                      </div> -->
-                      <div class="flex flex-col justify-center">
-                        <h6 class="mb-0 text-sm leading-normal dark:text-gray-300 ">
-                          {{ client.fullname }}
-                        </h6>
-                        <p class="mb-0 text-xs leading-tight  dark:opacity-80 text-slate-400 dark:text-gray-300">
-                          @if ( client?.address && client.address.length > 35 ) {
-                            {{ client.address | slice:0:35 }}...
-                          } @else {
-                            {{ client.address  }}
-                          }
-                        </p>
-                      </div>
-                    </div>
-                  </td>
-
-                  <td class="p-2 align-middle bg-transparent border-b dark:border-white/40 whitespace-nowrap shadow-transparent dark:text-gray-300">
-
-                    <div class="flex flex-wrap justify-start items-center">
-                      <span class="text-xs font-bold w-24">{{ client.identityDocument.shortDescription }}:&nbsp;&nbsp;</span>
-                      <span>{{ client.identityNumber }}</span>
-                    </div>
-
-                  </td>
-
-                  <td class="p-2 align-middle bg-transparent border-b dark:border-white/40 whitespace-nowrap shadow-transparent dark:text-gray-300">
-                    {{ client.email }}
-                  </td>
-
-                  <td class="p-2 text-sm leading-normal text-center align-middle bg-transparent border-b dark:border-white/40 whitespace-nowrap shadow-transparent">
-
-                    <span
-                      class=" text-xs font-medium me-2 px-2.5 py-0.5 rounded 0 dark:text-gray-300"
-
-                      [ngClass]="{
-                        'bg-gray-100': !client.isActive,
-                        'text-gray-800': !client.isActive,
-                        'dark:bg-gray-700': !client.isActive,
-                        'dark:text-gray-30': !client.isActive,
-
-                        'bg-green-100': client.isActive,
-                        'text-green-800': client.isActive,
-                        'dark:bg-green-900': client.isActive,
-                        'dark:text-green-300': client.isActive,
-                      }"
-
-                    >
-                      Activo
-                    </span>
-
-                  </td>
-
-                  <td  class=" text-center align-middle bg-transparent border-b dark:border-white/40 whitespace-nowrap shadow-transparent">
-                    <span class="text-xs uppercase font-semibold leading-tight dark:text-gray-300 dark:opacity-80 text-slate-400">
-                      {{ client.createAt | moment:'createAt'  }}
-                    </span>
-                  </td>
-
-                  <td class=" bg-transparent border-b dark:border-white/40 whitespace-nowrap shadow-transparent">
-                    <div class="flex  gap-3 justify-end pr-6">
-                      <a href="javascript:;" class="flex gap-1 text-xs font-semibold leading-tight uppercase dark:opacity-80 text-slate-400 dark:text-gray-300" (click)="onLoadToUpdate( client )">
-                        <i class="fa fa-pencil" aria-hidden="true"></i>
-                        Editar
-                      </a>
-
-                      <a href="javascript:;" class="flex gap-2 text-xs font-semibold leading-tight uppercase dark:opacity-80 text-red-500" (click)="onRemoveConfirm( client )" >
-                        <i class="fa fa-trash" aria-hidden="true"></i>
-                        Eliminar
-                      </a>
-                    </div>
-
-                  </td>
-                </tr>
-              } @empty {
-
-                @if (!isLoading()) {
+                @for ( client of clients(); track client.id) {
                   <tr>
-                    <td rowspan="5">
-                      <div class="col-12 h-10">
-                        <h3>Sin registros</h3>
+
+                    <td class="p-2 align-middle bg-transparent border-b dark:border-white/40 whitespace-nowrap shadow-transparent">
+                      <div class="flex px-2 py-1">
+                        <!-- <div>
+                          <img src="../assets/img/team-2.jpg" class="inline-flex items-center justify-center mr-4 text-sm text-white transition-all duration-200 ease-in-out h-9 w-9 rounded-xl" alt="user1" />
+                        </div> -->
+                        <div class="flex flex-col justify-center">
+                          <h6 class="mb-0 text-sm leading-normal dark:text-gray-300 ">
+                            {{ client.fullname }}
+                          </h6>
+                          <p class="mb-0 text-xs leading-tight  dark:opacity-80 text-slate-400 dark:text-gray-300">
+                            @if ( client?.address && client.address.length > 35 ) {
+                              {{ client.address | slice:0:35 }}...
+                            } @else {
+                              {{ client.address  }}
+                            }
+                          </p>
+                        </div>
                       </div>
                     </td>
+
+                    <td class="p-2 align-middle bg-transparent border-b dark:border-white/40 whitespace-nowrap shadow-transparent dark:text-gray-300">
+
+                      <div class="flex flex-wrap justify-start items-center">
+                        <span class="text-xs font-bold w-24">{{ client.identityDocument.shortDescription }}:&nbsp;&nbsp;</span>
+                        <span>{{ client.identityNumber }}</span>
+                      </div>
+
+                    </td>
+
+                    <td class="p-2 align-middle bg-transparent border-b dark:border-white/40 whitespace-nowrap shadow-transparent dark:text-gray-300">
+                      {{ client.email }}
+                    </td>
+
+                    <td class="p-2 text-sm leading-normal text-center align-middle bg-transparent border-b dark:border-white/40 whitespace-nowrap shadow-transparent">
+
+                      <span
+                        class=" text-xs font-medium me-2 px-2.5 py-0.5 rounded 0 dark:text-gray-300"
+
+                        [ngClass]="{
+                          'bg-gray-100': !client.isActive,
+                          'text-gray-800': !client.isActive,
+                          'dark:bg-gray-700': !client.isActive,
+                          'dark:text-gray-30': !client.isActive,
+
+                          'bg-green-100': client.isActive,
+                          'text-green-800': client.isActive,
+                          'dark:bg-green-900': client.isActive,
+                          'dark:text-green-300': client.isActive,
+                        }"
+
+                      >
+                        Activo
+                      </span>
+
+                    </td>
+
+                    <td  class=" text-center align-middle bg-transparent border-b dark:border-white/40 whitespace-nowrap shadow-transparent">
+                      <span class="text-xs uppercase font-semibold leading-tight dark:text-gray-300 dark:opacity-80 text-slate-400">
+                        {{ client.createAt | moment:'createAt'  }}
+                      </span>
+                    </td>
+
+                    <td class=" bg-transparent border-b dark:border-white/40 whitespace-nowrap shadow-transparent">
+                      <div class="flex  gap-3 justify-end pr-6">
+                        <a href="javascript:;" class="flex gap-1 text-xs font-semibold leading-tight uppercase dark:opacity-80 text-slate-400 dark:text-gray-300" (click)="onLoadToUpdate( client )">
+                          <i class="fa fa-pencil" aria-hidden="true"></i>
+                          Editar
+                        </a>
+
+                        <a href="javascript:;" class="flex gap-2 text-xs font-semibold leading-tight uppercase dark:opacity-80 text-red-500" (click)="onRemoveConfirm( client )" >
+                          <i class="fa fa-trash" aria-hidden="true"></i>
+                          Eliminar
+                        </a>
+                      </div>
+
+                    </td>
                   </tr>
+                } @empty {
+
+                  @if (!isLoading()) {
+                    <tr>
+                      <td rowspan="5">
+                        <div class="col-12 h-10">
+                          <h3>Sin registros</h3>
+                        </div>
+                      </td>
+                    </tr>
+                  }
                 }
+
+              } @else {
+                <tr>
+                  <td colspan="6">
+                    <div class="text-center p-4 border-b text-xl text-slate-400">
+                      <h3>No tiene permiso para listar clientes</h3>
+                    </div>
+                  </td>
+                </tr>
               }
 
             </tbody>

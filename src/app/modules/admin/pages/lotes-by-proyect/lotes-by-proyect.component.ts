@@ -16,6 +16,10 @@ import { Nomenclature } from '@shared/interfaces';
 import { PipesModule } from '@pipes/pipes.module';
 import { FormControl, Validators } from '@angular/forms';
 import { fullTextPatt } from '@shared/helpers/regex.helper';
+import { Store } from '@ngrx/store';
+import { AppState } from '../../../../app.config';
+import { WebUrlPermissionMethods } from '../../../../auth/interfaces';
+import { apiLote } from '@shared/helpers/web-apis.helper';
 
 @Component({
   selector: 'app-lotes-by-proyect',
@@ -28,6 +32,10 @@ import { fullTextPatt } from '@shared/helpers/regex.helper';
   styles: ``
 })
 export default class LotesByProyectComponent implements OnInit, OnDestroy {
+
+  private _authrx$?: Subscription;
+  private _store = inject<Store<AppState>>( Store<AppState> );
+  private _webUrlPermissionMethods: WebUrlPermissionMethods[] = [];
 
   private _dialog$?: Subscription;
 
@@ -49,6 +57,7 @@ export default class LotesByProyectComponent implements OnInit, OnDestroy {
 
   private _searchInProgress = signal( false );
   private _isSaving = signal( false );
+  private _allowList = signal( true );
   private _proyect = signal<Proyect | undefined>( undefined );
   private _proyectAndLotes = signal<{ proyect: Proyect, lotes: Lote[] } | undefined>( undefined );
   public isSaving = computed( () => this._isSaving() );
@@ -67,6 +76,7 @@ export default class LotesByProyectComponent implements OnInit, OnDestroy {
   public centerProyect = computed( () => this._centerProyect() );
   public polygonCoords = computed( () => this._polygonCoords() );
   public isBuildLotesInProgress = computed( () => this._isBuildLotesInProgress() );
+  public allowList = computed( () => this._allowList() );
 
   options = {
     autoHide: true,
@@ -80,6 +90,8 @@ export default class LotesByProyectComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
 
+    this.onListenAuthRx();
+
     const proyectId = this._activatedRoute.snapshot.params['proyectId'];
     if( !ISUUID( proyectId ) ) {
       this._router.navigateByUrl('404');
@@ -92,7 +104,25 @@ export default class LotesByProyectComponent implements OnInit, OnDestroy {
 
   }
 
+  onListenAuthRx() {
+    this._authrx$ = this._store.select('auth')
+    .subscribe( (state) => {
+      const { webUrlPermissionMethods } = state;
+
+      this._webUrlPermissionMethods = webUrlPermissionMethods;
+    });
+  }
+
   onGetLotes() {
+
+    const allowList = this._webUrlPermissionMethods.some(
+      (permission) => permission.webApi == apiLote && permission.methods.includes( 'GET' )
+    );
+
+    if( !allowList ) {
+      this._allowList.set( false );
+      return;
+    }
 
     const filter = this.searchInput.value ?? '';
 
@@ -126,22 +156,23 @@ export default class LotesByProyectComponent implements OnInit, OnDestroy {
 
     forkJoin({
       proyect: this._proyectService.getProyectById( proyectId ),
-      lotesResponse: this._loteService.getLotes( proyectId, 1, '', 500 ),
+      // lotesResponse: this._loteService.getLotes( proyectId, 1, '', 500 ),
       loteStatusResponse: this._nomenclatureService.getLoteStatus()
-    }).subscribe( ( { proyect, lotesResponse, loteStatusResponse } ) => {
+    }).subscribe( ( { proyect, loteStatusResponse } ) => {
 
       const { centerCoords, polygonCoords, flatImage } = proyect;
-      const { lotes } = lotesResponse;
+      // const { lotes } = lotesResponse;
       const { nomenclatures } = loteStatusResponse;
 
       this._proyect.set( proyect );
-      this._lotesForMap.set( lotes );
       this._centerProyect.set( centerCoords );
       this._polygonCoords.set( polygonCoords );
-      this._lotes.set( lotes );
+      // this._lotes.set( lotes );
+      // this._lotesForMap.set( lotes );
+      // this._proyectAndLotes.set( { proyect, lotes } );
       this._loteStatus.set( nomenclatures );
 
-      this._proyectAndLotes.set( { proyect, lotes } )
+      this.onGetLotes();
     });
 
   }
@@ -189,6 +220,7 @@ export default class LotesByProyectComponent implements OnInit, OnDestroy {
         proyect: this._proyect(),
         loteStatus: this.loteStatus(),
         lotes: this.lotes(),
+        webUrlPermissionMethods: this._webUrlPermissionMethods,
         loteToUpdate
       }
     });
@@ -208,6 +240,7 @@ export default class LotesByProyectComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this._dialog$?.unsubscribe();
+    this._authrx$?.unsubscribe();
   }
 
 }

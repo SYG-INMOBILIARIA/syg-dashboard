@@ -1,9 +1,11 @@
-import { Component, ElementRef, OnInit, ViewChild, computed, inject, signal } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild, computed, inject, signal } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { initFlowbite } from 'flowbite';
-import { forkJoin } from 'rxjs';
+import { Subscription, forkJoin } from 'rxjs';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { validate as ISUUID } from 'uuid';
+import { Store } from '@ngrx/store';
+import { FlatpickrDirective } from 'angularx-flatpickr';
 
 
 import { ClientService } from '../../services/client.service';
@@ -18,7 +20,9 @@ import { NomenclatureService } from '@shared/services/nomenclature.service';
 import { IdentityDocumentService } from '../../services/identity-document.service';
 import { InputErrorsDirective } from '@shared/directives/input-errors.directive';
 import { Nomenclature } from '@shared/interfaces';
-import { FlatpickrDirective } from 'angularx-flatpickr';
+import { AppState } from '../../../../app.config';
+import { WebUrlPermissionMethods } from '../../../../auth/interfaces';
+import { apiClient } from '@shared/helpers/web-apis.helper';
 
 @Component({
   standalone: true,
@@ -36,7 +40,11 @@ import { FlatpickrDirective } from 'angularx-flatpickr';
   templateUrl: './clients.component.html',
   styles: ``
 })
-export default class ClientsComponent implements OnInit {
+export default class ClientsComponent implements OnInit, OnDestroy {
+
+  private _authrx$?: Subscription;
+  private _store = inject<Store<AppState>>( Store<AppState> );
+  private _webUrlPermissionMethods: WebUrlPermissionMethods[] = [];
 
   @ViewChild('btnCloseClientModal') btnCloseClientModal!: ElementRef<HTMLButtonElement>;
   @ViewChild('btnShowClientModal') btnShowClientModal!: ElementRef<HTMLButtonElement>;
@@ -53,6 +61,7 @@ export default class ClientsComponent implements OnInit {
   private _isLoading = signal( true );
   private _isSaving = signal( false );
   private _isJuridicPerson = signal( false );
+  private _allowList = signal( true );
   public searchInput = new FormControl('', [ Validators.pattern( fullTextPatt ) ]);
 
   public clientForm = this._formBuilder.group({
@@ -93,6 +102,7 @@ export default class ClientsComponent implements OnInit {
   public civilStatus = computed( () => this._civilStatus() );
   public genders = computed( () => this._genders() );
   public personTypes = computed( () => this._personTypes() );
+  public allowList = computed( () => this._allowList() );
 
   public isLoading = computed( () => this._isLoading() );
   public isSaving = computed( () => this._isSaving() );
@@ -116,9 +126,19 @@ export default class ClientsComponent implements OnInit {
   ngOnInit(): void {
     initFlowbite();
 
+    this.onListenAuthRx();
     this.onGetSelectsData();
     this.onGetClients( 1 );
 
+  }
+
+  onListenAuthRx() {
+    this._authrx$ = this._store.select('auth')
+    .subscribe( (state) => {
+      const { webUrlPermissionMethods } = state;
+
+      this._webUrlPermissionMethods = webUrlPermissionMethods;
+    });
   }
 
   onSearch() {
@@ -127,6 +147,16 @@ export default class ClientsComponent implements OnInit {
   }
 
   onGetClients( page = 1 ) {
+
+    const allowList = this._webUrlPermissionMethods.some(
+      (permission) => permission.webApi == apiClient && permission.methods.includes( 'GET' )
+    );
+
+    if( !allowList ) {
+      this._allowList.set( false );
+      return;
+    }
+
     this._isLoading.set( true );
     this._clientService.getClients( page, this._filter )
     .subscribe({
@@ -282,11 +312,22 @@ export default class ClientsComponent implements OnInit {
 
     if( this.isFormInvalid || this._isLoading() ) return;
 
-    this._isLoading.set( true );
 
     const { id = 'xD', ...body } = this.clientBody;
 
     if( !ISUUID( id ) ) {
+
+      const allowCreate = this._webUrlPermissionMethods.some(
+        (permission) => permission.webApi == apiClient && permission.methods.includes( 'POST' )
+      );
+
+      if( !allowCreate ) {
+        this._alertService.showAlert( undefined, 'No tiene permiso para crear un cliente', 'warning');
+        return;
+      }
+
+      this._isLoading.set( true );
+
       this._clientService.createClient( body )
       .subscribe({
         next: async ( clientCreated ) => {
@@ -305,6 +346,17 @@ export default class ClientsComponent implements OnInit {
       });
       return;
     }
+
+    const allowUpdate = this._webUrlPermissionMethods.some(
+      (permission) => permission.webApi == apiClient && permission.methods.includes( 'PATCH' )
+    );
+
+    if( !allowUpdate ) {
+      this._alertService.showAlert( undefined, 'No tiene permiso para actualizar un cliente', 'warning');
+      return;
+    }
+
+    this._isLoading.set( true );
 
     this._clientService.updateClient( id, body )
     .subscribe({
@@ -325,5 +377,8 @@ export default class ClientsComponent implements OnInit {
 
   }
 
+  ngOnDestroy(): void {
+      this._authrx$?.unsubscribe();
+  }
 
 }

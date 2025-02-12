@@ -7,16 +7,20 @@ import { CdkTree } from '@angular/cdk/tree';
 import { Subscription } from 'rxjs';
 import { ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { initFlowbite } from 'flowbite';
+import { Store } from '@ngrx/store';
 
-import { MenuService } from '../../services/menu.service';
 import { AlertService } from '@shared/services/alert.service';
 import { MaterialModule } from '@shared/material.module';
-import { classPatt, fullTextPatt } from '@shared/helpers/regex.helper';
-import { AppFlatMenu, AppMenu, MenuHandler } from './menu-handler';
+import { classPatt, fullTextPatt, urlMenuPatt } from '@shared/helpers/regex.helper';
 import { InputErrorsDirective } from '@shared/directives/input-errors.directive';
 import { SpinnerComponent } from '@shared/components/spinner/spinner.component';
+import { translatePatt } from '@shared/helpers/regex.helper';
 import { MenuBody, MenuMoveBody } from '../../interfaces';
-import { translatePatt } from '../../../../shared/helpers/regex.helper';
+import { MenuService } from '../../services/menu.service';
+import { AppFlatMenu, AppMenu, MenuHandler } from './menu-handler';
+import { AppState } from '../../../../app.config';
+import { WebUrlPermissionMethods } from '../../../../auth/interfaces';
+import { apiMenu } from '@shared/helpers/web-apis.helper';
 
 
 /**
@@ -43,6 +47,7 @@ import { translatePatt } from '../../../../shared/helpers/regex.helper';
 export default class MenusComponent implements OnInit, OnDestroy {
 
   private _menuHandler$?: Subscription;
+  private _authrx$?: Subscription;
   @ViewChild('btnCloseMenuModal') btnCloseMenuModal!: ElementRef<HTMLButtonElement>;
   @ViewChild('btnShowMenuModal') btnShowMenuModal!: ElementRef<HTMLButtonElement>;
   @ViewChild('tree') tree!: CdkTree<AppMenu>;
@@ -51,6 +56,9 @@ export default class MenusComponent implements OnInit, OnDestroy {
 
   private _menuService = inject( MenuService );
   private _alertService = inject( AlertService );
+  private _store = inject<Store<AppState>>( Store<AppState> );
+
+  private _webUrlPermissionMethods: WebUrlPermissionMethods[] = [];
 
   private _formBuilder = inject( UntypedFormBuilder );
   private _menuHandler = inject( MenuHandler );
@@ -62,8 +70,8 @@ export default class MenusComponent implements OnInit, OnDestroy {
     id:               [ null, [] ],
     label:            [ '', [ Validators.required, Validators.pattern( fullTextPatt ) ] ],
     iconClass:        [ 'ni-circle', [ Validators.required, Validators.pattern( classPatt ) ] ],
-    webUrl:           [ '', [ Validators.required ] ],
-    apiUrl:           [ '', [ Validators.required ] ],
+    webUrl:           [ '', [ Validators.required, Validators.pattern( urlMenuPatt ) ] ],
+    apiUrl:           [ '', [ Validators.required, Validators.pattern( urlMenuPatt ) ] ],
     parentId:         [ null, [ ] ],
     level:            [ 1, [ Validators.required ] ],
     order:            [ 0, [ Validators.required ] ],
@@ -109,9 +117,19 @@ export default class MenusComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
 
     initFlowbite();
+    this.onListenAuthRx();
 
     this._menuHandler$ = this._menuHandler.dataChange.subscribe( (appMenu) => {
       this.rebuildTreeForData(appMenu);
+    });
+  }
+
+  onListenAuthRx() {
+    this._authrx$ = this._store.select('auth')
+    .subscribe( (state) => {
+      const { webUrlPermissionMethods } = state;
+
+      this._webUrlPermissionMethods = webUrlPermissionMethods;
     });
   }
 
@@ -290,11 +308,21 @@ export default class MenusComponent implements OnInit, OnDestroy {
 
     if( this.isInvalidForm || this._isRecording ) return;
 
-    this._isRecording = true;
-
     const { id, ...body } = this.menuBody;
 
     if( !id ) {
+
+      const allowCreate = this._webUrlPermissionMethods.some(
+        (permission) => permission.webApi == apiMenu && permission.methods.includes( 'POST' )
+      );
+
+      if( !allowCreate ) {
+        this._alertService.showAlert(undefined, 'No tiene permiso para crear un menú', 'warning');
+        return;
+      }
+
+      this._isRecording = true;
+
       this._menuService.createMenu( body )
       .subscribe({
         next: (menuCreated) => {
@@ -313,6 +341,17 @@ export default class MenusComponent implements OnInit, OnDestroy {
 
       return;
     }
+
+    const allowUpddate = this._webUrlPermissionMethods.some(
+      (permission) => permission.webApi == apiMenu && permission.methods.includes( 'PATCH' )
+    );
+
+    if( !allowUpddate ) {
+      this._alertService.showAlert( undefined, 'No tiene permiso para actualizar un menú', 'warning');
+      return;
+    }
+
+    this._isRecording = true;
 
     this._menuService.updateMenu( id, body )
     .subscribe({
@@ -375,6 +414,15 @@ export default class MenusComponent implements OnInit, OnDestroy {
 
   private _removeMenu( menuId: string ) {
 
+    const allowDelete = this._webUrlPermissionMethods.some(
+      (permission) => permission.webApi == apiMenu && permission.methods.includes( 'DELETE' )
+    );
+
+    if( !allowDelete ) {
+      this._alertService.showAlert(undefined, 'No tiene permiso para eliminar un menú', 'warning');
+      return;
+    }
+
     if( this._isRemoving ) return;
 
     this._isRemoving = true;
@@ -407,6 +455,7 @@ export default class MenusComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this._menuHandler$?.unsubscribe();
+    this._authrx$?.unsubscribe();
   }
 
 }

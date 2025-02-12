@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, OnInit, ViewChild, computed, inject, signal } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild, computed, inject, signal } from '@angular/core';
 import { FormControl, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { initFlowbite } from 'flowbite';
 import { NgSelectModule } from '@ng-select/ng-select';
@@ -17,6 +17,11 @@ import { environments } from '@envs/environments';
 import { onValidImg } from '@shared/helpers/files.helper';
 import { RoleService } from '../../services/role.service';
 import { UploadFileService } from '@shared/services/upload-file.service';
+import { Subscription } from 'rxjs';
+import { Store } from '@ngrx/store';
+import { AppState } from '../../../../app.config';
+import { WebUrlPermissionMethods } from '../../../../auth/interfaces';
+import { apiUser } from '@shared/helpers/web-apis.helper';
 
 @Component({
   selector: 'app-users',
@@ -33,7 +38,11 @@ import { UploadFileService } from '@shared/services/upload-file.service';
   templateUrl: './users.component.html',
   styles: ``
 })
-export default class UsersComponent implements OnInit {
+export default class UsersComponent implements OnInit, OnDestroy {
+
+  private _authrx$?: Subscription;
+  private _store = inject<Store<AppState>>( Store<AppState> );
+  private _webUrlPermissionMethods: WebUrlPermissionMethods[] = [];
 
   @ViewChild('btnCloseUserModal') btnCloseUserModal!: ElementRef<HTMLButtonElement>;
   @ViewChild('btnShowUserModal') btnShowUserModal!: ElementRef<HTMLButtonElement>;
@@ -68,12 +77,14 @@ export default class UsersComponent implements OnInit {
   private _totalUsers = signal<number>( 0 );
   private _users = signal<User[]>( [] );
   private _roles = signal<Role[]>( [] );
+  private _allowList = signal( true );
 
   public readonly roles = computed( () => this._roles() );
   public users = computed( () => this._users() );
   public isLoading = computed( () => this._isLoading() );
   public isSaving = computed( () => this._isSaving() );
   public totalUsers = computed( () => this._totalUsers() );
+  public allowList = computed( () => this._allowList() );
 
 
   public fileUrl = signal( environments.defaultImgUrl );
@@ -95,8 +106,19 @@ export default class UsersComponent implements OnInit {
   ngOnInit(): void {
     initFlowbite();
 
+    this.onListenAuthRx();
+
     this.onGetRoles();
     this.onGetUsers();
+  }
+
+  onListenAuthRx() {
+    this._authrx$ = this._store.select('auth')
+    .subscribe( (state) => {
+      const { webUrlPermissionMethods } = state;
+
+      this._webUrlPermissionMethods = webUrlPermissionMethods;
+    });
   }
 
   onSearch() {
@@ -112,6 +134,16 @@ export default class UsersComponent implements OnInit {
   }
 
   onGetUsers( page = 1 ) {
+
+    const allowList = this._webUrlPermissionMethods.some(
+      (permission) => permission.webApi == apiUser && permission.methods.includes( 'GET' )
+    );
+
+    if( !allowList ) {
+      this._allowList.set( false );
+      return;
+    }
+
     this._isLoading.set( true );
     this._userService.getUsers( page, this._filter )
     .subscribe({
@@ -195,6 +227,15 @@ export default class UsersComponent implements OnInit {
 
   private _removeUser( userId: string ) {
 
+    const allowDelete = this._webUrlPermissionMethods.some(
+      (permission) => permission.webApi == apiUser && permission.methods.includes( 'DELETE' )
+    );
+
+    if( !allowDelete ) {
+      this._alertService.showAlert( undefined, 'No tiene permiso para eliminar un usuario', 'warning');
+      return;
+    }
+
     if( this._isRemoving ) return;
 
     this._isRemoving = true;
@@ -224,11 +265,21 @@ export default class UsersComponent implements OnInit {
 
     if( this.isFormInvalid || this._isLoading() ) return;
 
-    this._isLoading.set( true );
 
     const { id = 'xD', ...body } = this.userBody;
 
     if( !ISUUID( id ) ) {
+
+      const allowCreate = this._webUrlPermissionMethods.some(
+        (permission) => permission.webApi == apiUser && permission.methods.includes( 'POST' )
+      );
+
+      if( !allowCreate ) {
+        this._alertService.showAlert( undefined, 'No tiene permiso para crear un usuario', 'warning');
+        return;
+      }
+
+      this._isLoading.set( true );
       this._userService.createUser( body )
       .subscribe({
         next: async ( userCreated ) => {
@@ -252,6 +303,18 @@ export default class UsersComponent implements OnInit {
       return;
     }
 
+
+    const allowUpdate = this._webUrlPermissionMethods.some(
+      (permission) => permission.webApi == apiUser && permission.methods.includes( 'PATCH' )
+    );
+
+    if( !allowUpdate ) {
+      this._alertService.showAlert( undefined, 'No tiene permiso para actualizar un usuario', 'warning');
+      return;
+    }
+
+    this._isLoading.set( true );
+
     this._userService.updateUser( id, body )
       .subscribe({
         next: async ( userUpdated ) => {
@@ -272,6 +335,10 @@ export default class UsersComponent implements OnInit {
           this._isLoading.set( false );
         }
       });
+  }
+
+  ngOnDestroy(): void {
+    this._authrx$?.unsubscribe();
   }
 
 }

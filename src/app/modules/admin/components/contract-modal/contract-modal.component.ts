@@ -21,6 +21,8 @@ import { formatNumber } from '@angular/common';
 import { UserService } from '../../../security/services/user.service';
 import { User } from '../../../security/interfaces';
 import { AlertService } from '@shared/services/alert.service';
+import { WebUrlPermissionMethods } from '../../../../auth/interfaces';
+import { apiContract } from '@shared/helpers/web-apis.helper';
 
 @Component({
   selector: 'contract-modal',
@@ -43,6 +45,7 @@ export class ContractModalComponent implements OnInit, AfterViewInit, OnDestroy 
   @Output() onCreated = new EventEmitter<Contract | undefined>();
 
   @Input({ required: true }) paymentTypes!: Nomenclature[];
+  @Input({ required: true }) webUrlPermissionMethods!: WebUrlPermissionMethods[];
 
   private _map?: Map;
   private _popup?: Popup;
@@ -687,6 +690,15 @@ export class ContractModalComponent implements OnInit, AfterViewInit, OnDestroy 
   onSubmit() {
 
     if( this.invalidFormOne || this.invalidFormTwo || this.invalidFormThree ) return;
+
+    const allowCreate = this.webUrlPermissionMethods.some(
+      (permission) => permission.webApi == apiContract && permission.methods.includes( 'POST' )
+    );
+
+    if( !allowCreate ) {
+      this._alertService.showAlert( undefined, 'No tiene permiso para crear un contrato', 'warning');
+      return;
+    }
 
     const body1 = this.valueFormOne;
     const body2 = this.valueFormTwo;

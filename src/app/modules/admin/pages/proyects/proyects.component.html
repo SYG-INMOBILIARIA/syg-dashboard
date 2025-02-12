@@ -54,60 +54,68 @@
     </div>
 
     <div class="grid gap-3 mb-4 grid-cols-6">
+      @if ( allowList() ) {
+        @for (proyect of proyects(); track proyect.id) {
 
-      @for (proyect of proyects(); track proyect.id) {
+          <div class="relative col-span-2 xs:col-span-3 mb-2 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
+            <!-- <img class="rounded-t-lg" src="https://flowbite.com/docs/images/blog/image-1.jpg" alt="" /> -->
+            <mini-map class="rounded-t-lg" [proyect]="proyect" ></mini-map>
 
-        <div class="relative col-span-2 xs:col-span-3 mb-2 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
-          <!-- <img class="rounded-t-lg" src="https://flowbite.com/docs/images/blog/image-1.jpg" alt="" /> -->
-          <mini-map class="rounded-t-lg" [proyect]="proyect" ></mini-map>
+            <div class="absolute right-2">
+              <div class="flex justify-end pt-3 px-3 right-1">
+                  <button [attr.data-dropdown-toggle]="'mydropdown-' + proyect.id" class="inline-block text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:ring-4 focus:outline-none focus:ring-gray-200 dark:focus:ring-gray-700 rounded-lg text-sm p-1.5" type="button">
+                      <span class="sr-only">Open dropdown</span>
+                      <svg
+                        class="w-5 h-5"
+                        aria-hidden="true"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="currentColor"
+                        viewBox="0 0 16 3">
+                          <path d="M2 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm6.041 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM14 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Z"/>
+                      </svg>
+                  </button>
+                  <!-- Dropdown menu -->
+                  <div [id]="'mydropdown-' + proyect.id" class="z-10 hidden text-base list-none bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700">
+                      <ul class="py-2" >
+                      <li>
+                          <a [routerLink]="['/dashboard/update-proyect', proyect.id ]" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">
+                              Edit
+                          </a>
+                      </li>
+                      <li>
+                          <a [routerLink]="['/dashboard/lotes-by-proyect', proyect.id ]" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">
+                            Ver lotes
+                          </a>
+                      </li>
+                      <li>
+                          <a [routerLink]="['/dashboard/financings-by-proyect', proyect.id ]" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">
+                            Financiamientos
+                          </a>
+                      </li>
+                      </ul>
+                  </div>
+              </div>
+            </div>
 
-          <div class="absolute right-2">
-            <div class="flex justify-end pt-3 px-3 right-1">
-                <button [attr.data-dropdown-toggle]="'mydropdown-' + proyect.id" class="inline-block text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:ring-4 focus:outline-none focus:ring-gray-200 dark:focus:ring-gray-700 rounded-lg text-sm p-1.5" type="button">
-                    <span class="sr-only">Open dropdown</span>
-                    <svg
-                      class="w-5 h-5"
-                      aria-hidden="true"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="currentColor"
-                      viewBox="0 0 16 3">
-                        <path d="M2 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm6.041 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM14 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Z"/>
-                    </svg>
-                </button>
-                <!-- Dropdown menu -->
-                <div [id]="'mydropdown-' + proyect.id" class="z-10 hidden text-base list-none bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700">
-                    <ul class="py-2" >
-                    <li>
-                      <a [routerLink]="['/dashboard/update-proyect', proyect.id ]" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">
-                          Edit
-                      </a>
-                    </li>
-                    <li>
-                        <a [routerLink]="['/dashboard/lotes-by-proyect', proyect.id ]" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">
-                          Ver lotes
-                        </a>
-                    </li>
-                    <li>
-                        <a [routerLink]="['/dashboard/financings-by-proyect', proyect.id ]" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">
-                          Financiamientos
-                        </a>
-                    </li>
-                    </ul>
-                </div>
+            <div class="p-5">
+                <a href="#">
+                    <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+                      {{ proyect.name }} - {{ proyect.year }}
+                    </h5>
+                </a>
+                <p class="mb-3 font-normal text-gray-700 dark:text-gray-400">
+                  {{ proyect.description }}
+                </p>
+
             </div>
           </div>
-
-          <div class="p-5">
-              <a href="#">
-                  <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-                    {{ proyect.name }} - {{ proyect.year }}
-                  </h5>
-              </a>
-              <p class="mb-3 font-normal text-gray-700 dark:text-gray-400">
-                {{ proyect.description }}
-              </p>
-
-          </div>
+        }
+      } @else {
+        <div class="col-span-2 xs:col-span-3"></div>
+        <div class="col-span-2 xs:col-span-3 mb-2 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
+          <p class="text-center text-xl text-slate-500 p-3">
+            No tiene permiso para listar proyectos inmobiliarios
+          </p>
         </div>
       }
 

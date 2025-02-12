@@ -23,6 +23,8 @@ import { NgSelectModule } from '@ng-select/ng-select';
 import { LoteService } from '../../services/lote.service';
 import { AlertService } from '@shared/services/alert.service';
 import { LoteStatus } from '../../enum';
+import { WebUrlPermissionMethods } from '../../../../auth/interfaces';
+import { apiLote } from '@shared/helpers/web-apis.helper';
 
 interface PolygonCoord {
   lng: number;
@@ -61,6 +63,8 @@ interface PolygonCoord {
   `
 })
 export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
+
+  private _webUrlPermissionMethods: WebUrlPermissionMethods[] = [];
 
   @ViewChild('map') mapContainer?: ElementRef<HTMLDivElement>;
 
@@ -114,8 +118,9 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnInit(): void {
 
-    const { loteStatus, proyect, loteToUpdate } = this.data;
+    const { loteStatus, proyect, loteToUpdate, webUrlPermissionMethods } = this.data;
 
+    this._webUrlPermissionMethods = webUrlPermissionMethods;
     this._loteStatus.set( loteStatus );
     this.loteForm.get('proyectId')?.setValue( proyect.id );
 
@@ -137,7 +142,6 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
     this._map = new Map({
       container: this.mapContainer.nativeElement,
       style: 'mapbox://styles/mapbox/streets-v12', // style URL
-      // style: 'mapbox://styles/mapbox/satellite-v9', // style URL
       center: [ -80.6987307175805,-4.926770405375706 ], // starting position [lng, lat]
       zoom: 14, //
     });
@@ -473,11 +477,21 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
 
-    this._isSaving.set( true );
-
     const { id, ...body } = this._loteBody;
 
     if( !id || !ISUUID( id ) ) {
+
+      const allowCreate = this._webUrlPermissionMethods.some(
+        (permission) => permission.webApi == apiLote && permission.methods.includes( 'POST' )
+      );
+
+      if( !allowCreate ) {
+        this._alertService.showAlert( undefined, 'No tiene permiso para crear un lote', 'warning');
+        return;
+      }
+
+      this._isSaving.set( true );
+
       this._loteService.createLote( body )
       .subscribe( (loteCreated) => {
 
@@ -488,6 +502,17 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
       });
       return;
     }
+
+    const allowUpdate = this._webUrlPermissionMethods.some(
+      (permission) => permission.webApi == apiLote && permission.methods.includes( 'PATCH' )
+    );
+
+    if( !allowUpdate ) {
+      this._alertService.showAlert( undefined, 'No tiene permiso para actualizar un lote', 'warning');
+      return;
+    }
+
+    this._isSaving.set( true );
 
     this._loteService.updateLote( id, body )
       .subscribe( (loteUpdate) => {

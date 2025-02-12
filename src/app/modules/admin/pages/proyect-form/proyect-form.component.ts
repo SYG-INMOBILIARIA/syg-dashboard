@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { FlatpickrDirective } from 'angularx-flatpickr';
 import { validate as ISUUID } from 'uuid';
@@ -14,6 +14,11 @@ import { ProyectService } from '../../services/proyect.service';
 import { UploadFileService } from '@shared/services/upload-file.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AlertService } from '@shared/services/alert.service';
+import { Subscription } from 'rxjs';
+import { Store } from '@ngrx/store';
+import { AppState } from '../../../../app.config';
+import { WebUrlPermissionMethods } from '../../../../auth/interfaces';
+import { apiProyect } from '@shared/helpers/web-apis.helper';
 
 @Component({
   standalone: true,
@@ -28,7 +33,11 @@ import { AlertService } from '@shared/services/alert.service';
   templateUrl: './proyect-form.component.html',
   styleUrl: './proyect-form.component.css'
 })
-export default class ProyectFormComponent implements OnInit {
+export default class ProyectFormComponent implements OnInit, OnDestroy {
+
+  private _authrx$?: Subscription;
+  private _store = inject<Store<AppState>>( Store<AppState> );
+  private _webUrlPermissionMethods: WebUrlPermissionMethods[] = [];
 
   private _router = inject( Router );
   private _alertService = inject( AlertService );
@@ -78,11 +87,22 @@ export default class ProyectFormComponent implements OnInit {
 
   ngOnInit(): void {
 
+    this.onListenAuthRx();
+
     const proyectId = this._activatedRoute.snapshot.params['proyectId'];
     if( ISUUID( proyectId ) ) {
       this._onLoadToUpdate( proyectId );
     }
 
+  }
+
+  onListenAuthRx() {
+    this._authrx$ = this._store.select('auth')
+    .subscribe( (state) => {
+      const { webUrlPermissionMethods } = state;
+
+      this._webUrlPermissionMethods = webUrlPermissionMethods;
+    });
   }
 
   private _onLoadToUpdate( proyectId: string ) {
@@ -175,12 +195,22 @@ export default class ProyectFormComponent implements OnInit {
       return;
     }
 
-    this._isSaving.set( true );
     this._alertService.showLoading();
 
     const { id = 'xD', ...body } = this.proyectBody;
 
     if( !id && !ISUUID( id ) ) {
+
+      const allowCreate = this._webUrlPermissionMethods.some(
+        (permission) => permission.webApi == apiProyect && permission.methods.includes( 'POST' )
+      );
+
+      if( !allowCreate ) {
+        this._alertService.showAlert( undefined, 'No tiene permiso para crear un proyecto inmobiliario', 'warning');
+        return;
+      }
+
+      this._isSaving.set( true );
 
       this._proyectService.createProyect( body )
       .subscribe( async (proyectCreated) => {
@@ -196,24 +226,37 @@ export default class ProyectFormComponent implements OnInit {
 
       } );
 
-    } else {
-
-      this._proyectService.updateProyect( id, body )
-      .subscribe( async (proyectUpdated) => {
-
-        if( this._file ) {
-          await this._uploadService.uploadFile( this._file, proyectUpdated.id, 'flat-proyects' );
-        }
-
-        this._isSaving.set( false );
-        this._alertService.showAlert('Proyecto actualizado exitosamente', undefined, 'success');
-        this._router.navigateByUrl('/dashboard/proyects');
-
-      } );
+      return;
 
     }
 
+    const allowUpdate = this._webUrlPermissionMethods.some(
+      (permission) => permission.webApi == apiProyect && permission.methods.includes( 'PATCH' )
+    );
+
+    if( !allowUpdate ) {
+      this._alertService.showAlert( undefined, 'No tiene permiso para actualizar un proyecto inmobiliario', 'warning');
+      return;
+    }
+
+    this._isSaving.set( true );
+
+    this._proyectService.updateProyect( id, body )
+    .subscribe( async (proyectUpdated) => {
+
+      if( this._file ) {
+        await this._uploadService.uploadFile( this._file, proyectUpdated.id, 'flat-proyects' );
+      }
+
+      this._isSaving.set( false );
+      this._alertService.showAlert('Proyecto actualizado exitosamente', undefined, 'success');
+      this._router.navigateByUrl('/dashboard/proyects');
+
+    } );
   }
 
+  ngOnDestroy(): void {
+    this._authrx$?.unsubscribe();
+  }
 
 }

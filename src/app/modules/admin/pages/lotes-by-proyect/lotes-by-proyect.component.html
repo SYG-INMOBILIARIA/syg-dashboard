@@ -114,56 +114,67 @@
         <ngx-simplebar [options]="options" class="h-110 w-auto ">
             <ul role="list" class="divide-y divide-gray-200 dark:divide-gray-700 ">
 
-                <li class="py-3 sm:py-4 " *ngFor=" let lote of lotes() "  >
-                    <div class="flex items-center">
+              @if ( allowList() ) {
+                @for (lote of lotes(); track $index) {
+                  <li class="py-3 sm:py-4">
+                      <div class="flex items-center">
 
-                        <div class="flex-shrink-0 cursor-pointer" (click)="onLoteToFly(lote)">
-                          <div class="relative inline-flex items-center justify-center w-10 h-10 overflow-hidden rounded-full  {{ lote.loteStatus | loteStatusClass }}">
-                            <span class="font-medium text-sm">
-                              {{ lote.code }}
-                            </span>
-                          </div>
-                        </div>
-
-                        <div class="flex-1 min-w-0 ms-4 cursor-pointer" (click)="onLoteToFly(lote)">
-                            <p class="text-sm font-medium text-gray-900 truncate dark:text-white">
+                          <div class="flex-shrink-0 cursor-pointer" (click)="onLoteToFly(lote)">
+                            <div class="relative inline-flex items-center justify-center w-10 h-10 overflow-hidden rounded-full  {{ lote.loteStatus | loteStatusClass }}">
+                              <span class="font-medium text-sm">
                                 {{ lote.code }}
-                            </p>
-                            <p class="text-sm text-gray-500 truncate dark:text-gray-400">
-                                {{ lote.squareMeters }} m2
-                            </p>
-                        </div>
+                              </span>
+                            </div>
+                          </div>
 
-                        <div class="inline-flex items-center text-base gap-3 font-semibold text-gray-900 dark:text-white">
-                            S/ {{ lote.price | number: '.2-2' }}
+                          <div class="flex-1 min-w-0 ms-4 cursor-pointer" (click)="onLoteToFly(lote)">
+                              <p class="text-sm font-medium text-gray-900 truncate dark:text-white">
+                                  {{ lote.code }}
+                              </p>
+                              <p class="text-sm text-gray-500 truncate dark:text-gray-400">
+                                  {{ lote.squareMeters }} m2
+                              </p>
+                          </div>
 
-                            <button
-                              type="button"
-                              class="gap-2 px-3 py-2 text-xs font-medium text-center inline-flex items-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-                              (click)="onLoadToUpdate( lote )"
-                            >
+                          <div class="inline-flex items-center text-base gap-3 font-semibold text-gray-900 dark:text-white">
+                              S/ {{ lote.price | number: '.2-2' }}
 
-                              <i class="fa fa-pencil" aria-hidden="true"></i>
+                              <button
+                                type="button"
+                                class="gap-2 px-3 py-2 text-xs font-medium text-center inline-flex items-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                                (click)="onLoadToUpdate( lote )"
+                              >
 
-                              <!-- Editar -->
-                            </button>
+                                <i class="fa fa-pencil" aria-hidden="true"></i>
 
-                            <button
-                              type="button"
-                              class="gap-2 px-3 py-2 text-xs font-medium text-center inline-flex items-center text-white bg-red-700 rounded-lg hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800"
-                              (click)="onRemoveConfirm( lote )"
-                            >
+                                <!-- Editar -->
+                              </button>
 
-                              <i class="fa fa-trash-can" aria-hidden="true"></i>
-                              <!-- Eliminar -->
-                            </button>
+                              <button
+                                type="button"
+                                class="gap-2 px-3 py-2 text-xs font-medium text-center inline-flex items-center text-white bg-red-700 rounded-lg hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800"
+                                (click)="onRemoveConfirm( lote )"
+                              >
+
+                                <i class="fa fa-trash-can" aria-hidden="true"></i>
+                                <!-- Eliminar -->
+                              </button>
 
 
-                        </div>
-                    </div>
+                          </div>
+                      </div>
+                  </li>
+                }
+              } @else {
+                <li class="py-3 sm:py-4">
+                  <p class="text-center text-xl text-slate-500 p-2 border">
+                    No tiene permiso para listar lotes
+                  </p>
                 </li>
+              }
 
-              </ul>
+
+            </ul>
           </ngx-simplebar>
       </div>
     </div>

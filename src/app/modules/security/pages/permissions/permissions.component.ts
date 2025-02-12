@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit, ViewChild, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, ViewChild, computed, inject, signal } from '@angular/core';
 
 import { MenuService } from '../../services/menu.service';
 import { RoleService } from '../../services/role.service';
@@ -14,6 +14,11 @@ import { SelectionModel } from '@angular/cdk/collections';
 import { AlertService } from '@shared/services/alert.service';
 import { NomenclatureService } from '@shared/services/nomenclature.service';
 import { Nomenclature } from '@shared/interfaces';
+import { Subscription } from 'rxjs';
+import { Store } from '@ngrx/store';
+import { AppState } from '../../../../app.config';
+import { WebUrlPermissionMethods } from '../../../../auth/interfaces';
+import { apiPermission } from '@shared/helpers/web-apis.helper';
 
 @Component({
   selector: 'app-permissions',
@@ -31,7 +36,11 @@ import { Nomenclature } from '@shared/interfaces';
     }
   `
 })
-export default class PermissionsComponent implements OnInit {
+export default class PermissionsComponent implements OnInit, OnDestroy {
+
+  private _authrx$?: Subscription;
+  private _store = inject<Store<AppState>>( Store<AppState> );
+  private _webUrlPermissionMethods: WebUrlPermissionMethods[] = [];
 
   private _alertService = inject( AlertService );
   private _menuService = inject( MenuService );
@@ -75,8 +84,18 @@ export default class PermissionsComponent implements OnInit {
 
     this.onLoadMenu();
     this.onLoadRoles();
+    this.onListenAuthRx();
     this.onLoadPermissionsMethods();
 
+  }
+
+  onListenAuthRx() {
+    this._authrx$ = this._store.select('auth')
+    .subscribe( (state) => {
+      const { webUrlPermissionMethods } = state;
+
+      this._webUrlPermissionMethods = webUrlPermissionMethods;
+    });
   }
 
   onLoadMenu() {
@@ -287,6 +306,15 @@ export default class PermissionsComponent implements OnInit {
 
     if( !this.isValidForm && !this.isPartialSelectedMenu ) return;
 
+    const allowCreate = this._webUrlPermissionMethods.some(
+      (permission) => permission.webApi == apiPermission && permission.methods.includes( 'POST' )
+    );
+
+    if( !allowCreate ) {
+      this._alertService.showAlert( undefined, 'No tiene permiso para actualizar permisos', 'warning');
+      return;
+    }
+
     const menuSelected = this.dataSource.data.filter( (menu) => menu.selected );
 
     const permissionBody: PermissionBody = {
@@ -350,6 +378,10 @@ export default class PermissionsComponent implements OnInit {
       }
     });
 
+  }
+
+  ngOnDestroy(): void {
+    this._authrx$?.unsubscribe();
   }
 
 }

@@ -132,6 +132,7 @@ export class AuthService {
           permissions.forEach( (roleMenuPermission) => {
             webUrlPermissionMethods.push({
               webUrl: roleMenuPermission.menu.webUrl,
+              webApi: roleMenuPermission.menu.apiUrl,
               methods: roleMenuPermission.methods
             })
           });
