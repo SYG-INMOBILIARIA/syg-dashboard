@@ -112,12 +112,12 @@ export class HomeComponent implements OnInit {
     },
     series: [
       {
-        name: "Crédito",
+        name: "Vendedor 1",
         data: [6500, 6418, 6456, 6526, 6356, 6456],
         color: "#1A56DB",
       },
       {
-        name: "Contado",
+        name: "Vendedor 2",
         data: [6456, 6356, 6526, 6332, 6418, 6500],
         color: "#7E3AF2",
       },
@@ -149,8 +149,6 @@ export class HomeComponent implements OnInit {
     },
   };
 
-
-
   optionsBarChart = {
     colors: ["#1A56DB", "#FDBA8C"],
     series: [
@@ -158,26 +156,26 @@ export class HomeComponent implements OnInit {
         name: "Ingresos",
         color: "#1A56DB",
         data: [
-          { x: "Mon", y: 2500 },
-          { x: "Tue", y: 12200 },
-          { x: "Wed", y: 63000 },
-          { x: "Thu", y: 42100 },
-          { x: "Fri", y: 10500 },
-          { x: "Sat", y: 32300 },
-          { x: "Sun", y: 90000 },
+          { x: "Enero", y: 2500 },
+          { x: "Febrero", y: 12200 },
+          { x: "Marzo", y: 63000 },
+          { x: "Abril", y: 42100 },
+          { x: "Mayo", y: 10500 },
+          { x: "Junio", y: 32300 },
+          { x: "Julio", y: 90000 },
         ],
       },
       {
         name: "Egresos",
         color: "#FDBA8C",
         data: [
-          { x: "Mon", y: 1320 },
-          { x: "Tue", y: 6000 },
-          { x: "Wed", y: 3410 },
-          { x: "Thu", y: 22400 },
-          { x: "Fri", y: 5220 },
-          { x: "Sat", y: 4110 },
-          { x: "Sun", y: 25000 },
+          { x: "Enero", y: 1320 },
+          { x: "Febrero", y: 6000 },
+          { x: "Marzo", y: 3410 },
+          { x: "Abril", y: 22400 },
+          { x: "Mayo", y: 5220 },
+          { x: "Junio", y: 4110 },
+          { x: "Julio", y: 25000 },
         ],
       },
     ],
@@ -255,9 +253,6 @@ export class HomeComponent implements OnInit {
       opacity: 1,
     },
   }
-
-
-
 
   ngOnInit(): void {
     if (document.getElementById("area-chart") && typeof ApexCharts !== 'undefined') {
