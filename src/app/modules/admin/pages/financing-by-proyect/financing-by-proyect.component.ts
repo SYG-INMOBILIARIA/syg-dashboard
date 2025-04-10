@@ -51,7 +51,6 @@ export default class FinancingByProyectComponent implements OnInit {
 
   financingModalTitle = 'Crear nuevo financiamiento';
 
-
   private _formBuilder = inject( UntypedFormBuilder );
   public financingForm = this._formBuilder.group({
     id:                   [ '', [] ],
@@ -68,6 +67,7 @@ export default class FinancingByProyectComponent implements OnInit {
   private _financingTypes = signal<Nomenclature[]>([]);
   private _financings = signal<Financing[]>([]);
 
+  private _initialLabel = signal( 'Monto Inicial' );
   private _isLoading = signal( true );
   private _isSaving = signal( false );
   private _totalFinancings = signal<number>( 0 );
@@ -81,6 +81,7 @@ export default class FinancingByProyectComponent implements OnInit {
   public financingTypes = computed( () => this._financingTypes() );
   public financings = computed( () => this._financings() );
   public quotesForm = computed( () => this._quotesForm() );
+  public initialLabel = computed( () => this._initialLabel() );
   private _proyect = signal<Proyect | undefined>( undefined );
 
   public proyectName = computed( () => this._proyect()?.name ?? '' );
@@ -292,8 +293,10 @@ export default class FinancingByProyectComponent implements OnInit {
 
     if( value == FinancingType.amount ) {
       this.financingForm.get('initial')?.addValidators([ Validators.min(5000) ]);
+      this._initialLabel.set('Monto Inicial (S/)*');
     } else {
-      this.financingForm.get('initial')?.addValidators([ Validators.min(30), Validators.max(100) ]);
+      this.financingForm.get('initial')?.addValidators([ Validators.min(5), Validators.max(100) ]);
+      this._initialLabel.set('Porcentaje Inicial (%) *');
     }
 
     this.financingForm.get('initial')?.setValue(0);
