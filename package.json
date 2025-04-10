@@ -26,6 +26,7 @@
     "@ngrx/store-devtools": "^18.1.1",
     "@turf/turf": "^7.1.0",
     "angularx-flatpickr": "^8.1.0",
+    "apexcharts": "^3.46.0",
     "flatpickr": "^4.6.13",
     "flowbite": "^2.5.2",
     "jspdf": "^2.5.2",
