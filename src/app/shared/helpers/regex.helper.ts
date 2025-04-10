@@ -7,7 +7,7 @@ export const fullTextPatt = new RegExp(/^[a-záéíóúüñ\-\'\.\,\#\s\d]{0,400
 export const descriptionPatt = new RegExp(/^[a-záéíóúüñ\-\'\.\,\s\d\/\<\>]{0,650}$/i);
 
 export const fullTextWithoutSpacePatt = new RegExp(/^[a-záéíóúüñ]{0,200}$/i);
-export const urlMenuPatt = new RegExp(/^[a-z0-9\/\-]{0,200}$/);
+export const urlMenuPatt = new RegExp(/^[a-z0-9\/\-\:]{0,200}$/);
 export const fullTextNumberPatt = new RegExp(/^[a-záéíóúüñ\d\.\,\s]{0,200}$/i);
 export const materialIconPatt = new RegExp(/^[a-z0-9\_\-]{0,200}$/i);
 export const numberPatt = new RegExp(/^[0-9]{0,20}$/);
