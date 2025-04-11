@@ -24,14 +24,20 @@ export class AppComponent implements OnInit {
   private _authService = inject( AuthService );
   private _settingsService = inject( SettingsService );
 
+  isLoading = true;
+
   constructor() {
 
     effect( () => {
 
+      setTimeout(() => {
+        this.isLoading = false;
+      }, 1000);
+
       const currentPage = localStorage.getItem('currentPage') ?? '/dashboard';
       // console.log({currentPage});
 
-      switch (this._authService.authStatus()) {
+      switch ( this._authService.authStatus() ) {
         case AuthStatus.authenticated:
             this._router.navigateByUrl(currentPage);
           break;

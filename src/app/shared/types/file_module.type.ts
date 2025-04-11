@@ -1,1 +1,1 @@
-export type FileModule = 'users' | 'flat-proyects';
+export type FileModule = 'users' | 'flat-proyects' | 'payments-method';

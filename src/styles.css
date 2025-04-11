@@ -112,6 +112,24 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
     @apply bg-white dark:bg-slate-800 dark:text-white;
   }
 
+  /* navbar input */
+
+  .ng-select.navbar .ng-select-container  {
+    @apply bg-white   border border-gray-300 dark:bg-slate-800;
+  }
+
+  .ng-select.navbar.ng-select-opened.ng-select-bottom > .ng-select-container {
+    @apply bg-white  border border-gray-300 dark:bg-slate-800;
+  }
+
+  .ng-select.navbar .ng-dropdown-panel .ng-dropdown-panel-items .ng-option.ng-option-marked {
+    @apply bg-white dark:bg-slate-800;
+  }
+
+  .ng-select.navbar .ng-dropdown-panel .ng-dropdown-panel-items .ng-option {
+    @apply bg-white dark:bg-slate-800 dark:text-white;
+  }
+
 }
 
 /* items moving away to make room for drop */

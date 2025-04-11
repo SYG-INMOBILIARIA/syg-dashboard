@@ -28,3 +28,8 @@ export * from './contract-by-id.interface';
 export * from './payment-schedule.interface';
 
 export * from './map-props.interface';
+
+
+export * from './payment-method.interface';
+export * from './list-payment-method.interface';
+export * from './body-payment-method.interface';

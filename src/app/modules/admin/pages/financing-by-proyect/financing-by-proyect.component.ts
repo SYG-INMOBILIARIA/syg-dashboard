@@ -1,25 +1,28 @@
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
-import { Component, ElementRef, OnInit, ViewChild, computed, inject, signal } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild, computed, inject, signal } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { validate as ISUUID } from 'uuid';
-
-import { FinancingService } from '../../services/financing.service';
-import { NomenclatureService } from '@shared/services/nomenclature.service';
-import { Nomenclature } from '@shared/interfaces';
-import { Financing, FinancingBody, Proyect } from '../../interfaces';
-import { PaginationComponent } from '../../../../shared/components/pagination/pagination.component';
-import { PipesModule } from '@pipes/pipes.module';
-import { fullTextPatt } from '@shared/helpers/regex.helper';
 import { initFlowbite } from 'flowbite';
-import { SpinnerComponent } from '@shared/components/spinner/spinner.component';
-import { QuotaForm } from '../../classes/quota.class';
-import { NgSelectModule } from '@ng-select/ng-select';
+import { Subscription, forkJoin } from 'rxjs';
+
 import { InputErrorsDirective } from '@shared/directives/input-errors.directive';
+import { NomenclatureService } from '@shared/services/nomenclature.service';
+import { SpinnerComponent } from '@shared/components/spinner/spinner.component';
+import { NgSelectModule } from '@ng-select/ng-select';
+import { fullTextPatt } from '@shared/helpers/regex.helper';
+import { Nomenclature } from '@shared/interfaces';
 import { AlertService } from '@shared/services/alert.service';
-import { forkJoin } from 'rxjs';
+import { PipesModule } from '@pipes/pipes.module';
+import { FinancingService } from '../../services/financing.service';
+import { QuotaForm } from '../../classes/quota.class';
+import { Financing, FinancingBody, Proyect } from '../../interfaces';
 import { ProyectService } from '../../services/proyect.service';
 import { FinancingType } from '../../enum/financing-type.type';
+import { Store } from '@ngrx/store';
+import { AppState } from '../../../../app.config';
+import { WebUrlPermissionMethods } from '../../../../auth/interfaces';
+import { apiFinancing } from '@shared/helpers/web-apis.helper';
 
 @Component({
   standalone: true,
@@ -35,7 +38,11 @@ import { FinancingType } from '../../enum/financing-type.type';
   templateUrl: './financing-by-proyect.component.html',
   styles: ``
 })
-export default class FinancingByProyectComponent implements OnInit {
+export default class FinancingByProyectComponent implements OnInit, OnDestroy {
+
+  private _authrx$?: Subscription;
+  private _store = inject<Store<AppState>>( Store<AppState> );
+  private _webUrlPermissionMethods: WebUrlPermissionMethods[] = [];
 
   @ViewChild('btnCloseFinancingModal') btnCloseFinancingModal!: ElementRef<HTMLButtonElement>;
   @ViewChild('btnShowFinancingModal') btnShowFinancingModal!: ElementRef<HTMLButtonElement>;
@@ -45,7 +52,6 @@ export default class FinancingByProyectComponent implements OnInit {
   private _proyectService = inject( ProyectService );
 
   private _nomenclatureService = inject( NomenclatureService );
-  private _router = inject( Router );
   private _activatedRoute = inject( ActivatedRoute );
   private _proyectId = '';
 
@@ -66,6 +72,7 @@ export default class FinancingByProyectComponent implements OnInit {
 
   private _financingTypes = signal<Nomenclature[]>([]);
   private _financings = signal<Financing[]>([]);
+  private _proyects = signal<Proyect[]>([]);
 
   private _initialLabel = signal( 'Monto Inicial' );
   private _isLoading = signal( true );
@@ -73,16 +80,20 @@ export default class FinancingByProyectComponent implements OnInit {
   private _totalFinancings = signal<number>( 0 );
   private _quotesForm = signal<QuotaForm[]>([]);
 
-  public searchInput = new FormControl('', [ Validators.pattern( fullTextPatt ) ]);
+  public searchInput = new FormControl( '', [ Validators.pattern( fullTextPatt ) ] );
+  public proyectIdInput = new FormControl( null, [ Validators.pattern( fullTextPatt ) ] );
 
   public totalFinancings = computed( () => this._totalFinancings() );
   public isLoading = computed( () => this._isLoading() );
   public isSaving = computed( () => this._isSaving() );
   public financingTypes = computed( () => this._financingTypes() );
+  public proyects = computed( () => this._proyects() );
   public financings = computed( () => this._financings() );
   public quotesForm = computed( () => this._quotesForm() );
   public initialLabel = computed( () => this._initialLabel() );
   private _proyect = signal<Proyect | undefined>( undefined );
+  private _allowList = signal( true );
+  public allowList = computed( () => this._allowList() );
 
   public proyectName = computed( () => this._proyect()?.name ?? '' );
   get isFormInvalid() { return this.financingForm.invalid; }
@@ -101,22 +112,44 @@ export default class FinancingByProyectComponent implements OnInit {
 
   ngOnInit(): void {
 
-    const proyectId = this._activatedRoute.snapshot.params['proyectId'];
-    if( !ISUUID( proyectId ) ) {
-      this._router.navigateByUrl('404');
-      return;
-    }
+    this.onListenAuthRx();
 
+    const proyectId = this._activatedRoute.snapshot.params['proyectId'];
     this._proyectId = proyectId;
-    this.financingForm.get('proyectId')?.setValue(proyectId);
+
+    if( ISUUID( proyectId ) ) {
+      this.proyectIdInput?.setValue(proyectId);
+    }
 
     this.onGetFinancings();
     this.onLoadData( proyectId );
 
   }
 
+  onListenAuthRx() {
+    this._authrx$ = this._store.select('auth')
+    .subscribe( (state) => {
+      const { webUrlPermissionMethods } = state;
+
+      this._webUrlPermissionMethods = webUrlPermissionMethods;
+    });
+  }
+
   onGetFinancings( page = 1 ) {
-    this._financingService.getFinancings( this._proyectId, page, '' )
+
+    const allowList = this._webUrlPermissionMethods.some(
+      (permission) => permission.webApi == apiFinancing && permission.methods.includes( 'GET' )
+    );
+
+    if( !allowList ) {
+      this._allowList.set( false );
+      return;
+    }
+
+    const proyectId = this.proyectIdInput.value ?? '';
+    const filter = this.searchInput.value ?? '';
+
+    this._financingService.getFinancings( proyectId, page, filter )
     .subscribe( ({ financings, total  }) => {
       this._financings.set( financings );
       this._totalFinancings.set( total );
@@ -130,20 +163,16 @@ export default class FinancingByProyectComponent implements OnInit {
   onLoadData( proyectId: string ) {
 
     forkJoin({
-      proyect: this._proyectService.getProyectById( proyectId ),
+      listProyects: this._proyectService.getProyects( 1, '', 100 ),
       financingTypesResponse: this._nomenclatureService.getFinancingType(),
-    }).subscribe( ( { proyect, financingTypesResponse } ) => {
+    }).subscribe( ( { listProyects, financingTypesResponse } ) => {
 
-      const { centerCoords, polygonCoords, flatImage } = proyect;
+      const { proyects, total } = listProyects;
       const { nomenclatures } = financingTypesResponse;
 
-      this._proyect.set( proyect );
+      this._proyects.set( proyects );
       this._financingTypes.set( nomenclatures );
     });
-
-  }
-
-  onSearch() {
 
   }
 
@@ -231,14 +260,24 @@ export default class FinancingByProyectComponent implements OnInit {
       return;
     };
 
-    this._isSaving.set( true );
-
     const quotas = quotasForms.map( (quotaForm) => quotaForm.values );
     this.financingForm.get('quotas')?.setValue( quotas );
 
     const { id, ...body } = this.financingBody;
 
     if( !ISUUID( id ) ) {
+
+      const allowCreate = this._webUrlPermissionMethods.some(
+        (permission) => permission.webApi == apiFinancing && permission.methods.includes( 'POST' )
+      );
+
+      if( !allowCreate ) {
+        this._alertService.showAlert( undefined, 'No tiene permiso para crear un financiamiento', 'warning');
+        return;
+      }
+
+      this._isSaving.set( true );
+
       this._financingService.createFinancing( body )
       .subscribe( (financingCreated) => {
 
@@ -250,17 +289,29 @@ export default class FinancingByProyectComponent implements OnInit {
       });
 
       return;
-    } else {
-      this._financingService.updateFinancing( id, body )
-      .subscribe( (financingUpdate) => {
-
-        this.onGetFinancings();
-        this.onResetAfterSubmit();
-        this.btnShowFinancingModal.nativeElement.click();
-        this._alertService.showAlert( 'Financiamiento actualizado exitosamente', undefined, 'success' );
-
-      });
     }
+
+    const allowCreate = this._webUrlPermissionMethods.some(
+      (permission) => permission.webApi == apiFinancing && permission.methods.includes( 'PATCH' )
+    );
+
+    if( !allowCreate ) {
+      this._alertService.showAlert( undefined, 'No tiene permiso para actualizar un financiamiento', 'warning');
+      return;
+    }
+
+    this._isSaving.set( true );
+
+    this._financingService.updateFinancing( id, body )
+    .subscribe( (financingUpdate) => {
+
+      this.onGetFinancings();
+      this.onResetAfterSubmit();
+      this.btnShowFinancingModal.nativeElement.click();
+      this._alertService.showAlert( 'Financiamiento actualizado exitosamente', undefined, 'success' );
+
+    });
+
 
   }
 
@@ -302,6 +353,10 @@ export default class FinancingByProyectComponent implements OnInit {
     this.financingForm.get('initial')?.setValue(0);
     this.financingForm.updateValueAndValidity();
 
+  }
+
+  ngOnDestroy(): void {
+      this._authrx$?.unsubscribe();
   }
 
 }

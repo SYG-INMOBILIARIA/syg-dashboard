@@ -225,7 +225,7 @@
 
               @if ( itemMenu.menu.haveBadge && itemMenu.menu.badge ) {
                 <span
-                  class="inline-flex justify-center items-center w-5 h-5 text-xs font-semibold rounded-full text-blue-800  dark:bg-primary-200 dark:text-primary-800"
+                  class="inline-flex justify-center items-center w-10 h-5 text-xs font-semibold rounded-full text-slate-100  dark:bg-primary-200 "
                   [class]="itemMenu.menu.badge.variant"
                 >
                   {{ itemMenu.menu.badge.text }}
@@ -271,8 +271,10 @@
     </ul> -->
 
   </div>
+
   <div
-    class="hidden absolute bottom-0 left-0 justify-center p-4 space-x-4 w-full lg:flex bg-white dark:bg-gray-800 z-20"
+    style="display: none;"
+    class=" absolute bottom-0 left-0 justify-center p-4 space-x-4 w-full lg:flex bg-white dark:bg-gray-800 z-20"
   >
     <a
       href="#"
@@ -517,4 +519,5 @@
       </ul>
     </div>
   </div>
+
   </aside>

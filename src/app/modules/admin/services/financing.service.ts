@@ -19,8 +19,9 @@ export class FinancingService {
     queryParams += `&page=${ page }`;
     queryParams += `&limit=${ limit }`;
     queryParams += `&isActive=${ !showInactive }`;
+    queryParams += `&proyectId=${ proyectId }`;
 
-    return this._http.get<ListFinancingsResponse>(`${ this._baseUrl }/financing/by-proyect/${ proyectId }?${ queryParams }`);
+    return this._http.get<ListFinancingsResponse>(`${ this._baseUrl }/financing?${ queryParams }`);
   }
 
   createFinancing( body: any ): Observable<any> {

@@ -6,3 +6,5 @@ export const apiProyect = '/v1/proyect';
 export const apiLote = '/v1/lote';
 export const apiPermission = '/v1/role-menu-permission';
 export const apiContract = '/v1/contract';
+export const apiPaymentMethod = '/v1/payment-method';
+export const apiFinancing = '/v1/financing';
