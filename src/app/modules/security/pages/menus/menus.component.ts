@@ -399,6 +399,10 @@ export default class MenusComponent implements OnInit, OnDestroy {
     this.menuForm.get('badgeClass')?.setValue(null);
     this.menuForm.get('badgeText')?.removeValidators( newTextValidators );
     this.menuForm.get('badgeClass')?.removeValidators( newClassValidators );
+
+    this.menuForm.get('badgeText')?.updateValueAndValidity();
+    this.menuForm.get('badgeClass')?.updateValueAndValidity();
+
   }
 
   async onRemoveConfirm( menu: AppMenu ) {

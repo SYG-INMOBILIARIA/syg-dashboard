@@ -73,6 +73,10 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
     height: 29.5rem;
   }
 
+  .h-82 {
+    height: 19rem;
+  }
+
   .h-86 {
     height: 21.2rem;
   }

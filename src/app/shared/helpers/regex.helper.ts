@@ -3,8 +3,8 @@ export const passwordPatt = new RegExp(/(?:(?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z
 
 
 export const textUbigeoName = new RegExp(/^[a-zñ\s]{0,200}$/i);
-export const fullTextPatt = new RegExp(/^[a-záéíóúüñ\-\'\.\,\#\s\d]{0,400}$/i);
-export const descriptionPatt = new RegExp(/^[a-záéíóúüñ\-\'\.\,\s\d\/\<\>]{0,650}$/i);
+export const fullTextPatt = new RegExp(/^[a-záéíóúüñ\-\'\.\,\#\s\d\:]{0,400}$/i);
+export const descriptionPatt = new RegExp(/^[a-záéíóúüñ\-\'\.\,\s\d\/\<\>\:]{0,650}$/i);
 
 export const fullTextWithoutSpacePatt = new RegExp(/^[a-záéíóúüñ]{0,200}$/i);
 export const urlMenuPatt = new RegExp(/^[a-z0-9\/\-\:]{0,200}$/);
@@ -29,6 +29,7 @@ export const ubigeoCodePatt = new RegExp(/^[0-9]{2,3}$/i);
 export const numberDocumentPatt = new RegExp(/^[a-z\d]{0,15}$/i);
 // export const isoThreePatt = new RegExp(/^[a-zA-Z]{2,3}$/);
 
+export const operationCodePatt = new RegExp(/^[\d]{6,12}$/);
 export const codePatt = new RegExp(/^[a-z\_]{2,20}$/i);
 
 export const symbolPatt = new RegExp(/^[a-z\€\$\/\¥\£]{1,5}$/i);

@@ -44,6 +44,7 @@ const routes: Routes = [
       },
       { path: 'contracts', loadComponent: () => import('../modules/admin/pages/contracts/contracts.component') },
       { path: 'payments-method', loadComponent: () => import('../modules/admin/pages/payment-method/payment-method.component') },
+      { path: 'contract-payments', loadComponent: () => import('../modules/admin/pages/contract-payment/contract-payment.component') },
 
       { path: '**', redirectTo: 'home' }
     ]

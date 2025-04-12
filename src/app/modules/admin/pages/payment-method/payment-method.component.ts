@@ -2,23 +2,24 @@ import { CommonModule } from '@angular/common';
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild, computed, inject, signal } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { initFlowbite } from 'flowbite';
-
-import { SpinnerComponent } from '@shared/components/spinner/spinner.component';
-import { InputErrorsDirective } from '@shared/directives/input-errors.directive';
-import { codePatt, fullTextPatt } from '@shared/helpers/regex.helper';
-import { PaymentMethodService } from '../../services/payment-method.service';
-import { PaginationComponent } from '@shared/components/pagination/pagination.component';
-import { PaymentMethod, PaymentMethodBody } from '../../interfaces';
-import { environments } from '@envs/environments';
-import { onValidImg } from '@shared/helpers/files.helper';
-import { validate as ISUUID } from 'uuid';
-import { AlertService } from '@shared/services/alert.service';
-import { UploadFileService } from '@shared/services/upload-file.service';
 import { Subscription } from 'rxjs';
 import { Store } from '@ngrx/store';
+import { validate as ISUUID } from 'uuid';
+
+import { PaymentMethod, PaymentMethodBody } from '../../interfaces';
 import { AppState } from '../../../../app.config';
 import { WebUrlPermissionMethods } from '../../../../auth/interfaces';
+import { PaymentMethodService } from '../../services/payment-method.service';
+import { codePatt, fullTextPatt } from '@shared/helpers/regex.helper';
+import { InputErrorsDirective } from '@shared/directives/input-errors.directive';
+import { PaginationComponent } from '@shared/components/pagination/pagination.component';
+import { UploadFileService } from '@shared/services/upload-file.service';
 import { apiPaymentMethod } from '@shared/helpers/web-apis.helper';
+import { SpinnerComponent } from '@shared/components/spinner/spinner.component';
+import { environments } from '@envs/environments';
+import { AlertService } from '@shared/services/alert.service';
+import { onValidImg } from '@shared/helpers/files.helper';
+import { PipesModule } from '@pipes/pipes.module';
 
 @Component({
   selector: 'app-payment-method',
@@ -29,7 +30,8 @@ import { apiPaymentMethod } from '@shared/helpers/web-apis.helper';
     SpinnerComponent,
     ReactiveFormsModule,
     FormsModule,
-    PaginationComponent
+    PaginationComponent,
+    PipesModule
   ],
   templateUrl: './payment-method.component.html',
   styles: ``
@@ -147,7 +149,6 @@ export default class PaymentMethodComponent implements OnInit, OnDestroy {
     this._isSaving.set( false );
     this._file = undefined;
     this.fileUrl.set( environments.defaultImgUrl );
-
   }
 
   onChangeFile( event?: any ) {
@@ -243,7 +244,7 @@ export default class PaymentMethodComponent implements OnInit, OnDestroy {
     );
 
     if( !allowUpdate ) {
-      this._alertService.showAlert( undefined, 'No tiene permiso para actulizar un Método de pago', 'warning');
+      this._alertService.showAlert( undefined, 'No tiene permiso para actualizar un Método de pago', 'warning');
       return;
     }
 

@@ -33,3 +33,8 @@ export * from './map-props.interface';
 export * from './payment-method.interface';
 export * from './list-payment-method.interface';
 export * from './body-payment-method.interface';
+
+
+export * from './contract-payment-body.interface';
+export * from './contract-payment.interface';
+export * from './list-contract-payment-response.interface';
