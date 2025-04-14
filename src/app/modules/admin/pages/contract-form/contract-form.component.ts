@@ -1,55 +1,60 @@
-import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild, computed, forwardRef, inject, signal } from '@angular/core';
-import { ContractModalModule } from './contract-modal.module';
-import { FormControl, UntypedFormBuilder, Validators } from '@angular/forms';
-import { descriptionPatt, fullTextPatt } from '@shared/helpers/regex.helper';
-import { CdkStepper, CdkStepperModule } from '@angular/cdk/stepper';
-import { CustomStepper } from '@shared/components/custom-stepper/custom-stepper.component';
-import { ClientService } from '../../services/client.service';
-import { Client, Contract, ContractFormOne, ContractFormThree, ContractFormTwo, Coordinate, Financing, Lote, LoteSelectedInMap, Proyect, Quota } from '../../interfaces';
-import { ProyectService } from '../../services/proyect.service';
-import { LoteService } from '../../services/lote.service';
-import { Map, PointLike, Popup } from 'mapbox-gl';
-
-import { v4 as uuid } from 'uuid';
-import { FinancingType, LoteStatus, PaymentType } from '../../enum';
-import { forkJoin } from 'rxjs';
-import { Nomenclature, Photo } from '@shared/interfaces';
-import { FinancingService } from '../../services/financing.service';
-import { initFlowbite } from 'flowbite';
-import { ContractService } from '../../services/contract.service';
+import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild, computed, forwardRef, inject, signal } from '@angular/core';
+import { Router } from '@angular/router';
 import { formatNumber } from '@angular/common';
-import { UserService } from '../../../security/services/user.service';
-import { User } from '../../../security/interfaces';
-import { AlertService } from '@shared/services/alert.service';
+import { ContractFormModule } from './contract-form.module';
+import { CustomStepper } from '@shared/components/custom-stepper/custom-stepper.component';
+import { CdkStepper, CdkStepperModule } from '@angular/cdk/stepper';
+import { Nomenclature, Photo } from '@shared/interfaces';
+import { Map, PointLike, Popup } from 'mapbox-gl';
+import { initFlowbite } from 'flowbite';
+import { forkJoin } from 'rxjs';
+import { v4 as uuid } from 'uuid';
+
+import { FormControl, UntypedFormBuilder, Validators } from '@angular/forms';
+import { ClientService } from '../../services/client.service';
+import { ProyectService } from '../../services/proyect.service';
 import { WebUrlPermissionMethods } from '../../../../auth/interfaces';
+import { Client, ContractFormOne, ContractFormThree, ContractFormTwo, Coordinate, Financing, Lote, LoteSelectedInMap, Proyect, Quota } from '../../interfaces';
+import { LoteService } from '../../services/lote.service';
+import { ContractService } from '../../services/contract.service';
+import { FinancingService } from '../../services/financing.service';
+import { UserService } from '../../../security/services/user.service';
+import { AlertService } from '@shared/services/alert.service';
+import { descriptionPatt, fullTextPatt } from '@shared/helpers/regex.helper';
+import { User } from '../../../security/interfaces';
+import { FinancingType, LoteStatus, PaymentType } from '../../enum';
 import { apiContract } from '@shared/helpers/web-apis.helper';
+import { NomenclatureService } from '@shared/services/nomenclature.service';
 
 @Component({
-  selector: 'contract-modal',
+  selector: 'app-contract-form',
   standalone: true,
   imports: [
-    ContractModalModule,
+
+    ContractFormModule,
     forwardRef(() => CustomStepper ),
     CdkStepperModule
+
   ],
-  templateUrl: './contract-modal.component.html',
-  styleUrl: 'contract-modal.component.css'
+  templateUrl: './contract-form.component.html',
+  styles: `
+    #map {
+      width: 100%;
+      height: 500px;
+      margin: 0px;
+      /* background-color: blueviolet; */
+    }
+  `
 })
-export class ContractModalComponent implements OnInit, AfterViewInit, OnDestroy {
+export default class ContractFormComponent implements OnInit, AfterViewInit, OnDestroy {
 
-
-  @ViewChild('btnCloseContractModal') btnCloseContractModal?: ElementRef<HTMLButtonElement>;
   @ViewChild('map') mapContainer?: ElementRef<HTMLDivElement>;
   @ViewChild('myStepper') stepper?: CdkStepper;
-
-  @Output() onCreated = new EventEmitter<Contract | undefined>();
-
-  @Input({ required: true }) paymentTypes!: Nomenclature[];
-  @Input({ required: true }) webUrlPermissionMethods!: WebUrlPermissionMethods[];
 
   private _map?: Map;
   private _popup?: Popup;
 
+  private _router = inject( Router );
   private _formBuilder = inject( UntypedFormBuilder );
   private _clientService = inject( ClientService );
   private _proyectService = inject( ProyectService );
@@ -58,20 +63,21 @@ export class ContractModalComponent implements OnInit, AfterViewInit, OnDestroy 
   private _financingService = inject( FinancingService );
   private _userService = inject( UserService );
   private _alertService = inject( AlertService );
+  private _nomenclatureService = inject( NomenclatureService );
 
   public searchClientInput = new FormControl('', [ Validators.pattern( fullTextPatt ) ]);
   public searchUserInput = new FormControl('', [ Validators.pattern( fullTextPatt ) ]);
 
   public contractFormOne = this._formBuilder.group({
-      clientId:      [ null, [ Validators.required ] ],
-      documentation: [ '', [ Validators.required, Validators.maxLength(450), Validators.pattern( descriptionPatt ) ] ],
-      observation:   [ '', [ Validators.pattern( descriptionPatt ) ] ],
-      selledUserId:  [ null, [ Validators.required ] ],
+    clientId:      [ null, [ Validators.required ] ],
+    documentation: [ '', [ Validators.required, Validators.maxLength(450), Validators.pattern( descriptionPatt ) ] ],
+    observation:   [ '', [ Validators.pattern( descriptionPatt ) ] ],
+    selledUserId:  [ null, [ Validators.required ] ],
   });
 
   public contractFormTwo = this._formBuilder.group({
     proyectId:  [ null, [ Validators.required ] ],
-    loteIds:    [ [], [ Validators.required, Validators.minLength(1), Validators.maxLength(20) ] ], //Validators.minLength(1), Validators.maxLength(20)
+    loteIds:    [ [], [ Validators.required, Validators.minLength(1), Validators.maxLength(20) ] ],
   });
 
   public contractFormThree = this._formBuilder.group({
@@ -95,12 +101,14 @@ export class ContractModalComponent implements OnInit, AfterViewInit, OnDestroy 
 
   private _financings = signal<Financing[]>( [] );
   private _quotas = signal<Quota[]>( [] );
+  private _paymentTypes = signal<Nomenclature[]>( [] );
 
   private _lotesAmount = signal<number>( 0 );
   private _interestPercent = signal<number>( 0 );
   private _amountToFinancing = signal<number>( 0 );
   private _amountToQuota = signal<number>( 0 );
 
+  public paymentTypes = computed( () => this._paymentTypes() );
   public initialAmoutDisabled = computed( () => this._initialAmoutDisabled() );
   public isSaving = computed( () => this._isSaving() );
   public buildMapInProgress = computed( () => this._buildMapInProgress() );
@@ -173,9 +181,7 @@ export class ContractModalComponent implements OnInit, AfterViewInit, OnDestroy 
   }
 
   ngOnInit(): void {
-
-    if( !this.paymentTypes ) throw new Error('Payments type no receibed!!!');
-
+    this.onGetPaymentTypes();
     this.onGetClients(  );
     this.onGetUsers();
     this.onGetProyects();
@@ -198,6 +204,13 @@ export class ContractModalComponent implements OnInit, AfterViewInit, OnDestroy 
       zoom: 14, //
     });
 
+  }
+
+  onGetPaymentTypes() {
+    this._nomenclatureService.getPaymentType()
+    .subscribe( ({ nomenclatures }) => {
+      this._paymentTypes.set( nomenclatures );
+    });
   }
 
   onGetClients() {
@@ -440,42 +453,6 @@ export class ContractModalComponent implements OnInit, AfterViewInit, OnDestroy 
 
     this._onBuildLotes();
 
-    // const polygonId = uuid();
-
-    // this._map.addSource( polygonId, {
-    //   'type': 'geojson',
-    //   'data': {
-    //       'type': 'Feature',
-    //       'properties': {},
-    //       'geometry': { 'type': 'Polygon', 'coordinates': [ points ] }
-    //   }
-    // });
-
-    // this._alertService.showLoading();
-
-    // this._map.loadImage( urlImg, (err, image) => {
-    //   // Throw an error if something goes wrong.
-    //   if (err) throw err;
-
-    //   const imageId = uuid();
-    //   // Add the image to the map style.
-    //   this._map!.addImage(imageId, image!, {
-    //     pixelRatio: 3,
-    //   });
-
-    //   // Create a new layer and style it using `fill-pattern`.
-    //   this._map!.addLayer({
-    //     'id': uuid(),
-    //     'type': 'fill',
-    //     'source': polygonId,
-    //     'paint': { 'fill-pattern': imageId }
-    //   });
-
-    //   this._alertService.close();
-    //   this.onBuildLotes( this._lotes() );
-
-    // });
-
   }
 
   onListenSelecLote() {
@@ -697,14 +674,14 @@ export class ContractModalComponent implements OnInit, AfterViewInit, OnDestroy 
 
     if( this.invalidFormOne || this.invalidFormTwo || this.invalidFormThree ) return;
 
-    const allowCreate = this.webUrlPermissionMethods.some(
-      (permission) => permission.webApi == apiContract && permission.methods.includes( 'POST' )
-    );
+    // const allowCreate = this.webUrlPermissionMethods.some(
+    //   (permission) => permission.webApi == apiContract && permission.methods.includes( 'POST' )
+    // );
 
-    if( !allowCreate ) {
-      this._alertService.showAlert( undefined, 'No tiene permiso para crear un contrato', 'warning');
-      return;
-    }
+    // if( !allowCreate ) {
+    //   this._alertService.showAlert( undefined, 'No tiene permiso para crear un contrato', 'warning');
+    //   return;
+    // }
 
     const body1 = this.valueFormOne;
     const body2 = this.valueFormTwo;
@@ -717,8 +694,7 @@ export class ContractModalComponent implements OnInit, AfterViewInit, OnDestroy 
 
       this._alertService.showAlert( 'Contrato creado exitosamente', undefined, 'success' );
 
-      this.onCreated.emit( contractCreated );
-      this.btnCloseContractModal?.nativeElement.click();
+      this._router.navigateByUrl('/dashboard/contracts');
     });
 
   }
@@ -780,7 +756,6 @@ export class ContractModalComponent implements OnInit, AfterViewInit, OnDestroy 
   }
 
   ngOnDestroy(): void {
-
+    this._map?.remove();
   }
-
 }

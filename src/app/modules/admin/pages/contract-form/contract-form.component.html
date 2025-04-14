@@ -1,0 +1,568 @@
+<nav class="flex pb-4 ml-5 " aria-label="Breadcrumb">
+  <ol class="inline-flex items-center space-x-1 md:space-x-2 rtl:space-x-reverse">
+    <li class="inline-flex items-center">
+      <a href="#" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white">
+        <svg class="w-3 h-3 me-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+          <path d="m19.707 9.293-2-2-7-7a1 1 0 0 0-1.414 0l-7 7-2 2a1 1 0 0 0 1.414 1.414L2 10.414V18a2 2 0 0 0 2 2h3a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h3a2 2 0 0 0 2-2v-7.586l.293.293a1 1 0 0 0 1.414-1.414Z"/>
+        </svg>
+        Dashboard
+      </a>
+    </li>
+    <li>
+      <div class="flex items-center">
+        <svg class="rtl:rotate-180 w-3 h-3 text-gray-400 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
+        </svg>
+        <a href="#" class="ms-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ms-2 dark:text-gray-400 dark:hover:text-white">Contratos</a>
+      </div>
+    </li>
+    <li>
+      <div class="flex items-center">
+        <svg class="rtl:rotate-180 w-3 h-3 text-gray-400 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
+        </svg>
+        <a href="#" class="ms-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ms-2 dark:text-gray-400 dark:hover:text-white">Crear contrato</a>
+      </div>
+    </li>
+  </ol>
+</nav>
+
+<div class=" w-full flex flex-wrap items-center justify-center mx-auto ">
+
+  <div class="bg-white border rounded-md shadow-sm pe-6 ps-6 pt-4 pb-4 w-2/3 max-sm:w-full max-md:w-full dark:bg-gray-700">
+
+    <h3 class="text-lg font-semibold text-gray-900 dark:text-white pb-3">
+        Crear nuevo contrato
+    </h3>
+    <div class="">
+
+      <custom-stepper #myStepper [disabledHeaderChangeStep]="true" >
+
+        <cdk-step label="Propietario" aria-label="Cliente propietario" [stepControl]="contractFormOne" >
+
+          <form [formGroup]="contractFormOne" >
+            <div class="grid gap-4 grid-cols-6 pb-3">
+
+              <div class="col-span-6 xs:col-span-6 ">
+                <label for="cbxPersonType" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                  Cliente *
+                </label>
+                <ng-select
+                  id="cbxPersonType"
+                  class="bg-gray-50 border text-gray-900 text-sm rounded-lg block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                  [items]="clients()"
+                  (ngModelChange)="onChangeClient( $event )"
+                  [searchable]="false"
+                  bindLabel="fullname"
+                  bindValue="id"
+                  placeholder="Seleccione cliente"
+                  formControlName="clientId"
+                  [class.border-red-400]=" inputErrors('clientId') && isTouched('clientId') "
+                >
+
+                  <ng-template ng-header-tmp >
+
+                    <div class="flex justify-between gap-3">
+
+                      <input
+                            type="text"
+                            id="txtSearchClient"
+                            class="block w-full p-2 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 text-xs focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                            placeholder="Buscar cliente..."
+                            [formControl]="searchClientInput"
+                        >
+
+                        <button type="button" class=" w-36 px-3 py-2 text-xs font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                          (click)="onGetClients()"
+                        >
+                          Buscar
+                        </button>
+                    </div>
+                  </ng-template>
+
+                  <ng-template ng-option-tmp let-item="item" class="text-gray-900 whitespace-nowrap dark:text-white">
+
+                    <div class="ps-3 flex justify-between">
+                      <div class="text-normal font-semibold">
+                        {{ item.fullname }}
+                      </div>
+                      <div class="font-normal text-sm text-gray-500 pe-5">
+                        {{ item.identityDocument.shortDescription }} : {{ item.identityNumber }}
+                      </div>
+                    </div>
+
+                  </ng-template>
+
+                </ng-select>
+
+                @if (isTouched('clientId')) {
+                  <span
+                    class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                    inputErrors
+                    [errors]="inputErrors('clientId')"
+                    inputLabel="Cliente" >
+                  </span>
+                }
+              </div>
+
+              <div class="col-span-6 xs:col-span-6 ">
+
+                <label for="txtDocumentation" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                  Documentación
+                </label>
+
+                <textarea
+                  id="txtDocumentation"
+                  rows="5"
+                  class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                  placeholder="Write proyect documentation here..."
+                  formControlName="documentation"
+                  [class.border-red-400]=" inputErrors('documentation') && isTouched('documentation') "
+                  ></textarea>
+
+                  @if (isTouched('documentation')) {
+                    <span
+                      class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                      inputErrors
+                      [errors]="inputErrors('documentation')"
+                      inputLabel="Documentación" >
+                    </span>
+                  }
+
+              </div>
+
+              <div class="col-span-6 xs:col-span-6 ">
+
+                <label for="txtObservation" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                  Observación
+                </label>
+
+                <textarea
+                  id="txtObservation"
+                  rows="3"
+                  class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                  placeholder="Write proyect documentation here..."
+                  formControlName="observation"
+                  [class.border-red-400]=" inputErrors('observation') && isTouched('observation') "
+                  ></textarea>
+
+                  @if (isTouched('observation')) {
+                    <span
+                      class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                      inputErrors
+                      [errors]="inputErrors('observation')"
+                      inputLabel="Documentación" >
+                    </span>
+                  }
+
+              </div>
+
+              <div class="col-span-6 xs:col-span-6 ">
+                <label for="cbxUserSeller" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                  Vendedor *
+                </label>
+                <ng-select
+                  id="cbxUserSeller"
+                  class="bg-gray-50 border text-gray-900 text-sm rounded-lg block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                  [items]="users()"
+                  [searchable]="false"
+                  bindLabel="fullname"
+                  bindValue="id"
+                  placeholder="Seleccione vendedor"
+                  formControlName="selledUserId"
+                  [class.border-red-400]=" inputErrors('selledUserId') && isTouched('selledUserId') "
+                >
+
+                  <ng-template ng-header-tmp>
+
+                    <div class="flex justify-between gap-3">
+
+                      <input
+                            type="text"
+                            id="txtSearchSeller"
+                            class="block w-full p-2 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 text-xs focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                            placeholder="Buscar vendedor..."
+                            [formControl]="searchUserInput"
+                        >
+
+                        <button type="button" class=" w-36 px-3 py-2 text-xs font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                          (click)="onGetUsers()"
+                        >
+                          Buscar
+                        </button>
+                    </div>
+                  </ng-template>
+
+                </ng-select>
+
+                @if (isTouched('selledUserId')) {
+                  <span
+                    class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                    inputErrors
+                    [errors]="inputErrors('selledUserId')"
+                    inputLabel="Vendedor" >
+                  </span>
+                }
+              </div>
+
+            </div>
+
+            <div class="flex justify-end w-full gap-2">
+
+                <button
+                  (click)="onNextLoteStep()"
+                  type="button"
+                  class="text-white w-72 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                >
+                    Siguiente
+                </button>
+
+                <a routerLink="/dashboard/contracts" class="inline-flex items-center text-red-700 hover:text-white border border-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center  dark:border-red-500 dark:text-red-500 dark:hover:text-white dark:hover:bg-red-600 dark:focus:ring-red-900">
+                  <i class="fa fa-times me-2"> </i>
+                  Cerrar
+                </a>
+
+            </div>
+
+          </form>
+
+        </cdk-step>
+
+        <cdk-step label="Lotes" aria-label="Selecciona lotes" [stepControl]="contractFormTwo" >
+
+          <form [formGroup]="contractFormTwo" >
+
+            <div class="grid gap-4 grid-cols-6 ">
+
+              <div class="col-span-6 xs:col-span-6 mb-4">
+                <label for="cbxProyect" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                  Proyecto inmobiliario *
+                </label>
+                <ng-select
+                  id="cbxProyect"
+                  class="bg-gray-50 border text-gray-900 text-sm rounded-lg block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                  [items]="proyects()"
+                  (ngModelChange)="onChangeProyect( $event )"
+                  bindLabel="name"
+                  bindValue="id"
+                  placeholder="Seleccione proyecto"
+                  formControlName="proyectId"
+                  [class.border-red-400]=" inputErrors('proyectId') && isTouched('proyectId') "
+                >
+
+                </ng-select>
+
+                @if (isTouched('proyectId')) {
+                  <span
+                    class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                    inputErrors
+                    [errors]="inputErrors('proyectId')"
+                    inputLabel="Cliente" >
+                  </span>
+                }
+              </div>
+
+            </div>
+
+            <div class="relative">
+              <div id="map" #map class="border rounded bg-slate-600" ></div>
+
+              @if (buildMapInProgress()) {
+                <div class="absolute inset-y-0 start-0 w-full h-full flex items-center justify-center bg-slate-600 opacity-50" >
+                  <div class="text-white text-xl font-semibold">
+                      Seleccione un proyecto
+                  </div>
+                </div>
+              }
+
+              <ul class="absolute bottom-7 w-32 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+
+                @for (lote of lotesSelected(); track $index) {
+                  <li class="w-full px-4 py-2 border-b border-gray-200 rounded-t-lg dark:border-gray-600">
+                    <div class="flex justify-between">
+                      {{ lote.code }}
+
+                      <span>
+                        <i (click)="onRemoveLoteSelected( lote )"
+                          class="fa fa-times text-lg text-red-600 cursor-pointer">
+                        </i>
+                      </span>
+                    </div>
+                  </li>
+                }
+
+              </ul>
+
+            </div>
+
+            @if (inputErrors('loteIds')) {
+              <span
+                class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                inputErrors
+                [errors]="inputErrors('loteIds')"
+                inputLabel="Lotes" >
+              </span>
+            }
+
+            <div class="flex justify-end">
+
+              <div class="w-96"></div>
+
+              <div class="flex justify-end gap-2 pt-3 w-full">
+
+                <button
+                  cdkStepperPrevious
+                  type="button"
+                  class="text-white inline-flex justify-center w-52 items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                >
+                    Anterior
+                </button>
+
+                <button
+                  (click)="onNextFinancingStep()"
+                  type="button"
+                  class="text-white inline-flex justify-center items-center w-72 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                >
+                    Siguiente
+                </button>
+
+                <a routerLink="/dashboard/contracts" class="inline-flex items-center text-red-700 hover:text-white border border-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center  dark:border-red-500 dark:text-red-500 dark:hover:text-white dark:hover:bg-red-600 dark:focus:ring-red-900">
+                  <i class="fa fa-times me-2"> </i>
+                  Cerrar
+                </a>
+
+              </div>
+
+            </div>
+          </form>
+
+        </cdk-step>
+
+        <cdk-step label="Financiamiento" [stepControl]="contractFormThree">
+
+          <form [formGroup]="contractFormThree" >
+
+            <div class="grid gap-4 grid-cols-6 ">
+
+              <div class="col-span-3 xs:col-span-6">
+                <label for="cbxPaymentType" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                  Tipo de pago *
+                </label>
+                <ng-select
+                  id="cbxPaymentType"
+                  class="bg-gray-50 border text-gray-900 text-sm rounded-lg block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                  [items]="paymentTypes()"
+                  bindLabel="label"
+                  (change)="onChangePaymentType( $event )"
+                  bindValue="value"
+                  placeholder="Seleccione Tipo de pago"
+                  formControlName="paymentType"
+                  [class.border-red-400]=" inputErrorsThree('paymentType') && isTouchedThree('paymentType') "
+                >
+
+                </ng-select>
+
+                @if (isTouchedThree('paymentType')) {
+                  <span
+                    class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                    inputErrors
+                    [errors]="inputErrorsThree('paymentType')"
+                    inputLabel="Tipo de pago" >
+                  </span>
+                }
+              </div>
+
+              <div class="col-span-3 xs:col-span-6">
+                <label for="txtInitialAmount" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                  Monto Inicial *
+                </label>
+                <input
+                  type="number"
+                  id="txtInitialAmount"
+                  class="bg-gray-50 border text-right border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                  placeholder="0.00"
+                  formControlName="initialAmount"
+                  [readOnly]="initialAmoutDisabled()"
+                  [class.border-red-400]=" inputErrorsThree('initialAmount') && isTouchedThree('initialAmount') "
+                >
+
+                @if (isTouchedThree('initialAmount')) {
+                  <span
+                    class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                    inputErrors
+                    [errors]="inputErrorsThree('initialAmount')"
+                    inputLabel="Monto inicial" >
+                  </span>
+                }
+              </div>
+
+              @if (!paymentTypeIsCash) {
+
+                <div class="col-span-3 xs:col-span-6">
+                  <label for="cbxProyect" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                    Financiamiento *
+                  </label>
+                  <ng-select
+                    id="cbxProyect"
+                    class="bg-gray-50 border text-gray-900 text-sm rounded-lg block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                    [items]="financings()"
+                    bindLabel="name"
+                    (change)="onChangeFinancing( $event )"
+                    bindValue="id"
+                    placeholder="Seleccione financimaiento"
+                    formControlName="financingId"
+                    [class.border-red-400]=" inputErrorsThree('financingId') && isTouchedThree('financingId') "
+                  >
+
+                  </ng-select>
+
+                  @if (isTouchedThree('financingId')) {
+                    <span
+                      class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                      inputErrors
+                      [errors]="inputErrorsThree('financingId')"
+                      inputLabel="Financiamiento" >
+                    </span>
+                  }
+                </div>
+
+                <div class="col-span-3 xs:col-span-6">
+                  <label for="cbxProyect" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                    Coutas de pago *
+                  </label>
+                  <ng-select
+                    id="cbxProyect"
+                    class="bg-gray-50 border text-gray-900 text-sm rounded-lg block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                    [items]="quotas()"
+                    bindLabel="numberOfQuotes"
+                    bindValue="id"
+                    placeholder="Seleccione cuotas"
+                    (change)="onChangeQuota( $event )"
+                    formControlName="quotaId"
+                    [class.border-red-400]=" inputErrorsThree('quotaId') && isTouchedThree('quotaId') "
+                  >
+
+                  </ng-select>
+
+                  @if (isTouchedThree('quotaId')) {
+                    <span
+                      class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                      inputErrors
+                      [errors]="inputErrorsThree('quotaId')"
+                      inputLabel="Cuotas" >
+                    </span>
+                  }
+                </div>
+              }
+
+            </div>
+
+            <div class="relative overflow-x-auto pt-6 pb-2">
+              <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                  <thead class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-gray-700 dark:text-gray-400">
+                      <tr>
+                          <th scope="col" class="px-6 py-3 rounded-s-lg">
+                              Lotes a comprar
+                          </th>
+                          <th scope="col" class="px-6 py-3 rounded-e-lg text-center">
+                              Precio
+                          </th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                    @for ( lote of lotesSelected(); track $index) {
+                      <tr class="bg-white dark:bg-gray-800">
+
+
+                          <th scope="row" class="px-6 py-2 text-gray-900 whitespace-nowrap dark:text-white">
+
+                            <div class="">
+                              <div class="text-base font-semibold">
+                                {{ lote.code }}
+                              </div>
+                              <div class="font-normal text-gray-500">
+                                {{ lote.squareMeters }} m2
+                              </div>
+                            </div>
+
+
+                          </th>
+
+                          <td class="px-6 py-2 text-right">
+                              S/ {{ lote.price | number: '.2-2' }}
+                          </td>
+                      </tr>
+                    }
+                  </tbody>
+                  <tfoot>
+                      <tr class="font-semibold text-gray-900 dark:text-white">
+                          <th scope="row" class="px-6 py-1 text-base">Total</th>
+                          <td class="px-6 py-1 text-right">
+                            S/ {{ lotesAmount() | number: '.2-2' }}
+                          </td>
+                      </tr>
+                      <tr class="font-semibold text-gray-900 dark:text-white">
+                        <th scope="row" class="px-6 py-1 text-base">Interés</th>
+                        <td class="px-6 py-1 text-right">
+                          {{ interestPercent() }}%
+                        </td>
+                      </tr>
+                      <tr class="font-semibold text-gray-900 dark:text-white">
+                        <th scope="row" class="px-6 py-1 text-base">Total a financiar</th>
+                        <td class="px-6 py-1 text-right">
+                          S/ {{ amountToFinancing() | number: '.2-2' }}
+                        </td>
+                      </tr>
+                      <tr class="font-semibold text-gray-900 dark:text-white">
+                        <th scope="row" class="px-6 py-1 text-base">Monto por cuota</th>
+                        <td class="px-6 py-1 text-right">
+                          S/ {{ amountToQuota() | number: '.2-2' }}
+                        </td>
+                      </tr>
+                  </tfoot>
+              </table>
+            </div>
+
+            <div class="flex justify-end">
+
+              <div class="flex justify-end gap-2 pt-6 w-full">
+
+                <button
+                  cdkStepperPrevious
+                  type="button"
+                  class="text-white inline-flex justify-center items-center w-52 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                >
+                    Anterior
+                </button>
+
+                <button
+                  (click)="onSubmit()"
+                  type="button"
+                  class="text-white inline-flex justify-center items-center w-72 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                >
+                    Guardar contrato
+                </button>
+
+                <a routerLink="/dashboard/contracts" class="inline-flex items-center text-red-700 hover:text-white border border-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center  dark:border-red-500 dark:text-red-500 dark:hover:text-white dark:hover:bg-red-600 dark:focus:ring-red-900">
+                  <i class="fa fa-times me-2"> </i>
+                  Cerrar
+                </a>
+
+              </div>
+
+            </div>
+          </form>
+
+        </cdk-step>
+      </custom-stepper>
+
+    </div>
+
+    <ng-template #singinSpinner>
+      <spinner></spinner>
+    </ng-template>
+
+
+
+  </div>
+</div>

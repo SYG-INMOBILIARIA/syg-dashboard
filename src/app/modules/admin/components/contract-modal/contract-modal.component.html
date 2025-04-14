@@ -183,19 +183,6 @@
                       </div>
                     </ng-template>
 
-                    <!-- <ng-template ng-option-tmp let-user="item" class="text-gray-900 whitespace-nowrap dark:text-white">
-
-                      <div class="ps-3">
-                        <div class="text-normal font-semibold">
-                          {{ user.fullname }}
-                        </div>
-                        <div class="font-normal text-sm text-gray-500">
-                          {{ user.identityDocument.shortDescription }} : {{ user.identityNumber }}
-                        </div>
-                      </div>
-
-                    </ng-template> -->
-
                   </ng-select>
 
                   @if (isTouched('selledUserId')) {
@@ -382,6 +369,7 @@
                     class="bg-gray-50 border text-right border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                     placeholder="0.00"
                     formControlName="initialAmount"
+                    [readOnly]="initialAmoutDisabled()"
                     [class.border-red-400]=" inputErrorsThree('initialAmount') && isTouchedThree('initialAmount') "
                   >
 

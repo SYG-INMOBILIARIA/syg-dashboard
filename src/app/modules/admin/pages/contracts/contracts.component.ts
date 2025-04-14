@@ -9,16 +9,15 @@ import { fullTextPatt } from '@shared/helpers/regex.helper';
 import { Contract, Schedule } from '../../interfaces';
 import { PipesModule } from '@pipes/pipes.module';
 import { MatDialog } from '@angular/material/dialog';
-import { ContractModalComponent } from '../../components/contract-modal/contract-modal.component';
 import { Subscription, forkJoin } from 'rxjs';
 import { Store } from '@ngrx/store';
 
 import { Nomenclature } from '@shared/interfaces';
-import { ProyectService } from '../../services/proyect.service';
 import { ContractDetailModalComponent } from '../../components/contract-detail-modal/contract-detail-modal.component';
 import { AppState } from '../../../../app.config';
 import { WebUrlPermissionMethods } from '../../../../auth/interfaces';
 import { apiContract } from '@shared/helpers/web-apis.helper';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-contracts',
@@ -29,8 +28,8 @@ import { apiContract } from '@shared/helpers/web-apis.helper';
     FormsModule,
     PaginationComponent,
     PipesModule,
-    ContractModalComponent,
-    ContractDetailModalComponent
+    ContractDetailModalComponent,
+    RouterModule
   ],
   templateUrl: './contracts.component.html',
   styles: ``
@@ -48,9 +47,6 @@ export default class ContractsComponent implements OnInit, OnDestroy {
   @ViewChild('btnShowDetailContractModal') btnShowDetailContractModal!: ElementRef<HTMLButtonElement>;
   @ViewChild('btnShowScheduleContractModal') btnShowScheduleContractModal!: ElementRef<HTMLButtonElement>;
 
-  public contractModalTitle = 'Crear nuevo contrato';
-
-  private _nomenclatureService = inject( NomenclatureService );
   private _alertService = inject( AlertService );
   private _contractService = inject( ContractService );
   readonly dialog = inject( MatDialog );
@@ -65,7 +61,6 @@ export default class ContractsComponent implements OnInit, OnDestroy {
   private _contracts = signal<Contract[]>( [] );
   private _contractIdByModal = signal< string | null >( null );
   private _contractById = signal< Contract | null >( null );
-  private _paymentTypes = signal<Nomenclature[]>( [] );
   private _contractSchedule = signal<Schedule[]>( [] );
 
   public contractSchedule = computed( () => this._contractSchedule() );
@@ -75,7 +70,6 @@ export default class ContractsComponent implements OnInit, OnDestroy {
   public allowList = computed( () => this._allowList() );
   public totalContracts = computed( () => this._totalContracts() );
   public contracts = computed( () => this._contracts() );
-  public paymentTypes = computed( () => this._paymentTypes() );
   public contractById = computed( () => this._contractById() );
   public contractIdByModal = computed( () => this._contractIdByModal() );
   public lotes = computed( () => this._contractById()?.lotes ?? [] );
@@ -108,7 +102,6 @@ export default class ContractsComponent implements OnInit, OnDestroy {
 
     this.onListenAuthRx();
     this.onGetContracts();
-    this.onGetPaymentTypes();
   }
 
   onListenAuthRx() {
@@ -148,21 +141,6 @@ export default class ContractsComponent implements OnInit, OnDestroy {
         this._isLoading.set( false );
       }
     });
-
-  }
-
-  onGetPaymentTypes() {
-    this._nomenclatureService.getPaymentType()
-    .subscribe( ({ nomenclatures }) => {
-      this._paymentTypes.set( nomenclatures );
-    });
-  }
-
-  onListenCreate( contractCreated?: Contract ) {
-
-    if( contractCreated ) {
-      this.onGetContracts();
-    }
 
   }
 
