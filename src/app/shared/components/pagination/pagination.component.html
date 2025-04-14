@@ -16,8 +16,8 @@
             (click)="paginateElement.previous()"
 
             [ngClass]="{
-              'hover:bg-indigo-100': !paginateElement.isFirstPage(),
-              'text-indigo-600': !paginateElement.isFirstPage(),
+              'hover:bg-esmerald-100': !paginateElement.isFirstPage(),
+              'text-esmerald-700': !paginateElement.isFirstPage(),
               'text-gray-400': paginateElement.isFirstPage(),
             }"
 
@@ -33,9 +33,10 @@
           <li>
             <button class="w-10 h-10 transition-colors duration-150 rounded-full focus:shadow-outline "
               [ngClass]="{
-                'text-indigo-600': paginateElement.getCurrent() != page.value,
-                'hover:bg-indigo-100': paginateElement.getCurrent() != page.value,
-                'bg-indigo-600': paginateElement.getCurrent() == page.value,
+                'text-esmerald-700': paginateElement.getCurrent() != page.value,
+                'hover:bg-esmerald-100': paginateElement.getCurrent() != page.value,
+
+                'bg-esmerald-600': paginateElement.getCurrent() == page.value,
                 'text-white': paginateElement.getCurrent() == page.value,
               }"
               [disabled]="paginateElement.getCurrent() == page.value"
@@ -51,8 +52,8 @@
           <button
             class="flex items-center justify-center w-10 h-10  transition-colors duration-150 rounded-full focus:shadow-outline "
             [ngClass]="{
-              'hover:bg-indigo-100': !paginateElement.isLastPage(),
-              'text-indigo-600': !paginateElement.isLastPage(),
+              'hover:bg-esmerald-100': !paginateElement.isLastPage(),
+              'text-esmerald-700': !paginateElement.isLastPage(),
               'text-gray-400': paginateElement.isLastPage(),
             }"
             [disabled]="paginateElement.isLastPage()"

@@ -1,0 +1,340 @@
+<nav class="flex pb-4 ml-5 " aria-label="Breadcrumb">
+  <ol class="inline-flex items-center space-x-1 md:space-x-2 rtl:space-x-reverse">
+    <li class="inline-flex items-center">
+      <a href="#" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white">
+        <svg class="w-3 h-3 me-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+          <path d="m19.707 9.293-2-2-7-7a1 1 0 0 0-1.414 0l-7 7-2 2a1 1 0 0 0 1.414 1.414L2 10.414V18a2 2 0 0 0 2 2h3a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h3a2 2 0 0 0 2-2v-7.586l.293.293a1 1 0 0 0 1.414-1.414Z"/>
+        </svg>
+        Dashboard
+      </a>
+    </li>
+    <li>
+      <div class="flex items-center">
+        <svg class="rtl:rotate-180 w-3 h-3 text-gray-400 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
+        </svg>
+        <a href="#" class="ms-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ms-2 dark:text-gray-400 dark:hover:text-white">Pagos de contratos</a>
+      </div>
+    </li>
+  </ol>
+</nav>
+
+
+<div class="w-full p-4 flex justify-start gap-4">
+
+  <div class="bg-white shadow rounded-md dark:bg-gray-700 px-4 py-2 w-72 ">
+
+    <span class=" text-xs dark:text-slate-100">
+      TOTAL PAGOS EN EL MES
+    </span>
+
+    <div class="flex justify-between items-center pt-2">
+      <span class="font-bold text-lx dark:text-slate-400">
+        $12,426
+      </span>
+
+      <span class="text-green-500 text-xs">
+        <i class="fa-solid fa-plus"></i>
+        <span class="text-sm pe-2">
+          36%
+        </span>
+        <i class="fa-solid fa-arrow-up"></i>
+      </span>
+    </div>
+
+  </div>
+
+  <div class="bg-white shadow rounded-md dark:bg-gray-700 px-4 py-2 w-72 ">
+
+    <span class=" text-xs dark:text-slate-100">
+      PENDIENTES POR RECAUDAR / MES ACTUAL
+    </span>
+
+    <div class="flex justify-between items-center pt-2">
+      <span class="font-bold text-lx dark:text-slate-400">
+        $12,426
+      </span>
+
+      <span class="text-red-500 text-xs">
+        <i class="fa-solid fa-minus"></i>
+        <span class="text-sm pe-2">
+          14%
+        </span>
+        <i class="fa-solid fa-arrow-down"></i>
+      </span>
+    </div>
+
+  </div>
+
+</div>
+
+<div class="container mx-4 py-4 w-full bg-white  rounded-md shadow dark:bg-gray-700">
+  <!-- Header -->
+  <div class="flex flex-col gap-2 md:flex-row md:items-center justify-between mb-6 px-4">
+    <div>
+      <h1 class="text-3xl font-bold text-gray-800 dark:text-slate-100">
+        Pagos
+      </h1>
+      <p class="text-gray-500 dark:text-slate-300">
+        Administre sus detalles de pagos
+      </p>
+    </div>
+    <div class="flex items-center gap-3">
+      <button
+        type="button"
+        data-modal-target="payment-modal"
+        data-modal-toggle="payment-modal"
+        class="inline-block px-6 py-2 mr-3 font-semibold text-center text-white align-middle transition-all rounded cursor-pointer bg-emerald-600 hover:bg-emerald-700 leading-normal ease-in tracking-tight-rem shadow-xs bg-150 bg-x-25 hover:-translate-y-px active:opacity-85 hover:shadow-md">
+        <i class="fa-solid fa-plus mr-1"></i>
+        Registrar nuevo
+      </button>
+
+      <button class="border border-gray-300 text-gray-700 inline-block px-4 py-2 mr-3 font-semibold text-center  align-middle transition-all rounded cursor-pointer leading-normal ease-in tracking-tight-rem shadow-xs bg-150 bg-x-25 hover:-translate-y-px active:opacity-75 hover:shadow-md dark:text-slate-200">
+        <i class="fa-solid fa-download h-5 w-5 mr-1"></i>
+        Descargar Reporte PDF
+      </button>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="space-y-4 px-4">
+    <div class="border-b border-gray-200 ">
+      <div class="flex overflow-x-auto">
+        <a href="#" class="tab active">Todos</a>
+        <a href="#" class="tab">Abonos</a>
+        <a href="#" class="tab">Por pagar</a>
+      </div>
+    </div>
+
+    <!-- Search and Filters -->
+    <div class="py-4">
+      <div class="flex flex-col sm:flex-row justify-between gap-3">
+        <div class="relative flex-1">
+          <svg xmlns="http://www.w3.org/2000/svg" class="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input type="text" placeholder="Buscar por número de factura, nombre, importe..." class="pl-9  bg-white border border-gray-200 rounded-md w-full focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent dark:bg-gray-800">
+        </div>
+        <button
+          type="button"
+          data-modal-target="paymentsFilters-modal"
+          data-modal-toggle="paymentsFilters-modal"
+          class="border border-gray-300 text-gray-700 flex justify-center items-center px-4 py-2 mr-3 font-semibold text-center  align-middle transition-all rounded cursor-pointer leading-normal ease-in tracking-tight-rem shadow-xs bg-150 bg-x-25 hover:-translate-y-px active:opacity-75 hover:shadow-md dark:text-slate-200">
+
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+          </svg>
+          Filtros
+        </button>
+      </div>
+    </div>
+
+    <!-- Table -->
+  </div>
+
+  <div class=" overflow-hidden">
+    <table class="w-full text-sm text-left">
+      <thead>
+        <tr class="bg-gray-50/50">
+          <th class="w-[50px] py-3 px-4">
+            <input type="checkbox" class="rounded border-gray-300 ">
+          </th>
+          <th class="font-semibold text-gray-600 ">NÚMERO DE FACTURA</th>
+          <th class="font-semibold text-gray-600 ">CLIENTE</th>
+          <th class="font-semibold text-gray-600 ">
+            <div class="flex items-center">
+              FECHA DE PAGO
+              <svg xmlns="http://www.w3.org/2000/svg" class="ml-1 h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </div>
+          </th>
+          <th class="font-semibold text-gray-600 ">STATUS</th>
+          <th class="font-semibold text-gray-600 ">CANTIDAD</th>
+          <th class="font-semibold text-gray-600  text-right"></th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Row 1 hover:bg-gray-50/50-->
+        <tr class="border-b dark:border-white/40 border-gray-200 ">
+          <td class="p-4">
+            <input type="checkbox" class="rounded border-gray-300">
+          </td>
+          <td class="font-medium p-4">5146846548465</td>
+          <td class="p-4">Jane Cooper</td>
+          <td class="p-4">2/19/21</td>
+          <td class="p-4">
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#F2FCE2] text-[#16a34a]">
+              Pagado
+            </span>
+          </td>
+          <td class="p-4">$500.00</td>
+          <td class="p-4 text-right">
+            <button class="w-full bg-gray-100 text-gray-600 hover:bg-gray-200 border border-gray-200 px-3 py-1 rounded-md" disabled>
+              Pagar
+            </button>
+          </td>
+        </tr>
+        <!-- Row 3 -->
+        <tr class="border-b dark:border-white/40 border-gray-200 ">
+          <td class="p-4">
+            <input type="checkbox" class="rounded border-gray-300">
+          </td>
+          <td class="font-medium p-4">1345705945446</td>
+          <td class="p-4">Esther Howard</td>
+          <td class="p-4">9/18/16</td>
+          <td class="p-4">
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#FFDEE2] text-[#ea384c]">
+              No pagado
+            </span>
+          </td>
+          <td class="p-4">$500.00</td>
+          <td class="p-4 text-right">
+            <button class="w-full bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1 rounded-md">
+              Pagar
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="" >
+
+      <!-- (onChangePage)="" -->
+      <app-pagination [totalItems]="0" (onChangePage)="( $event )"  >
+
+      </app-pagination>
+
+    </div>
+  </div>
+</div>
+
+<!-- New Payment Modal (Initially Hidden) -->
+<div id="payment-modal" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 mt-5 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+
+  <div class="relative p-4 w-full max-w-md max-h-full">
+
+    <div class="bg-white rounded-lg shadow-xl w-full max-w-md mx-4">
+      <div class="p-6">
+        <div class="flex justify-between items-start mb-4">
+          <div>
+            <h2 class="text-xl font-semibold">Registrar Nuevo Pago</h2>
+            <p class="text-gray-500 text-sm">Complete los datos del nuevo pago a registrar.</p>
+          </div>
+          <button
+            type="button"
+            data-modal-toggle="payment-modal"
+            class="text-gray-400 hover:text-gray-500" onclick="closeModal()">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <form class="space-y-4">
+          <div class="space-y-2">
+            <label for="numFactura" class="block text-sm font-medium text-gray-700">Número de Factura</label>
+            <input type="text" id="numFactura" name="numFactura" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent" placeholder="Ingrese el número de factura" required>
+          </div>
+
+          <div class="space-y-2">
+            <label for="cliente" class="block text-sm font-medium text-gray-700">Cliente</label>
+            <input type="text" id="cliente" name="cliente" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent" placeholder="Nombre del cliente" required>
+          </div>
+
+          <div class="space-y-2">
+            <label for="fechaPago" class="block text-sm font-medium text-gray-700">Fecha de Pago</label>
+            <input type="date" id="fechaPago" name="fechaPago" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent" required>
+          </div>
+
+          <div class="space-y-2">
+            <label for="cantidad" class="block text-sm font-medium text-gray-700">Cantidad</label>
+            <input type="number" id="cantidad" name="cantidad" min="0" step="0.01" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent" placeholder="$0.00" required>
+          </div>
+
+          <div class="flex justify-end gap-3 pt-4">
+            <button type="button" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50" onclick="closeModal()">
+              Cancelar
+            </button>
+            <button type="submit" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-md">
+              Guardar
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- Filter Modal (Initially Hidden) -->
+<div id="paymentsFilters-modal" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 mt-5 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+
+  <div class="relative p-4 w-full max-w-md max-h-full">
+    <div class="bg-white rounded-lg shadow-xl w-full max-w-md mx-4">
+      <div class="p-6">
+        <div class="flex justify-between items-start mb-4">
+          <div>
+            <h2 class="text-xl font-semibold">Filtros</h2>
+            <p class="text-gray-500 text-sm">Establezca filtros para encontrar pagos específicos.</p>
+          </div>
+          <button
+            type="button"
+            data-modal-toggle="paymentsFilters-modal"
+            class="text-gray-400 hover:text-gray-500" >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <form class="space-y-4">
+          <div class="grid grid-cols-2 gap-4">
+            <div class="space-y-2">
+              <label for="dateFrom" class="block text-sm font-medium text-gray-700">Fecha desde</label>
+              <input type="date" id="dateFrom" name="dateFrom" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent">
+            </div>
+
+            <div class="space-y-2">
+              <label for="dateTo" class="block text-sm font-medium text-gray-700">Fecha hasta</label>
+              <input type="date" id="dateTo" name="dateTo" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent">
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <label for="status" class="block text-sm font-medium text-gray-700">Estado de pago</label>
+            <select id="status" name="status" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent">
+              <option value="">Todos</option>
+              <option value="Pagado">Pagado</option>
+              <option value="No pagado">No pagado</option>
+            </select>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div class="space-y-2">
+              <label for="minAmount" class="block text-sm font-medium text-gray-700">Monto mínimo</label>
+              <input type="number" id="minAmount" name="minAmount" min="0" step="0.01" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent" placeholder="$0.00">
+            </div>
+
+            <div class="space-y-2">
+              <label for="maxAmount" class="block text-sm font-medium text-gray-700">Monto máximo</label>
+              <input type="number" id="maxAmount" name="maxAmount" min="0" step="0.01" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent" placeholder="$0.00">
+            </div>
+          </div>
+
+          <div class="flex justify-end gap-3 pt-4">
+            <button type="button" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50" id="resetFilters">
+              Limpiar
+            </button>
+            <button type="submit" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-md">
+              Aplicar filtros
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+</div>

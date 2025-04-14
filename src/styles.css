@@ -165,6 +165,13 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   height: 900px
 }
 
+.tab {
+  @apply text-base px-6 font-medium py-3 inline-block border-b-2 border-transparent;
+}
+.tab.active {
+  @apply border-emerald-600 text-emerald-600;
+}
+
 /* .mapboxgl-canvas {
   width: 100% !important;
   height: 100% !important;
