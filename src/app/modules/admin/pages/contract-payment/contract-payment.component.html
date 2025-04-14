@@ -99,7 +99,7 @@
                       <div class="flex px-2 py-1">
                         <div>
                           <img
-                          [src]="contractPayment.photo.urlImg "
+                          [src]="contractPayment?.photo?.urlImg ?? 'assets/img/no-image.png' "
                           class="inline-flex items-center justify-center mr-4 text-sm text-white transition-all duration-200 ease-in-out h-9 w-9 rounded-xl"
                           alt="{{ contractPayment.operationCode }}" />
                         </div>

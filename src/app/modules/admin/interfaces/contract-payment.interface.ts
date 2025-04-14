@@ -9,7 +9,7 @@ export interface ContractPayment {
   operationCode: string;
   amount:        number;
   observation:   string;
-  photo:         Photo;
+  photo?:         Photo;
   contract:      Contract;
   paymentMethod: PaymentMethod;
 }
