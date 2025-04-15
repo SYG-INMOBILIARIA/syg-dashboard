@@ -18,7 +18,7 @@ export class RoleValidatorService {
       const id: string = formGroup.get('id')?.value ?? '';
       const code: string = formGroup.get('code')?.value ?? 'xD';
 
-      if( !code || (code == '' || code.length < 5 ) ) return of( null );
+      // if( !code || (code == '' || code.length < 5 ) ) return of( null );
 
       const alreadyObservable = new Observable<ValidationErrors | null>( (subscriber) => {
         this._roleService.getRoleAlreadyExists( code, id )

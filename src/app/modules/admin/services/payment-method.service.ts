@@ -1,8 +1,9 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { environments } from '@envs/environments';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { ListPaymentsMethodResponse, PaymentMethod } from '../interfaces';
+import { ValidationErrors } from '@angular/forms';
 
 @Injectable({providedIn: 'root'})
 export class PaymentMethodService {
@@ -30,6 +31,15 @@ export class PaymentMethodService {
 
   getPaymentMethodById( id: string ): Observable<PaymentMethod> {
     return this._http.get<PaymentMethod>(`${ this._baseUrl }/payment-method/${ id }`);
+  }
+
+  getPaymentMethodAlreadyExists( code: string, id?: string ): Observable<ValidationErrors | null> {
+    return this._http.get<{ alreadyExists: boolean }>(`${ this._baseUrl }/payment-method/already-exists/${ code }?id=${id}`)
+      .pipe(
+        map( ({alreadyExists}) => {
+          return alreadyExists ? { alreadyexists: true } : null;
+        } )
+      );
   }
 
   removePaymentMethod( id: string ): Observable<PaymentMethod> {

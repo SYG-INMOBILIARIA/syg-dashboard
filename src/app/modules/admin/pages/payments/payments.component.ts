@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { PaginationComponent } from '@shared/components/pagination/pagination.component';
+import { initFlowbite } from 'flowbite';
 
 @Component({
   selector: 'app-payments',
@@ -10,6 +11,10 @@ import { PaginationComponent } from '@shared/components/pagination/pagination.co
   templateUrl: './payments.component.html',
   styles: ``
 })
-export default  class PaymentsComponent {
+export default  class PaymentsComponent implements OnInit {
+
+  ngOnInit(): void {
+    initFlowbite();
+  }
 
 }

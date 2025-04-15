@@ -20,6 +20,7 @@ import { environments } from '@envs/environments';
 import { AlertService } from '@shared/services/alert.service';
 import { onValidImg } from '@shared/helpers/files.helper';
 import { PipesModule } from '@pipes/pipes.module';
+import { PaymentMethodValidatorService } from '../../validators/payment-method.service';
 
 @Component({
   selector: 'app-payment-method',
@@ -47,6 +48,7 @@ export default class PaymentMethodComponent implements OnInit, OnDestroy {
   @ViewChild('btnShowPaymentMethodModal') btnShowPaymentMethodModal!: ElementRef<HTMLButtonElement>;
 
   private _paymentMethodService = inject( PaymentMethodService );
+  private _paymentMethodValidatorService = inject( PaymentMethodValidatorService );
   private _alertService = inject( AlertService );
   private _uploadService = inject( UploadFileService );
   public searchInput = new FormControl('', [ Validators.pattern( fullTextPatt ) ]);
@@ -70,13 +72,13 @@ export default class PaymentMethodComponent implements OnInit, OnDestroy {
   private _formBuilder = inject( UntypedFormBuilder );
 
   public paymentMethodForm = this._formBuilder.group({
-    id:          [ '', [] ],
+    id:          [ null, [] ],
     code:        [ '', [ Validators.required, Validators.minLength(3), Validators.pattern( codePatt ) ] ],
     name:        [ '', [ Validators.required, Validators.minLength(3), Validators.pattern( fullTextPatt ) ] ],
     description: [ '', [ Validators.pattern( fullTextPatt ) ] ],
   }, {
-    // updateOn: 'blur',
-    // asyncValidators: [ this._roleValidatorService.alreadyRoleValidator() ],
+    updateOn: 'change',
+    asyncValidators: [ this._paymentMethodValidatorService ],
   });
 
   public fileUrl = signal( environments.defaultImgUrl );
