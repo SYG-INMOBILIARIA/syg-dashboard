@@ -29,12 +29,14 @@ export * from './payment-schedule.interface';
 
 export * from './map-props.interface';
 
-
 export * from './payment-method.interface';
 export * from './list-payment-method.interface';
 export * from './body-payment-method.interface';
 
-
 export * from './contract-payment-body.interface';
 export * from './contract-payment.interface';
 export * from './list-contract-payment-response.interface';
+
+export * from './contract-quote.interface';
+export * from './list-contract-quotes-response.itnerface';
+export * from './payment-quote-body.interface';

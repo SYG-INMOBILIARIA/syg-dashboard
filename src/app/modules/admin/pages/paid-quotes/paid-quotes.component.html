@@ -1,0 +1,777 @@
+<nav class="flex pb-4 ml-5 " aria-label="Breadcrumb">
+  <ol class="inline-flex items-center space-x-1 md:space-x-2 rtl:space-x-reverse">
+    <li class="inline-flex items-center">
+      <a href="#" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white">
+        <svg class="w-3 h-3 me-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+          <path d="m19.707 9.293-2-2-7-7a1 1 0 0 0-1.414 0l-7 7-2 2a1 1 0 0 0 1.414 1.414L2 10.414V18a2 2 0 0 0 2 2h3a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h3a2 2 0 0 0 2-2v-7.586l.293.293a1 1 0 0 0 1.414-1.414Z"/>
+        </svg>
+        Dashboard
+      </a>
+    </li>
+    <li>
+      <div class="flex items-center">
+        <svg class="rtl:rotate-180 w-3 h-3 text-gray-400 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
+        </svg>
+        <a href="#" class="ms-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ms-2 dark:text-gray-400 dark:hover:text-white">Pago de cuotas</a>
+      </div>
+    </li>
+  </ol>
+</nav>
+
+
+<div class="grid gap-4 grid-cols-12 py-6 px-4">
+
+  <div class="col-span-8 bg-white shadow rounded-md dark:bg-gray-700 px-6 py-6 ">
+
+    <div class="text-lg font-bold text-slate-800 dark:text-slate-100 mb-4">
+      Información del cliente
+    </div>
+
+    <div class="flex justify-center items-end gap-3">
+
+      <div class="w-full">
+        <label for="cbxContract" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+          Buscar Contrato:
+        </label>
+        <ng-select
+          id="cbxContract"
+          class="navbar bg-gray-50 border text-gray-900 text-sm rounded-lg block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+          [items]="contracts()"
+          [searchable]="false"
+          bindLabel="code"
+          bindValue="id"
+          placeholder="Seleccione contrato"
+          [formControl]="contractInput"
+          [class.border-red-400]="searchInputIsTouched && searchInputErrors"
+        >
+
+          <ng-template ng-header-tmp>
+
+            <div class="flex justify-between gap-3">
+
+              <input
+                    type="search"
+                    id="txtSearchClient"
+                    class="block w-full p-2 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 text-xs focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                    placeholder="Buscar contrato por código, nombre de cliente o número de identidad..."
+                    [formControl]="searchContractInput"
+                >
+
+                <button type="button" class=" w-36 px-3 py-2 text-xs font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                  (click)="onGetContract()"
+                >
+                  Buscar
+                </button>
+
+                @if ( searchInputIsTouched ) {
+                  <span
+                    class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                    inputErrors
+                    [errors]="searchInputErrors"
+                    inputLabel="Contrato" >
+                  </span>
+                }
+            </div>
+          </ng-template>
+
+          <ng-template ng-option-tmp let-item="item" class="text-gray-900 whitespace-nowrap dark:text-white text-left ">
+
+            <div class=" flex justify-between">
+              <div class="text-normal flex justify-center items-center gap-1.5 ">
+                <span class="italic text-slate-500 c">
+                  Código:
+                </span>
+                <span class="font-semibold text-md">
+                  {{ item.code }}
+                </span>
+              </div>
+
+              <div class=" flex justify-center items-center gap-2.5">
+
+                <div class="italic text-slate-500 ">
+
+                  Cliente:
+
+                </div>
+
+                <div class="w-64">
+                  <div class="uppercase font-semibold">
+                    {{ item.client.fullname }}
+                  </div>
+                  <div class="font-normal text-sm text-gray-500 pe-5">
+                    {{ item.client.identityDocument.shortDescription }} : {{ item.client.identityNumber }}
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+          </ng-template>
+
+        </ng-select>
+
+
+      </div>
+
+
+      <button
+        type="button"
+        class="flex justify-center items-end border border-gray-300 text-gray-700  px-4 py-2 mr-3 font-semibold text-center  align-middle transition-all rounded cursor-pointer leading-normal ease-in tracking-tight-rem shadow-xs bg-150 bg-x-25 hover:-translate-y-px active:opacity-75 hover:shadow-md dark:text-slate-200"
+        (click)="onGetContractQuotes()"
+      >
+        <i class="fa-solid fa-filter h-5 w-5 mr-1"></i>
+        Filtrar
+      </button>
+
+
+    </div>
+
+  </div>
+
+  <div class="col-span-4 bg-white shadow rounded-md dark:bg-gray-700 px-4 py-4 dark:text-slate-400">
+
+    <span class="text-lg font-bold text-slate-800 dark:text-slate-100 ">
+      Resumen
+    </span>
+
+    <div class="mt-4">
+      <div class="flex gap-2 justify-start">
+        <span class="italic w-32">Total abonado: </span>
+        <span>S/ 0.00</span>
+      </div>
+
+      <div class="flex gap-2 justify-start">
+        <span class="italic w-32">Deuda de moras: </span>
+        <span>S/ 0.00</span>
+      </div>
+
+      <div class="flex gap-2 justify-start">
+        <span class="italic w-32">Deuda de lotes: </span>
+        <span>S/ 0.00</span>
+      </div>
+
+      <div class="flex gap-2 justify-start">
+        <span class="italic w-32">Deuda total: </span>
+        <span>S/ 0.00</span>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<div class="flex flex-wrap ">
+  <div class="flex-none w-full max-w-full px-3">
+    <div class="relative flex flex-col min-w-0 mb-6 break-words bg-white border-solid shadow-md dark:bg-slate-850 dark:shadow-dark-md rounded-2xl bg-clip-border dark:bg-gray-700">
+
+      <div class="flex flex-col gap-2 md:flex-row md:items-center justify-between py-6 px-4">
+        <div>
+          <h1 class="text-3xl font-bold text-gray-800 dark:text-slate-100">
+            Cuotas pendientes
+          </h1>
+        </div>
+        <div class="flex items-center gap-3">
+          <button
+            #btnShowPaymentQuoteModal
+            type="button"
+            data-modal-target="payment-modal"
+            data-modal-toggle="payment-modal"
+            class="inline-block px-6 py-2 mr-3 font-semibold text-center text-white align-middle transition-all rounded cursor-pointer bg-emerald-600 hover:bg-emerald-700 leading-normal ease-in tracking-tight-rem shadow-xs bg-150 bg-x-25 hover:-translate-y-px active:opacity-85 hover:shadow-md"
+            (click)="onLoadPaymentQuotes()"
+          >
+            <i class="fa-solid fa-plus mr-1"></i>
+            Pagar múltiples cuotas
+          </button>
+
+          <button class="border border-gray-300 text-gray-700 inline-block px-4 py-2 mr-3 font-semibold text-center  align-middle transition-all rounded cursor-pointer leading-normal ease-in tracking-tight-rem shadow-xs bg-150 bg-x-25 hover:-translate-y-px active:opacity-75 hover:shadow-md dark:text-slate-200">
+            <i class="fa-solid fa-download h-5 w-5 mr-1"></i>
+            Descargar Reporte PDF
+          </button>
+        </div>
+      </div>
+
+      <div class=" overflow-hidden">
+        <table class="w-full text-sm text-left">
+          <thead >
+            <tr class="bg-gray-50/50">
+
+              <th class="px-6 py-3 font-semibold text-gray-600 ">CUOTA</th>
+              <th class="px-6 py-3 font-semibold text-gray-600 ">CONTRATO</th>
+              <th class="px-6 py-3 font-semibold text-gray-600 ">CLIENTE</th>
+              <th class="px-6 py-3 font-semibold text-gray-600 ">
+                <div class="flex items-center">
+                  FECHA DE PAGO
+                  <svg xmlns="http://www.w3.org/2000/svg" class="ml-1 h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                  </svg>
+                </div>
+              </th>
+              <th class="px-6 py-3 font-semibold text-gray-600 ">STATUS</th>
+              <th class="px-6 py-3 font-semibold text-gray-600 w-32 ">MONTO</th>
+              <th class="px-6 py-3 font-semibold text-gray-600 w-32 ">MORA</th>
+              <th class="px-6 py-3 font-semibold text-gray-600 w-32 ">ABONADO</th>
+              <th class="px-6 py-3 font-semibold text-gray-600 w-32 ">DEUDA</th>
+              <th class="px-6 py-3 font-semibold text-gray-600  text-right">
+                ACCIONES
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+
+            @if ( allowList() ) {
+
+              @if (isLoading()) {
+                <tr>
+                  <td colspan="7">
+                    <div class="flex justify-center items-center gap-2 h-14 p-2">
+                      <spinner></spinner>
+                      Cargando...
+                    </div>
+                  </td>
+                </tr>
+              } @else {
+
+                @for ( contractQuote of contractQuotes(); track $index) {
+
+                  <!-- Row 1 hover:bg-gray-50/50-->
+                  <tr class="border-b dark:border-white/40 border-gray-200 dark:text-slate-400 ">
+
+                    <td class="font-medium p-4">
+                      {{ contractQuote.code }}
+                    </td>
+                    <td class="font-medium p-4">
+                      {{ contractQuote.contract.code }}
+                    </td>
+                    <td class="p-4">
+                      {{ contractQuote.contract.client.fullname }}
+                    </td>
+                    <td class="p-4">
+                      {{ contractQuote.paymentDate | moment:'createAt' }}
+                    </td>
+                    <td class="p-4">
+                      <span
+                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium "
+                        [ngClass]="{
+                          'bg-[#F2FCE2] text-[#16a34a]': contractQuote.isPaid,
+                          'bg-[#FFDEE2] text-[#ea384c]': !contractQuote.isPaid
+                          }"
+                      >
+                        @if (contractQuote.isPaid) {
+                          Pagado
+                        } @else {
+                          No pagado
+                        }
+                      </span>
+                    </td>
+                    <td class="p-4 text-right font-semibold">
+                      S/ {{ contractQuote.amountToPay | number: '.2-2' }}
+                    </td>
+                    <td class="p-4 text-right font-semibold">
+                      S/ {{ contractQuote.tardinessAmount | number: '.2-2' }}
+                    </td>
+                    <td class="p-4 text-right font-semibold">
+                      S/ {{ contractQuote.totalPaid| number: '.2-2' }}
+                    </td>
+                    <td class="p-4 text-right font-semibold">
+                      S/ {{ contractQuote.totalDebt| number: '.2-2' }}
+                    </td>
+                    <td class="p-4 text-right">
+                      <!-- <button class="w-full bg-gray-100 text-gray-600 hover:bg-gray-200 border border-gray-200 px-3 py-1 rounded-md" disabled>
+                        Pagar
+                      </button> -->
+
+                      @if ( !contractQuote.isPaid ) {
+                        <button
+                          type="button"
+                          data-modal-target="payment-modal"
+                          data-modal-toggle="payment-modal"
+                          class="w-full bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1 rounded-md"
+                          (click)="onLoadPaymentQuotes( contractQuote )"
+                        >
+                          Pagar
+                        </button>
+                      }
+
+                    </td>
+                  </tr>
+
+                } @empty {
+
+                  @if (!isLoading()) {
+                    <tr>
+                      <td rowspan="7">
+                        <div class="col-12 h-10">
+                          <h3>Sin registros</h3>
+                        </div>
+                      </td>
+                    </tr>
+                  }
+                }
+              }
+
+            } @else {
+              <tr>
+                <td colspan="7">
+                  <div class="text-center p-4 border-b text-xl text-slate-400">
+                    <h3>No tiene permiso para listar <span class="font-bold">Cuotas pendientes</span> </h3>
+                  </div>
+                </td>
+              </tr>
+            }
+
+          </tbody>
+        </table>
+
+        <div class="" >
+
+          <!-- (onChangePage)="" -->
+          <app-pagination [totalItems]="contractQuotesTotal()" (onChangePage)="onGetContractQuotes( $event )"  >
+          </app-pagination>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- New Payment Modal (Initially Hidden) -->
+<div id="payment-modal" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 mt-5 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+
+  <div class="relative p-4 w-full max-w-4xl max-h-full">
+
+    <div class="bg-white rounded-lg shadow-xl w-full mx-4 dark:bg-gray-700">
+      <div class="p-6">
+        <div class="flex justify-between items-start mb-4">
+          <div>
+            <h2 class="text-xl font-semibold">Registrar Nuevo Pago</h2>
+          </div>
+          <button
+            #btnClosePaymentQuoteModal
+            type="button"
+            data-modal-toggle="payment-modal"
+            class="text-gray-400 hover:text-gray-500"
+            (click)="onResetAfterSubmit()"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <form class="space-y-4" [formGroup]="paymentQuoteForm" (submit)="onSubmit()" >
+
+          <!-- Modal Body -->
+          <div class="">
+            <div class="grid grid-cols-12 gap-8">
+
+              <!-- Left Column - Form -->
+              <div class="col-span-7" >
+                <div class="mb-6">
+                  <label for="cbxPaymentType" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                    Seleccione cuota(s) *
+                  </label>
+                  <ng-select
+                    id="cbxPaymentType"
+                    class="navbar border text-gray-900 text-sm rounded-lg block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                    [items]="quotesByContractId()"
+                    [multiple]="true"
+                    [closeOnSelect]="quotesByContractId().length == 1"
+                    [hideSelected]="quotesByContractId().length > 1"
+                    [readonly]="quotesByContractId().length == 1"
+                    (ngModelChange)="onUpdateSelectQuotes( $event )"
+                    bindLabel="paymentDate"
+                    bindValue="id"
+                    placeholder="Seleccione Cuota"
+                    formControlName="contractQuotes"
+                    [class.border-red-400]=" inputErrors('contractQuotes') && isTouched('contractQuotes') "
+                  >
+
+                  <ng-template ng-label-tmp let-item="item" let-clear="clear">
+                    <span class="ng-value-label">
+                      <span class="font-semibold text-md">
+                        {{ item.code }}
+                      </span>
+                    </span>
+                    <span class="ng-value-icon right" (click)="clear(item)" aria-hidden="true">×</span>
+                  </ng-template>
+
+                  <ng-template ng-option-tmp let-item="item" class="text-gray-900 whitespace-nowrap dark:text-white text-left ">
+
+                    <div class=" flex justify-between">
+                      <div class="text-normal flex justify-center items-center gap-1.5 ">
+                        <span class="italic text-slate-500 c">
+                          Cuota:
+                        </span>
+                        <span class="font-semibold text-md">
+                          {{ item.code }}
+                        </span>
+                      </div>
+                      <div class="text-left flex justify-start gap-2.5 w-36">
+                        {{ item.paymentDate | moment: 'createAt' }}
+                      </div>
+                    </div>
+
+                  </ng-template>
+
+                  </ng-select>
+
+                  @if (isTouched('contractQuotes')) {
+                    <span
+                      class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                      inputErrors
+                      [errors]="inputErrors('contractQuotes')"
+                      inputLabel="Cuota(s)" >
+                    </span>
+                  }
+                </div>
+
+                <div class="space-y-4">
+                  <h3 class="text-lg font-semibold text-gray-800">Datos del Pago</h3>
+
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label for="txtPaidDate" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                        Fecha de pago *
+                      </label>
+                      <div class="relative">
+                        <span class="absolute left-3 top-2">
+                          <i class="fa-solid fa-calendar"></i>
+                        </span>
+
+                        <input
+                          #birthDateInput
+                          type="text"
+                          id="txtPaidDate"
+                          mwlFlatpickr
+                          locale="Spanish"
+                          [altInput]="true"
+                          [maxDate]="currentDate"
+                          class=" border text-center border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-slate-800 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                          placeholder="YYYY-MM-DD"
+                          formControlName="paymentDate"
+                          [class.border-red-400]=" inputErrors('paymentDate') && isTouched('paymentDate') "
+                        >
+                      </div>
+
+                      @if (isTouched('paymentDate')) {
+                        <span
+                          class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                          inputErrors
+                          [errors]="inputErrors('paymentDate')"
+                          inputLabel="fecha de pago" >
+                        </span>
+                      }
+                    </div>
+
+                    <div>
+                      <label for="txtAmountPaid" class="block text-sm font-medium text-gray-700 mb-2 dark:text-white">
+                        Monto pagado
+                      </label>
+                      <div class="relative">
+                        <span class="absolute left-3 top-2">S/ </span>
+                        <input
+                          id="txtAmountPaid"
+                          type="number"
+                          placeholder="0.00"
+                          step="0.50"
+                          class=" text-right w-full pl-8 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent dark:bg-slate-800 "
+                          formControlName="amount"
+                          [class.border-red-400]=" inputErrors('amount') && isTouched('amount') "
+                        >
+
+                        @if (isTouched('amount')) {
+                          <span
+                            class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                            inputErrors
+                            [errors]="inputErrors('amount')"
+                            inputLabel="monto" >
+                          </span>
+                        }
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                    <div>
+                      <label for="cbxPaymentType" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                        Tipo de pago *
+                      </label>
+                      <ng-select
+                        id="cbxPaymentType"
+                        class="navbar bg-gray-50 border text-gray-900 text-sm rounded-lg block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                        [items]="paymentsMethod()"
+                        bindLabel="name"
+                        bindValue="id"
+                        placeholder="Seleccione Método de pago"
+                        formControlName="paymentMethodId"
+                        [class.border-red-400]=" inputErrors('paymentMethodId') && isTouched('paymentMethodId') "
+                      >
+                      </ng-select>
+
+                      @if (isTouched('paymentMethodId')) {
+                        <span
+                          class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                          inputErrors
+                          [errors]="inputErrors('paymentMethodId')"
+                          inputLabel="Tipo de pago" >
+                        </span>
+                      }
+                    </div>
+
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-1 dark:text-white">
+                        ID Transacción
+                      </label>
+                      <input
+                        type="text"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent dark:bg-slate-800"
+                        placeholder="#"
+                        formControlName="operationCode"
+                        [class.border-red-400]=" inputErrors('operationCode') && isTouched('operationCode') "
+                      >
+
+                      @if (isTouched('operationCode')) {
+                        <span
+                          class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                          inputErrors
+                          [errors]="inputErrors('operationCode')"
+                          inputLabel="Nro operación" >
+                        </span>
+                      }
+                    </div>
+                  </div>
+
+                  <!-- File Upload -->
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Cargar documento</label>
+
+                    @if ( !file ) {
+
+                      <div class=" mt-1 flex justify-center items-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg">
+                        <div class="space-y-1 text-center h-40 pt-6">
+
+                          <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
+                            <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                          </svg>
+
+                          <div class="text-sm text-gray-600">
+                            <label
+                              for="file-upload"
+                              class="relative cursor-pointer bg-white rounded-md font-medium text-emerald-600 hover:text-emerald-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-emerald-500 dark:bg-slate-700"
+                            >
+                              <span>Sube un archivo</span>
+                              <input id="file-upload" name="file-upload" type="file" class="sr-only" (change)="onChangeFile( $event.target )">
+                            </label>
+                            <!-- <p class="pl-1">o arrastra y suelta</p> -->
+                          </div>
+                          <p class="text-xs text-gray-500">PNG, JPG, PDF hasta 10MB</p>
+                        </div>
+                      </div>
+                    } @else {
+                      <div class="flex justify-center items-center ">
+                        <div class="relative w-40">
+
+                          <img class="w-40 h-60 border-2 border-gray-300 border-dashed" [src]="fileUrl()" alt="Rounded avatar">
+                          <div class="absolute cursor-pointer inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-red-500 border-2 border-white rounded-full -top-2 -end-1.5 dark:border-gray-900"
+                            (click)="onRemoveFile()"
+                          >
+                            <i class="fa-solid fa-xmark"></i>
+                          </div>
+                        </div>
+                      </div>
+                    }
+
+                  </div>
+
+                </div>
+              </div>
+
+              <!-- Right Column - Details -->
+              <div class="col-span-5 h-full">
+                <div class=" h-96 bg-gray-50 rounded-lg p-6">
+                  <h3 class="text-lg font-medium text-gray-800 mb-4">
+                    Detalles (Cuotas seleccionadas)
+                  </h3>
+
+                  <div class="space-y-4">
+                    <!-- Cuota #1 -->
+
+                    @for (item of contractQuotesSelected(); track $index) {
+                      <div class="border-b border-gray-200 pb-4">
+
+                        <div class=" flex justify-between mb-2">
+                            <span class="font-medium">
+                              Cuota: {{ item.code }}
+                            </span>
+                            <span class="text-sm text-gray-500">
+                              {{ item.paymentDate | moment: 'createAt' }}
+                            </span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 text-sm">
+                          <div>
+                            <span class="text-gray-500">Cuota:</span>
+                            <span class="ml-1">
+                              S/ {{ item.amountToPay | number:'.2-2' }}
+                            </span>
+                          </div>
+                          <div>
+                            <span class="text-gray-500">Mora:</span>
+                            <span class="ml-1">
+                              S/ {{ item.tardinessAmount | number:'.2-2' }}
+                            </span>
+                          </div>
+                          <div>
+                            <span class="text-gray-500">Abonado:</span>
+                            <span class="ml-1">
+                              S/ {{ item.totalPaid | number:'.2-2' }}
+                            </span>
+                          </div>
+                          <div>
+                            <span class="text-gray-500">Deuda:</span>
+                            <span class="ml-1 font-medium">
+                              S/ {{ item.totalDebt | number:'.2-2' }}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                    }
+
+                    <!-- Total -->
+                    <div class="pt-2">
+                      <div class="flex justify-between items-center text-lg font-medium">
+                        <span>Total a pagar:</span>
+                        <span>
+                          S/ {{ totalDebt() | number:'.2-2' }}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Observations -->
+
+                </div>
+                <div class="pt-4">
+                  <label class="block text-sm font-medium text-gray-700 mb-1">Observaciones</label>
+                  <textarea
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent dark:bg-slate-800"
+                    rows="5"
+                    placeholder="Agregar comentarios adicionales aquí..."
+                    formControlName="observation"
+                  >
+                  </textarea>
+
+                  @if (isTouched('observation')) {
+                    <span
+                      class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                      inputErrors
+                      [errors]="inputErrors('observation')"
+                      inputLabel="Observación" >
+                    </span>
+                  }
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+          <div class="flex justify-end gap-3 ">
+            <button
+              type="button"
+              data-modal-toggle="payment-modal"
+              class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+              (click)="onLoadPaymentQuotes()"
+            >
+              Cancelar
+            </button>
+            <button type="submit" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-md">
+              <span *ngIf="!isLoading() else paidQuotesSpinner" >
+                Guardar
+              </span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- Filter Modal (Initially Hidden) -->
+<div id="paymentsFilters-modal" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 mt-5 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+
+  <div class="relative p-4 w-full max-w-md max-h-full">
+    <div class="bg-white rounded-lg shadow-xl w-full max-w-md mx-4">
+      <div class="p-6">
+        <div class="flex justify-between items-start mb-4">
+          <div>
+            <h2 class="text-xl font-semibold">Filtros</h2>
+            <p class="text-gray-500 text-sm">Establezca filtros para encontrar pagos específicos.</p>
+          </div>
+          <button
+
+            type="button"
+            data-modal-toggle="paymentsFilters-modal"
+            class="text-gray-400 hover:text-gray-500" >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <form class="space-y-4">
+          <div class="grid grid-cols-2 gap-4">
+            <div class="space-y-2">
+              <label for="dateFrom" class="block text-sm font-medium text-gray-700">Fecha desde</label>
+              <input type="date" id="dateFrom" name="dateFrom" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent">
+            </div>
+
+            <div class="space-y-2">
+              <label for="dateTo" class="block text-sm font-medium text-gray-700">Fecha hasta</label>
+              <input type="date" id="dateTo" name="dateTo" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent">
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <label for="status" class="block text-sm font-medium text-gray-700">Estado de pago</label>
+            <select id="status" name="status" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent">
+              <option value="">Todos</option>
+              <option value="Pagado">Pagado</option>
+              <option value="No pagado">No pagado</option>
+            </select>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div class="space-y-2">
+              <label for="minAmount" class="block text-sm font-medium text-gray-700">Monto mínimo</label>
+              <input type="number" id="minAmount" name="minAmount" min="0" step="0.01" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent" placeholder="$0.00">
+            </div>
+
+            <div class="space-y-2">
+              <label for="maxAmount" class="block text-sm font-medium text-gray-700">Monto máximo</label>
+              <input type="number" id="maxAmount" name="maxAmount" min="0" step="0.01" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent" placeholder="$0.00">
+            </div>
+          </div>
+
+          <div class="flex justify-end gap-3 pt-4">
+            <button type="button" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50" id="resetFilters">
+              Limpiar
+            </button>
+            <button type="submit" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-md">
+              Aplicar filtros
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<ng-template #paidQuotesSpinner>
+  <spinner></spinner>
+</ng-template>
