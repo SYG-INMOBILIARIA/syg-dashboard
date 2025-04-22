@@ -10,10 +10,11 @@ export class ContractQuoteService {
   private readonly _baseUrl = environments.baseUrl;
   private _http = inject( HttpClient );
 
-  getContractQuotes( page: number, filter: string, contractId: string | null, limit = 10, showInactive = false ): Observable<ListContractQuoteResponse> {
+  getContractQuotes( page: number, filter: string, contractId: string | null, limit = 10, onlyIsNotPaid?: boolean, showInactive = false ): Observable<ListContractQuoteResponse> {
 
     let queryParams = `filter=${ filter }`;
     queryParams += `&contractId=${ contractId }`;
+    queryParams += `&onlyIsNotPaid=${ onlyIsNotPaid }`;
     queryParams += `&page=${ page }`;
     queryParams += `&limit=${ limit }`;
     queryParams += `&isActive=${ !showInactive }`;
@@ -25,5 +26,8 @@ export class ContractQuoteService {
     return this._http.get<ContractQuote>(`${ this._baseUrl }/contract-quote/${ id }`);
   }
 
+  exonerateTardiness( id: string ): Observable<ContractQuote> {
+    return this._http.patch<ContractQuote>(`${ this._baseUrl }/contract-quote/exonerate-tardiness/${ id }`, {});
+  }
 
 }

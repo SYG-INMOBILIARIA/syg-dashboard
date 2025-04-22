@@ -61,7 +61,7 @@ export default class TardinessConfigComponent implements OnInit {
   get tardinessConfigBody(): TardinessConfigBody { return  this.tardinessConfigForm.value as TardinessConfigBody; }
 
   ngOnInit(): void {
-    initFlowbite();
+
     this.onGetTardinessConfig();
   }
 
@@ -84,6 +84,10 @@ export default class TardinessConfigComponent implements OnInit {
 
         this._tardinessConfig.set( tardinessConfigs );
         this._isLoading.set( false );
+
+        setTimeout(() => {
+          initFlowbite();
+        }, 250);
 
       }, error: (err) => {
         this._isLoading.set( false );

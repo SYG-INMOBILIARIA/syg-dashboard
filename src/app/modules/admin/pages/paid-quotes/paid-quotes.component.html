@@ -138,22 +138,30 @@
     <div class="mt-4">
       <div class="flex gap-2 justify-start">
         <span class="italic w-32">Total abonado: </span>
-        <span>S/ 0.00</span>
+        <span>
+          S/ {{ quoteResumen()?.totalPaid ?? 0 | number:'.2-2' }}
+        </span>
       </div>
 
       <div class="flex gap-2 justify-start">
         <span class="italic w-32">Deuda de moras: </span>
-        <span>S/ 0.00</span>
+        <span>
+          S/ {{ quoteResumen()?.totalTardiness ?? 0 | number:'.2-2' }}
+        </span>
       </div>
 
       <div class="flex gap-2 justify-start">
         <span class="italic w-32">Deuda de lotes: </span>
-        <span>S/ 0.00</span>
+        <span>
+          S/ {{ quoteResumen()?.lotesDebt ?? 0 | number:'.2-2' }}
+        </span>
       </div>
 
       <div class="flex gap-2 justify-start">
         <span class="italic w-32">Deuda total: </span>
-        <span>S/ 0.00</span>
+        <span>
+          S/ {{ quoteResumen()?.totalDebt ?? 0 | number:'.2-2' }}
+        </span>
       </div>
     </div>
 
@@ -240,16 +248,16 @@
                     <td class="font-medium p-4">
                       {{ contractQuote.code }}
                     </td>
-                    <td class="font-medium p-4">
+                    <td class="font-medium ">
                       {{ contractQuote.contract.code }}
                     </td>
-                    <td class="p-4">
+                    <td class="">
                       {{ contractQuote.contract.client.fullname }}
                     </td>
-                    <td class="p-4">
+                    <td class="">
                       {{ contractQuote.paymentDate | moment:'createAt' }}
                     </td>
-                    <td class="p-4">
+                    <td class="">
                       <span
                         class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium "
                         [ngClass]="{
@@ -264,33 +272,45 @@
                         }
                       </span>
                     </td>
-                    <td class="p-4 text-right font-semibold">
+                    <td class=" text-right font-semibold">
                       S/ {{ contractQuote.amountToPay | number: '.2-2' }}
                     </td>
-                    <td class="p-4 text-right font-semibold">
+                    <td class=" text-right font-semibold">
                       S/ {{ contractQuote.tardinessAmount | number: '.2-2' }}
                     </td>
-                    <td class="p-4 text-right font-semibold">
+                    <td class=" text-right font-semibold">
                       S/ {{ contractQuote.totalPaid| number: '.2-2' }}
                     </td>
-                    <td class="p-4 text-right font-semibold">
+                    <td class=" text-right font-semibold">
                       S/ {{ contractQuote.totalDebt| number: '.2-2' }}
                     </td>
-                    <td class="p-4 text-right">
-                      <!-- <button class="w-full bg-gray-100 text-gray-600 hover:bg-gray-200 border border-gray-200 px-3 py-1 rounded-md" disabled>
-                        Pagar
-                      </button> -->
+                    <td class=" text-right ">
 
                       @if ( !contractQuote.isPaid ) {
-                        <button
-                          type="button"
-                          data-modal-target="payment-modal"
-                          data-modal-toggle="payment-modal"
-                          class="w-full bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1 rounded-md"
-                          (click)="onLoadPaymentQuotes( contractQuote )"
-                        >
-                          Pagar
-                        </button>
+
+                        <div class=" flex justify-center items-center gap-3">
+
+                          @if ( !contractQuote.isExoneratedTardiness ) {
+                            <button
+                              type="button"
+                              class="bg-gray-100 text-gray-600 hover:bg-gray-200 border border-gray-200 px-3 py-1 rounded-md"
+                              (click)="onExonerateTardinessConfirm( contractQuote )"
+                            >
+                              Exo. Mora
+                            </button>
+                          }
+
+                          <button
+                            type="button"
+                            data-modal-target="payment-modal"
+                            data-modal-toggle="payment-modal"
+                            class=" bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1 rounded-md"
+                            (click)="onLoadPaymentQuotes( contractQuote )"
+                          >
+                            Pagar
+                          </button>
+                        </div>
+
                       }
 
                     </td>
@@ -367,7 +387,7 @@
             <div class="grid grid-cols-12 gap-8">
 
               <!-- Left Column - Form -->
-              <div class="col-span-7" >
+              <div class="col-span-6" >
                 <div class="mb-6">
                   <label for="cbxPaymentType" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
                     Seleccione cuota(s) *
@@ -551,7 +571,7 @@
                     @if ( !file ) {
 
                       <div class=" mt-1 flex justify-center items-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg">
-                        <div class="space-y-1 text-center h-40 pt-6">
+                        <div class="space-y-1 text-center h-48 pt-10">
 
                           <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
                             <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
@@ -590,8 +610,8 @@
               </div>
 
               <!-- Right Column - Details -->
-              <div class="col-span-5 h-full">
-                <div class=" h-96 bg-gray-50 rounded-lg p-6">
+              <div class="col-span-6 h-full">
+                <div class=" max-h-96 h-96 bg-gray-50 rounded-lg p-6 overflow-auto ">
                   <h3 class="text-lg font-medium text-gray-800 mb-4">
                     Detalles (Cuotas seleccionadas)
                   </h3>
@@ -606,7 +626,7 @@
                             <span class="font-medium">
                               Cuota: {{ item.code }}
                             </span>
-                            <span class="text-sm text-gray-500">
+                            <span class="text-sm text-green-500 font-semibold">
                               {{ item.paymentDate | moment: 'createAt' }}
                             </span>
                         </div>
@@ -654,7 +674,7 @@
                   <!-- Observations -->
 
                 </div>
-                <div class="pt-4">
+                <div class="pt-5">
                   <label class="block text-sm font-medium text-gray-700 mb-1">Observaciones</label>
                   <textarea
                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent dark:bg-slate-800"
@@ -701,76 +721,6 @@
 
 </div>
 
-<!-- Filter Modal (Initially Hidden) -->
-<div id="paymentsFilters-modal" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 mt-5 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
-
-  <div class="relative p-4 w-full max-w-md max-h-full">
-    <div class="bg-white rounded-lg shadow-xl w-full max-w-md mx-4">
-      <div class="p-6">
-        <div class="flex justify-between items-start mb-4">
-          <div>
-            <h2 class="text-xl font-semibold">Filtros</h2>
-            <p class="text-gray-500 text-sm">Establezca filtros para encontrar pagos específicos.</p>
-          </div>
-          <button
-
-            type="button"
-            data-modal-toggle="paymentsFilters-modal"
-            class="text-gray-400 hover:text-gray-500" >
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-
-        <form class="space-y-4">
-          <div class="grid grid-cols-2 gap-4">
-            <div class="space-y-2">
-              <label for="dateFrom" class="block text-sm font-medium text-gray-700">Fecha desde</label>
-              <input type="date" id="dateFrom" name="dateFrom" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent">
-            </div>
-
-            <div class="space-y-2">
-              <label for="dateTo" class="block text-sm font-medium text-gray-700">Fecha hasta</label>
-              <input type="date" id="dateTo" name="dateTo" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent">
-            </div>
-          </div>
-
-          <div class="space-y-2">
-            <label for="status" class="block text-sm font-medium text-gray-700">Estado de pago</label>
-            <select id="status" name="status" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent">
-              <option value="">Todos</option>
-              <option value="Pagado">Pagado</option>
-              <option value="No pagado">No pagado</option>
-            </select>
-          </div>
-
-          <div class="grid grid-cols-2 gap-4">
-            <div class="space-y-2">
-              <label for="minAmount" class="block text-sm font-medium text-gray-700">Monto mínimo</label>
-              <input type="number" id="minAmount" name="minAmount" min="0" step="0.01" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent" placeholder="$0.00">
-            </div>
-
-            <div class="space-y-2">
-              <label for="maxAmount" class="block text-sm font-medium text-gray-700">Monto máximo</label>
-              <input type="number" id="maxAmount" name="maxAmount" min="0" step="0.01" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent" placeholder="$0.00">
-            </div>
-          </div>
-
-          <div class="flex justify-end gap-3 pt-4">
-            <button type="button" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50" id="resetFilters">
-              Limpiar
-            </button>
-            <button type="submit" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-md">
-              Aplicar filtros
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-
-</div>
 
 <ng-template #paidQuotesSpinner>
   <spinner></spinner>

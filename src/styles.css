@@ -81,6 +81,10 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
     height: 21.2rem;
   }
 
+  .h-99 {
+    height: 27.2rem;
+  }
+
   /* .ng-select .ng-has-value .ng-placeholder {
     display: block;
   } */

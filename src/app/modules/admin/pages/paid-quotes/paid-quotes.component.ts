@@ -6,9 +6,9 @@ import { CommonModule } from '@angular/common';
 
 import { InputErrorsDirective } from '@shared/directives/input-errors.directive';
 import { PaginationComponent } from '@shared/components/pagination/pagination.component';
-import { fullTextPatt, operationCodePatt } from '@shared/helpers/regex.helper';
+import { descriptionPatt, fullTextPatt, operationCodePatt } from '@shared/helpers/regex.helper';
 import { ContractService } from '../../services/contract.service';
-import { Contract, ContractQuote, PaymentMethod, PaymentQuoteBody } from '../../interfaces';
+import { Contract, ContractQuote, PaymentMethod, PaymentQuoteBody, QuotesResumen } from '../../interfaces';
 import { ContractQuoteService } from '../../services/contract-quote.service';
 import { PaymentMethodService } from '../../services/payment-method.service';
 import { PipesModule } from '@pipes/pipes.module';
@@ -59,8 +59,8 @@ export default class PaidQuotesComponent implements OnInit {
     contractQuotes:    [ [],   [ Validators.required, Validators.minLength(1) ] ],
     paymentDate:       [ null, [ Validators.required ] ],
     operationCode:     [ null, [ Validators.required, Validators.pattern( operationCodePatt ) ] ],
-    amount:            [ null, [ Validators.required, Validators.min(1), Validators.max(100000) ] ],
-    observation:       [ '', [] ],
+    amount:            [ null, [ Validators.required, Validators.min(1) ] ],
+    observation:       [ '',   [ Validators.pattern( descriptionPatt ) ] ],
     paymentMethodId:   [ null, [ Validators.required ] ],
   });
 
@@ -69,6 +69,8 @@ export default class PaidQuotesComponent implements OnInit {
 
   private _contracts = signal<Contract[]>( [] );
   private _contractQuotes = signal<ContractQuote[]>( [] );
+  private _quoteResumen = signal<QuotesResumen | null>( null );
+
   private _contractQuotesSelected = signal<ContractQuote[]>( [] );
   private _quotesByContractId = signal<ContractQuote[]>( [] );
   private _paymentsMethod = signal<PaymentMethod[]>( [] );
@@ -81,6 +83,7 @@ export default class PaidQuotesComponent implements OnInit {
 
   public contracts = computed( () => this._contracts() );
   public contractQuotes = computed( () => this._contractQuotes() );
+  public quoteResumen = computed( () => this._quoteResumen() );
   public contractQuotesSelected = computed( () => this._contractQuotesSelected() );
   public quotesByContractId = computed( () => this._quotesByContractId() );
   public contractQuotesTotal = computed( () => this._contractQuotesTotal() );
@@ -141,6 +144,9 @@ export default class PaidQuotesComponent implements OnInit {
   onLoadPaymentQuotes( quoteToPay?: ContractQuote ) {
 
     if( quoteToPay ) {
+
+      if( quoteToPay.isPaid ) return;
+
       this._quotesByContractId.set([ quoteToPay ]);
       this.paymentQuoteForm.get('contractQuotes')?.setValue( [quoteToPay.id] );
 
@@ -149,7 +155,7 @@ export default class PaidQuotesComponent implements OnInit {
 
     const contractId = this.contractInput.value;
 
-    this._contractQuoteService.getContractQuotes( 1, '', contractId, 100 )
+    this._contractQuoteService.getContractQuotes( 1, '', contractId, 100, true )
     .subscribe( ({ contractQuotes, total }) => {
 
       this._quotesByContractId.set( contractQuotes );
@@ -164,10 +170,11 @@ export default class PaidQuotesComponent implements OnInit {
     this._isLoading.set( true );
 
     this._contractQuoteService.getContractQuotes( page, '', contractId )
-    .subscribe( ({ contractQuotes, total }) => {
+    .subscribe( ({ contractQuotes, total, resumen }) => {
 
       this._contractQuotes.set( contractQuotes );
       this._contractQuotesTotal.set( total );
+      this._quoteResumen.set( resumen );
 
       setTimeout(() => {
         initFlowbite();
@@ -211,17 +218,22 @@ export default class PaidQuotesComponent implements OnInit {
     this._isSaving.set( false );
     this._file = undefined;
     this.fileUrl.set( environments.defaultImgUrl );
+    this._contractQuotesSelected.set([]);
+    this._totalDebt.set( 0 );
   }
 
   onUpdateSelectQuotes( contractQuotesId: string[] ) {
 
     const quotesSelected = this._contractQuotes().filter( (e) => contractQuotesId.includes( e.id ) );
-
-    this._totalDebt.set( quotesSelected.reduce( (acc, current) => acc + current.totalDebt , 0 ) );
+    const totalDebt = quotesSelected.reduce( (acc, current) => acc + current.totalDebt , 0 );
+    this._totalDebt.set( totalDebt );
 
     this._contractQuotesSelected.set( quotesSelected );
 
-    // this.btnShowPaymentQuoteModal.nativeElement?.click();
+    this.paymentQuoteForm.get('amount')?.setValue(0);
+    this.paymentQuoteForm.get('amount')?.clearValidators();
+    this.paymentQuoteForm.get('amount')?.addValidators( [ Validators.required, Validators.min(1), Validators.max( parseFloat( totalDebt.toFixed(2) ) ) ] );
+    this.paymentQuoteForm.updateValueAndValidity();
 
   }
 
@@ -230,8 +242,6 @@ export default class PaidQuotesComponent implements OnInit {
     if( this.isFormInvalid || this.isSaving() ) return;
 
     const body = this.paymentQuoteBody;
-
-    console.log({body});
 
     // const allowCreate = this._webUrlPermissionMethods.some(
     //   (permission) => permission.webApi == apiPaymentMethod && permission.methods.includes( 'POST' )
@@ -261,6 +271,49 @@ export default class PaidQuotesComponent implements OnInit {
           this._isSaving.set( false);
         }
       });
+
+  }
+
+  async onExonerateTardinessConfirm( contractQuote: ContractQuote ) {
+    const responseConfirm = await this._alertService.showConfirmAlert(
+      undefined,
+      `¿Está seguro de exonerar mora a cuota: "${ contractQuote.code }"?`
+    );
+
+    if( responseConfirm.isConfirmed ) {
+      this._exonerateTardiness( contractQuote.id );
+    }
+  }
+
+  private _exonerateTardiness( contractQuoteId: string ) {
+
+    // const allowDelete = this._webUrlPermissionMethods.some(
+    //   (permission) => permission.webApi == apiPaymentMethod && permission.methods.includes( 'DELETE' )
+    // );
+
+    // if( !allowDelete ) {
+    //   this._alertService.showAlert( undefined, 'No tiene permiso para eliminar un Método de pago', 'warning');
+    //   return;
+    // }
+
+    if( this._isRemoving ) return;
+
+    this._isRemoving = true;
+
+    this._alertService.showLoading();
+
+    this._contractQuoteService.exonerateTardiness( contractQuoteId )
+    .subscribe({
+      next: (contractQuoteUpdated) => {
+        this.onGetContractQuotes();
+        this._isRemoving = false;
+        this._alertService.showAlert('Mora exonerada exitosamente', undefined, 'success');
+
+      }, error: (err) => {
+        this._isRemoving = false;
+        this._alertService.close();
+      }
+    });
 
   }
 

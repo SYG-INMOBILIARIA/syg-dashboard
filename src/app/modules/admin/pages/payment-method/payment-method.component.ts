@@ -278,11 +278,11 @@ export default class PaymentMethodComponent implements OnInit, OnDestroy {
     );
 
     if( responseConfirm.isConfirmed ) {
-      this._removeUser( paymentMethod.id );
+      this._removePaymentMethod( paymentMethod.id );
     }
   }
 
-  private _removeUser( paymentMethodId: string ) {
+  private _removePaymentMethod( paymentMethodId: string ) {
 
     const allowDelete = this._webUrlPermissionMethods.some(
       (permission) => permission.webApi == apiPaymentMethod && permission.methods.includes( 'DELETE' )
