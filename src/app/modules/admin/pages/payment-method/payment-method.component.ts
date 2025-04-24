@@ -20,7 +20,7 @@ import { environments } from '@envs/environments';
 import { AlertService } from '@shared/services/alert.service';
 import { onValidImg } from '@shared/helpers/files.helper';
 import { PipesModule } from '@pipes/pipes.module';
-import { PaymentMethodValidatorService } from '../../validators/payment-method.service';
+import { PaymentMethodValidatorService } from '../../validators/payment-method-validator.service';
 
 @Component({
   selector: 'app-payment-method',

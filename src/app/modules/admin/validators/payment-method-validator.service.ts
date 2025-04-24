@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { AbstractControl, AsyncValidator, UntypedFormGroup, ValidationErrors } from '@angular/forms';
+import { AsyncValidator, UntypedFormGroup, ValidationErrors } from '@angular/forms';
 import { Observable, of } from 'rxjs';
 import { PaymentMethodService } from '../services/payment-method.service';
 
@@ -12,9 +12,6 @@ export class PaymentMethodValidatorService implements AsyncValidator {
 
     const code = formGroup.get('code')?.value ?? '';
     const id = formGroup.get('id')?.value ?? 'xD';
-
-    console.log('id ::: ', id);
-    console.log('code ::: ', code);
 
     if( !code || code == '' ) return of( null );
 

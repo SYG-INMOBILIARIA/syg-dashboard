@@ -48,6 +48,8 @@ const routes: Routes = [
       { path: 'contract-payments', loadComponent: () => import('../modules/admin/pages/contract-payment/contract-payment.component') },
       { path: 'paid-quotes', loadComponent: () => import('../modules/admin/pages/paid-quotes/paid-quotes.component') },
       { path: 'tardiness-config', loadComponent: () => import('../modules/config/pages/tardiness-config/tardiness-config.component') },
+      { path: 'area-company', loadComponent: () => import('../modules/config/pages/area-company/area-company.component') },
+      { path: 'expenses', loadComponent: () => import('../modules/admin/pages/expenses/expenses.component') },
 
       { path: '**', redirectTo: 'home' }
     ]

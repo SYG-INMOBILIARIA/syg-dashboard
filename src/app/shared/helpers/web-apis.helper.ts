@@ -9,3 +9,5 @@ export const apiContract = '/v1/contract';
 export const apiPaymentMethod = '/v1/payment-method';
 export const apiFinancing = '/v1/financing';
 export const apiContractPayment = '/v1/contract-payment';
+export const apiAreaCompany = '/v1/area-company';
+export const apiExpense = '/v1/expense';

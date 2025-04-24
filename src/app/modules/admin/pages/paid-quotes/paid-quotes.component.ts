@@ -239,7 +239,10 @@ export default class PaidQuotesComponent implements OnInit {
 
   onSubmit() {
 
-    if( this.isFormInvalid || this.isSaving() ) return;
+    if( this.isFormInvalid || this.isSaving() ) {
+      this.paymentQuoteForm.markAllAsTouched();
+      return;
+    };
 
     const body = this.paymentQuoteBody;
 

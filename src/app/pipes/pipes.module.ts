@@ -5,6 +5,7 @@ import { LoteStatusClassPipe } from './lote-status-class.pipe';
 import { LoteJoinCodesPipe } from './lote-join-code.pipe';
 import { PaymentTypePipe } from './payment-type.pipe';
 import { TotalDebtPipe } from './total-debt.pipe';
+import { ExpenseTypePipe } from './expense-type.pipe';
 
 @NgModule({
   imports: [
@@ -13,7 +14,8 @@ import { TotalDebtPipe } from './total-debt.pipe';
     LoteStatusClassPipe,
     LoteJoinCodesPipe,
     PaymentTypePipe,
-    TotalDebtPipe
+    TotalDebtPipe,
+    ExpenseTypePipe
   ],
   exports: [
     MomentPipe,
@@ -21,7 +23,8 @@ import { TotalDebtPipe } from './total-debt.pipe';
     LoteStatusClassPipe,
     LoteJoinCodesPipe,
     PaymentTypePipe,
-    TotalDebtPipe
+    TotalDebtPipe,
+    ExpenseTypePipe
   ],
 })
 export class PipesModule {}

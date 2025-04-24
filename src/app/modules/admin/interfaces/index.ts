@@ -40,3 +40,8 @@ export * from './list-contract-payment-response.interface';
 export * from './contract-quote.interface';
 export * from './list-contract-quotes-response.itnerface';
 export * from './payment-quote-body.interface';
+
+
+export * from './expense.interface';
+export * from './list-expense-response.interface';
+export * from './expense-body.interface';
