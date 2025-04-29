@@ -2,7 +2,7 @@ import { AfterViewInit, Component, OnInit } from '@angular/core';
 import { initFlowbite } from 'flowbite';
 
 @Component({
-  selector: 'app-dashboard-layout',
+  selector: 'dashboard-layout',
   templateUrl: './dashboard-layout.component.html',
   styles: ``
 })

@@ -19,6 +19,13 @@ export interface Client {
   gender:           Gender;
   civilStatus:      string;
   identityDocument: IdentityDocument;
+  clientStatus:     ClientStatus;
+}
+
+export enum ClientStatus {
+  Finalized = 'FINALIZED',
+  Pending = 'PENDING',
+  NotFinalized = 'NOT-FINALIZED',
 }
 
 export enum Gender {

@@ -1,0 +1,93 @@
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+  <!-- Total Clientes -->
+  <div class="bg-white rounded-lg p-4 border border-gray-100 shadow-sm dark:bg-slate-800 dark:border-slate-500 dark:shadow-slate-600">
+    <div class="flex items-center gap-2 mb-1">
+      <div class="bg-blue-50 p-2 rounded">
+        <!-- <span class="iconify text-blue-600" data-icon="ph:users"></span> -->
+        <i class="fa-solid fa-users"></i>
+      </div>
+      <span class="text-gray-600 font-medium dark:text-slate-200">Total Clientes</span>
+    </div>
+    <div class="mt-4">
+      <div class="text-2xl font-bold text-gray-900 dark:text-slate-400">
+        {{ totalClients() }}
+      </div>
+      <div class="flex items-center mt-1">
+        <span class="text-green-500 text-sm flex items-center">
+          <span class="iconify mr-1" data-icon="ph:trend-up"></span>
+          +{{ percentClients() | number: '.0-0' }}%
+        </span>
+        <span class="text-gray-400 text-sm ml-2">vs mes anterior</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Concretados -->
+  <div class="bg-white rounded-lg p-4 border border-gray-100 shadow-sm dark:bg-slate-800 dark:border-slate-500 dark:shadow-slate-600">
+    <div class="flex items-center gap-2 mb-1">
+      <div class="bg-green-50 p-2 rounded">
+        <!-- <span class="iconify text-green-600" data-icon="ph:check-circle"></span> -->
+        <i class="fa-solid fa-circle-check text-green-400"></i>
+      </div>
+      <span class="text-gray-600 font-medium dark:text-slate-200">Concretados</span>
+    </div>
+    <div class="mt-4">
+      <div class="text-2xl font-bold text-gray-900 dark:text-slate-400">
+        {{ totalFinalized() }}
+      </div>
+      <div class="flex items-center mt-1">
+        <span class="text-green-500 text-sm flex items-center">
+          <span class="iconify mr-1" data-icon="ph:trend-up"></span>
+          +{{ percentClientsFinalized() | number: '.0-0' }}%
+        </span>
+        <span class="text-gray-400 text-sm ml-2">vs mes anterior</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pendientes -->
+  <div class="bg-white rounded-lg p-4 border border-gray-100 shadow-sm dark:bg-slate-800 dark:border-slate-500 dark:shadow-slate-600">
+    <div class="flex items-center gap-2 mb-1">
+      <div class="bg-yellow-100 p-2 rounded">
+        <!-- <span class="iconify text-yellow-600" data-icon="ph:clock"></span> -->
+        <i class="fa-solid fa-clock text-yellow-300"></i>
+      </div>
+      <span class="text-gray-600 font-medium dark:text-slate-200">Pendientes</span>
+    </div>
+    <div class="mt-4">
+      <div class="text-2xl font-bold text-gray-900 dark:text-slate-400">
+        {{ totalPending() }}
+      </div>
+      <div class="flex items-center mt-1">
+        <span class="text-red-500 text-sm flex items-center">
+          <span class="iconify mr-1" data-icon="ph:trend-down"></span>
+          +{{ percentClientsPending() | number: '.0-0' }}%
+        </span>
+        <span class="text-gray-400 text-sm ml-2">vs mes anterior</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ratio Conversión -->
+  <div class="bg-white rounded-lg p-4 border border-gray-100 shadow-sm dark:bg-slate-800 dark:border-slate-500 dark:shadow-slate-600">
+    <div class="flex items-center gap-2 mb-1">
+      <div class="bg-purple-50 p-2 rounded">
+        <!-- <span class="iconify text-purple-600" data-icon="ph:chart-pie"></span> -->
+        <i class="fa-solid fa-repeat text-purple-600"></i>
+      </div>
+      <span class="text-gray-600 font-medium dark:text-slate-200">Ratio Conversión</span>
+    </div>
+    <div class="mt-4">
+      <div class="text-2xl font-bold text-gray-900 dark:text-slate-400">
+        {{ percentRatio() }}%
+      </div>
+      <div class="flex items-center mt-1">
+        <span class="text-green-500 text-sm flex items-center">
+          <span class="iconify mr-1" data-icon="ph:trend-up"></span>
+          +5%
+        </span>
+        <span class="text-gray-400 text-sm ml-2">vs mes anterior</span>
+      </div>
+    </div>
+  </div>
+</div>

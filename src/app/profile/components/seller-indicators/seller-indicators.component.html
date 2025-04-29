@@ -1,0 +1,93 @@
+<section class="bg-white rounded-lg shadow px-6 py-5 dark:bg-slate-800">
+  <h3 class="text-lg font-semibold text-gray-900 mb-5 dark:text-slate-200">Indicadores</h3>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <!-- Card Clientes -->
+    <div class="bg-white rounded-lg p-4 border border-gray-100 shadow-sm dark:bg-slate-800 dark:border-slate-500 dark:shadow-slate-600">
+      <div class="flex items-center gap-2 mb-1">
+        <div class="bg-red-50 p-1.5 rounded">
+          <i class="fa-solid fa-users text-red-400"></i>
+        </div>
+        <span class="text-gray-600 font-medium dark:text-slate-200">Total Clientes</span>
+      </div>
+      <div class="mt-4">
+        <div class="text-2xl font-bold text-gray-900 dark:text-slate-400">26</div>
+        <div class="flex items-center mt-1">
+          <span class="text-green-500 text-sm flex items-center">
+            <span class="iconify mr-1" data-icon="ph:trend-up"></span>
+            +12.5%
+          </span>
+          <span class="text-gray-400 text-sm ml-2">vs mes anterior</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card Ingresos -->
+    <div class="bg-white rounded-lg p-4 border border-gray-100 shadow-sm dark:bg-slate-800 dark:border-slate-500 dark:shadow-slate-600">
+      <div class="flex items-center gap-2 mb-1">
+        <div class="bg-green-50 w-8 p-1.5 rounded text-center">
+          <!-- <span class="iconify text-green-500" data-icon="ph:currency-circle-dollar"></span> -->
+          <i class="fa-solid fa-dollar-sign text-green-400"></i>
+        </div>
+        <span class="text-gray-600 font-medium dark:text-slate-200">Total Ingresos</span>
+      </div>
+      <div class="mt-4">
+        <div class="text-2xl font-bold text-gray-900 dark:text-slate-400">
+          S/. {{ totalIncome() | number:'.2-2' }}
+        </div>
+        <div class="flex items-center mt-1">
+          <span class="text-green-500 text-sm flex items-center">
+            <span class="iconify mr-1" data-icon="ph:trend-up"></span>
+            +{{ percentLastMonthIncome() | number:'.0-0' }}%
+          </span>
+          <span class="text-gray-400 text-sm ml-2">vs mes anterior</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card Ganancias -->
+    <div class="bg-white rounded-lg p-4 border border-gray-100 shadow-sm dark:bg-slate-800 dark:border-slate-500 dark:shadow-slate-600">
+      <div class="flex items-center gap-2 mb-1">
+        <div class="bg-blue-50 p-1.5 rounded">
+          <span class="iconify text-blue-500 w-5 h-5" data-icon="ph:money"></span>
+          <!-- <i class="fa-solid fa-money-bill text-blue-400"></i> -->
+        </div>
+        <span class="text-gray-600 font-medium dark:text-slate-200">Total Ganancias</span>
+      </div>
+      <div class="mt-4">
+        <div class="text-2xl font-bold text-gray-900 dark:text-slate-400">
+          S/ {{ totalEarnings() | number:'.2-2' }}
+        </div>
+        <!-- <div class="flex items-center mt-1">
+          <span class="text-red-500 text-sm flex items-center">
+            <span class="iconify mr-1" data-icon="ph:trend-down"></span>
+            -12.2%
+          </span>
+          <span class="text-gray-400 text-sm ml-2">vs mes anterior</span>
+        </div> -->
+      </div>
+    </div>
+
+    <!-- Card Pendiente -->
+    <div class="bg-white rounded-lg p-4 border border-gray-100 shadow-sm dark:bg-slate-800 dark:border-slate-500 dark:shadow-slate-600">
+      <div class="flex items-center gap-2 mb-1">
+        <div class="bg-yellow-100 p-1.5 rounded text-center">
+          <!-- <span class="iconify text-yellow-600" data-icon="ph:clock"></span> -->
+          <i class="fa-solid fa-clock text-yellow-300"></i>
+        </div>
+        <span class="text-gray-600 font-medium dark:text-slate-200">Pendiente por Abonar</span>
+      </div>
+      <div class="mt-4">
+        <div class="text-2xl font-bold text-gray-900 dark:text-slate-400">
+          S/ {{ totalReceivable() | number:'.2-2' }}
+        </div>
+        <div class="flex items-center mt-1">
+          <span class="text-green-500 text-sm flex items-center">
+            <span class="iconify mr-1" data-icon="ph:trend-up"></span>
+            +{{ percentLastMonthReceivable() | number:'.0-0' }}%
+          </span>
+          <span class="text-gray-400 text-sm ml-2">vs mes anterior</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

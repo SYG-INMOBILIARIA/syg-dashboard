@@ -14,6 +14,10 @@ export const routes: Routes = [
     loadChildren: () => import('./dashboard/dashboard.module')
   },
   {
+    path: 'profile',
+    loadChildren: () => import('./profile/profile.module')
+  },
+  {
     path: '404',
     // canMatch: [saveCurrentPageGuard],
     component: Error404Component

@@ -1,8 +1,9 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { environments } from '@envs/environments';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { ListUserResponse, User, UserBody } from '../interfaces';
+import { ValidationErrors } from '@angular/forms';
 
 @Injectable({
   providedIn: 'root'
@@ -36,6 +37,18 @@ export class UserService {
 
   removeUser( id: string ): Observable<User> {
     return this._http.delete<User>(`${ this._baseUrl }/user/${ id }` );
+  }
+
+  getUserlreadyExists( email: string, identityNumber: string, id?: string ): Observable<{alreadyEmail: boolean, alreadyIdentityNumber: boolean}> {
+
+    const body = { email, identityNumber, id };
+
+    return this._http.post<{alreadyEmail: boolean, alreadyIdentityNumber: boolean}>(`${ this._baseUrl }/user/already-exists/`, body)
+      // .pipe(
+      //   map( ({alreadyExists}) => {
+      //     return alreadyExists ? { alreadyexists: true } : null;
+      //   } )
+      // );
   }
 
 }

@@ -61,6 +61,13 @@ export class InputErrorsDirective {
       return;
     }
 
+    if( errors.includes( 'maxlength' ) ) {
+      const max = this._errors['maxlength']?.requiredLength;
+
+      this._el.nativeElement.innerHTML = warningSvg + ` Máximo ${max} caracteres`;
+      return;
+    }
+
     if( errors.includes( 'pattern' ) ) {
       this._el.nativeElement.innerHTML = warningSvg + ` ${ this.inputLabel() } inválido`;
       return;

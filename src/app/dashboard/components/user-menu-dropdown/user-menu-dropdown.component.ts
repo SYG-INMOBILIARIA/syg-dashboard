@@ -6,11 +6,14 @@ import { AuthState, } from '@redux/reducers/auth.reducer';
 import { AuthService } from '../../../auth/services/auth.service';
 import { UserAuthenticated } from '../../../auth/interfaces';
 import { AppState } from '../../../app.config';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'user-menu-dropdown',
   standalone: true,
-  imports: [],
+  imports: [
+    RouterModule
+  ],
   templateUrl: './user-menu-dropdown.component.html',
   styles: ``
 })

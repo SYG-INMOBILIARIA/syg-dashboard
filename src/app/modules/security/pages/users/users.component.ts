@@ -9,7 +9,7 @@ import { PipesModule } from '@pipes/pipes.module';
 import { PaginationComponent } from '@shared/components/pagination/pagination.component';
 import { SpinnerComponent } from '@shared/components/spinner/spinner.component';
 import { InputErrorsDirective } from '@shared/directives/input-errors.directive';
-import { emailPatt, fullTextPatt } from '@shared/helpers/regex.helper';
+import { datePatt, emailPatt, fullTextPatt, numberDocumentPatt, numberPatt } from '@shared/helpers/regex.helper';
 import { AlertService } from '@shared/services/alert.service';
 import { UserService } from '../../services/user.service';
 import { Role, User, UserBody } from '../../interfaces';
@@ -17,11 +17,15 @@ import { environments } from '@envs/environments';
 import { onValidImg } from '@shared/helpers/files.helper';
 import { RoleService } from '../../services/role.service';
 import { UploadFileService } from '@shared/services/upload-file.service';
-import { Subscription } from 'rxjs';
+import { Subscription, forkJoin } from 'rxjs';
 import { Store } from '@ngrx/store';
 import { AppState } from '../../../../app.config';
 import { WebUrlPermissionMethods } from '../../../../auth/interfaces';
 import { apiUser } from '@shared/helpers/web-apis.helper';
+import { IdentityDocumentService } from '../../../admin/services/identity-document.service';
+import { IdentityDocument } from '../../../admin/interfaces';
+import { FlatpickrDirective } from 'angularx-flatpickr';
+import { UserValidatorService } from '../../validators/user-validator.service';
 
 @Component({
   selector: 'app-users',
@@ -33,7 +37,8 @@ import { apiUser } from '@shared/helpers/web-apis.helper';
     SpinnerComponent,
     PipesModule,
     InputErrorsDirective,
-    NgSelectModule
+    NgSelectModule,
+    FlatpickrDirective
   ],
   templateUrl: './users.component.html',
   styles: ``
@@ -48,8 +53,14 @@ export default class UsersComponent implements OnInit, OnDestroy {
   @ViewChild('btnShowUserModal') btnShowUserModal!: ElementRef<HTMLButtonElement>;
 
   public userModalTitle = 'Crear nuevo usuario';
+  maxBirthDate: Date = new Date(2005, 12, 31 );
+  currentDate: Date = new Date();
 
   private _userService = inject( UserService );
+  private _userValidatorService = inject( UserValidatorService );
+
+  private _identityDocService = inject( IdentityDocumentService );
+
   private _alertService = inject( AlertService );
   private _roleService = inject( RoleService );
   private _uploadFileService = inject( UploadFileService );
@@ -61,14 +72,19 @@ export default class UsersComponent implements OnInit, OnDestroy {
 
   public searchInput = new FormControl('', [ Validators.pattern( fullTextPatt ) ]);
   public userForm = this._formBuilder.group({
-    id:          [ '', [] ],
-    name:        [ '', [ Validators.required, Validators.minLength(3), Validators.pattern( fullTextPatt ) ] ],
-    surname:     [ '', [ Validators.required, Validators.minLength(3), Validators.pattern( fullTextPatt ) ] ],
-    email:       [ '', [ Validators.required, Validators.pattern( emailPatt ) ] ],
-    rolesId:     [ [], [ Validators.required, Validators.minLength(1) ] ],
+    id:                 [ '', [] ],
+    name:               [ '', [ Validators.required, Validators.minLength(3), Validators.pattern( fullTextPatt ) ] ],
+    surname:            [ '', [ Validators.required, Validators.minLength(3), Validators.pattern( fullTextPatt ) ] ],
+    email:              [ '', [ Validators.required, Validators.pattern( emailPatt ) ] ],
+    rolesId:            [ [], [ Validators.required, Validators.minLength(1) ] ],
+    identityDocumentId: [ null, [ Validators.required ] ],
+    identityNumber:     [ '', [ Validators.required ] ],
+    address:            [ '', [ Validators.pattern( fullTextPatt ) ] ],
+    birthDate:          [ null, [ Validators.pattern( datePatt ) ] ],
+    admissionDate:      [ null, [ Validators.pattern( datePatt ) ] ],
   }, {
-    // updateOn: 'blur',
-    // asyncValidators: [ this._roleValidatorService.alreadyRoleValidator() ],
+    updateOn: 'change',
+    asyncValidators: [ this._userValidatorService ],
   });
 
   private _filter = '';
@@ -77,15 +93,17 @@ export default class UsersComponent implements OnInit, OnDestroy {
   private _totalUsers = signal<number>( 0 );
   private _users = signal<User[]>( [] );
   private _roles = signal<Role[]>( [] );
+  private _identityDocuments = signal<IdentityDocument[]>( [] );
+
   private _allowList = signal( true );
 
   public readonly roles = computed( () => this._roles() );
+  public readonly identityDocuments = computed( () => this._identityDocuments() );
   public users = computed( () => this._users() );
   public isLoading = computed( () => this._isLoading() );
   public isSaving = computed( () => this._isSaving() );
   public totalUsers = computed( () => this._totalUsers() );
   public allowList = computed( () => this._allowList() );
-
 
   public fileUrl = signal( environments.defaultImgUrl );
   private _file?: File;
@@ -108,7 +126,7 @@ export default class UsersComponent implements OnInit, OnDestroy {
 
     this.onListenAuthRx();
 
-    this.onGetRoles();
+    this.onGetSelectsData();
     this.onGetUsers();
   }
 
@@ -126,11 +144,16 @@ export default class UsersComponent implements OnInit, OnDestroy {
     this.onGetUsers( 1 );
   }
 
-  onGetRoles() {
-    this._roleService.getRoles( 1, '', 100 )
-    .subscribe( ({ roles }) => {
-      this._roles.set( roles );
+  onGetSelectsData() {
+
+    forkJoin({
+      rolesResponse: this._roleService.getRoles( 1, '', 100 ),
+      documentsIdentityResponse: this._identityDocService.getIdentityDocuments()
+    }).subscribe( ( {rolesResponse, documentsIdentityResponse} ) => {
+      this._roles.set( rolesResponse.roles );
+      this._identityDocuments.set( documentsIdentityResponse.identityDocuments )
     });
+
   }
 
   onGetUsers( page = 1 ) {
@@ -188,6 +211,23 @@ export default class UsersComponent implements OnInit, OnDestroy {
     this.userModalTitle = 'Crear nuevo usuario';
     this.userForm.reset();
     this._isSaving.set( false );
+    this._file = undefined;
+    this.fileUrl.set( environments.defaultImgUrl )
+  }
+
+  onChangeIdentityDocument( identityDocument: IdentityDocument ) {
+
+    const { longitude, isAlphaNumeric, isLongitudeExact } = identityDocument;
+
+    this.userForm.get('identityNumber')?.clearValidators();
+    this.userForm.get('identityNumber')?.addValidators( [
+      Validators.required,
+      Validators.pattern( isAlphaNumeric ? numberDocumentPatt : numberPatt ),
+      Validators.minLength( isLongitudeExact ? longitude : 6 ),
+      Validators.maxLength( longitude ),
+     ] );
+
+    this.userForm.updateValueAndValidity();
   }
 
   onLoadToUpdate( user: User ) {
@@ -197,11 +237,12 @@ export default class UsersComponent implements OnInit, OnDestroy {
     .subscribe({
       next: (role) => {
 
-        const { createAt, isActive, userCreate, photo, roles, ...rest } = role;
+        const { createAt, isActive, userCreate, photo, roles, identityDocument, ...rest } = role;
 
         this.fileUrl.set( photo?.urlImg ?? environments.defaultImgUrl );
         this.userForm.reset( {
           ...rest,
+          identityDocumentId: identityDocument.id,
           rolesId: roles.map( (role) => role.id )
         } );
         this.userModalTitle = 'Actualizar usuario';

@@ -7,16 +7,15 @@ import {
   saveCurrentPageGuard,
   isAuthenticatedGuard,
   verifyRoleMenuAllowedGuard
-} from './guards';
-
+} from '@shared/guards';
 
 const routes: Routes = [
   {
     path: '',
-    canActivate: [ isAuthenticatedGuard ],
-    canMatch: [ saveCurrentPageGuard ],
     component: DashboardLayoutComponent,
-    canActivateChild: [ verifyRoleMenuAllowedGuard ],
+    canActivate: [ isAuthenticatedGuard ],
+    // canMatch: [  ],
+    canActivateChild: [ saveCurrentPageGuard, verifyRoleMenuAllowedGuard ],
     children: [
       { path: '', component: HomeComponent },
       { path: 'home', component: HomeComponent },
@@ -50,6 +49,10 @@ const routes: Routes = [
       { path: 'tardiness-config', loadComponent: () => import('../modules/config/pages/tardiness-config/tardiness-config.component') },
       { path: 'area-company', loadComponent: () => import('../modules/config/pages/area-company/area-company.component') },
       { path: 'expenses', loadComponent: () => import('../modules/admin/pages/expenses/expenses.component') },
+      {
+        path: 'profile',
+        loadChildren: () => import('../profile/profile.module')
+      },
 
       { path: '**', redirectTo: 'home' }
     ]

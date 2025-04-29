@@ -22,6 +22,10 @@ export class PaginationComponent {
     this.config.totalItems = value;
   };
 
+  @Input({ required: false }) set itemsPerPage( value: number ) {
+    this.config.itemsPerPage = value;
+  };
+
   onChangePage = output<number>();
 
   @ViewChild('paginateElement') paginateElement!: PaginationControlsDirective;
@@ -36,11 +40,11 @@ export class PaginationComponent {
   get totalItems(): number { return this.config.totalItems! };
 
   get showFirst(): number {
-    return ((this.config.currentPage - 1) * 10) + 1;
+    return ((this.config.currentPage - 1) * this.config.itemsPerPage) + 1;
   }
 
   get showLast() {
-    return this.config.totalItems! <= 10 ? this.config.totalItems : this.config.currentPage * 10;
+    return this.config.totalItems! <= this.config.itemsPerPage ? this.config.totalItems : this.config.currentPage * this.config.itemsPerPage;
   }
 
   onPageChange( page: number ) {

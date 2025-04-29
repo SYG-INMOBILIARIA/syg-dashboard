@@ -1,5 +1,6 @@
 import { Photo } from "@shared/interfaces";
 import { RoleInherited } from ".";
+import { IdentityDocument } from "../../admin/interfaces";
 
 export interface User {
   isActive:   boolean;
@@ -13,4 +14,11 @@ export interface User {
   phone:      null;
   roles:      RoleInherited[];
   photo:      Photo | null;
+
+  address?: string;
+  birthDate: string;
+  admissionDate: string;
+  identityNumber: string;
+
+  identityDocument: IdentityDocument;
 }

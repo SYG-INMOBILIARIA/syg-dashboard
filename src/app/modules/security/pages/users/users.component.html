@@ -84,6 +84,7 @@
               <tr>
                 <th class="px-6 py-3 font-bold text-left uppercase align-middle bg-transparent border-b border-collapse shadow-none dark:border-white/40 text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-800 dark:text-slate-100 opacity-70">Nombre</th>
                 <th class="px-6 py-3 pl-2 font-bold text-left uppercase align-middle bg-transparent border-b border-collapse shadow-none dark:border-white/40 text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-800 dark:text-slate-100 opacity-70">Email</th>
+                <th class="px-6 py-3 pl-2 font-bold text-left uppercase align-middle bg-transparent border-b border-collapse shadow-none dark:border-white/40 text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-800 dark:text-slate-100 opacity-70">Documento Identidad</th>
                 <th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-collapse shadow-none dark:border-white/40 text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-800 dark:text-slate-100 opacity-70">Estado</th>
                 <th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-collapse shadow-none dark:border-white/40 text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-800 dark:text-slate-100 opacity-70">Fecha creación</th>
                 <th class="px-6 py-3 font-semibold capitalize align-middle bg-transparent border-b border-collapse border-solid shadow-none dark:border-white/40 tracking-none whitespace-nowrap text-slate-800 dark:text-slate-100 opacity-70"></th>
@@ -105,11 +106,13 @@
                           <h6 class="mb-0 text-sm leading-normal dark:text-gray-300 ">
                             {{ user.fullname }}
                           </h6>
-                          <!-- <p class="mb-0 text-xs leading-tight  dark:opacity-80 text-slate-400 dark:text-gray-300">
-                            {{ user.email }}
-                          </p> -->
                         </div>
                       </div>
+                    </td>
+
+                    <td class="p-2 align-middle bg-transparent border-b dark:border-white/40 whitespace-nowrap shadow-transparent dark:text-gray-300">
+                      <span class="text-sm font-semibold"> {{ user.identityDocument.shortDescription }}: </span>
+                      {{ user.identityNumber }}
                     </td>
 
                     <td class="p-2 align-middle bg-transparent border-b dark:border-white/40 whitespace-nowrap shadow-transparent dark:text-gray-300">
@@ -224,20 +227,68 @@
                 </button>
             </div>
             <!-- Modal body -->
-            <form [formGroup]="userForm" (ngSubmit)="onSubmit()" class="p-4">
+            <form [formGroup]="userForm" (ngSubmit)="onSubmit()" class="py-6 px-8">
               <div class="grid gap-4 mb-4 grid-cols-4">
 
-                <div class="col-span-4 pb-2 grid-cols-1 flex justify-center">
+                <div class="col-span-4 pb-1.5 grid-cols-1 flex justify-center">
                   <label for="countryFile" >
                     <img class="w-20 h-20 rounded-full cursor-pointer" [src]="fileUrl()" alt="Rounded avatar">
                   </label>
 
                   <input type="file" id="countryFile" class="hidden" (change)="onChangeFile( $event.target )" />
-
                 </div>
 
-                <div class="col-span-2 xs:col-span-2">
-                    <label for="txtRoleName" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                <div class="col-span-2 xs:col-span-4">
+                  <label for="cbxIdentityDocument" class="block mb-1.5 text-sm font-medium text-gray-900 dark:text-white">
+                    Tipo documento *
+                  </label>
+                  <ng-select
+                    id="cbxIdentityDocument"
+                    class="bg-gray-50 border text-gray-900 text-sm rounded-lg block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                    [items]="identityDocuments()"
+                    (change)="onChangeIdentityDocument( $event )"
+                    bindLabel="shortDescription"
+                    bindValue="id"
+                    placeholder="Seleccione documento de identidad"
+                    formControlName="identityDocumentId"
+                    [class.border-red-400]=" inputErrors('identityDocumentId') && isTouched('identityDocumentId') "
+                  >
+                  </ng-select>
+
+                  @if (isTouched('identityDocumentId')) {
+                    <span
+                      class="flex items-center ms-1 mt-1.5 text-xs text-red-500"
+                      inputErrors
+                      [errors]="inputErrors('identityDocumentId')"
+                      inputLabel="Nombre" >
+                    </span>
+                  }
+                </div>
+
+                <div class="col-span-2 xs:col-span-4">
+                  <label for="txtIdentityNumber" class="block mb-1.5 text-sm font-medium text-gray-900 dark:text-white">
+                    Nro Documento
+                  </label>
+                  <input
+                    type="text"
+                    id="txtIdentityNumber"
+                    class="bg-gray-50 border text-center border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                    placeholder="########"
+                    formControlName="identityNumber"
+                    [class.border-red-400]=" inputErrors('identityNumber') && isTouched('identityNumber') "
+                  >
+                  @if (isTouched('identityNumber')) {
+                    <span
+                      class="flex items-center ms-1 mt-1.5 text-xs text-red-500"
+                      inputErrors
+                      [errors]="inputErrors('identityNumber')"
+                      inputLabel="Nro identidad" >
+                    </span>
+                  }
+                </div>
+
+                <div class="col-span-2 xs:col-span-4">
+                    <label for="txtRoleName" class="block mb-1.5 text-sm font-medium text-gray-900 dark:text-white">
                       Nombres *
                     </label>
                     <input
@@ -251,7 +302,7 @@
 
                     @if (isTouched('name')) {
                       <span
-                        class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                        class="flex items-center ms-1 mt-1.5 text-xs text-red-500"
                         inputErrors
                         [errors]="inputErrors('name')"
                         inputLabel="Nombre" >
@@ -259,8 +310,8 @@
                     }
                 </div>
 
-                <div class="col-span-2 xs:col-span-2">
-                  <label for="txtIsoAlphaThwo" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                <div class="col-span-2 xs:col-span-4">
+                  <label for="txtIsoAlphaThwo" class="block mb-1.5 text-sm font-medium text-gray-900 dark:text-white">
                     Apellidos
                   </label>
                   <input
@@ -273,7 +324,7 @@
                   >
                   @if (isTouched('surname')) {
                     <span
-                      class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                      class="flex items-center ms-1 mt-1.5 text-xs text-red-500"
                       inputErrors
                       [errors]="inputErrors('surname')"
                       inputLabel="Apellido" >
@@ -281,8 +332,8 @@
                   }
                 </div>
 
-                <div class="col-span-4 xs:col-span-3">
-                  <label for="txtMoneyCode" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                <div class="col-span-4">
+                  <label for="txtMoneyCode" class="block mb-1.5 text-sm font-medium text-gray-900 dark:text-white">
                     Email
                   </label>
                   <input
@@ -295,7 +346,7 @@
                   >
                   @if (isTouched('email')) {
                     <span
-                      class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                      class="flex items-center ms-1 mt-1.5 text-xs text-red-500"
                       inputErrors
                       [errors]="inputErrors('email')"
                       inputLabel="Email" >
@@ -304,7 +355,7 @@
                 </div>
 
                 <div class="col-span-4 ">
-                  <label for="cbxRole" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                  <label for="cbxRole" class="block mb-1.5 text-sm font-medium text-gray-900 dark:text-white">
                     Roles *
                   </label>
                   <ng-select
@@ -324,7 +375,7 @@
 
                   @if (isTouched('rolesId')) {
                     <span
-                      class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                      class="flex items-center ms-1 mt-1.5 text-xs text-red-500"
                       inputErrors
                       [errors]="inputErrors('rolesId')"
                       inputLabel="Roles" >
@@ -332,19 +383,112 @@
                   }
                 </div>
 
+                <div class="col-span-2 xs:col-span-4">
+                  <label for="txtBirthDate" class="block mb-1.5 text-sm font-medium text-gray-900 dark:text-white">
+                    Fecha de nacimiento *
+                  </label>
+                  <div class="relative">
+                    <div class="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none">
+                      <i class="fa-solid fa-calendar-days text-gray-500 dark:text-gray-400"></i>
+                    </div>
+                    <input
+                      #birthDateInput
+                      type="text"
+                      id="txtBirthDate"
+                      mwlFlatpickr
+                      locale="Spanish"
+                      [altInput]="true"
+                      [maxDate]="maxBirthDate"
+                      class="bg-gray-50 border text-center border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                      placeholder="YYYY-MM-DD"
+                      formControlName="birthDate"
+                      [class.border-red-400]=" inputErrors('birthDate') && isTouched('birthDate') "
+                    >
+                  </div>
+
+                  @if (isTouched('birthDate')) {
+                    <span
+                      class="flex items-center ms-1 mt-1.5 text-xs text-red-500"
+                      inputErrors
+                      [errors]="inputErrors('birthDate')"
+                      inputLabel="fecha de nacimiento" >
+                    </span>
+                  }
+                </div>
+
+                <div class="col-span-2 xs:col-span-4">
+                  <label for="txtAdmissionDate" class="block mb-1.5 text-sm font-medium text-gray-900 dark:text-white">
+                    Fecha de ingreso *
+                  </label>
+                  <div class="relative">
+                    <div class="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none">
+                      <i class="fa-solid fa-calendar-days text-gray-500 dark:text-gray-400"></i>
+                    </div>
+                    <input
+                      #birthDateInput
+                      type="text"
+                      id="txtAdmissionDate"
+                      mwlFlatpickr
+                      locale="Spanish"
+                      [altInput]="true"
+                      [maxDate]="currentDate"
+                      class="bg-gray-50 border text-center border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                      placeholder="YYYY-MM-DD"
+                      formControlName="admissionDate"
+                      [class.border-red-400]=" inputErrors('admissionDate') && isTouched('admissionDate') "
+                    >
+                  </div>
+
+                  @if (isTouched('admissionDate')) {
+                    <span
+                      class="flex items-center ms-1 mt-1.5 text-xs text-red-500"
+                      inputErrors
+                      [errors]="inputErrors('admissionDate')"
+                      inputLabel="fecha de ingreso" >
+                    </span>
+                  }
+                </div>
+
+                <div class="col-span-4">
+                  <label for="txtAdress" class="block mb-1.5 text-sm font-medium text-gray-900 dark:text-white">
+                    Dirección
+                  </label>
+                  <input
+                    type="text"
+                    id="txtAdress"
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                    placeholder="Enter Address"
+                    formControlName="address"
+                    [class.border-red-400]=" inputErrors('address') && isTouched('address') "
+                  >
+                  @if (isTouched('address')) {
+                    <span
+                      class="flex items-center ms-1 mt-1.5 text-xs text-red-500"
+                      inputErrors
+                      [errors]="inputErrors('address')"
+                      inputLabel="Dirección" >
+                    </span>
+                  }
+                </div>
+
               </div>
 
-              <div class="pb-2">
+              <div class="flex justify-end gap-3 ">
                 <button
-                  type="submit"
-                  class="text-white inline-flex justify-center items-center w-full bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                  type="button"
+                  data-modal-toggle="payment-modal"
+                  class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                  (click)="onResetAfterSubmit()"
                 >
-
+                  Cancelar
+                </button>
+                <button type="submit" class="px-4 py-2 w-44 bg-emerald-600 hover:bg-emerald-700 text-white rounded-md">
                   <span *ngIf="!isLoading() else userSpinner" >
                     Guardar
                   </span>
                 </button>
               </div>
+
 
             </form>
         </div>

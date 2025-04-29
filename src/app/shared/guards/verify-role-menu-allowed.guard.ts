@@ -23,7 +23,9 @@ export const verifyRoleMenuAllowedGuard: CanActivateFn = (route, state) : Observ
 
             const { webUrlPermissionMethods } = state;
 
-            if( ["/", "/#", "/dashboard", "/dashboard/home"].includes( routeUrl )  ) return true;
+            const profilePattern = new RegExp("\/dashboard\/profile*", "i");
+
+            if( ["/", "/#", "/dashboard", "/dashboard/home"].includes( routeUrl ) || profilePattern.test(routeUrl) ) return true;
 
             const webUrlsegments = routeUrl.split('/')
                             .map( (segment) => {

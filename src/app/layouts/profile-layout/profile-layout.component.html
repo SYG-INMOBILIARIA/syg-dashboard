@@ -1,0 +1,95 @@
+<div class="py-4 px-8 max-w-8xl mx-auto">
+  <!-- Breadcrumb -->
+  <nav class="text-sm text-gray-500 flex items-center mb-6 space-x-2">
+    <a
+      routerLink="/dashboard"
+      class="hover:underline flex items-center"
+    >
+      <span class="iconify w-4 h-4 mr-1" data-icon="ph:house-simple"></span>
+      Dashboard
+    </a>
+    <span>/</span>
+    <a href="#" class="hover:underline ">Perfil del vendedor</a>
+  </nav>
+
+  <!-- Título -->
+  <h1 class="text-2xl font-bold text-gray-800 mb-6 dark:text-slate-200">Perfil de vendedor</h1>
+
+  <!-- Header principal -->
+  <div class="bg-white rounded-lg shadow mb-6 p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-6 dark:bg-slate-800">
+    <div class="flex-1 flex items-start">
+      <!-- Foto de perfil -->
+      <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Perfil" class="w-20 h-20 md:w-24 md:h-24 rounded-full border-4 border-white shadow-md object-cover bg-gray-100 mr-6">
+      <div>
+        <div class="flex items-center mb-1 flex-wrap">
+          <span class="text-2xl md:text-3xl font-bold text-gray-900 dark:text-slate-200">
+            William Perez
+          </span>
+          <!-- Insignias -->
+          <span class="ml-2 flex items-center space-x-1">
+            <span class="inline-block rounded-full bg-yellow-100 px-2 py-0.5 text-lg">🏅</span>
+            <span class="inline-block rounded-full bg-purple-100 px-2 py-0.5 text-lg">🎖️</span>
+            <span class="inline-block rounded-full bg-green-100 px-2 py-0.5 text-lg">🌟</span>
+          </span>
+        </div>
+        <div class="text-gray-500 text-base mb-2 dark:text-slate-400">
+          Asesor comercial
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <button class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-1 rounded border text-sm font-medium transition">Crear meta</button>
+          <button class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-1 rounded border text-sm font-medium transition">Crear pago</button>
+        </div>
+      </div>
+    </div>
+    <!-- Editar Perfil Botón -->
+    <div class="flex md:block items-start">
+      <button class="mt-2 md:mt-0 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-md flex items-center text-sm transition font-medium">
+        <!-- <span class="iconify w-4 h-4 mr-2" data-icon="ph:pencil-simple"></span> -->
+        <i class="fa-solid fa-pen-to-square mr-2"></i>
+        Editar perfil
+      </button>
+    </div>
+  </div>
+
+
+  <!-- Tabs principales -->
+  <div class="border-b border-gray-200 mb-8">
+    <nav class="flex space-x-8" aria-label="Tabs">
+
+      <a
+        routerLink="home"
+        routerLinkActive="text-emerald-700 border-emerald-700 border-b-2"
+        class="text-gray-500 font-semibold pb-3 px-1 text-emerald-700 border-emerald-700 border-b-2"
+      >
+        Inicio
+      </a>
+
+      <a
+        routerLink="clients"
+        routerLinkActive="text-emerald-700 border-emerald-700 border-b-2"
+        class="text-gray-500 hover:text-gray-700 pb-3 px-1"
+      >
+        Clientes
+      </a>
+
+      <a
+        routerLink="commissions"
+        routerLinkActive="text-emerald-700 border-emerald-700 border-b-2"
+        class="text-gray-500 hover:text-gray-700 pb-3 px-1"
+        >
+        Comisiones
+      </a>
+
+      <a
+        routerLink="payments"
+        routerLinkActive="text-emerald-700 border-emerald-700 border-b-2"
+        class="text-gray-500 hover:text-gray-700 pb-3 px-1"
+        >
+        Pagos
+      </a>
+    </nav>
+  </div>
+
+  <router-outlet></router-outlet>
+
+</div>
