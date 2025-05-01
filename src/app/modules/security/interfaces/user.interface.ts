@@ -11,9 +11,11 @@ export interface User {
   surname:    string;
   fullname:   string;
   email:      string;
-  phone:      null;
+  phone:      string | null;
   roles:      RoleInherited[];
   photo:      Photo | null;
+
+  profits:     number;
 
   address?: string;
   birthDate: string;

@@ -1,5 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { validate as ISUUID } from 'uuid';
+
 import { ProfileService } from '../../services/profile.service';
 
 @Component({
@@ -27,6 +29,8 @@ export default class ClientIndicatorsComponent implements OnInit {
   private _percentRatio = signal<number>( 0 );
   private _percentRatioLast = signal<number>( 0 );
 
+  private _sellerUserId = '';
+
   public totalClients = computed( () => this._totalClients() );
   public percentClients = computed( () => this._percentClients() );
   public totalFinalized = computed( () => this._totalFinalized() );
@@ -38,15 +42,22 @@ export default class ClientIndicatorsComponent implements OnInit {
   public percentRatioLast = computed( () => this._percentRatioLast() );
 
   ngOnInit(): void {
+
+    this._sellerUserId = localStorage.getItem('userProfileId') ?? '';
+
+    if( !ISUUID( this._sellerUserId ) ) throw new Error('userProfileId not found !!!');
+
     this.onGetClientIndicators();
+
   }
 
   onGetClientIndicators() {
 
-    this._profileService.getClientIndicators()
+    this._profileService.getClientIndicators( this._sellerUserId )
     .subscribe( ( { totalClients, totalClientsFinalized, totalClientsPending } ) => {
 
       this._totalClients.set( totalClients.countClientsCurrentMonth )
+
       this._percentClients.set(
         totalClients.countClientsLastMonth == 0
           ? totalClients.countClientsCurrentMonth

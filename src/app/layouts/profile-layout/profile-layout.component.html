@@ -19,12 +19,24 @@
   <div class="bg-white rounded-lg shadow mb-6 p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-6 dark:bg-slate-800">
     <div class="flex-1 flex items-start">
       <!-- Foto de perfil -->
-      <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Perfil" class="w-20 h-20 md:w-24 md:h-24 rounded-full border-4 border-white shadow-md object-cover bg-gray-100 mr-6">
+      <img
+        [src]=" userProfile()?.photo?.urlImg ?? defaultImg "
+        alt="Perfil"
+        class="w-20 h-20 md:w-24 md:h-24 rounded-full border-4 border-white shadow-md object-cover bg-gray-100 mr-6"
+      >
       <div>
-        <div class="flex items-center mb-1 flex-wrap">
-          <span class="text-2xl md:text-3xl font-bold text-gray-900 dark:text-slate-200">
-            William Perez
+        <div class="flex items-center mb-1 flex-wrap ">
+
+
+          <span *ngIf="isLoading()" role="status" class="max-w-sm animate-pulse">
+            <div class="h-2.5 bg-gray-200 rounded-full dark:bg-gray-700 w-48 mb-3"></div>
+            <div class="h-2 bg-gray-200 rounded-full dark:bg-gray-700 w-[250px] max-w-[360px] mb-2.5"></div>
           </span>
+
+          <span *ngIf="!isLoading()" class="text-2xl md:text-3xl font-bold text-gray-900 dark:text-slate-200">
+            {{ userProfile()?.fullname }}
+          </span>
+
           <!-- Insignias -->
           <span class="ml-2 flex items-center space-x-1">
             <span class="inline-block rounded-full bg-yellow-100 px-2 py-0.5 text-lg">🏅</span>
@@ -32,8 +44,10 @@
             <span class="inline-block rounded-full bg-green-100 px-2 py-0.5 text-lg">🌟</span>
           </span>
         </div>
-        <div class="text-gray-500 text-base mb-2 dark:text-slate-400">
-          Asesor comercial
+        <div *ngIf="!isLoading()" class="text-gray-500 text-base mb-2 dark:text-slate-400">
+          @for (role of userProfile()?.roles; track role.id) {
+            {{ role.name }}
+          }
         </div>
         <div class="flex flex-wrap gap-2">
           <button class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-1 rounded border text-sm font-medium transition">Crear meta</button>
@@ -57,7 +71,7 @@
     <nav class="flex space-x-8" aria-label="Tabs">
 
       <a
-        routerLink="home"
+        [routerLink]="[ 'home', userProfileName() ]"
         routerLinkActive="text-emerald-700 border-emerald-700 border-b-2"
         class="text-gray-500 font-semibold pb-3 px-1 text-emerald-700 border-emerald-700 border-b-2"
       >
@@ -65,7 +79,7 @@
       </a>
 
       <a
-        routerLink="clients"
+        [routerLink]="[ 'clients', userProfileName() ]"
         routerLinkActive="text-emerald-700 border-emerald-700 border-b-2"
         class="text-gray-500 hover:text-gray-700 pb-3 px-1"
       >
@@ -73,7 +87,7 @@
       </a>
 
       <a
-        routerLink="commissions"
+        [routerLink]="[ 'commissions', userProfileName() ]"
         routerLinkActive="text-emerald-700 border-emerald-700 border-b-2"
         class="text-gray-500 hover:text-gray-700 pb-3 px-1"
         >
@@ -81,7 +95,7 @@
       </a>
 
       <a
-        routerLink="payments"
+        [routerLink]="[ 'payments', userProfileName() ]"
         routerLinkActive="text-emerald-700 border-emerald-700 border-b-2"
         class="text-gray-500 hover:text-gray-700 pb-3 px-1"
         >

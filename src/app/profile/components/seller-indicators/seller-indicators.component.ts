@@ -1,5 +1,6 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { ProfileService } from '../../services/profile.service';
+import { validate as ISUUID } from 'uuid';
 import { Income, PendingReceivable } from '../../interfaces';
 import { CommonModule } from '@angular/common';
 
@@ -23,7 +24,7 @@ export default class SellerIndicatorsComponent implements OnInit {
 
   private _totalReceivable = signal<number>( 0 );
   private _percentLastMonthReceivable = signal<number>( 0 );
-
+  private _sellerUserId = '';
 
   public totalIncome = computed( () => this._totalIncome() );
   public percentLastMonthIncome = computed( () => this._percentLastMonthIncome() );
@@ -32,12 +33,16 @@ export default class SellerIndicatorsComponent implements OnInit {
   public percentLastMonthReceivable = computed( () => this._percentLastMonthReceivable() );
 
   ngOnInit(): void {
+
+    this._sellerUserId = localStorage.getItem('userProfileId') ?? '';
+    if( !ISUUID( this._sellerUserId ) ) throw new Error('userProfileId not found !!!');
     this.onGetIndicators();
+
   }
 
   onGetIndicators() {
 
-    this._profileService.getSellerIndicators()
+    this._profileService.getSellerIndicators( this._sellerUserId )
     .subscribe( ( { income, pendingReceivable, totalEarnings } ) => {
 
       const { sumCurrentMonth, sumLastMonth } = income;

@@ -7,6 +7,7 @@ import { AuthService } from '../../../auth/services/auth.service';
 import { UserAuthenticated } from '../../../auth/interfaces';
 import { AppState } from '../../../app.config';
 import { RouterModule } from '@angular/router';
+import { environments } from '@envs/environments';
 
 @Component({
   selector: 'user-menu-dropdown',
@@ -26,6 +27,8 @@ export class UserMenuDropdownComponent implements OnInit, OnDestroy {
 
   private _userAutenticated = signal<UserAuthenticated | null>( null );
   public userAutenticated = computed( () => this._userAutenticated() );
+
+  public defaultFileUrl = signal( environments.defaultImgUrl );
 
   ngOnInit(): void {
     this.onListenAuthRx();

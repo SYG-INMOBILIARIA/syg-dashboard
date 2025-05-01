@@ -1,9 +1,10 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 
 import { environments } from '@envs/environments';
 import { Client, ClientBody, ListClientResponse } from '../interfaces';
+import { ValidationErrors } from '@angular/forms';
 
 @Injectable({
   providedIn: 'root'
@@ -33,6 +34,15 @@ export class ClientService {
 
   getClientById( id: string ): Observable<Client> {
     return this._http.get<Client>(`${ this._baseUrl }/client/${ id }`);
+  }
+
+  getClientAlreadyExists( identityNumber: string, id?: string ): Observable< ValidationErrors | null > {
+    return this._http.get<{ alreadyExists: boolean }>(`${ this._baseUrl }/client/already-exists/${identityNumber}?id=${ id }`)
+    .pipe(
+      map( ({alreadyExists}) => {
+        return alreadyExists ? { alreadyexists: true } : null;
+      } )
+    );;
   }
 
   removeClient( id: string ): Observable<Client> {

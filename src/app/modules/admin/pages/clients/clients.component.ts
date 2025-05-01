@@ -90,7 +90,7 @@ export default class ClientsComponent implements OnInit, OnDestroy {
   private _isRemoving = false;
   private _clients = signal<Client[]>( [] );
 
-  private _identityDocumentsAll = signal<IdentityDocument[]>([]);
+  // private _identityDocumentsAll = signal<IdentityDocument[]>([]);
   private _identityDocuments = signal<IdentityDocument[]>([]);
   private _civilStatus = signal<Nomenclature[]>([]);
   private _genders = signal<Nomenclature[]>([]);
@@ -141,11 +141,6 @@ export default class ClientsComponent implements OnInit, OnDestroy {
     });
   }
 
-  onSearch() {
-    this._filter = this.searchInput.value ?? '';
-    this.onGetClients( 1 );
-  }
-
   onGetClients( page = 1 ) {
 
     const allowList = this._webUrlPermissionMethods.some(
@@ -156,6 +151,8 @@ export default class ClientsComponent implements OnInit, OnDestroy {
       this._allowList.set( false );
       return;
     }
+
+    this._filter = this.searchInput.value ?? '';
 
     this._isLoading.set( true );
     this._clientService.getClients( page, this._filter )
@@ -189,7 +186,7 @@ export default class ClientsComponent implements OnInit, OnDestroy {
       const { nomenclatures: civilStatus } = civilStatusResponse;
       const { nomenclatures: genders } = gendersResponse;
 
-      this._identityDocumentsAll.set( identityDocuments );
+      // this._identityDocumentsAll.set( identityDocuments );
       this._identityDocuments.set( identityDocuments );
       this._civilStatus.set( civilStatus );
       this._genders.set( genders );

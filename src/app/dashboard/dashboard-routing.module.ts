@@ -54,6 +54,11 @@ const routes: Routes = [
         loadChildren: () => import('../profile/profile.module')
       },
 
+      // {
+      //   path: 'profile/:nombre-usuario',
+      //   loadChildren: () => import('../profile/profile.module')
+      // },
+
       { path: '**', redirectTo: 'home' }
     ]
   }

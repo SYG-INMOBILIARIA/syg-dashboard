@@ -268,7 +268,7 @@
                       locale="Spanish"
                       [altInput]="true"
                       [maxDate]="currentDate"
-                      class=" border text-center border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-slate-800 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                      class=" border text-center border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                       placeholder="YYYY-MM-DD"
                       formControlName="expenseDate"
                       [class.border-red-400]=" inputErrors('expenseDate') && isTouched('expenseDate') "
@@ -292,7 +292,7 @@
                     </label>
                     <ng-select
                       id="cbxMoney"
-                      class="navbar bg-white border text-gray-900 text-sm rounded-lg block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                      class="bg-white text-gray-900 text-sm rounded-lg block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                       [items]="moneyTypes()"
                       bindLabel="label"
                       bindValue="value"
@@ -364,7 +364,7 @@
                   </label>
                   <ng-select
                     id="cbxExpenseType"
-                    class="navbar bg-white border text-gray-900 text-sm rounded-lg block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                    class="bg-white text-gray-900 text-sm rounded-lg block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                     [items]="expenseTypes()"
                     bindLabel="label"
                     bindValue="value"
@@ -390,7 +390,7 @@
                   </label>
                   <ng-select
                     id="cbxArea"
-                    class="navbar bg-white border text-gray-900 text-sm rounded-lg block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                    class="bg-white text-gray-900 text-sm rounded-lg block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                     [items]="areasCompany()"
                     bindLabel="name"
                     bindValue="id"

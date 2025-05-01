@@ -4,6 +4,13 @@ import { FormControl, ReactiveFormsModule, UntypedFormBuilder, Validators } from
 import { initFlowbite } from 'flowbite';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { validate as ISUUID } from 'uuid';
+import { Subscription, forkJoin } from 'rxjs';
+import { FlatpickrDirective } from 'angularx-flatpickr';
+import { Router, RouterModule } from '@angular/router';
+
+import { Store } from '@ngrx/store';
+import { AppState } from '../../../../app.config';
+import { apiUser } from '@shared/helpers/web-apis.helper';
 
 import { PipesModule } from '@pipes/pipes.module';
 import { PaginationComponent } from '@shared/components/pagination/pagination.component';
@@ -11,20 +18,15 @@ import { SpinnerComponent } from '@shared/components/spinner/spinner.component';
 import { InputErrorsDirective } from '@shared/directives/input-errors.directive';
 import { datePatt, emailPatt, fullTextPatt, numberDocumentPatt, numberPatt } from '@shared/helpers/regex.helper';
 import { AlertService } from '@shared/services/alert.service';
-import { UserService } from '../../services/user.service';
 import { Role, User, UserBody } from '../../interfaces';
 import { environments } from '@envs/environments';
 import { onValidImg } from '@shared/helpers/files.helper';
-import { RoleService } from '../../services/role.service';
 import { UploadFileService } from '@shared/services/upload-file.service';
-import { Subscription, forkJoin } from 'rxjs';
-import { Store } from '@ngrx/store';
-import { AppState } from '../../../../app.config';
+import { RoleService } from '../../services/role.service';
+import { UserService } from '../../services/user.service';
 import { WebUrlPermissionMethods } from '../../../../auth/interfaces';
-import { apiUser } from '@shared/helpers/web-apis.helper';
 import { IdentityDocumentService } from '../../../admin/services/identity-document.service';
 import { IdentityDocument } from '../../../admin/interfaces';
-import { FlatpickrDirective } from 'angularx-flatpickr';
 import { UserValidatorService } from '../../validators/user-validator.service';
 
 @Component({
@@ -38,7 +40,8 @@ import { UserValidatorService } from '../../validators/user-validator.service';
     PipesModule,
     InputErrorsDirective,
     NgSelectModule,
-    FlatpickrDirective
+    FlatpickrDirective,
+    RouterModule
   ],
   templateUrl: './users.component.html',
   styles: ``
@@ -56,6 +59,7 @@ export default class UsersComponent implements OnInit, OnDestroy {
   maxBirthDate: Date = new Date(2005, 12, 31 );
   currentDate: Date = new Date();
 
+  private _router = inject( Router );
   private _userService = inject( UserService );
   private _userValidatorService = inject( UserValidatorService );
 
@@ -376,6 +380,16 @@ export default class UsersComponent implements OnInit, OnDestroy {
           this._isLoading.set( false );
         }
       });
+  }
+
+  onRedirectUserProfile( user: User ) {
+
+    const nameSanitize = (user.name + user.surname).replaceAll(' ', '-').toUpperCase();
+
+    localStorage.setItem('userProfileId', user.id);
+    localStorage.setItem('userProfileName', nameSanitize);
+
+    this._router.navigate(['dashboard/profile/home/', nameSanitize]);
   }
 
   ngOnDestroy(): void {
