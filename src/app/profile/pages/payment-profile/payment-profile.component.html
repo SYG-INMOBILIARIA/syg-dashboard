@@ -81,17 +81,29 @@
               #{{ sellerPayment.operationCode }}
             </td>
             <td class="px-6 py-4 whitespace-nowrap">
-              <button class=" items-center text-blue-600 hover:text-blue-800 flex justify-center">
-                <!-- <span class="iconify w-5 h-5 mr-1" data-icon="ph:image"></span> -->
-                <i class="fa-solid fa-image mr-1"></i>
-                Ver comprobante
-              </button>
+
+              @if ( sellerPayment.photo ) {
+                <button
+                  type="button"
+                  data-modal-target="voucher-modal"
+                  data-modal-toggle="voucher-modal"
+                  class=" items-center text-blue-600 hover:text-blue-800 flex justify-center"
+                  (click)="onViewVoucher( sellerPayment )"
+                >
+                  <span class="iconify w-5 h-5 mr-1" data-icon="ph:image"></span>
+                  <!-- <i class="fa-solid fa-image mr-1"></i> -->
+                  Ver comprobante
+                </button>
+              }
+
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-slate-300">
-              @if ( sellerPayment.observation.length > 40 ) {
-                {{ sellerPayment.observation | slice:0:40 }}...
-              } @else {
-               {{ sellerPayment.observation }}
+              @if( sellerPayment?.observation ) {
+                @if ( sellerPayment?.observation!.length > 40 ) {
+                  {{ sellerPayment.observation | slice:0:40 }}...
+                } @else {
+                 {{ sellerPayment.observation }}
+                }
               }
             </td>
             <td class="px-6 py-4 whitespace-nowrap">
@@ -316,14 +328,14 @@
                     <div class="flex justify-between">
                       <span class="text-gray-500">Total Generado:</span>
                       <span class="ml-1">
-                        S/ {{ sellerPaymentsTotal() }}
+                        S/ {{ totalCommissions() | number:'.2-2' }}
                       </span>
                     </div>
 
                     <div class="flex justify-between">
                       <span class="text-gray-500">Total Pagado:</span>
                       <span class="ml-1 font-medium">
-                        S/ 1,500.00
+                        S/ {{ totalPayments() | number:'.2-2' }}
                       </span>
                     </div>
 
@@ -334,7 +346,7 @@
                     <div class="flex justify-between items-center text-lg font-medium">
                       <span>Saldo pendiente:</span>
                       <span>
-                        S/ {{ totalDebt() | number:'.2-2' }}
+                        S/ {{ totalPending() | number:'.2-2' }}
                       </span>
                     </div>
                   </div>
@@ -406,6 +418,74 @@
             </button>
           </div>
         </form>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- New Payment Modal (Initially Hidden) -->
+<div id="voucher-modal" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 mt-5 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+
+  <div class="relative p-4 w-full max-w-2xl max-h-full">
+
+    <div class="bg-white rounded-lg shadow-xl w-full mx-4 dark:bg-gray-700">
+      <div class="p-6">
+        <div class="flex justify-between items-start mb-4">
+          <div>
+            <h2 class="text-xl font-semibold dark:text-slate-200">Ver Comprobante</h2>
+          </div>
+          <button
+            type="button"
+            data-modal-toggle="voucher-modal"
+            class="text-gray-400 hover:text-gray-500"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <div class="space-y-4"  >
+
+          <!-- Modal Body -->
+            <div class="grid grid-cols-1 gap-5">
+
+              <!-- Right Column - Details -->
+              <div class=" h-full">
+
+                <div class="flex justify-center items-center ">
+                  <div class="relative w-[380px]">
+
+                      <img
+                        class=" border-2 border-gray-300 border-dashed "
+                        [src]="voucherUrl()" alt="Rounded avatar"
+                        [class.hidden]="!isLoadedVoucher()"
+                        (load)="onLoadedVoucher()"
+                      >
+
+                    @if( !isLoadedVoucher() ) {
+
+                      <div role="status" class="space-y-8 animate-pulse md:space-y-0 md:space-x-8 rtl:space-x-reverse md:flex md:items-center ">
+                        <div class="flex items-center justify-center w-full h-[450px] bg-gray-300 dark:bg-gray-700">
+                            <svg class="w-full h-full text-gray-200 dark:text-gray-600" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 18">
+                                <path d="M18 0H2a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2Zm-5.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm4.376 10.481A1 1 0 0 1 16 15H4a1 1 0 0 1-.895-1.447l3.5-7A1 1 0 0 1 7.468 6a.965.965 0 0 1 .9.5l2.775 4.757 1.546-1.887a1 1 0 0 1 1.618.1l2.541 4a1 1 0 0 1 .028 1.011Z"/>
+                            </svg>
+                        </div>
+                        <span class="sr-only">Loading...</span>
+                      </div>
+                    }
+
+
+                  </div>
+                </div>
+
+              </div>
+
+            </div>
+
+        </div>
       </div>
     </div>
 

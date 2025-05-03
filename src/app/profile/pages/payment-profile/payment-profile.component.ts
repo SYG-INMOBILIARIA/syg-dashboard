@@ -49,6 +49,7 @@ export default class PaymentProfileComponent implements OnInit, OnDestroy {
 
   @ViewChild('btnCloseSellerPaymentModal') btnCloseSellerPaymentModal!: ElementRef<HTMLButtonElement>;
   @ViewChild('btnShowSellerPaymentModal') btnShowSellerPaymentModal!: ElementRef<HTMLButtonElement>;
+  @ViewChild('btnShowVoucherModal') btnShowVoucherModal!: ElementRef<HTMLButtonElement>;
 
   private _alertService = inject( AlertService );
   private _sellerPaymentService = inject( SellerPaymentService );
@@ -83,7 +84,6 @@ export default class PaymentProfileComponent implements OnInit, OnDestroy {
   private _totalCommissions = signal<number>( 0 );
   private _totalPending = signal<number>( 0 );
 
-
   private _isHavePhotoUpdated = false;
 
   public isSaving = computed( () => this._isSaving() );
@@ -98,7 +98,10 @@ export default class PaymentProfileComponent implements OnInit, OnDestroy {
   public totalDebt = computed( () => this._totalDebt() );
 
   public fileUrl = signal( environments.defaultImgUrl );
+  public voucherUrl = signal<string | null>( null );
   private _file?: File;
+  private _isLoadedVoucher = signal( false );
+  public isLoadedVoucher = computed( () => this._isLoadedVoucher() );
 
   inputErrors( field: string ) {
     return this.sellerPaymentForm.get(field)?.errors ?? null;
@@ -116,7 +119,7 @@ export default class PaymentProfileComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
 
-    initFlowbite();
+
 
     this._userSellerId = localStorage.getItem('userProfileId') ?? '';
 
@@ -136,10 +139,13 @@ export default class PaymentProfileComponent implements OnInit, OnDestroy {
       this._totalPending.set( profits );
       this._totalCommissions.set( totalCommissions );
       this._totalPayments.set( totalPayments );
+
+      // this.sellerPaymentForm.get('amount');
+      this.sellerPaymentForm.get('amount')?.clearValidators();
+      this.sellerPaymentForm.get('amount')?.addValidators([ Validators.required, Validators.min(1), Validators.max( profits ) ]);
+      this.sellerPaymentForm.updateValueAndValidity();
     });
   }
-
-
 
   onGetSellerPayments( page = 1 ) {
 
@@ -153,6 +159,10 @@ export default class PaymentProfileComponent implements OnInit, OnDestroy {
         this._sellerPaymentsTotal.set( total );
         this._sellerPayments.set( sellerPayments );
         this._isLoading.set( false );
+
+        setTimeout(() => {
+          initFlowbite();
+        }, 400);
 
       }, error: (err) => {
         this._isLoading.set( false );
@@ -281,6 +291,20 @@ export default class PaymentProfileComponent implements OnInit, OnDestroy {
         }
       });
 
+  }
+
+  onViewVoucher( sellerPayment: SellerPayment ) {
+
+    this._sellerPaymentService.getSellerPaymentById( sellerPayment.id )
+    .subscribe( ( sellerPayment ) => {
+      this.voucherUrl.set( sellerPayment.photo?.urlImg ?? environments.defaultImgUrl );
+
+    } );
+
+  }
+
+  onLoadedVoucher() {
+    this._isLoadedVoucher.set( true );
   }
 
   ngOnDestroy(): void {

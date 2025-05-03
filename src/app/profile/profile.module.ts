@@ -6,6 +6,7 @@ import { HomeProfileComponent } from './pages/home-profile/home-profile.componen
 import SellerIndicatorsComponent from './components/seller-indicators/seller-indicators.component';
 import { PipesModule } from '@pipes/pipes.module';
 import ProfileLayoutComponent from '../layouts/profile-layout/profile-layout.component';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
@@ -14,6 +15,8 @@ import ProfileLayoutComponent from '../layouts/profile-layout/profile-layout.com
   imports: [
     ProfileLayoutComponent,
     CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
     ProfileRoutingModule,
     SellerIndicatorsComponent,
     PipesModule,
