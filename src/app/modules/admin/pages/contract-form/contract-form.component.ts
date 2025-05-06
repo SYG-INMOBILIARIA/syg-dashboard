@@ -70,7 +70,7 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
 
   public contractFormOne = this._formBuilder.group({
     clientId:          [ null, [ Validators.required ] ],
-    documentation:     [ '',   [ Validators.required, Validators.maxLength(450), Validators.pattern( descriptionPatt ) ] ],
+    documentation:     [ '',   [ Validators.maxLength(450), Validators.pattern( descriptionPatt ) ] ],
     observation:       [ '',   [ Validators.pattern( descriptionPatt ) ] ],
     selledUserId:      [ null, [ Validators.required ] ],
     percentCommission: [ 0,    [ Validators.required, Validators.min(1), Validators.max(30) ] ]

@@ -1,82 +1,37 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import ApexCharts from 'apexcharts';
 import { initFlowbite } from 'flowbite';
+import { forkJoin, Subscription } from 'rxjs';
+import { DashboardStats, SellerPerformance, MonthlyCommissions, ClientStatus, RecentActivity } from '../../interfaces';
+import { DashboardService } from '../../services/dashboard.service';
+import { PipesModule } from '@pipes/pipes.module';
 
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
+  standalone: true,
+  imports: [
+    CommonModule,
+    RouterModule,
+    PipesModule
+  ],
   styles: ``
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent implements OnInit, OnDestroy {
 
-  options = {
-    chart: {
-      height: "72%",
-      maxWidth: "100%",
-      type: "area",
-      fontFamily: "Inter, sans-serif",
-      dropShadow: {
-        enabled: false,
-      },
-      toolbar: {
-        show: false,
-      },
-    },
-    tooltip: {
-      enabled: true,
-      x: {
-        show: false,
-      },
-    },
-    fill: {
-      type: "gradient",
-      gradient: {
-        opacityFrom: 0.55,
-        opacityTo: 0,
-        shade: "#1C64F2",
-        gradientToColors: ["#1C64F2"],
-      },
-    },
-    dataLabels: {
-      enabled: false,
-    },
-    stroke: {
-      width: 6,
-    },
-    grid: {
-      show: false,
-      strokeDashArray: 4,
-      padding: {
-        left: 2,
-        right: 2,
-        top: 0
-      },
-    },
-    series: [
-      {
-        name: "Nuevos clientes",
-        data: [65, 64, 56, 26, 35, 64],
-        color: "#1A56DB",
-      },
-    ],
-    xaxis: {
-      categories: ['01 February', '02 February', '03 February', '04 February', '05 February', '06 February', '07 February'],
-      labels: {
-        show: false,
-      },
-      axisBorder: {
-        show: false,
-      },
-      axisTicks: {
-        show: false,
-      },
-    },
-    yaxis: {
-      show: false,
-    },
-  };
+  private _dashboardService = inject( DashboardService );
 
-  optionsChart2: any = {
+  private subscriptions: Subscription[] = [];
+
+  // Dashboard Stats
+  public dashboardStats: DashboardStats | null = null;
+  public topSellers: SellerPerformance[] = [];
+  public recentActivity: RecentActivity[] = [];
+
+  // Chart Options
+  private lineChartOptions = {
     chart: {
       height: "100%",
       maxWidth: "100%",
@@ -112,24 +67,16 @@ export class HomeComponent implements OnInit {
     },
     series: [
       {
-        name: "Vendedor 1",
-        data: [6500, 6418, 6456, 6526, 6356, 6456],
+        name: "Comisiones",
+        data: [],
         color: "#1A56DB",
-      },
-      {
-        name: "Vendedor 2",
-        data: [6456, 6356, 6526, 6332, 6418, 6500],
-        color: "#7E3AF2",
-      },
+      }
     ],
     legend: {
       show: false
     },
-    // stroke: {
-    //   curve: 'smooth'
-    // },
     xaxis: {
-      categories: ['01 Feb', '02 Feb', '03 Feb', '04 Feb', '05 Feb', '06 Feb', '07 Feb'],
+      categories: [],
       labels: {
         show: true,
         style: {
@@ -149,39 +96,36 @@ export class HomeComponent implements OnInit {
     },
   };
 
-  optionsBarChart = {
-    colors: ["#1A56DB", "#FDBA8C"],
-    series: [
-      {
-        name: "Ingresos",
-        color: "#1A56DB",
-        data: [
-          { x: "Enero", y: 2500 },
-          { x: "Febrero", y: 12200 },
-          { x: "Marzo", y: 63000 },
-          { x: "Abril", y: 42100 },
-          { x: "Mayo", y: 10500 },
-          { x: "Junio", y: 32300 },
-          { x: "Julio", y: 90000 },
-        ],
-      },
-      {
-        name: "Egresos",
-        color: "#FDBA8C",
-        data: [
-          { x: "Enero", y: 1320 },
-          { x: "Febrero", y: 6000 },
-          { x: "Marzo", y: 3410 },
-          { x: "Abril", y: 22400 },
-          { x: "Mayo", y: 5220 },
-          { x: "Junio", y: 4110 },
-          { x: "Julio", y: 25000 },
-        ],
-      },
-    ],
+  private pieChartOptions = {
     chart: {
-      type: "bar",
-      height: "250px",
+      type: 'pie',
+      height: '250px',
+      fontFamily: "Inter, sans-serif",
+    },
+    series: [],
+    labels: [],
+    colors: ['#1A56DB', '#7E3AF2', '#E02424', '#31C48D'],
+    legend: {
+      position: 'bottom',
+      fontFamily: "Inter, sans-serif",
+    },
+    responsive: [{
+      breakpoint: 480,
+      options: {
+        chart: {
+          width: 200
+        },
+        legend: {
+          position: 'bottom'
+        }
+      }
+    }]
+  };
+
+  private barChartOptions = {
+    chart: {
+      type: 'bar',
+      height: '100%',
       fontFamily: "Inter, sans-serif",
       toolbar: {
         show: false,
@@ -190,60 +134,29 @@ export class HomeComponent implements OnInit {
     plotOptions: {
       bar: {
         horizontal: false,
-        columnWidth: "70%",
-        borderRadiusApplication: "end",
+        columnWidth: '70%',
         borderRadius: 8,
-      },
-    },
-    tooltip: {
-      shared: true,
-      intersect: false,
-      style: {
-        fontFamily: "Inter, sans-serif",
-      },
-    },
-    states: {
-      hover: {
-        filter: {
-          type: "darken",
-          value: 1,
-        },
-      },
-    },
-    stroke: {
-      show: true,
-      width: 0,
-      colors: ["transparent"],
-    },
-    grid: {
-      show: false,
-      strokeDashArray: 4,
-      padding: {
-        left: 2,
-        right: 2,
-        top: -14
       },
     },
     dataLabels: {
       enabled: false,
     },
-    legend: {
-      show: false,
+    stroke: {
+      show: true,
+      width: 0,
+      colors: ['transparent'],
     },
+    series: [{
+      name: 'Clientes Concretados',
+      data: []
+    }],
     xaxis: {
-      floating: false,
+      categories: [],
       labels: {
-        show: true,
         style: {
           fontFamily: "Inter, sans-serif",
           cssClass: 'text-xs font-normal fill-gray-500 dark:fill-gray-400'
         }
-      },
-      axisBorder: {
-        show: false,
-      },
-      axisTicks: {
-        show: false,
       },
     },
     yaxis: {
@@ -252,30 +165,97 @@ export class HomeComponent implements OnInit {
     fill: {
       opacity: 1,
     },
-  }
+    tooltip: {
+      y: {
+        formatter: function (val: number) {
+          return val + " clientes"
+        }
+      }
+    }
+  };
+
 
   ngOnInit(): void {
-    if (document.getElementById("area-chart") && typeof ApexCharts !== 'undefined') {
-      const chart = new ApexCharts(document.getElementById("area-chart"), this.options);
-      chart.render();
-    }
-
-    if (document.getElementById("line-chart") && typeof ApexCharts !== 'undefined') {
-      const chart = new ApexCharts(document.getElementById("line-chart"), this.optionsChart2);
-      chart.render();
-    }
-
-
-    if(document.getElementById("column-chart") && typeof ApexCharts !== 'undefined') {
-      const chart = new ApexCharts(document.getElementById("column-chart"), this.optionsBarChart);
-      chart.render();
-    }
+    this.loadDashboardData();
 
     setTimeout(() => {
       initFlowbite();
     }, 400);
   }
 
+  ngOnDestroy(): void {
+    this.subscriptions.forEach(sub => sub.unsubscribe());
+  }
+
+  private loadDashboardData(): void {
+
+    forkJoin({
+
+      stats: this._dashboardService.getDashboardStats(),
+      topSellers: this._dashboardService.getTopSellers(),
+      recentActivvity: this._dashboardService.getRecentActivity(),
+      monthlyCommissions: this._dashboardService.getMonthlyCommissions(),
+      clientStatus: this._dashboardService.getClientStatusDistribution()
+    }).subscribe({
+      next: ({ stats, topSellers, recentActivvity, monthlyCommissions, clientStatus }) => {
 
 
+        this.dashboardStats = stats;
+        this.topSellers = topSellers;
+        this.recentActivity = recentActivvity;
+        this.updateLineChart(monthlyCommissions);
+        this.updatePieChart(clientStatus);
+
+      }
+
+    })
+    // Load Dashboard Stats
+
+  }
+
+  private initializeCharts(): void {
+    if (document.getElementById("line-chart") && typeof ApexCharts !== 'undefined') {
+      const lineChart = new ApexCharts(document.getElementById("line-chart"), this.lineChartOptions);
+      lineChart.render();
+    }
+
+    if (document.getElementById("pie-chart") && typeof ApexCharts !== 'undefined') {
+      const pieChart = new ApexCharts(document.getElementById("pie-chart"), this.pieChartOptions);
+      pieChart.render();
+    }
+
+    if (document.getElementById("bar-chart") && typeof ApexCharts !== 'undefined') {
+      const barChart = new ApexCharts(document.getElementById("bar-chart"), this.barChartOptions);
+      barChart.render();
+    }
+  }
+
+  private updateLineChart(commissions: MonthlyCommissions[]): void {
+    if (document.getElementById("line-chart") && typeof ApexCharts !== 'undefined') {
+      const chart = new ApexCharts(document.getElementById("line-chart"), {
+        ...this.lineChartOptions,
+        series: [{
+          name: "Comisiones",
+          data: commissions.map(c => c.amount),
+          color: "#1A56DB",
+        }],
+        xaxis: {
+          ...this.lineChartOptions.xaxis,
+          categories: commissions.map(c => c.month)
+        }
+      });
+      chart.render();
+    }
+  }
+
+  private updatePieChart(status: ClientStatus[]): void {
+    if (document.getElementById("pie-chart") && typeof ApexCharts !== 'undefined') {
+      const chart = new ApexCharts(document.getElementById("pie-chart"), {
+        ...this.pieChartOptions,
+        series: status.map(s => s.count),
+        labels: status.map(s => s.status)
+      });
+      chart.render();
+    }
+  }
 }
