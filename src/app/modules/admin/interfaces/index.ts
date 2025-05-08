@@ -45,3 +45,5 @@ export * from './payment-quote-body.interface';
 export * from './expense.interface';
 export * from './list-expense-response.interface';
 export * from './expense-body.interface';
+export * from './seller.interface';
+export * from './list-seller-response.interface';

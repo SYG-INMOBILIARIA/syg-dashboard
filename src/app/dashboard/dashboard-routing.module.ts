@@ -42,6 +42,7 @@ const routes: Routes = [
         loadComponent: () => import('../modules/admin/pages/financing-by-proyect/financing-by-proyect.component')
       },
       { path: 'contracts', loadComponent: () => import('../modules/admin/pages/contracts/contracts.component') },
+      { path: 'sellers', loadComponent: () => import('../modules/admin/pages/sellers/sellers.component') },
       { path: 'create-contract', loadComponent: () => import('../modules/admin/pages/contract-form/contract-form.component') },
       { path: 'payments-method', loadComponent: () => import('../modules/admin/pages/payment-method/payment-method.component') },
       { path: 'contract-payments', loadComponent: () => import('../modules/admin/pages/contract-payment/contract-payment.component') },

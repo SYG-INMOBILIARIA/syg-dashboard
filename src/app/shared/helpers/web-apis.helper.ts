@@ -1,6 +1,7 @@
 export const apiMenu = '/v1/menu';
 export const apiRole = '/v1/role';
 export const apiUser = '/v1/user';
+export const apiSeller = '/v1/seller';
 export const apiClient = '/v1/client';
 export const apiProyect = '/v1/proyect';
 export const apiLote = '/v1/lote';

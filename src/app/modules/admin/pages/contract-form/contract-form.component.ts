@@ -182,10 +182,7 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
   }
 
   ngOnInit(): void {
-    this.onGetPaymentTypes();
-    this.onGetClients(  );
-    this.onGetUsers();
-    this.onGetProyects();
+    this.onLoadDataSelects();
     initFlowbite();
   }
 
@@ -207,13 +204,6 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
 
   }
 
-  onGetPaymentTypes() {
-    this._nomenclatureService.getPaymentType()
-    .subscribe( ({ nomenclatures }) => {
-      this._paymentTypes.set( nomenclatures );
-    });
-  }
-
   onGetClients() {
 
     const pattern = this.searchClientInput.value ?? '';
@@ -225,20 +215,32 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
     });
   }
 
+  onLoadDataSelects() {
+
+    const pattern = this.searchUserInput.value ?? '';
+    const patternClient = this.searchClientInput.value ?? '';
+
+    forkJoin({
+      paymentTypesResponse: this._nomenclatureService.getPaymentType(),
+      usersResponse: this._userService.getUsers( 1, pattern, 10 ),
+      clientsResponse: this._clientService.getClients( 1, patternClient, 10 ),
+      proyectsResponse: this._proyectService.getProyects( 1, '', 10 ),
+    }).subscribe( ({ paymentTypesResponse, usersResponse, clientsResponse, proyectsResponse }) => {
+
+      this._paymentTypes.set( paymentTypesResponse.nomenclatures );
+      this._users.set( usersResponse.users );
+      this._clients.set( clientsResponse.clients );
+      this._proyects.set( proyectsResponse.proyects );
+
+    });
+  }
+
   onGetUsers() {
     const pattern = this.searchUserInput.value ?? '';
     this._userService.getUsers( 1, pattern, 10 )
     .subscribe( ( { users } ) => {
       this._users.set( users );
       this.searchUserInput.reset();
-    });
-  }
-
-  onGetProyects() {
-    this._proyectService.getProyects( 1, '', 10 )
-    .subscribe( ({ proyects, total }) => {
-
-      this._proyects.set( proyects );
     });
   }
 
@@ -367,10 +369,6 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
 
     this._onBuildLotes();
 
-  }
-
-  onChangeClient( event: any ) {
-    console.log({event});
   }
 
   onChangeProyect( proyectId?: string ) {
@@ -649,10 +647,11 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
 
     const { initialAmount } = this.valueFormThree;
 
-    const totalToFinancing = (totalLotes - initialAmount);
-    const totalInterest = totalToFinancing * ( interestPercent / 100 );
+    const totalInterest = totalLotes * ( interestPercent / 100 );
 
-    const totalToFinancingFinal = totalToFinancing + totalInterest;
+    // const totalToFinancing = (totalLotes - initialAmount);
+
+    const totalToFinancingFinal = (totalLotes + totalInterest) - initialAmount;
 
     this._interestPercent.set( interestPercent );
     this._amountToFinancing.set( totalToFinancingFinal );
