@@ -50,6 +50,8 @@ const routes: Routes = [
       { path: 'tardiness-config', loadComponent: () => import('../modules/config/pages/tardiness-config/tardiness-config.component') },
       { path: 'area-company', loadComponent: () => import('../modules/config/pages/area-company/area-company.component') },
       { path: 'expenses', loadComponent: () => import('../modules/admin/pages/expenses/expenses.component') },
+      { path: 'expense-type', loadComponent: () => import('../modules/config/pages/expense-type/expense-type.component') },
+      { path: 'leads', loadComponent: () => import('../modules/admin/pages/leads/leads.component') },
       {
         path: 'profile',
         loadChildren: () => import('../profile/profile.module')

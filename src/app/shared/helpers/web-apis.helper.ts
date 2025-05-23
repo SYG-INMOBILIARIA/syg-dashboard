@@ -12,3 +12,5 @@ export const apiFinancing = '/v1/financing';
 export const apiContractPayment = '/v1/contract-payment';
 export const apiAreaCompany = '/v1/area-company';
 export const apiExpense = '/v1/expense';
+export const apiExpenseType = '/v1/expense-type';
+export const apiLead = '/v1/lead';

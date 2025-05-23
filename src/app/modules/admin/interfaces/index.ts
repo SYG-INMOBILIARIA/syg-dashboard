@@ -47,3 +47,8 @@ export * from './list-expense-response.interface';
 export * from './expense-body.interface';
 export * from './seller.interface';
 export * from './list-seller-response.interface';
+
+export * from './lead-body.interface';
+export * from './list-lead-response.interface';
+export * from './lead.interface';
+export * from './lead-indicators.interface';

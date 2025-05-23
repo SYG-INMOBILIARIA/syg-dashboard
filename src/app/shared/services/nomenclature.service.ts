@@ -40,12 +40,16 @@ export class NomenclatureService {
     return this._http.get<ListNomenclatureResponse>(`${ this._baseUrl }/nomenclature/payment-type`);
   }
 
-  getExpensesType() {
-    return this._http.get<ListNomenclatureResponse>(`${ this._baseUrl }/nomenclature/expenses-type`);
-  }
-
   getMoneyType() {
     return this._http.get<ListNomenclatureResponse>(`${ this._baseUrl }/nomenclature/money-type`);
+  }
+
+  getInputChannel() {
+    return this._http.get<ListNomenclatureResponse>(`${ this._baseUrl }/nomenclature/input-channel`);
+  }
+
+  getLeadStatus() {
+    return this._http.get<ListNomenclatureResponse>(`${ this._baseUrl }/nomenclature/lead-status`);
   }
 
 }

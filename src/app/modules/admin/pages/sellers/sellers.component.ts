@@ -69,7 +69,6 @@ export default class SellersComponent implements OnInit, OnDestroy {
   private _identityDocService = inject( IdentityDocumentService );
 
   private _alertService = inject( AlertService );
-  private _roleService = inject( RoleService );
   private _uploadFileService = inject( UploadFileService );
 
   private _formBuilder = inject( UntypedFormBuilder );
@@ -294,6 +293,16 @@ export default class SellersComponent implements OnInit, OnDestroy {
       }
     });
 
+  }
+
+  onRedirectUserProfile( user: User ) {
+
+    const nameSanitize = (user.name + user.surname).replaceAll(' ', '-').toUpperCase();
+
+    localStorage.setItem('userProfileId', user.id);
+    localStorage.setItem('userProfileName', nameSanitize);
+
+    this._router.navigate(['dashboard/profile/home/', nameSanitize]);
   }
 
   onSubmit() {

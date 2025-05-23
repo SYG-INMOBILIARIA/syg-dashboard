@@ -15,10 +15,10 @@ export interface Client {
   email:            string;
   phone:            string;
   secondaryPhone:   null;
-  address:          string;
+  address?:          string;
   gender:           Gender;
   civilStatus:      string;
-  identityDocument: IdentityDocument;
+  identityDocument?: IdentityDocument;
   clientStatus:     ClientStatus;
 }
 

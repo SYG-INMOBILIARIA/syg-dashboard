@@ -23,6 +23,7 @@ import { Nomenclature } from '@shared/interfaces';
 import { AppState } from '../../../../app.config';
 import { WebUrlPermissionMethods } from '../../../../auth/interfaces';
 import { apiClient } from '@shared/helpers/web-apis.helper';
+import { ClientValidatorService } from '../../validators/client-validator.service';
 
 @Component({
   standalone: true,
@@ -49,11 +50,12 @@ export default class ClientsComponent implements OnInit, OnDestroy {
   @ViewChild('btnCloseClientModal') btnCloseClientModal!: ElementRef<HTMLButtonElement>;
   @ViewChild('btnShowClientModal') btnShowClientModal!: ElementRef<HTMLButtonElement>;
 
-  public clientModalTitle = 'Crear nuevo client';
+  public clientModalTitle = 'Crear nuevo cliente';
 
   maxBirthDate: Date = new Date(2005, 12, 31 );
 
   private _clientService = inject( ClientService );
+  private _clientValidatorService = inject( ClientValidatorService );
   private _identityDocService = inject( IdentityDocumentService );
   private _nomenclatureService = inject( NomenclatureService );
   private _alertService = inject( AlertService );
@@ -72,7 +74,7 @@ export default class ClientsComponent implements OnInit, OnDestroy {
     personType:           [ null, [ Validators.required ] ],
     identityDocumentId:   [ null, [ Validators.required ] ],
     identityNumber:       [ '', [ Validators.required, Validators.pattern( numberDocumentPatt ) ] ],
-    birthDate:            [ '', [ Validators.required ] ],
+    birthDate:            [ '', [] ],
     email:                [ '', [ Validators.required, Validators.pattern( emailPatt ) ] ],
     phone:                [ '', [ Validators.required, Validators.pattern( phonePatt ) ] ],
     secondaryPhone:       [ '', [ Validators.pattern( phonePatt ) ] ],
@@ -80,8 +82,8 @@ export default class ClientsComponent implements OnInit, OnDestroy {
     gender:               [ null, [ Validators.required ] ],
     civilStatus:          [ null, [ Validators.required ] ],
   }, {
-    // updateOn: 'blur',
-    // asyncValidators: [ this._roleValidatorService.alreadyRoleValidator() ],
+    updateOn: 'change',
+    asyncValidators: [ this._clientValidatorService ],
   });
 
   private _totalClients = signal<number>( 0 );
@@ -214,12 +216,15 @@ export default class ClientsComponent implements OnInit, OnDestroy {
       const { identityDocument, personType, userCreate, isActive, createAt, ...rest } = client;
 
       this.onChangePersonType( personType );
-      this.onChangeIdentityDocument( identityDocument );
+
+      if( identityDocument ) {
+        this.onChangeIdentityDocument( identityDocument );
+      }
 
       this.clientForm.reset({
         ...rest,
         personType,
-        identityDocumentId: identityDocument.id
+        identityDocumentId: identityDocument?.id
       });
 
       this.clientForm.markAllAsTouched();

@@ -214,7 +214,7 @@
 
   <!-- Main modal -->
   <div id="menu-modal" data-modal-backdrop="static" tabindex="-1" aria-hidden="false" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 mt-5 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
-    <div class="relative p-4 w-full max-w-2xl max-h-full">
+    <div class="relative p-4 w-full max-w-xl max-h-full">
 
         <!-- Modal content -->
         <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
@@ -241,14 +241,14 @@
 
               <div class="grid gap-4 mb-4 grid-cols-6">
 
-                <div class="col-span-4 xs:col-span-3">
-                    <label for="txtMenuLabel" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                      Label *
+                <div class="col-span-3 xs:col-span-6">
+                    <label for="txtMenuLabel" class="block mb-1 text-sm font-medium text-gray-900 dark:text-white">
+                      Label <span class="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
                       id="txtMenuLabel"
-                      class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                      class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-md block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                       placeholder="Usuarios"
                       formControlName="label"
                       [class.border-red-400]=" inputErrors('label') && isTouched('label') "
@@ -259,19 +259,20 @@
                         class="flex items-center ms-1 mt-2 text-xs text-red-500"
                         inputErrors
                         [errors]="inputErrors('label')"
+                        [class.hidden]="!inputErrors('label')"
                         inputLabel="Label" >
                       </span>
                     }
                 </div>
 
-                <div class="col-span-2 xs:col-span-3">
-                  <label for="txtIconClass" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                    Icono css
+                <div class="col-span-3 xs:col-span-6">
+                  <label for="txtIconClass" class="block mb-1 text-sm font-medium text-gray-900 dark:text-white">
+                    Icono css <span class="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
                     id="txtIconClass"
-                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-md block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                     placeholder="ni-circle"
                     formControlName="iconClass"
                     [class.border-red-400]=" inputErrors('iconClass') && isTouched('iconClass') "
@@ -281,19 +282,20 @@
                       class="flex items-center ms-1 mt-2 text-xs text-red-500"
                       inputErrors
                       [errors]="inputErrors('iconClass')"
+                      [class.hidden]="!inputErrors('iconClass')"
                       inputLabel="Ícono" >
                     </span>
                   }
                 </div>
 
                 <div class="col-span-3 xs:col-span-6">
-                  <label for="txtWebUrl" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                    Web url
+                  <label for="txtWebUrl" class="block mb-1 text-sm font-medium text-gray-900 dark:text-white">
+                    Web url <span class="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
                     id="txtWebUrl"
-                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-md block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                     placeholder="/dashboard/example"
                     formControlName="webUrl"
                     [class.border-red-400]=" inputErrors('webUrl') && isTouched('webUrl') "
@@ -303,19 +305,20 @@
                       class="flex items-center ms-1 mt-2 text-xs text-red-500"
                       inputErrors
                       [errors]="inputErrors('webUrl')"
+                      [class.hidden]="!inputErrors('webUrl')"
                       inputLabel="Web Url" >
                     </span>
                   }
                 </div>
 
                 <div class="col-span-3 xs:col-span-6">
-                  <label for="txtApiUrl" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                    Api url
+                  <label for="txtApiUrl" class="block mb-1 text-sm font-medium text-gray-900 dark:text-white">
+                    Api url <span class="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
                     id="txtApiUrl"
-                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-md block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                     placeholder="/example-api"
                     formControlName="apiUrl"
                     [class.border-red-400]=" inputErrors('apiUrl') && isTouched('apiUrl') "
@@ -325,13 +328,14 @@
                       class="flex items-center ms-1 mt-2 text-xs text-red-500"
                       inputErrors
                       [errors]="inputErrors('apiUrl')"
+                      [class.hidden]="!inputErrors('apiUrl')"
                       inputLabel="Api Url" >
                     </span>
                   }
                 </div>
 
                 <div class="col-span-3 xs:col-span-3">
-                  <div class="flex items-center mb-4">
+                  <div class="flex items-center mb-2">
                       <input
                         id="chkIsHidden"
                         type="checkbox"
@@ -345,7 +349,7 @@
                 </div>
 
                 <div class="col-span-3 xs:col-span-3">
-                  <div class="flex items-center mb-4">
+                  <div class="flex items-center mb-2">
                       <input
                         id="chkHaveTranslate"
                         type="checkbox"
@@ -360,7 +364,7 @@
                 </div>
 
                 <div class="col-span-6">
-                  <div class="flex items-center mb-4">
+                  <div class="flex items-center mb-2">
                       <input
                         id="chkHaveBadge"
                         type="checkbox"
@@ -376,13 +380,13 @@
 
                 @if ( haveTranslate() ) {
                   <div class="col-span-6">
-                    <label for="txtLabelTranslate" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                      Traducción
+                    <label for="txtLabelTranslate" class="block mb-1 text-sm font-medium text-gray-900 dark:text-white">
+                      Traducción <span class="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
                       id="txtLabelTranslate"
-                      class="bg-gray-50 border uppercase border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                      class="bg-gray-50 border uppercase border-gray-300 text-gray-900 text-sm rounded-md block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                       placeholder="/example-api"
                       formControlName="labelTranslate"
                       [class.border-red-400]=" inputErrors('labelTranslate') && isTouched('labelTranslate') "
@@ -392,6 +396,7 @@
                         class="flex items-center ms-1 mt-2 text-xs text-red-500"
                         inputErrors
                         [errors]="inputErrors('labelTranslate')"
+                        [class.hidden]="!inputErrors('labelTranslate')"
                         inputLabel="Traducción" >
                       </span>
                     }
@@ -401,13 +406,13 @@
                 @if ( haveBadge() ) {
 
                   <div class="col-span-3 xs:col-span-4">
-                    <label for="txtApiUrl" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                      Texto insignia
+                    <label for="txtApiUrl" class="block mb-1 text-sm font-medium text-gray-900 dark:text-white">
+                      Texto insignia <span class="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
                       id="txtApiUrl"
-                      class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                      class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-md block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                       placeholder="New"
                       formControlName="badgeText"
                       [class.border-red-400]=" inputErrors('badgeText') && isTouched('badgeText') "
@@ -417,19 +422,20 @@
                         class="flex items-center ms-1 mt-2 text-xs text-red-500"
                         inputErrors
                         [errors]="inputErrors('badgeText')"
+                        [class.hidden]="!inputErrors('badgeText')"
                         inputLabel="Texto insignia" >
                       </span>
                     }
                   </div>
 
                   <div class="col-span-3 xs:col-span-4">
-                    <label for="txtApiUrl" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                      Clase css insignia
+                    <label for="txtApiUrl" class="block mb-1 text-sm font-medium text-gray-900 dark:text-white">
+                      Clase css insignia <span class="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
                       id="txtApiUrl"
-                      class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                      class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-md block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                       placeholder="bg-danger"
                       formControlName="badgeClass"
                       [class.border-red-400]=" inputErrors('badgeClass') && isTouched('badgeClass') "
@@ -439,6 +445,7 @@
                         class="flex items-center ms-1 mt-2 text-xs text-red-500"
                         inputErrors
                         [errors]="inputErrors('badgeClass')"
+                        [class.hidden]="!inputErrors('badgeClass')"
                         inputLabel="Clase insignia" >
                       </span>
                     }
@@ -447,10 +454,18 @@
 
               </div>
 
-              <div class="pb-2 pt-3">
+              <div class="pb-2 pt-2 gap-3 flex justify-end">
+
+                <button
+                  type="button"
+                  data-modal-toggle="menu-modal"
+                  class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-md flex items-center text-sm font-medium transition">
+                  Cancelar
+                </button>
+
                 <button
                   type="submit"
-                  class="text-white inline-flex justify-center items-center w-full bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                  class="text-white inline-flex justify-center items-center w-48 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                 >
 
                   <span *ngIf="!isRecording else singinSpinner" >

@@ -231,7 +231,7 @@
 
               @if (isLoading()) {
                 <tr>
-                  <td colspan="7">
+                  <td colspan="10">
                     <div class="flex justify-center items-center gap-2 h-14 p-2">
                       <spinner></spinner>
                       Cargando...
@@ -272,19 +272,19 @@
                         }
                       </span>
                     </td>
-                    <td class=" text-right font-semibold">
+                    <td class="  font-semibold">
                       S/ {{ contractQuote.amountToPay | number: '.2-2' }}
                     </td>
-                    <td class=" text-right font-semibold">
+                    <td class="  font-semibold">
                       S/ {{ contractQuote.tardinessAmount | number: '.2-2' }}
                     </td>
-                    <td class=" text-right font-semibold">
+                    <td class="  font-semibold">
                       S/ {{ contractQuote.totalPaid| number: '.2-2' }}
                     </td>
-                    <td class=" text-right font-semibold">
+                    <td class="  font-semibold">
                       S/ {{ contractQuote.totalDebt| number: '.2-2' }}
                     </td>
-                    <td class=" text-right ">
+                    <td class="  ">
 
                       @if ( !contractQuote.isPaid ) {
 
@@ -320,9 +320,9 @@
 
                   @if (!isLoading()) {
                     <tr>
-                      <td rowspan="7">
-                        <div class="col-12 h-10">
-                          <h3>Sin registros</h3>
+                      <td colspan="10">
+                        <div class="text-center p-4 border-b text-xl text-slate-400">
+                         Sin registros
                         </div>
                       </td>
                     </tr>
@@ -332,7 +332,7 @@
 
             } @else {
               <tr>
-                <td colspan="7">
+                <td colspan="10">
                   <div class="text-center p-4 border-b text-xl text-slate-400">
                     <h3>No tiene permiso para listar <span class="font-bold">Cuotas pendientes</span> </h3>
                   </div>

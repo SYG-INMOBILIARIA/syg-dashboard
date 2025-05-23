@@ -21,12 +21,13 @@ import { Nomenclature } from '@shared/interfaces';
 import { environments } from '@envs/environments';
 import { onValidImg } from '@shared/helpers/files.helper';
 import { AreaCompanyService } from '../../../config/services/area-company.service';
-import { AreaCompany } from '../../../config/interfaces';
+import { AreaCompany, ExpenseType } from '../../../config/interfaces';
 import { SpinnerComponent } from '@shared/components/spinner/spinner.component';
 import { UploadFileService } from '@shared/services/upload-file.service';
 import { AppState } from '../../../../app.config';
 import { WebUrlPermissionMethods } from '../../../../auth/interfaces';
 import { apiExpense } from '@shared/helpers/web-apis.helper';
+import { ExpenseTypeService } from '../../../config/services/expense-type.service';
 
 @Component({
   selector: 'app-expenses',
@@ -58,6 +59,7 @@ export default class ExpensesComponent implements OnInit, OnDestroy {
   private _alertService = inject( AlertService );
   private _uploadService = inject( UploadFileService );
   private _expenseService = inject( ExpenseService );
+  private _expenseTypeService = inject( ExpenseTypeService );
   private _nomenclatureService = inject( NomenclatureService );
   private _areaCompanyService = inject( AreaCompanyService );
 
@@ -70,7 +72,7 @@ export default class ExpensesComponent implements OnInit, OnDestroy {
   private _totalExpenses = signal( 0 );
   private _expenses = signal<Expense[]>( [] );
   private _moneyTypes = signal<Nomenclature[]>( [] );
-  private _expenseTypes = signal<Nomenclature[]>( [] );
+  private _expenseTypes = signal<ExpenseType[]>( [] );
   private _areasCompany = signal<AreaCompany[]>( [] );
 
   public isLoading = computed( () => this._isLoading() );
@@ -172,16 +174,14 @@ export default class ExpensesComponent implements OnInit, OnDestroy {
   onLoadAreasAndNomenclatures() {
 
     forkJoin({
-      moneyTypes: this._nomenclatureService.getMoneyType(),
-      expenseType: this._nomenclatureService.getExpensesType(),
-      areasCompany: this._areaCompanyService.getAreasCompany( 1, '', 20 )
-    }).subscribe( ( { moneyTypes, expenseType, areasCompany } ) => {
+      moneyTypesResponse: this._nomenclatureService.getMoneyType(),
+      expenseTypesResponse: this._expenseTypeService.getExpenseTypes( 1, '', 100 ),
+      areasCompanyResponse: this._areaCompanyService.getAreasCompany( 1, '', 100 )
+    }).subscribe( ( { moneyTypesResponse, expenseTypesResponse, areasCompanyResponse } ) => {
 
-      const { areasComapny } = areasCompany;
-
-      this._moneyTypes.set( moneyTypes.nomenclatures );
-      this._expenseTypes.set( expenseType.nomenclatures );
-      this._areasCompany.set( areasComapny );
+      this._moneyTypes.set( moneyTypesResponse.nomenclatures );
+      this._expenseTypes.set( expenseTypesResponse.expenseTypes );
+      this._areasCompany.set( areasCompanyResponse.areasComapny );
 
     } );
 

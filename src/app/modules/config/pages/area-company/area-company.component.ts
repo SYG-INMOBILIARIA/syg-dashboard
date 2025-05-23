@@ -83,7 +83,7 @@ export default class AreaCompanyComponent implements OnInit, OnDestroy {
 
   get formErrors() { return this.areaCompanyForm.errors; }
   get isFormInvalid() { return this.areaCompanyForm.invalid; }
-  get paymentMethodBody(): any { return  this.areaCompanyForm.value as any; }
+  get areaCompanyBody(): any { return  this.areaCompanyForm.value as any; }
 
   isTouched( field: string ) {
     return this.areaCompanyForm.get(field)?.touched ?? false;
@@ -172,14 +172,14 @@ export default class AreaCompanyComponent implements OnInit, OnDestroy {
 
   private _removeAreaCompany( areaCompanyId: string ) {
 
-    // const allowDelete = this._webUrlPermissionMethods.some(
-    //   (permission) => permission.webApi == apiPaymentMethod && permission.methods.includes( 'DELETE' )
-    // );
+    const allowDelete = this._webUrlPermissionMethods.some(
+      (permission) => permission.webApi == apiAreaCompany && permission.methods.includes( 'DELETE' )
+    );
 
-    // if( !allowDelete ) {
-    //   this._alertService.showAlert( undefined, 'No tiene permiso para eliminar un Método de pago', 'warning');
-    //   return;
-    // }
+    if( !allowDelete ) {
+      this._alertService.showAlert( undefined, 'No tiene permiso para eliminar un Área de empresa', 'warning');
+      return;
+    }
 
     if( this._isRemoving ) return;
 
@@ -212,7 +212,7 @@ export default class AreaCompanyComponent implements OnInit, OnDestroy {
 
     if( this.isFormInvalid || this.isSaving() ) return;
 
-    const { id, ...body } = this.paymentMethodBody;
+    const { id, ...body } = this.areaCompanyBody;
 
     const allowCreate = this._webUrlPermissionMethods.some(
       (permission) => permission.webApi == apiAreaCompany && permission.methods.includes( 'POST' )

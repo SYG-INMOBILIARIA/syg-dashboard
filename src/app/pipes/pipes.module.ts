@@ -7,6 +7,8 @@ import { PaymentTypePipe } from './payment-type.pipe';
 import { TotalDebtPipe } from './total-debt.pipe';
 import { ExpenseTypePipe } from './expense-type.pipe';
 import { ClientStatusPipe } from './client-status.pipe';
+import { InputChannelPipe } from './input-channel.pipe';
+import { LeadStatusPipe } from './lead-status.pipe';
 
 @NgModule({
   imports: [
@@ -17,7 +19,9 @@ import { ClientStatusPipe } from './client-status.pipe';
     PaymentTypePipe,
     TotalDebtPipe,
     ExpenseTypePipe,
-    ClientStatusPipe
+    ClientStatusPipe,
+    InputChannelPipe,
+    LeadStatusPipe
   ],
   exports: [
     MomentPipe,
@@ -27,7 +31,9 @@ import { ClientStatusPipe } from './client-status.pipe';
     PaymentTypePipe,
     TotalDebtPipe,
     ExpenseTypePipe,
-    ClientStatusPipe
+    ClientStatusPipe,
+    InputChannelPipe,
+    LeadStatusPipe
   ],
 })
 export class PipesModule {}

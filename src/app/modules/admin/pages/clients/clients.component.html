@@ -105,10 +105,10 @@
                             {{ client.fullname }}
                           </h6>
                           <p class="mb-0 text-xs leading-tight  dark:opacity-80 text-slate-400 dark:text-gray-300">
-                            @if ( client?.address && client.address.length > 35 ) {
-                              {{ client.address | slice:0:35 }}...
+                            @if ( client?.address && client.address!.length > 35 ) {
+                              {{ client?.address | slice:0:35 }}...
                             } @else {
-                              {{ client.address  }}
+                              {{ client?.address  }}
                             }
                           </p>
                         </div>
@@ -118,8 +118,8 @@
                     <td class="p-2 align-middle bg-transparent border-b dark:border-white/40 whitespace-nowrap shadow-transparent dark:text-gray-300">
 
                       <div class="flex flex-wrap justify-start items-center">
-                        <span class="text-xs font-bold w-24">{{ client.identityDocument.shortDescription }}:&nbsp;&nbsp;</span>
-                        <span>{{ client.identityNumber }}</span>
+                        <span class="text-xs font-bold w-24">{{ client.identityDocument?.shortDescription ?? '---' }}:&nbsp;&nbsp;</span>
+                        <span>{{ client?.identityNumber ?? '---' }}</span>
                       </div>
 
                     </td>
@@ -238,15 +238,15 @@
           <!-- Modal body -->
           <form [formGroup]="clientForm" (ngSubmit)="onSubmit()" class="p-4">
 
-              <div class="grid gap-4 mb-4 grid-cols-6">
+              <div class="grid gap-4 mb-4 grid-cols-1 md:grid-cols-6">
 
-                <div class="col-span-3 xs:col-span-6 mb-0">
-                  <label for="cbxPersonType" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                <div class="col-span-6 md:col-span-3">
+                  <label for="cbxPersonType" class="block mb-1 text-sm font-medium text-gray-900 dark:text-white">
                     Tipo *
                   </label>
                   <ng-select
                     id="cbxPersonType"
-                    class="bg-gray-50 border text-gray-900 text-sm rounded-lg block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                    class="bg-gray-50 text-gray-900 text-sm rounded-md block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                     [items]="personTypes()"
                     (ngModelChange)="onChangePersonType( $event )"
                     bindLabel="label"
@@ -262,18 +262,19 @@
                       class="flex items-center ms-1 mt-2 text-xs text-red-500"
                       inputErrors
                       [errors]="inputErrors('personType')"
+                      [class.hidden]="!inputErrors('personType')"
                       inputLabel="Tipo" >
                     </span>
                   }
                 </div>
 
-                <div class="col-span-3 xs:col-span-6 mb-0">
-                  <label for="cbxIdentityDocument" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                <div class="col-span-6 md:col-span-3">
+                  <label for="cbxIdentityDocument" class="block mb-1 text-sm font-medium text-gray-900 dark:text-white">
                     Documento de identidad *
                   </label>
                   <ng-select
                     id="cbxIdentityDocument"
-                    class="bg-gray-50 border text-gray-900 text-sm rounded-lg block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                    class="bg-gray-50 text-gray-900 text-sm rounded-md block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                     [items]="identityDocuments()"
                     (change)="onChangeIdentityDocument( $event )"
                     bindLabel="shortDescription"
@@ -289,6 +290,7 @@
                       class="flex items-center ms-1 mt-2 text-xs text-red-500"
                       inputErrors
                       [errors]="inputErrors('identityDocumentId')"
+                      [class.hidden]="!inputErrors('identityDocumentId')"
                       inputLabel="Documento de identidad" >
                     </span>
                   }
@@ -296,14 +298,14 @@
 
                 @if ( !isJuridicPerson() ) {
 
-                  <div class="col-span-3 xs:col-span-6 mb-0">
-                      <label for="txtNames" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                  <div class="col-span-6 md:col-span-3">
+                      <label for="txtNames" class="block mb-1 text-sm font-medium text-gray-900 dark:text-white">
                         Nombres *
                       </label>
                       <input
                         type="text"
                         id="txtNames"
-                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-md focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                         placeholder="Enter Name"
                         formControlName="name"
                         [class.border-red-400]=" inputErrors('name') && isTouched('name') "
@@ -314,19 +316,20 @@
                           class="flex items-center ms-1 mt-2 text-xs text-red-500"
                           inputErrors
                           [errors]="inputErrors('name')"
+                          [class.hidden]="!inputErrors('name')"
                           inputLabel="Nombres" >
                         </span>
                       }
                   </div>
 
-                  <div class="col-span-3 xs:col-span-6 mb-0">
-                      <label for="txtSurname" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                  <div class="col-span-6 md:col-span-3">
+                      <label for="txtSurname" class="block mb-1 text-sm font-medium text-gray-900 dark:text-white">
                         Apellidos *
                       </label>
                       <input
                         type="text"
                         id="txtSurname"
-                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-md focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                         placeholder="Enter Surname"
                         formControlName="surname"
                         [class.border-red-400]=" inputErrors('surname') && isTouched('surname') "
@@ -337,6 +340,7 @@
                           class="flex items-center ms-1 mt-2 text-xs text-red-500"
                           inputErrors
                           [errors]="inputErrors('surname')"
+                          [class.hidden]="!inputErrors('surname')"
                           inputLabel="Apellidos" >
                         </span>
                       }
@@ -344,14 +348,14 @@
 
                 } @else {
 
-                  <div class="col-span-6 xs:col-span-6 mb-0">
-                      <label for="txtBussinessName" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                  <div class="col-span-6 xs:col-span-6">
+                      <label for="txtBussinessName" class="block mb-1 text-sm font-medium text-gray-900 dark:text-white">
                         Razón social *
                       </label>
                       <input
                         type="text"
                         id="txtBussinessName"
-                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-md focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                         placeholder="Enter Bussiness Name"
                         formControlName="bussinessName"
                         [class.border-red-400]=" inputErrors('bussinessName') && isTouched('bussinessName') "
@@ -362,6 +366,7 @@
                           class="flex items-center ms-1 mt-2 text-xs text-red-500"
                           inputErrors
                           [errors]="inputErrors('bussinessName')"
+                          [class.hidden]="!inputErrors('bussinessName')"
                           inputLabel="Razón social" >
                         </span>
                       }
@@ -369,14 +374,14 @@
 
                 }
 
-                <div class="col-span-6 xs:col-span-6 mb-0">
-                  <label for="txtAddress" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                <div class="col-span-6 xs:col-span-6">
+                  <label for="txtAddress" class="block mb-1 text-sm font-medium text-gray-900 dark:text-white">
                     Dirección *
                   </label>
                   <input
                     type="text"
                     id="txtAddress"
-                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-md focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                     placeholder="Enter Address"
                     formControlName="address"
                     [class.border-red-400]=" inputErrors('address') && isTouched('address') "
@@ -387,19 +392,20 @@
                       class="flex items-center ms-1 mt-2 text-xs text-red-500"
                       inputErrors
                       [errors]="inputErrors('address')"
+                      [class.hidden]="!inputErrors('address')"
                       inputLabel="Dirección" >
                     </span>
                   }
                 </div>
 
-                <div class="col-span-2 xs:col-span-3 mb-0">
-                    <label for="txtDocumentNumber" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                <div class="col-span-6 md:col-span-2">
+                    <label for="txtDocumentNumber" class="block mb-1 text-sm font-medium text-gray-900 dark:text-white">
                       Nro Documento *
                     </label>
                     <input
                       type="text"
                       id="txtDocumentNumber"
-                      class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                      class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-md focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                       placeholder="#######"
                       formControlName="identityNumber"
                       [class.border-red-400]=" inputErrors('identityNumber') && isTouched('identityNumber') "
@@ -410,70 +416,57 @@
                         class="flex items-center ms-1 mt-2 text-xs text-red-500"
                         inputErrors
                         [errors]="inputErrors('identityNumber')"
+                        [class.hidden]="!inputErrors('identityNumber')"
                         inputLabel="Nro documento" >
                       </span>
                     }
                 </div>
 
-                <div class="col-span-4 xs:col-span-3 mb-0">
-                    <label for="txtEmail" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                      Email *
-                    </label>
-                    <input
-                      type="text"
-                      id="txtEmail"
-                      class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                      placeholder="example@domain.com"
-                      formControlName="email"
-                      [class.border-red-400]=" inputErrors('email') && isTouched('email') "
-                    >
-
-                    @if (isTouched('email')) {
-                      <span
-                        class="flex items-center ms-1 mt-2 text-xs text-red-500"
-                        inputErrors
-                        [errors]="inputErrors('email')"
-                        inputLabel="Email" >
-                      </span>
-                    }
-                </div>
-
-                <div class="col-span-2 xs:col-span-6 mb-0">
-                  <label for="txtBirthDate" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                <div class="col-span-3 md:col-span-2">
+                  <label for="txtBirthDate" class="block mb-1 text-sm font-medium text-gray-900 dark:text-white">
                     Fecha de nacimiento *
                   </label>
-                  <input
-                    #birthDateInput
-                    type="text"
-                    id="txtBirthDate"
-                    mwlFlatpickr
-                    locale="Spanish"
-                    [altInput]="true"
-                    [maxDate]="maxBirthDate"
-                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                    placeholder="YYYY-MM-DD"
-                    formControlName="birthDate"
-                    [class.border-red-400]=" inputErrors('birthDate') && isTouched('birthDate') "
-                  >
+
+                  <div class="relative">
+                    <div class="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none">
+                      <i class="fa-regular fa-calendar text-gray-500 dark:text-gray-400"></i>
+                    </div>
+
+                    <input
+                      #birthDateInput
+                      type="text"
+                      id="txtBirthDate"
+                      mwlFlatpickr
+                      locale="Spanish"
+                      [altInput]="true"
+                      [maxDate]="maxBirthDate"
+                      class="bg-gray-50 ps-6 text-center border border-gray-300 text-gray-900 text-sm rounded-md focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                      placeholder="YYYY-MM-DD"
+                      formControlName="birthDate"
+                      [class.border-red-400]=" inputErrors('birthDate') && isTouched('birthDate') "
+                    >
+                  </div>
+
 
                   @if (isTouched('birthDate')) {
                     <span
                       class="flex items-center ms-1 mt-2 text-xs text-red-500"
                       inputErrors
                       [errors]="inputErrors('birthDate')"
+                      [class.hidden]="!inputErrors('birthDate')"
                       inputLabel="fecha de nacimiento" >
                     </span>
                   }
                 </div>
 
-                <div class="col-span-2 xs:col-span-6 mb-0">
-                  <label for="txtPhone" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                <div class="col-span-3 md:col-span-2">
+                  <label for="txtPhone" class="block mb-1 text-sm font-medium text-gray-900 dark:text-white">
                     Teléfono *
                   </label>
                   <input
                     type="text"
                     id="txtPhone"
-                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-md focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                     placeholder="+00 000 000 000"
                     formControlName="phone"
                     [class.border-red-400]=" inputErrors('phone') && isTouched('phone') "
@@ -484,19 +477,44 @@
                       class="flex items-center ms-1 mt-2 text-xs text-red-500"
                       inputErrors
                       [errors]="inputErrors('phone')"
+                      [class.hidden]="!inputErrors('phone')"
                       inputLabel="Teléfono" >
                     </span>
                   }
                 </div>
 
-                <div class="col-span-2 xs:col-span-6 mb-0">
-                  <label for="txtPhone" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                <div class="col-span-6 md:col-span-4">
+                    <label for="txtEmail" class="block mb-1 text-sm font-medium text-gray-900 dark:text-white">
+                      Email *
+                    </label>
+                    <input
+                      type="text"
+                      id="txtEmail"
+                      class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-md focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                      placeholder="example@domain.com"
+                      formControlName="email"
+                      [class.border-red-400]=" inputErrors('email') && isTouched('email') "
+                    >
+
+                    @if (isTouched('email')) {
+                      <span
+                        class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                        inputErrors
+                        [errors]="inputErrors('email')"
+                        [class.hidden]="!inputErrors('email')"
+                        inputLabel="Email" >
+                      </span>
+                    }
+                </div>
+
+                <div class="col-span-3 md:col-span-2">
+                  <label for="txtPhone" class="block mb-1 text-sm font-medium text-gray-900 dark:text-white">
                     Teléfono 2
                   </label>
                   <input
                     type="text"
                     id="txtPhone"
-                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-md focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                     placeholder="+00 000 000 000"
                     formControlName="secondaryPhone"
                     [class.border-red-400]=" inputErrors('secondaryPhone') && isTouched('secondaryPhone') "
@@ -507,18 +525,19 @@
                       class="flex items-center ms-1 mt-2 text-xs text-red-500"
                       inputErrors
                       [errors]="inputErrors('secondaryPhone')"
+                      [class.hidden]="!inputErrors('secondaryPhone')"
                       inputLabel="Teléfono 2" >
                     </span>
                   }
                 </div>
 
-                <div class="col-span-3 xs:col-span-6 mb-6">
-                  <label for="cbxPersonType" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                <div class="col-span-3 md:col-span-3 ">
+                  <label for="cbxPersonType" class="block mb-1 text-sm font-medium text-gray-900 dark:text-white">
                     Estado civil *
                   </label>
                   <ng-select
                     id="cbxPersonType"
-                    class="bg-gray-50 border text-gray-900 text-sm rounded-lg block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                    class="bg-gray-50 border text-gray-900 text-sm rounded-md block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                     [items]="civilStatus()"
                     bindLabel="label"
                     bindValue="value"
@@ -533,18 +552,19 @@
                       class="flex items-center ms-1 mt-2 text-xs text-red-500"
                       inputErrors
                       [errors]="inputErrors('civilStatus')"
+                      [class.hidden]="!inputErrors('civilStatus')"
                       inputLabel="Estado civil" >
                     </span>
                   }
                 </div>
 
-                <div class="col-span-3 xs:col-span-6 mb-6">
-                  <label for="cbxPersonType" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                <div class="col-span-3 md:col-span-3 ">
+                  <label for="cbxPersonType" class="block mb-1 text-sm font-medium text-gray-900 dark:text-white">
                     Género *
                   </label>
                   <ng-select
                     id="cbxPersonType"
-                    class="bg-gray-50 border text-gray-900 text-sm rounded-lg block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                    class="bg-gray-50 border text-gray-900 text-sm rounded-md block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                     [items]="genders()"
                     bindLabel="label"
                     bindValue="value"
@@ -559,6 +579,7 @@
                       class="flex items-center ms-1 mt-2 text-xs text-red-500"
                       inputErrors
                       [errors]="inputErrors('gender')"
+                      [class.hidden]="!inputErrors('gender')"
                       inputLabel="Genero" >
                     </span>
                   }

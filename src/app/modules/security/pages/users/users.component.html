@@ -236,7 +236,7 @@
             </div>
             <!-- Modal body -->
             <form [formGroup]="userForm" (ngSubmit)="onSubmit()" class="py-6 px-8">
-              <div class="grid gap-4 mb-4 grid-cols-4">
+              <div class="grid gap-3 mb-2 grid-cols-4">
 
                 <div class="col-span-4 pb-1.5 grid-cols-1 flex justify-center">
                   <label for="countryFile" >
@@ -248,11 +248,11 @@
 
                 <div class="col-span-2 xs:col-span-4">
                   <label for="cbxIdentityDocument" class="block mb-1.5 text-sm font-medium text-gray-900 dark:text-white">
-                    Tipo documento *
+                    Tipo documento <span class="text-red-500">*</span>
                   </label>
                   <ng-select
                     id="cbxIdentityDocument"
-                    class="bg-gray-50 border text-gray-900 text-sm rounded-lg block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                    class="bg-gray-50 border text-gray-900 text-sm rounded-md block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                     [items]="identityDocuments()"
                     (change)="onChangeIdentityDocument( $event )"
                     bindLabel="shortDescription"
@@ -268,6 +268,7 @@
                       class="flex items-center ms-1 mt-1.5 text-xs text-red-500"
                       inputErrors
                       [errors]="inputErrors('identityDocumentId')"
+                      [class.hidden]="!inputErrors('identityDocumentId')"
                       inputLabel="Nombre" >
                     </span>
                   }
@@ -275,12 +276,12 @@
 
                 <div class="col-span-2 xs:col-span-4">
                   <label for="txtIdentityNumber" class="block mb-1.5 text-sm font-medium text-gray-900 dark:text-white">
-                    Nro Documento
+                    Nro Documento <span class="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
                     id="txtIdentityNumber"
-                    class="bg-gray-50 border text-center border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                    class="bg-gray-50 border text-center border-gray-300 text-gray-900 text-sm rounded-md block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                     placeholder="########"
                     formControlName="identityNumber"
                     [class.border-red-400]=" inputErrors('identityNumber') && isTouched('identityNumber') "
@@ -290,6 +291,7 @@
                       class="flex items-center ms-1 mt-1.5 text-xs text-red-500"
                       inputErrors
                       [errors]="inputErrors('identityNumber')"
+                      [class.hidden]="!inputErrors('identityNumber')"
                       inputLabel="Nro identidad" >
                     </span>
                   }
@@ -297,12 +299,12 @@
 
                 <div class="col-span-2 xs:col-span-4">
                     <label for="txtRoleName" class="block mb-1.5 text-sm font-medium text-gray-900 dark:text-white">
-                      Nombres *
+                      Nombres <span class="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
                       id="txtRoleName"
-                      class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                      class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-md block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                       placeholder="Enter Name"
                       formControlName="name"
                       [class.border-red-400]=" inputErrors('name') && isTouched('name') "
@@ -313,6 +315,7 @@
                         class="flex items-center ms-1 mt-1.5 text-xs text-red-500"
                         inputErrors
                         [errors]="inputErrors('name')"
+                        [class.hidden]="!inputErrors('name')"
                         inputLabel="Nombre" >
                       </span>
                     }
@@ -325,7 +328,7 @@
                   <input
                     type="text"
                     id="txtIsoAlphaThwo"
-                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-md block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                     placeholder="Enter Surname"
                     formControlName="surname"
                     [class.border-red-400]=" inputErrors('surname') && isTouched('surname') "
@@ -335,6 +338,7 @@
                       class="flex items-center ms-1 mt-1.5 text-xs text-red-500"
                       inputErrors
                       [errors]="inputErrors('surname')"
+                      [class.hidden]="!inputErrors('surname')"
                       inputLabel="Apellido" >
                     </span>
                   }
@@ -347,7 +351,7 @@
                   <input
                     type="text"
                     id="txtMoneyCode"
-                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-md block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                     placeholder="example@domain.com"
                     formControlName="email"
                     [class.border-red-400]=" inputErrors('email') && isTouched('email') "
@@ -357,6 +361,7 @@
                       class="flex items-center ms-1 mt-1.5 text-xs text-red-500"
                       inputErrors
                       [errors]="inputErrors('email')"
+                      [class.hidden]="!inputErrors('email')"
                       inputLabel="Email" >
                     </span>
                   }
@@ -364,11 +369,11 @@
 
                 <div class="col-span-4 ">
                   <label for="cbxRole" class="block mb-1.5 text-sm font-medium text-gray-900 dark:text-white">
-                    Roles *
+                    Roles <span class="text-red-500">*</span>
                   </label>
                   <ng-select
                     id="cbxRole"
-                    class="bg-gray-50 border text-gray-900 text-sm rounded-lg block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                    class="bg-gray-50 border text-gray-900 text-sm rounded-md block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                     [items]="roles()"
                     [multiple]="true"
                     [closeOnSelect]="false"
@@ -386,6 +391,7 @@
                       class="flex items-center ms-1 mt-1.5 text-xs text-red-500"
                       inputErrors
                       [errors]="inputErrors('rolesId')"
+                      [class.hidden]="!inputErrors('rolesId')"
                       inputLabel="Roles" >
                     </span>
                   }
@@ -393,7 +399,7 @@
 
                 <div class="col-span-2 xs:col-span-4">
                   <label for="txtBirthDate" class="block mb-1.5 text-sm font-medium text-gray-900 dark:text-white">
-                    Fecha de nacimiento *
+                    Fecha de nacimiento <span class="text-red-500">*</span>
                   </label>
                   <div class="relative">
                     <div class="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none">
@@ -407,7 +413,7 @@
                       locale="Spanish"
                       [altInput]="true"
                       [maxDate]="maxBirthDate"
-                      class="bg-gray-50 border text-center border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                      class="bg-gray-50 border text-center border-gray-300 text-gray-900 text-sm rounded-md focus:ring-primary-600 focus:border-primary-600 block w-full p-2 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                       placeholder="YYYY-MM-DD"
                       formControlName="birthDate"
                       [class.border-red-400]=" inputErrors('birthDate') && isTouched('birthDate') "
@@ -419,6 +425,7 @@
                       class="flex items-center ms-1 mt-1.5 text-xs text-red-500"
                       inputErrors
                       [errors]="inputErrors('birthDate')"
+                      [class.hidden]="!inputErrors('birthDate')"
                       inputLabel="fecha de nacimiento" >
                     </span>
                   }
@@ -426,7 +433,7 @@
 
                 <div class="col-span-2 xs:col-span-4">
                   <label for="txtAdmissionDate" class="block mb-1.5 text-sm font-medium text-gray-900 dark:text-white">
-                    Fecha de ingreso *
+                    Fecha de ingreso <span class="text-red-500">*</span>
                   </label>
                   <div class="relative">
                     <div class="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none">
@@ -440,7 +447,7 @@
                       locale="Spanish"
                       [altInput]="true"
                       [maxDate]="currentDate"
-                      class="bg-gray-50 border text-center border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                      class="bg-gray-50 border text-center border-gray-300 text-gray-900 text-sm rounded-md focus:ring-primary-600 focus:border-primary-600 block w-full p-2 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                       placeholder="YYYY-MM-DD"
                       formControlName="admissionDate"
                       [class.border-red-400]=" inputErrors('admissionDate') && isTouched('admissionDate') "
@@ -464,7 +471,7 @@
                   <input
                     type="text"
                     id="txtAdress"
-                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-md block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                     placeholder="Enter Address"
                     formControlName="address"
                     [class.border-red-400]=" inputErrors('address') && isTouched('address') "
@@ -474,6 +481,7 @@
                       class="flex items-center ms-1 mt-1.5 text-xs text-red-500"
                       inputErrors
                       [errors]="inputErrors('address')"
+                      [errors]="inputErrors('address')"
                       inputLabel="Dirección" >
                     </span>
                   }
@@ -481,7 +489,7 @@
 
               </div>
 
-              <div class="flex justify-end gap-3 ">
+              <div class="flex justify-end gap-3 pt-3">
                 <button
                   type="button"
                   data-modal-toggle="payment-modal"

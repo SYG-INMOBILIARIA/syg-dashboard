@@ -1,0 +1,902 @@
+<nav class="flex pb-4 ml-5 " aria-label="Breadcrumb">
+  <ol class="inline-flex items-center space-x-1 md:space-x-2 rtl:space-x-reverse">
+    <li class="inline-flex items-center">
+      <a href="#" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white">
+        <svg class="w-3 h-3 me-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+          <path d="m19.707 9.293-2-2-7-7a1 1 0 0 0-1.414 0l-7 7-2 2a1 1 0 0 0 1.414 1.414L2 10.414V18a2 2 0 0 0 2 2h3a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h3a2 2 0 0 0 2-2v-7.586l.293.293a1 1 0 0 0 1.414-1.414Z"/>
+        </svg>
+        Dashboard
+      </a>
+    </li>
+    <li>
+      <div class="flex items-center">
+        <svg class="rtl:rotate-180 w-3 h-3 text-gray-400 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
+        </svg>
+        <a href="#" class="ms-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ms-2 dark:text-gray-400 dark:hover:text-white">Leads - Clientes potenciales</a>
+      </div>
+    </li>
+  </ol>
+</nav>
+
+<div class="py-4 px-5  mx-auto">
+  <!-- Título y subtítulo -->
+  <div class="mb-8">
+    <h1 class="text-2xl font-bold text-gray-800 dark:text-slate-200">
+      Leads (Clientes potenciales)
+    </h1>
+    <p class="text-gray-600 mt-1 dark:text-slate-400">
+      Lista de leads ingresados desde diversos canales
+    </p>
+  </div>
+
+  <!-- Indicadores KPI -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+    <!-- Total de leads -->
+    <div class="bg-white rounded-lg shadow p-4 dark:bg-slate-700">
+      <div class="flex items-center gap-2 mb-2">
+        <div class="bg-blue-50 p-2 rounded">
+          <span class="iconify text-blue-500" data-icon="ph:users"></span>
+        </div>
+        <span class="text-gray-600 font-medium dark:text-slate-300">
+          Total de leads
+        </span>
+      </div>
+      <div class="text-2xl font-bold text-gray-900 dark:text-slate-200">
+        {{ leadIndicators().count }}
+      </div>
+    </div>
+
+    <!-- Leads por atender -->
+    <div class="bg-white rounded-lg shadow p-4 dark:bg-slate-700">
+      <div class="flex items-center gap-2 mb-2">
+        <div class="bg-amber-50 p-2 rounded">
+          <span class="iconify text-amber-500" data-icon="ph:clock"></span>
+        </div>
+        <span class="text-gray-600 font-medium dark:text-slate-300">
+          Leads por atender
+        </span>
+      </div>
+      <div class="text-2xl font-bold text-gray-900 dark:text-slate-200">
+        {{ leadIndicators().waitingForAttention }}
+      </div>
+    </div>
+
+    <!-- Leads en atención -->
+    <div class="bg-white rounded-lg shadow p-4 dark:bg-slate-700">
+      <div class="flex items-center gap-2 mb-2">
+        <div class="bg-purple-50 p-2 rounded">
+          <span class="iconify text-purple-500" data-icon="ph:user-focus"></span>
+        </div>
+        <span class="text-gray-600 font-medium dark:text-slate-300">
+          Leads en atención
+        </span>
+      </div>
+      <div class="text-2xl font-bold text-gray-900 dark:text-slate-200">
+        {{ leadIndicators().beginAttended }}
+      </div>
+    </div>
+
+    <!-- Leads concretados -->
+    <div class="bg-white rounded-lg shadow p-4 dark:bg-slate-700">
+      <div class="flex items-center gap-2 mb-2">
+        <div class="bg-green-50 p-2 rounded">
+          <span class="iconify text-green-500" data-icon="ph:check-circle"></span>
+        </div>
+        <span class="text-gray-600 font-medium dark:text-slate-300">
+          Leads concretados
+        </span>
+      </div>
+      <div class="text-2xl font-bold text-gray-900 dark:text-slate-200">
+        {{ leadIndicators().concrete }}
+      </div>
+    </div>
+
+    <!-- Tasa de conversión -->
+    <div class="bg-white rounded-lg shadow p-4 dark:bg-slate-700">
+      <div class="flex items-center gap-2 mb-2">
+        <div class="bg-emerald-50 p-2 rounded">
+          <span class="iconify text-emerald-500" data-icon="ph:chart-line-up"></span>
+        </div>
+        <span class="text-gray-600 font-medium dark:text-slate-300">
+          Tasa de conversión
+        </span>
+      </div>
+      <div class="text-2xl font-bold text-gray-900 dark:text-slate-200">
+        {{ leadIndicators().conversion | number:'.1-1' }}%
+      </div>
+    </div>
+  </div>
+
+  <!-- Acciones principales -->
+
+  <!-- Tabla de leads -->
+  <div class="bg-white rounded-lg shadow overflow-hidden dark:bg-slate-700">
+
+    <div class=" ">
+      <div class="p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <!-- Botones de acción -->
+        <div class="flex flex-wrap gap-3">
+
+        </div>
+
+        <!-- Buscador, filtros y botones -->
+        <div class="flex flex-wrap gap-3">
+          <div class="relative">
+            <input
+              type="search"
+              placeholder="Buscar por nombre, email o número documento..."
+              class="pl-10 pr-4 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+              [formControl]="searchInput"
+            >
+            <span class="iconify w-5 h-5 text-gray-400 absolute left-3 top-2.5" data-icon="ph:magnifying-glass"></span>
+          </div>
+          <button
+            type="button"
+            class="bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-md flex items-center text-sm font-medium transition"
+            (click)="onGetLeads()"
+          >
+            <span class="iconify w-4 h-4 mr-2" data-icon="ph:funnel"></span>
+            Filtros
+          </button>
+          <button class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-md flex items-center text-sm font-medium transition">
+            <span class="iconify w-4 h-4 mr-2" data-icon="ph:upload"></span>
+            Importar desde Excel
+          </button>
+          <button
+            #btnShowLeadModal
+            type="button"
+            data-modal-target="lead-modal"
+            data-modal-toggle="lead-modal"
+            class="bg-esmerald-400 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+            + Ingresar nuevo lead
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50 dark:bg-slate-800">
+          <tr>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-slate-400">Nombre del lead</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-slate-400">Teléfono / WhatsApp</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-slate-400">Canal de entrada</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-slate-400">Fecha de ingreso</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-slate-400">Estado</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-slate-400">Asesor asignado</th>
+            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-slate-400">Acciones</th>
+          </tr>
+        </thead>
+        <tbody class=" divide-y divide-gray-200">
+          <!-- Lead 1 -->
+
+          @if (allowList()) {
+
+            @if ( isLoading() ) {
+              <tr>
+                <td colspan="7">
+                  <div class="flex justify-center items-center gap-2 h-14 p-2 text-md text-slate-400 italic">
+                    <spinner></spinner>
+                    Cargando...
+                  </div>
+                </td>
+              </tr>
+            } @else {
+
+              @for (lead of leads(); track lead.id ) {
+
+                <tr>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex items-center">
+                      <div class="flex-shrink-0 h-10 w-10">
+                        <img class="h-10 w-10 rounded-full" [src]="defaultImgUrl" alt="">
+                      </div>
+                      <div class="ml-4">
+                        <div class="text-sm font-medium text-gray-900 dark:text-slate-200">
+                          {{ lead.fullname }}
+                        </div>
+                        <div class="text-sm text-gray-500 dark:text-slate-400">
+                          {{ lead.email }}
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-gray-900 dark:text-slate-200">
+                      {{ lead.phone }}
+                    </div>
+                    <div class="text-sm text-gray-500 dark:text-slate-400">WhatsApp</div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex items-center">
+                      <span *ngIf="lead.inputChannel == 'WHATSAPP' " class="iconify w-5 h-5 mr-2 text-green-500" data-icon="ph:whatsapp-logo"></span>
+                      <span *ngIf="lead.inputChannel == 'WEB' " class="iconify w-5 h-5 mr-2 text-blue-500" data-icon="ph:globe"></span>
+                      <span *ngIf="lead.inputChannel == 'LANDING' " class="iconify w-5 h-5 mr-2 text-blue-500" data-icon="ph:globe"></span>
+                      <span *ngIf="lead.inputChannel == 'REFERRED' " class="iconify w-5 h-5 mr-2 text-purple-500" data-icon="ph:users"></span>
+
+                      <span class="text-sm text-gray-900 dark:text-slate-200">
+                        {{ lead.inputChannel | inputChannel }}
+                      </span>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-slate-200">
+                    {{ lead.admissionDate | moment: 'createAt' }}
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span
+                      class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium "
+                      [ngClass]="{
+                        'bg-purple-100 text-purple-800': lead.leadStatus == 'BEGIN_ATTENDED',
+                        'text-slate-900 dark:text-slate-200': lead.leadStatus == 'WAITING_FOR_ATTENTION',
+                        'bg-green-100 text-green-800': lead.leadStatus == 'CONCRETE',
+                        'bg-red-100 text-red-800': lead.leadStatus == 'NOT_CONCRETE'
+                      }"
+
+                    >
+                      {{ lead.leadStatus | leadStatus }}
+                    </span>
+
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-slate-200">
+
+                    {{ lead.assignedAdvisor?.fullname || '-' }}
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <div class="flex items-center justify-end gap-2">
+                      <button
+                        type="button"
+                        class="text-gray-400 hover:text-gray-500"
+                        title="Ver detalles del lead"
+                        (click)="onLoadToUpdate( lead, true )"
+                      >
+                        <span class="iconify w-5 h-5" data-icon="ph:eye"></span>
+                      </button>
+                      <button
+                        type="button"
+                        class="text-gray-400 hover:text-gray-500"
+                        title="Editar información del lead"
+                        (click)="onLoadToUpdate( lead )"
+                      >
+                        <span class="iconify w-5 h-5" data-icon="ph:pencil-simple"></span>
+                      </button>
+                      <button
+                        type="button"
+                        class="text-emerald-600 hover:text-emerald-700"
+                        title="Convertir en Cliente"
+                        (click)="onConvertConfirm(lead)"
+                      >
+                        <span class="iconify w-5 h-5" data-icon="ph:user-check"></span>
+                      </button>
+                      <button
+                        type="button"
+                        class="text-blue-600 hover:text-blue-700"
+                        title="Asignar a Asesor comercial"
+                        (click)="onLoadToAssignAdvisor( lead )"
+                      >
+                        <span class="iconify w-5 h-5" data-icon="ph:user-plus"></span>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+
+              } @empty {
+
+                @if (!isLoading()) {
+                  <tr>
+                    <td colspan="7">
+                      <div class="text-center p-4 border-b text-xl text-slate-400">
+                      Sin registros
+                      </div>
+                    </td>
+                  </tr>
+                }
+              }
+
+            }
+
+          } @else {
+            <tr>
+              <td colspan="7">
+                <div class="text-center p-4 border-b text-xl text-slate-400 italic">
+                  <h3>No tiene permiso para listar Leads</h3>
+                </div>
+              </td>
+            </tr>
+          }
+
+        </tbody>
+      </table>
+    </div>
+    <div class="" >
+
+      <!-- (onChangePage)="" -->
+      <app-pagination [totalItems]="totalLeads()" (onChangePage)="onGetLeads( $event )"  >
+      </app-pagination>
+
+    </div>
+  </div>
+</div>
+
+<!-- Main modal -->
+<div id="lead-modal" data-modal-backdrop="true" tabindex="-1" aria-hidden="false" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+  <div class="relative p-4 w-full max-w-2xl max-h-full">
+
+      <!-- Modal content -->
+      <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+          <!-- Modal header -->
+          <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+                  {{ leadModalTitle }}
+              </h3>
+              <button
+                #btnCloseLeadModal
+                type="button"
+                data-modal-toggle="lead-modal"
+                class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+                (click)="onResetAfterSubmit()"
+              >
+                  <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                      <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                  </svg>
+                  <span class="sr-only">Close modal</span>
+              </button>
+          </div>
+
+          <form class="px-6 py-4 space-y-6" [formGroup]="leadForm" (ngSubmit)="onSubmit()" >
+            <!-- Sección 1: Datos del Lead -->
+            <div>
+              <h3 class="text-lg font-medium text-gray-700 mb-2 dark:text-white">Datos del Lead</h3>
+              <div class="grid grid-cols-1 md:grid-cols-12 gap-3">
+
+                <div class="col-span-12 md:col-span-4">
+                  <label for="cbxPersonType" class="block mb-1 text-sm font-medium text-gray-900 dark:text-white">
+                    Tipo <span class="text-red-500">*</span>
+                  </label>
+                  <ng-select
+                    id="cbxPersonType"
+                    class="white text-gray-900 text-sm rounded-md block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500 "
+                    [items]="personTypes()"
+                    (ngModelChange)="onChangePersonType( $event )"
+                    bindLabel="label"
+                    bindValue="value"
+                    placeholder="Seleccione tipo de persona"
+                    formControlName="personType"
+                    [readonly]="isReadOnly()"
+                    [class.border-red-400]=" inputErrors('personType') && isTouched('personType') "
+                  >
+                  </ng-select>
+
+                  @if (isTouched('personType')) {
+                    <span
+                      class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                      inputErrors
+                      [errors]="inputErrors('personType')"
+                      [class.hidden]="!inputErrors('personType')"
+                      inputLabel="Tipo" >
+                    </span>
+                  }
+                </div>
+
+                <div class="col-span-12 md:col-span-4">
+                  <label for="cbxIdentityDocument" class="block mb-1 text-sm font-medium text-gray-900 dark:text-white">
+                    Documento de identidad
+                  </label>
+                  <ng-select
+                    id="cbxIdentityDocument"
+                    class="white text-gray-900 text-sm rounded-md block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                    [items]="identityDocuments()"
+                    (change)="onChangeIdentityDocument( $event )"
+                    bindLabel="shortDescription"
+                    bindValue="id"
+                    placeholder="Seleccione documento de identidad"
+                    formControlName="identityDocumentId"
+                    [readonly]="isReadOnly()"
+                    [class.border-red-400]=" inputErrors('identityDocumentId') && isTouched('identityDocumentId') "
+                  >
+                  </ng-select>
+
+                  @if (isTouched('identityDocumentId')) {
+                    <span
+                      class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                      inputErrors
+                      [errors]="inputErrors('identityDocumentId')"
+                      [class.hidden]="!inputErrors('identityDocumentId')"
+                      inputLabel="Documento de identidad" >
+                    </span>
+                  }
+                </div>
+
+                <div class="col-span-12 md:col-span-4">
+                  <label for="txtDocumentNumber" class="block mb-1 text-sm font-medium text-gray-900 dark:text-white">
+                    Nro Documento
+                  </label>
+                  <input
+                    type="text"
+                    id="txtDocumentNumber"
+                    class=" text-center border border-gray-300 text-gray-900 text-sm rounded-md focus:ring-esmerald-600 focus:border-esmerald-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                    placeholder="#######"
+                    formControlName="identityNumber"
+                    [readonly]="isReadOnly()"
+                    [class.border-red-400]=" inputErrors('identityNumber') && isTouched('identityNumber') "
+                  >
+
+                  @if (isTouched('identityNumber')) {
+                    <span
+                      class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                      inputErrors
+                      [errors]="inputErrors('identityNumber')"
+                      [class.hidden]="!inputErrors('personType')"
+                      inputLabel="Nro documento" >
+                    </span>
+                  }
+                </div>
+
+                @if ( !isJuridicPerson() ) {
+
+                  <div class="col-span-12 md:col-span-7">
+                      <label for="txtNames" class="block mb-1 text-sm font-medium text-gray-900 dark:text-white">
+                        Nombres <span class="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        id="txtNames"
+                        class=" border border-gray-300 text-gray-900 text-sm rounded-md focus:ring-esmerald-600 focus:border-esmerald-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                        placeholder="Ingrese Nombres"
+                        formControlName="name"
+                        [readonly]="isReadOnly()"
+                        [class.border-red-400]=" inputErrors('name') && isTouched('name') "
+                      >
+
+                      @if (isTouched('name')) {
+                        <span
+                          class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                          inputErrors
+                          [errors]="inputErrors('name')"
+                          [class.hidden]="!inputErrors('name')"
+                          inputLabel="Nombres" >
+                        </span>
+                      }
+                  </div>
+
+                  <div class="col-span-12 md:col-span-5">
+                      <label for="txtSurname" class="block mb-1 text-sm font-medium text-gray-900 dark:text-white">
+                        Apellidos <span class="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        id="txtSurname"
+                        class=" border border-gray-300 text-gray-900 text-sm rounded-md focus:ring-esmerald-600 focus:border-esmerald-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                        placeholder="Ingrese Apellidos"
+                        formControlName="surname"
+                        [readonly]="isReadOnly()"
+                        [class.border-red-400]=" inputErrors('surname') && isTouched('surname') "
+                      >
+
+                      @if (isTouched('surname')) {
+                        <span
+                          class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                          inputErrors
+                          [errors]="inputErrors('surname')"
+                          [class.hidden]="!inputErrors('surname')"
+                          inputLabel="Apellidos" >
+                        </span>
+                      }
+                  </div>
+
+                } @else {
+
+                  <div class="col-span-12 ">
+                      <label for="txtBussinessName" class="block mb-1 text-sm font-medium text-gray-900 dark:text-white">
+                        Razón social <span class="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        id="txtBussinessName"
+                        class=" border border-gray-300 text-gray-900 text-sm rounded-md focus:ring-esmerald-600 focus:border-esmerald-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                        placeholder="Enter Bussiness Name"
+                        formControlName="bussinessName"
+                        [readonly]="isReadOnly()"
+                        [class.border-red-400]=" inputErrors('bussinessName') && isTouched('bussinessName') "
+                      >
+
+                      @if (isTouched('bussinessName')) {
+                        <span
+                          class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                          inputErrors
+                          [errors]="inputErrors('bussinessName')"
+                          [class.hidden]="!inputErrors('bussinessName')"
+                          inputLabel="Razón social" >
+                        </span>
+                      }
+                  </div>
+
+                }
+
+                <div class="col-span-12 md:col-span-7">
+                  <label for="txtEmail" class="block mb-1 text-sm font-medium text-gray-900 dark:text-white">
+                    Email <span class="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    id="txtEmail"
+                    class=" border border-gray-300 text-gray-900 text-sm rounded-md focus:ring-esmerald-600 focus:border-esmerald-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                    placeholder="Ej: example@domain.com"
+                    formControlName="email"
+                    [readonly]="isReadOnly()"
+                    [class.border-red-400]=" inputErrors('email') && isTouched('email') "
+                  >
+
+                  @if (isTouched('email')) {
+                    <span
+                      class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                      inputErrors
+                      [errors]="inputErrors('email')"
+                      [class.hidden]="!inputErrors('email')"
+                      inputLabel="Email" >
+                    </span>
+                  }
+                </div>
+
+                <div class="col-span-12 md:col-span-5">
+                  <label class="block mb-1 text-sm font-medium text-gray-900 dark:text-white">
+                    Teléfono / WhatsApp <span class="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="tel"
+                    class=" border border-gray-300 text-gray-900 text-sm rounded-md focus:ring-esmerald-600 focus:border-esmerald-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500 "
+                    placeholder="Ej: +51 999 999 999"
+                    formControlName="phone"
+                    [readonly]="isReadOnly()"
+                    [class.border-red-400]=" inputErrors('phone') && isTouched('phone') "
+                    >
+
+                    @if (isTouched('phone')) {
+                      <span
+                        class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                        inputErrors
+                        [errors]="inputErrors('phone')"
+                        [class.hidden]="!inputErrors('phone')"
+                        inputLabel="Teléfono" >
+                      </span>
+                    }
+                </div>
+
+              </div>
+            </div>
+            <!-- Sección 2: Canal de entrada -->
+            <div>
+              <h3 class="text-lg font-medium text-gray-700 mb-2 dark:text-white">Canal de entrada</h3>
+
+              <div class="grid grid-cols-1 md:grid-cols-12 gap-3">
+
+                <div class="col-span-1 md:col-span-7">
+                  <label for="cbxInpuChannel" class="block mb-1 text-sm font-medium text-gray-900 dark:text-white">
+                    Canal de entrada
+                  </label>
+                  <ng-select
+                    id="cbxInpuChannel"
+                    class="white text-gray-900 text-sm rounded-md block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500 "
+                    [items]="inputChannels()"
+                    bindLabel="label"
+                    bindValue="value"
+                    placeholder="-- Opcional --"
+                    formControlName="inputChannel"
+                    [readonly]="isReadOnly()"
+                    [class.border-red-400]=" inputErrors('inputChannel') && isTouched('inputChannel') "
+                  >
+                  </ng-select>
+
+                  @if (isTouched('inputChannel')) {
+                    <span
+                      class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                      inputErrors
+                      [errors]="inputErrors('inputChannel')"
+                      [class.hidden]="!inputErrors('inputChannel')"
+                      inputLabel="Tipo" >
+                    </span>
+                  }
+                </div>
+
+                <div class="col-span-1 md:col-span-5">
+                  <label for="txtAdmissionDate" class="block mb-1 text-sm font-medium text-gray-900 dark:text-white">
+                    Fecha de ingreso
+                  </label>
+
+                  <div class="relative">
+                    <div class="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none">
+                      <i class="fa-regular fa-calendar text-gray-500 dark:text-gray-400"></i>
+                    </div>
+
+                    @if ( isReadOnly() ) {
+
+                      <input
+                        type="text"
+                        id="txtAdmissionDateReadOnly"
+                        class="ps-6 border text-center border-gray-300 text-gray-900 text-sm rounded-md focus:ring-esmerald-600 focus:border-esmerald-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                        placeholder="YYYY-MM-DD"
+                        formControlName="admissionDate"
+                        [readOnly]="true"
+                        [class.border-red-400]=" inputErrors('admissionDate') && isTouched('admissionDate') "
+                      >
+
+                    } @else {
+
+                      <input
+                        type="text"
+                        id="txtAdmissionDate"
+                        mwlFlatpickr
+                        locale="Spanish"
+                        [altInput]="true"
+                        [maxDate]="maxDate"
+                        class="ps-6 border text-center border-gray-300 text-gray-900 text-sm rounded-md focus:ring-esmerald-600 focus:border-esmerald-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                        placeholder="YYYY-MM-DD"
+                        formControlName="admissionDate"
+                        [class.border-red-400]=" inputErrors('admissionDate') && isTouched('admissionDate') "
+                      >
+                    }
+
+                  </div>
+
+                  @if (isTouched('admissionDate')) {
+                    <span
+                      class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                      inputErrors
+                      [errors]="inputErrors('admissionDate')"
+                      [class.hidden]="!inputErrors('admissionDate')"
+                      inputLabel="fecha de ingreso" >
+                    </span>
+                  }
+                </div>
+
+              </div>
+            </div>
+            <!-- Sección 3: Asignación comercial -->
+            <div>
+              <h3 class="text-lg font-medium text-gray-700 dark:text-white">Asignación comercial</h3>
+              <div class="grid grid-cols-1 md:grid-cols-12 gap-3">
+
+                <div class="col-span-1 md:col-span-7">
+                  <label for="cbxUserSeller" class="mb-1 text-sm font-medium text-gray-900 dark:text-white">
+                    Asesor asignado
+                  </label>
+                  <ng-select
+                    id="cbxUserSeller"
+                    class="white text-gray-900 text-sm rounded-md block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                    [items]="users()"
+                    [searchable]="false"
+                    bindLabel="fullname"
+                    bindValue="id"
+                    placeholder="-- Opcional --"
+                    formControlName="adviserUserId"
+                    [readonly]="isReadOnly()"
+                    [class.border-red-400]=" inputErrors('adviserUserId') && isTouched('adviserUserId') "
+                  >
+
+                    <ng-template ng-header-tmp>
+
+                      <div class="flex justify-between gap-3">
+
+                        <input
+                              type="text"
+                              id="txtSearchSeller"
+                              class="block w-full p-2 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 text-xs focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                              placeholder="Buscar asesor..."
+                              [formControl]="searchUserInput"
+                          >
+
+                          <button type="button" class=" w-36 px-3 py-2 text-xs font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                            (click)="onGetUsers()"
+                          >
+                            Buscar
+                          </button>
+                      </div>
+                    </ng-template>
+
+                  </ng-select>
+
+                  @if (isTouched('adviserUserId')) {
+                    <span
+                      class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                      inputErrors
+                      [errors]="inputErrors('adviserUserId')"
+                      [class.hidden]="!inputErrors('adviserUserId')"
+                      inputLabel="Vendedor" >
+                    </span>
+                  }
+                </div>
+
+                <div class="col-span-1 md:col-span-5">
+                  <label for="cbxLeadStatus" class="block mb-1 text-sm font-medium text-gray-900 dark:text-white">
+                    Estado inicial del lead <span class="text-red-500">*</span>
+                  </label>
+                  <ng-select
+                    id="cbxLeadStatus"
+                    class="white text-gray-900 text-sm rounded-md block w-full dark:bg-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500 "
+                    [items]="leadStatus()"
+                    bindLabel="label"
+                    bindValue="value"
+                    placeholder="Seleccione estado"
+                    formControlName="leadStatus"
+                    [readonly]="isReadOnly()"
+                    [class.border-red-400]=" inputErrors('leadStatus') && isTouched('leadStatus') "
+                  >
+                  </ng-select>
+
+                  @if (isTouched('leadStatus')) {
+                    <span
+                      class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                      inputErrors
+                      [errors]="inputErrors('leadStatus')"
+                      [class.hidden]="!inputErrors('leadStatus')"
+                      inputLabel="Estado" >
+                    </span>
+                  }
+                </div>
+
+                <div class="col-span-12">
+                  <label class="block text-sm font-medium text-gray-700 mb-1 dark:text-white">Observaciones</label>
+                  <textarea
+                    rows="2"
+                    class="border border-gray-300 text-gray-900 text-sm rounded-md focus:ring-esmerald-600 focus:border-esmerald-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                    placeholder="Opcional"
+                    formControlName="observation"
+                    [readonly]="isReadOnly()"
+                  >
+                  </textarea>
+                </div>
+
+              </div>
+            </div>
+            <!-- Acciones -->
+            <div *ngIf="!isReadOnly()" class="flex flex-col sm:flex-row justify-end gap-3 pt-2">
+              <button type="button" onclick="cerrarModalNuevoLead()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-md flex items-center text-sm font-medium transition">
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-md flex items-center text-sm font-medium transition">
+
+                <div class="flex justify-center" *ngIf="!isSaving() else leadSpinner" >
+                  <span class="iconify w-4 h-4 mr-2" data-icon="ph:check"></span>
+                  Guardar
+                </div>
+
+              </button>
+            </div>
+          </form>
+      </div>
+  </div>
+</div>
+
+
+<button
+  #btnShowAssignAdvisorModal
+  type="button"
+  data-modal-target="assign-advisor-modal"
+  data-modal-toggle="assign-advisor-modal"
+  class="hidden">
+  Asignar asesor
+</button>
+
+<!-- Main modal -->
+<div id="assign-advisor-modal" data-modal-backdrop="true" tabindex="-1" aria-hidden="false" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+  <div class="relative p-4 w-full max-w-md max-h-full">
+
+      <!-- Modal content -->
+      <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+          <!-- Modal header -->
+          <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+                  Asignar asesor
+              </h3>
+              <button
+                #btnCloseAssignAdvisorModal
+                type="button"
+                data-modal-toggle="assign-advisor-modal"
+                class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+                (click)="onResetAfterSubmit()"
+              >
+                  <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                      <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                  </svg>
+                  <span class="sr-only">Close modal</span>
+              </button>
+          </div>
+
+          <form class="px-6 py-4 space-y-6" [formGroup]="assignAdvisorForm" (ngSubmit)="onAssignAdvisorSubmit()" >
+
+            <div class=" mb-1">
+              <!-- <label class="me-2 text-sm font-medium text-gray-900 dark:text-white">
+                Lead:
+              </label> -->
+              <div class="text-center dark:text-slate-200 text-xl italic">
+                {{ leadToAssignAdvisor()?.fullname }}
+              </div>
+
+              <div class="text-center dark:text-slate-400  italic">
+                {{ leadToAssignAdvisor()?.email }}
+              </div>
+
+            </div>
+
+            <div class="">
+              <label for="cbxUserSeller" class="mb-1 text-sm font-medium text-gray-900 dark:text-white">
+                Asesor asignado
+              </label>
+              <ng-select
+                id="cbxUserSeller"
+                class="white text-gray-900 text-sm rounded-lg block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                [items]="users()"
+                [searchable]="false"
+                bindLabel="fullname"
+                bindValue="id"
+                placeholder="-- Opcional --"
+                formControlName="adviserUserId"
+                [readonly]="isReadOnly()"
+                [class.border-red-400]=" inputErrors('adviserUserId') && isTouched('adviserUserId') "
+              >
+
+                <ng-template ng-header-tmp>
+
+                  <div class="flex justify-between gap-3">
+
+                    <input
+                          type="text"
+                          id="txtSearchSeller"
+                          class="block w-full p-2 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 text-xs focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                          placeholder="Buscar asesor..."
+                          [formControl]="searchUserInput"
+                      >
+
+                      <button type="button" class=" w-36 px-3 py-2 text-xs font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                        (click)="onGetUsers()"
+                      >
+                        Buscar
+                      </button>
+                  </div>
+                </ng-template>
+
+              </ng-select>
+
+              @if (isTouched('adviserUserId')) {
+                <span
+                  class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                  inputErrors
+                  [errors]="inputErrors('adviserUserId')"
+                  [class.hidden]="!inputErrors('adviserUserId')"
+                  inputLabel="Vendedor" >
+                </span>
+              }
+            </div>
+
+            <!-- Acciones -->
+            <div class="flex flex-col sm:flex-row justify-end gap-3 pt-2">
+
+              <button
+                type="button"
+                data-modal-toggle="assign-advisor-modal"
+                class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-md flex items-center text-sm font-medium transition">
+                Cancelar
+              </button>
+
+              <button
+                type="submit"
+                class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-md flex items-center text-sm font-medium transition">
+
+                <div class="flex justify-center" *ngIf="!isSaving() else leadSpinner" >
+                  <span class="iconify w-4 h-4 mr-2" data-icon="ph:check"></span>
+                  Guardar
+                </div>
+
+              </button>
+            </div>
+          </form>
+      </div>
+  </div>
+</div>
+
+<ng-template #leadSpinner>
+  <spinner></spinner>
+</ng-template>
+

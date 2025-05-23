@@ -249,12 +249,15 @@ export default class ClientProfileComponent implements OnInit {
       const { identityDocument, personType, userCreate, isActive, createAt, ...rest } = client;
 
       this.onChangePersonType( personType );
-      this.onChangeIdentityDocument( identityDocument );
+
+      if( identityDocument ) {
+        this.onChangeIdentityDocument( identityDocument );
+      }
 
       this.clientForm.reset({
         ...rest,
         personType,
-        identityDocumentId: identityDocument.id
+        identityDocumentId: identityDocument?.id
       });
 
       this.clientForm.markAllAsTouched();

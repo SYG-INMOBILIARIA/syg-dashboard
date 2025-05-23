@@ -101,8 +101,13 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
   .ng-select .ng-select-container  {
     /* @apply bg-white border border-solid dark:bg-gray-600 p-0.5; */
-    @apply bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-0.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white;
-    height: 40px !important;
+    @apply bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-md block w-full p-0.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white ;
+    height: 42px !important;
+  }
+
+  .ng-select.white .ng-select-container  {
+    /* @apply bg-white border border-solid dark:bg-gray-600 p-0.5; */
+    @apply bg-white  dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white;
   }
 
   .ng-select.ng-select-opened.ng-select-bottom > .ng-select-container {
@@ -138,8 +143,8 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   /* navbar input */
 
   .ng-select.navbar .ng-select-container  {
-    @apply bg-white   border border-gray-300 dark:bg-slate-800;
-    height: 40px;
+    @apply bg-white border border-gray-300 dark:bg-slate-800;
+    /* height: 40px; */
   }
 
   .ng-select.navbar.ng-select-opened.ng-select-bottom > .ng-select-container {
