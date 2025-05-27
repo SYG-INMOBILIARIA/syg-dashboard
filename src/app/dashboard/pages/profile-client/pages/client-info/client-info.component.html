@@ -1,0 +1,311 @@
+
+<ng-template #skeletonText>
+  <span role="status" class="max-w-full animate-pulse">
+    <div class="h-2.5 bg-gray-200 rounded-full dark:bg-gray-700 w-36 mt-2"></div>
+  </span>
+</ng-template>
+
+<!-- Main Page Content: 2 columns -->
+<div class="flex flex-col lg:flex-row gap-6">
+  <!-- Columna izquierda -->
+  <div class="lg:w-1/4 flex flex-col gap-6">
+    <!-- Información personal -->
+    <section class="bg-white rounded-lg shadow px-6 py-5 dark:bg-slate-800">
+      <h3 class="text-lg font-semibold text-gray-900 mb-5 dark:text-slate-300">
+        INFORMACIÓN PERSONAL
+      </h3>
+      <ul class="space-y-3 text-[15px]">
+
+        <li class="flex items-center text-gray-700">
+          <span class="iconify w-5 h-5 mr-3 text-gray-400" data-icon="ph:user"></span>
+          <div class="flex justify-center gap-2" >
+            <span class="font-medium dark:text-slate-300">Nombre completo:</span>
+            <span *ngIf="!isLoading(); else skeletonText" class="dark:text-slate-400">
+              {{ client()?.fullname }}
+            </span>
+          </div>
+        </li>
+
+        <li class="flex items-center text-gray-700">
+          <span class="iconify w-5 h-5 mr-3 text-gray-400" data-icon="ph:identification-card"></span>
+          <div class="flex justify-center gap-2" >
+            <span class="font-medium dark:text-slate-300">Documento:</span>
+            <span *ngIf="!isLoading(); else skeletonText" class="dark:text-slate-400">
+              {{ client()?.identityDocument?.shortDescription ?? '---' }} {{ client()?.identityNumber }}
+            </span>
+          </div>
+        </li>
+
+        <li class="flex items-center text-gray-700">
+          <span class="iconify w-5 h-5 mr-3 text-gray-400" data-icon="ph:phone"></span>
+          <div class="flex justify-center gap-2">
+            <span class="font-medium dark:text-slate-300">Teléfono:</span>
+            <span *ngIf="!isLoading(); else skeletonText" class="dark:text-slate-400">
+              {{ client()?.phone }}
+            </span>
+          </div>
+        </li>
+
+        <li class="flex items-center text-gray-700">
+          <span class="iconify w-5 h-5 mr-3 text-gray-400" data-icon="ph:envelope-simple"></span>
+          <div class="flex justify-center gap-2">
+            <span class="font-medium dark:text-slate-300">Email:</span>
+            <span *ngIf="!isLoading(); else skeletonText" class="dark:text-slate-400">
+              {{ client()?.email }}
+            </span>
+          </div>
+        </li>
+
+        <li class="flex items-center text-gray-700">
+          <span class="iconify w-5 h-5 mr-3 text-gray-400" data-icon="ph:map-pin"></span>
+          <div class="flex justify-center gap-2">
+            <span class="font-medium dark:text-slate-300">Dirección:</span>
+            <span *ngIf="!isLoading(); else skeletonText" class="dark:text-slate-400">
+              {{ client()?.address ?? '---' }}
+            </span>
+          </div>
+        </li>
+
+        <!-- <li class="flex items-center text-gray-700">
+          <span class="iconify w-5 h-5 mr-3 text-gray-400" data-icon="ph:buildings"></span>
+          <span><span class="font-medium">Ciudad:</span> Lima</span>
+        </li> -->
+
+        <li class="flex items-center text-gray-700">
+          <span class="iconify w-5 h-5 mr-3 text-gray-400" data-icon="ph:calendar"></span>
+          <div class="flex justify-center gap-2">
+            <span class="font-medium dark:text-slate-300">Fecha registro:</span>
+            <span *ngIf="!isLoading(); else skeletonText" class="dark:text-slate-400">
+              {{ client()?.createAt | moment:'createAt' }}
+            </span>
+          </div>
+        </li>
+      </ul>
+
+      <!-- Relación comercial -->
+      <h3 class="text-lg font-semibold text-gray-900 mt-8 mb-5 dark:text-slate-300">
+        RELACIÓN COMERCIAL
+      </h3>
+      <ul class="space-y-3 text-[15px]">
+
+        <li class="flex items-center text-gray-700">
+          <span class="iconify w-5 h-5 mr-3 text-gray-400" data-icon="ph:user-circle"></span>
+          <div class="flex justify-center gap-2">
+            <span class="font-medium dark:text-slate-300">Vendedor asignado:</span>
+            <span *ngIf="!isLoading(); else skeletonText" class="dark:text-slate-400">
+              {{ client()?.assignedAdvisor?.fullname ?? '---' }}
+            </span>
+          </div>
+        </li>
+
+        <li class="flex items-center text-gray-700">
+          <span class="iconify w-5 h-5 mr-3 text-gray-400" data-icon="ph:chart-line"></span>
+          <div class="flex justify-center gap-2">
+            <span class="font-medium dark:text-slate-300">Estado:</span>
+            <span
+              *ngIf="!isLoading(); else skeletonText"
+              [ngClass]="{
+                'text-green-600 dark:text-green-400': client()?.clientStatus == FINALIZED,
+                'text-yellow-600 dark:text-yellow-300': client()?.clientStatus == PENDING,
+                'text-red-600 dark:text-red-400': client()?.clientStatus == NOT_FINALIZED,
+              }"
+            >
+              {{ client()?.clientStatus | clientStatus }}
+            </span>
+          </div>
+        </li>
+
+        <li class="flex items-center text-gray-700">
+          <span class="iconify w-5 h-5 mr-3 text-gray-400" data-icon="ph:webhooks-logo"></span>
+          <div class="flex justify-center gap-2" >
+            <span class="font-medium dark:text-slate-300">Canal de entrada:</span>
+            <span *ngIf="!isLoading(); else skeletonText" class="dark:text-slate-400">
+              {{ client()?.inputChannel ?? '---' | inputChannel }}
+            </span>
+          </div>
+        </li>
+
+        <!-- <li class="flex items-center text-gray-700">
+          <span class="iconify w-5 h-5 mr-3 text-gray-400" data-icon="ph:house"></span>
+          <span><span class="font-medium">Proyecto de interés:</span> Residencial Los Olivos</span>
+        </li> -->
+
+        <li class="flex items-start text-gray-700">
+          <span class="iconify w-5 h-5 mr-3 text-gray-400 mt-1" data-icon="ph:note-pencil"></span>
+          <div class="flex justify-center gap-2">
+            <span class="font-medium dark:text-slate-300">Observaciones:</span>
+            <span *ngIf="!isLoading(); else skeletonText" class="dark:text-slate-400">
+              {{ client()?.observation ?? '---' }}
+            </span>
+          </div>
+        </li>
+
+      </ul>
+    </section>
+  </div>
+
+  <!-- Columna derecha -->
+  <div class="lg:w-3/4 flex flex-col gap-6">
+    <!-- Indicadores -->
+    <section class="bg-white rounded-lg shadow px-6 py-5 dark:bg-slate-800">
+      <h3 class="text-lg font-semibold text-gray-900 mb-5 dark:text-slate-300">
+        Indicadores
+      </h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Card Deuda Total -->
+        <div class="bg-white rounded-lg p-4 border border-gray-100 shadow-sm dark:bg-slate-800 dark:border-gray-400">
+          <div class="flex items-center gap-2 mb-1">
+            <div class="bg-red-50 p-2 rounded">
+              <span class="iconify text-red-500" data-icon="ph:money"></span>
+            </div>
+            <span class="text-gray-600 font-medium dark:text-slate-300">
+              Deuda Total
+            </span>
+          </div>
+          <div class="mt-4">
+            <div class="text-2xl font-bold text-gray-900 dark:text-slate-200">
+              S/ {{ totalDebt() | number: '.2-2' }}
+            </div>
+            <div class="text-gray-400 text-sm dark:text-slate-300">
+              Monto total de lotes - Pagos realizados
+            </div>
+          </div>
+        </div>
+
+        <!-- Card Total Abonado -->
+        <div class="bg-white rounded-lg p-4 border border-gray-100 shadow-sm dark:bg-slate-800 dark:border-gray-400">
+          <div class="flex items-center gap-2 mb-1">
+            <div class="bg-green-50 p-2 rounded">
+              <span class="iconify text-green-500" data-icon="ph:currency-circle-dollar"></span>
+            </div>
+            <span class="text-gray-600 font-medium dark:text-slate-300">
+              Total Abonado
+            </span>
+          </div>
+          <div class="mt-4">
+            <div class="text-2xl font-bold text-gray-900 dark:text-slate-200">
+              S/ {{ totalPaid() | number:'.2-2' }}
+            </div>
+            <div class="text-gray-400 text-sm dark:text-slate-300">Suma de pagos realizados</div>
+          </div>
+        </div>
+
+        <!-- Card Cuotas Vencidas -->
+        <div class="bg-white rounded-lg p-4 border border-gray-100 shadow-sm dark:bg-slate-800 dark:border-gray-400">
+          <div class="flex items-center gap-2 mb-1">
+            <div class="bg-amber-50 p-2 rounded">
+              <span class="iconify text-amber-500" data-icon="ph:warning"></span>
+            </div>
+            <span class="text-gray-600 font-medium dark:text-slate-300">
+              Cuotas Vencidas
+            </span>
+          </div>
+          <div class="mt-4">
+            <div class="text-2xl font-bold text-gray-900 dark:text-slate-200">
+              {{ countOverdueDebt() }}
+            </div>
+            <div class="text-gray-400 text-sm dark:text-slate-300">Pagos pendientes</div>
+          </div>
+        </div>
+
+        <!-- Card Última Actividad -->
+        <div class="bg-white rounded-lg p-4 border border-gray-100 shadow-sm dark:bg-slate-800 dark:border-gray-400">
+          <div class="flex items-center gap-2 mb-1">
+            <div class="bg-blue-50 p-2 rounded">
+              <span class="iconify text-blue-500" data-icon="ph:clock"></span>
+            </div>
+            <span class="text-gray-600 font-medium dark:text-slate-300">
+              Última Actividad
+            </span>
+          </div>
+          <div class="mt-4">
+            <div class="text-2xl font-bold text-gray-900 dark:text-slate-200">
+              {{ lastPayment() | moment:'now' }}
+            </div>
+            <div class="text-gray-400 text-sm dark:text-slate-300">
+              Pago de cuota mensual
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Lotes adquiridos -->
+    <section class="bg-white rounded-lg shadow dark:bg-slate-800">
+      <div class="px-6 py-5 border-b border-gray-200">
+        <h3 class="text-lg font-semibold text-gray-900 flex items-center dark:text-slate-200">
+          <span class="iconify w-6 h-6 mr-2 text-gray-500" data-icon="ph:house"></span>
+          Lotes adquiridos
+        </h3>
+      </div>
+
+      <!-- Lista de lotes -->
+      <div class="divide-y divide-gray-200">
+
+        @for (contract of contracts(); track contract.id) {
+
+          <!-- Lote 1 -->
+          <div class="p-6">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+              <div class="flex-1">
+                <div class="flex items-center gap-2 mb-2">
+                  <h4 class="text-lg font-medium text-gray-900 dark:text-slate-300">
+                    {{ contract.proyect.name }}
+                  </h4>
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                    Activo
+                  </span>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                  <div class="flex items-center text-gray-600 dark:text-slate-300">
+                    <span class="iconify w-5 h-5 mr-2 text-gray-400" data-icon="ph:hash"></span>
+                    <div  >
+                      @for (lote of contract.lotes; track lote.id) {
+                        <span  class="">
+                          Lote {{ lote.code }} <small> ({{ lote.squareMeters }} m2) </small>
+                        </span>
+                      }
+                    </div>
+                  </div>
+                  <div class="flex items-center text-gray-600 dark:text-slate-300">
+                    <span class="iconify w-5 h-5 mr-2 text-gray-400" data-icon="ph:currency-circle-dollar"></span>
+                    <span>
+                      Precio: S/ {{ contract.loteAmount | number:'.2-2' }}
+                    </span>
+                  </div>
+                  <div class="flex items-center text-gray-600 dark:text-slate-300">
+                    <span class="iconify w-5 h-5 mr-2 text-gray-400" data-icon="ph:calendar"></span>
+                    <span>Firma: {{ contract.createAt | moment:'createAt' }}</span>
+                  </div>
+                </div>
+              </div>
+              <div class="flex items-center gap-2">
+                <a href="#" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                  <span class="iconify w-4 h-4 mr-2" data-icon="ph:file-text"></span>
+                  Ver contrato
+                </a>
+                <a href="#" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                  <span class="iconify w-4 h-4 mr-2" data-icon="ph:info"></span>
+                  Ver detalle
+                </a>
+              </div>
+            </div>
+          </div>
+
+        } @empty {
+
+          <!-- Mensaje cuando no hay lotes -->
+          <div class="p-6 text-center">
+            <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-gray-100 mb-4">
+              <span class="iconify w-6 h-6 text-gray-400" data-icon="ph:house"></span>
+            </div>
+            <h4 class="text-lg font-medium text-gray-900 mb-1">Sin lotes asignados</h4>
+            <p class="text-gray-500">Este cliente aún no tiene un lote asignado.</p>
+          </div>
+        }
+
+      </div>
+
+    </section>
+  </div>
+</div>

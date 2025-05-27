@@ -24,7 +24,7 @@ import { AreaCompanyService } from '../../../config/services/area-company.servic
 import { AreaCompany, ExpenseType } from '../../../config/interfaces';
 import { SpinnerComponent } from '@shared/components/spinner/spinner.component';
 import { UploadFileService } from '@shared/services/upload-file.service';
-import { AppState } from '../../../../app.config';
+import { AppState } from '@app/app.config';
 import { WebUrlPermissionMethods } from '../../../../auth/interfaces';
 import { apiExpense } from '@shared/helpers/web-apis.helper';
 import { ExpenseTypeService } from '../../../config/services/expense-type.service';

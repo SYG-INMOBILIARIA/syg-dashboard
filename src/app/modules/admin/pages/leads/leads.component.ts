@@ -23,7 +23,7 @@ import { User } from '../../../security/interfaces';
 import { LeadValidatorService } from '../../validators/lead-validator.service';
 import moment from 'moment';
 import { Store } from '@ngrx/store';
-import { AppState } from '../../../../app.config';
+import { AppState } from '@app/app.config';
 import { WebUrlPermissionMethods } from '../../../../auth/interfaces';
 import { apiLead } from '@shared/helpers/web-apis.helper';
 import { environments } from '@envs/environments';

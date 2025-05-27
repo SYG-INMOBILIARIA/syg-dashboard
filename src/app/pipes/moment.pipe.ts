@@ -11,7 +11,7 @@ export type MomentFormat = 'createAt' | 'time' | 'dayName' | 'day' | 'monthName'
 })
 export class MomentPipe implements PipeTransform {
 
-  transform( value?: Date | string, format: MomentFormat = 'createAt' ): unknown {
+  transform( value?: Date | string | null, format: MomentFormat = 'createAt' ): unknown {
 
     if( !value ) return '';
 

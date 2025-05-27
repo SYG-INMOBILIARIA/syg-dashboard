@@ -54,7 +54,12 @@ const routes: Routes = [
       { path: 'leads', loadComponent: () => import('../modules/admin/pages/leads/leads.component') },
       {
         path: 'profile',
-        loadChildren: () => import('../profile/profile.module')
+        loadChildren: () => import('./pages/profile/profile.module')
+      },
+
+      {
+        path: 'client-profile',
+        loadChildren: () => import('./pages/profile-client/profile-client.module')
       },
 
       // {

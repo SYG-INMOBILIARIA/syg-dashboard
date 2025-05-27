@@ -6,6 +6,8 @@
       "@shared/*": ["./src/app/shared/*"],
       "@pipes/*": ["./src/app/pipes/*"],
       "@redux/*": ["./src/app/redux/*"],
+      "@modules/*": ["./src/app/modules/*"],
+      "@app/*": ["./src/app/*"],
     },
     "outDir": "./dist/out-tsc",
     "strict": true,

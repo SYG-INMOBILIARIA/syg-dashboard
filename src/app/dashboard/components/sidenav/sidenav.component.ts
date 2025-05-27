@@ -3,7 +3,7 @@ import { Store } from '@ngrx/store';
 import { Subscription } from 'rxjs';
 
 import { AuthState } from '@redux/reducers/auth.reducer';
-import { AppState } from '../../../app.config';
+import { AppState } from '@app/app.config';
 import { Permission } from '../../../auth/interfaces';
 import { initFlowbite } from 'flowbite';
 

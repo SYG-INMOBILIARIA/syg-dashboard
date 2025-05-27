@@ -10,7 +10,7 @@ import { MiniMapComponent } from '@shared/components/mini-map/mini-map.component
 import { fullTextPatt } from '@shared/helpers/regex.helper';
 import { ProyectService } from '../../services/proyect.service';
 import { Proyect } from '../../interfaces';
-import { AppState } from '../../../../app.config';
+import { AppState } from '@app/app.config';
 import { WebUrlPermissionMethods } from '../../../../auth/interfaces';
 import { apiProyect } from '@shared/helpers/web-apis.helper';
 

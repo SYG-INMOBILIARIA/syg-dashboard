@@ -15,5 +15,4 @@ export class PaymentQuoteService {
     return this._http.post<any>(`${ this._baseUrl }/payment-quote`, body );
   }
 
-
 }

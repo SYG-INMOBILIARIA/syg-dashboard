@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { isAuthenticatedGuard, saveCurrentPageGuard } from '@shared/guards';
 import { HomeProfileComponent } from './pages/home-profile/home-profile.component';
-import ProfileLayoutComponent from '../layouts/profile-layout/profile-layout.component';
+import ProfileLayoutComponent from './layouts/profile-layout/profile-layout.component';
 
 const routes: Routes = [
   {

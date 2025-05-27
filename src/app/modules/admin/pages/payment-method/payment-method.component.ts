@@ -7,7 +7,7 @@ import { Store } from '@ngrx/store';
 import { validate as ISUUID } from 'uuid';
 
 import { PaymentMethod, PaymentMethodBody } from '../../interfaces';
-import { AppState } from '../../../../app.config';
+import { AppState } from '@app/app.config';
 import { WebUrlPermissionMethods } from '../../../../auth/interfaces';
 import { PaymentMethodService } from '../../services/payment-method.service';
 import { codePatt, fullTextPatt } from '@shared/helpers/regex.helper';

@@ -13,10 +13,10 @@ export const routes: Routes = [
     path: 'dashboard',
     loadChildren: () => import('./dashboard/dashboard.module')
   },
-  {
-    path: 'profile',
-    loadChildren: () => import('./profile/profile.module')
-  },
+  // {
+  //   path: 'profile',
+  //   loadChildren: () => import('./dashboard/')
+  // },
   {
     path: '404',
     // canMatch: [saveCurrentPageGuard],

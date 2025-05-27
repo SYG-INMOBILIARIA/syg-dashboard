@@ -1,0 +1,237 @@
+<!-- Resumen superior -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+  <!-- Total Abonado -->
+  <div class="bg-white rounded-lg shadow p-4 dark:bg-slate-800 dark:border-gray-400">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="bg-green-50 p-2 rounded">
+        <span class="iconify text-green-500" data-icon="ph:currency-circle-dollar"></span>
+      </div>
+      <span class="text-gray-600 font-medium dark:text-slate-300">Total Abonado</span>
+    </div>
+    <div class="text-2xl font-bold text-gray-900 dark:text-slate-200">
+      S/ {{ totalPaid() | number:'.2-2' }}
+    </div>
+  </div>
+
+  <!-- Deuda Restante -->
+  <div class="bg-white rounded-lg shadow p-4 dark:bg-slate-800 dark:border-gray-400">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="bg-red-50 p-2 rounded">
+        <span class="iconify text-red-500" data-icon="ph:money"></span>
+      </div>
+      <span class="text-gray-600 font-medium dark:text-slate-300">Deuda Restante</span>
+    </div>
+    <div class="text-2xl font-bold text-gray-900 dark:text-slate-200">
+      S/ {{ totalDebt() | number:'.2-2' }}
+    </div>
+  </div>
+
+  <!-- Cuotas Pendientes -->
+  <div class="bg-white rounded-lg shadow p-4 dark:bg-slate-800 dark:border-gray-400">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="bg-amber-50 p-2 rounded">
+        <span class="iconify text-amber-500" data-icon="ph:warning"></span>
+      </div>
+      <span class="text-gray-600 font-medium dark:text-slate-300">Cuotas Pendientes</span>
+    </div>
+    <div class="text-2xl font-bold text-gray-900 dark:text-slate-200">
+       {{ countDebt() }}
+    </div>
+  </div>
+
+  <!-- Cuotas Pagadas -->
+  <div class="bg-white rounded-lg shadow p-4 dark:bg-slate-800 dark:border-gray-400">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="bg-blue-50 p-2 rounded">
+        <span class="iconify text-blue-500" data-icon="ph:check-circle"></span>
+      </div>
+      <span class="text-gray-600 font-medium dark:text-slate-300">Cuotas Pagadas</span>
+    </div>
+    <div class="text-2xl font-bold text-gray-900 dark:text-slate-200">
+      {{ countPaid() }}
+    </div>
+  </div>
+</div>
+
+<div class="flex flex-wrap ">
+  <div class="flex-none w-full max-w-full ">
+    <div class="relative flex flex-col min-w-0 mb-6 break-words bg-white border-solid shadow-md dark:bg-slate-800 dark:shadow-dark-md rounded-2xl bg-clip-border ">
+
+      <div class="flex flex-col gap-2 md:flex-row md:items-center justify-between py-6 px-4">
+        <div>
+          <h1 class="text-3xl font-bold text-gray-800 dark:text-slate-100">
+            Cuotas pendientes
+          </h1>
+        </div>
+        <div class="flex items-center gap-3">
+          <button
+            #btnShowPaymentQuoteModal
+            type="button"
+            data-modal-target="payment-modal"
+            data-modal-toggle="payment-modal"
+            class="inline-block px-6 py-2 mr-3 font-semibold text-center text-white align-middle transition-all rounded cursor-pointer bg-emerald-600 hover:bg-emerald-700 leading-normal ease-in tracking-tight-rem shadow-xs bg-150 bg-x-25 hover:-translate-y-px active:opacity-85 hover:shadow-md"
+            (click)="onSetContractQuoteToPay()"
+            >
+            <i class="fa-solid fa-plus mr-1"></i>
+            Pagar múltiples cuotas
+          </button>
+
+          <button class="border border-gray-300 text-gray-700 inline-block px-4 py-2 mr-3 font-semibold text-center  align-middle transition-all rounded cursor-pointer leading-normal ease-in tracking-tight-rem shadow-xs bg-150 bg-x-25 hover:-translate-y-px active:opacity-75 hover:shadow-md dark:text-slate-200">
+            <i class="fa-solid fa-download h-5 w-5 mr-1"></i>
+            Descargar Reporte PDF
+          </button>
+        </div>
+      </div>
+
+      <div class=" overflow-hidden">
+        <table class="w-full text-sm text-left">
+          <thead >
+            <tr class="bg-gray-50/50">
+
+              <th class="px-6 py-3 font-semibold text-gray-600 ">CUOTA</th>
+              <th class="px-6 py-3 font-semibold text-gray-600 ">CONTRATO</th>
+              <th class="px-6 py-3 font-semibold text-gray-600 ">CLIENTE</th>
+              <th class="px-6 py-3 font-semibold text-gray-600 ">
+                <div class="flex items-center">
+                  FECHA DE PAGO
+                  <svg xmlns="http://www.w3.org/2000/svg" class="ml-1 h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                  </svg>
+                </div>
+              </th>
+              <th class="px-6 py-3 font-semibold text-gray-600 ">STATUS</th>
+              <th class="px-6 py-3 font-semibold text-gray-600 w-32 ">MONTO</th>
+              <th class="px-6 py-3 font-semibold text-gray-600 w-32 ">MORA</th>
+              <th class="px-6 py-3 font-semibold text-gray-600 w-32 ">ABONADO</th>
+              <th class="px-6 py-3 font-semibold text-gray-600 w-32 ">DEUDA</th>
+              <th class="px-6 py-3 font-semibold text-gray-600  text-right">
+                ACCIONES
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+
+            @if (isLoading()) {
+              <tr>
+                <td colspan="10">
+                  <div class="flex justify-center items-center gap-2 h-14 p-2">
+                    <spinner></spinner>
+                    Cargando...
+                  </div>
+                </td>
+              </tr>
+            } @else {
+
+              @for ( contractQuote of contractQuotes(); track $index) {
+
+                <!-- Row 1 hover:bg-gray-50/50-->
+                <tr class="border-b dark:border-white/40 border-gray-200 dark:text-slate-400 ">
+
+                  <td class="font-medium p-4">
+                    {{ contractQuote.code }}
+                  </td>
+                  <td class="font-medium ">
+                    {{ contractQuote.contract.code }}
+                  </td>
+                  <td class="">
+                    {{ contractQuote.contract.client.fullname }}
+                  </td>
+                  <td class="">
+                    {{ contractQuote.paymentDate | moment:'createAt' }}
+                  </td>
+                  <td class="">
+                    <span
+                      class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium "
+                      [ngClass]="{
+                        'bg-[#F2FCE2] text-[#16a34a]': contractQuote.isPaid,
+                        'bg-[#FFDEE2] text-[#ea384c]': !contractQuote.isPaid
+                        }"
+                    >
+                      @if (contractQuote.isPaid) {
+                        Pagado
+                      } @else {
+                        No pagado
+                      }
+                    </span>
+                  </td>
+                  <td class="  font-semibold">
+                    S/ {{ contractQuote.amountToPay | number: '.2-2' }}
+                  </td>
+                  <td class="  font-semibold">
+                    S/ {{ contractQuote.tardinessAmount | number: '.2-2' }}
+                  </td>
+                  <td class="  font-semibold">
+                    S/ {{ contractQuote.totalPaid| number: '.2-2' }}
+                  </td>
+                  <td class="  font-semibold">
+                    S/ {{ contractQuote.totalDebt| number: '.2-2' }}
+                  </td>
+                  <td class="  ">
+
+                    @if ( !contractQuote.isPaid ) {
+
+                      <div class=" flex justify-center items-center gap-3">
+
+                        @if ( !contractQuote.isExoneratedTardiness ) {
+                          <button
+                            type="button"
+                            class="bg-gray-100 text-gray-600 hover:bg-gray-200 border border-gray-200 px-3 py-1 rounded-md"
+                            (click)="onExonerateTardinessConfirm( contractQuote )"
+                            >
+                            Exo. Mora
+                          </button>
+                        }
+
+                        <button
+                          id="btnPayQuote{{ $index }}"
+                          type="button"
+                          data-modal-target="payment-modal"
+                          data-modal-toggle="payment-modal"
+                          class=" bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1 rounded-md"
+                          (click)="onSetContractQuoteToPay( contractQuote )"
+                          >
+                          Pagar
+                        </button>
+                      </div>
+
+                    }
+
+                  </td>
+                </tr>
+
+              } @empty {
+
+                @if (!isLoading()) {
+                  <tr>
+                    <td colspan="10">
+                      <div class="text-center p-4 border-b text-xl text-slate-400">
+                        Sin registros
+                      </div>
+                    </td>
+                  </tr>
+                }
+              }
+            }
+
+          </tbody>
+        </table>
+
+        <div class="" >
+
+          <!-- (onChangePage)="" -->
+          <app-pagination [totalItems]="contractQuotesTotal()" (onChangePage)="onGetContractQuotesPagination( $event )"  >
+          </app-pagination>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<paid-quotes-modal
+  [contractQuotesData]="contractQuotesAll()"
+  [contractQuotesToPaid]="contractQuoteToPay()"
+  (paidQuoteSuccess)="onGetContractQuotes()" >
+</paid-quotes-modal>

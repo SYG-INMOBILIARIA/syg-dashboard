@@ -7,21 +7,21 @@ import { validate as ISUUID } from 'uuid';
 
 import ClientIndicatorsComponent from '../../components/client-indicators/client-indicators.component';
 import { ProfileService } from '../../services/profile.service';
-import { Client, ClientBody, ClientStatus, PersonType } from '../../../modules/admin/interfaces';
+import { Client, ClientBody, ClientStatus, PersonType } from '@modules/admin/interfaces';
 import { emailPatt, fullTextPatt, numberDocumentPatt, numberPatt, phonePatt } from '@shared/helpers/regex.helper';
 import { environments } from '@envs/environments';
 import { PipesModule } from '@pipes/pipes.module';
 import { PaginationComponent } from '@shared/components/pagination/pagination.component';
-import { IdentityDocument } from '../../../auth/interfaces';
+import { IdentityDocument } from '../../../../../auth/interfaces';
 import { Nomenclature } from '@shared/interfaces';
 import { forkJoin } from 'rxjs';
-import { IdentityDocumentService } from '../../../modules/admin/services/identity-document.service';
+import { IdentityDocumentService } from '@modules/admin/services/identity-document.service';
 import { NomenclatureService } from '@shared/services/nomenclature.service';
-import { ClientService } from '../../../modules/admin/services/client.service';
+import { ClientService } from '@modules/admin/services/client.service';
 import { AlertService } from '@shared/services/alert.service';
 import { SpinnerComponent } from '@shared/components/spinner/spinner.component';
 import { InputErrorsDirective } from '@shared/directives/input-errors.directive';
-import { ClientValidatorService } from '../../../modules/admin/validators/client-validator.service';
+import { ClientValidatorService } from '@modules/admin/validators/client-validator.service';
 
 @Component({
   selector: 'app-client-profile',

@@ -16,7 +16,7 @@ import { NomenclatureService } from '@shared/services/nomenclature.service';
 import { Nomenclature } from '@shared/interfaces';
 import { Subscription } from 'rxjs';
 import { Store } from '@ngrx/store';
-import { AppState } from '../../../../app.config';
+import { AppState } from '@app/app.config';
 import { WebUrlPermissionMethods } from '../../../../auth/interfaces';
 import { apiPermission } from '@shared/helpers/web-apis.helper';
 

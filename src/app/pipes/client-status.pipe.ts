@@ -7,21 +7,21 @@ import { ClientStatus } from '../modules/admin/interfaces';
 })
 
 export class ClientStatusPipe implements PipeTransform {
-  transform( value: ClientStatus ): string {
+  transform( value?: ClientStatus ): string {
 
-    let status = 'Concretado';
+    let status = 'No-Concretado';
 
     switch (value) {
       case ClientStatus.Pending:
         status = 'Pendiente';
         break;
 
-        case ClientStatus.NotFinalized:
-          status = 'No-concretado';
+        case ClientStatus.Finalized:
+          status = 'Concretado';
           break;
 
       default:
-        status = 'Concretado';
+        status = 'No-Concretado';
         break;
     }
 

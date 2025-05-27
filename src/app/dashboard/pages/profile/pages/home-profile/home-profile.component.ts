@@ -1,8 +1,8 @@
 import { Component, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Subscription } from 'rxjs';
-import { AppState } from '../../../app.config';
-import { User } from '../../../modules/security/interfaces';
+import { AppState } from '@app/app.config';
+import { User } from '@modules/security/interfaces';
 
 @Component({
   selector: 'app-home-profile',

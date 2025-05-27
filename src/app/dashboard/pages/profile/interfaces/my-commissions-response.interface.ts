@@ -1,4 +1,4 @@
-import { Contract, IdentityDocument } from "../../modules/admin/interfaces";
+import { Contract, IdentityDocument } from "@modules/admin/interfaces";
 
 export interface MyCommissionsResponse {
   commissions: Commission[];

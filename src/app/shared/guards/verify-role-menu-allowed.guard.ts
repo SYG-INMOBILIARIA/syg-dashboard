@@ -3,7 +3,7 @@ import { CanActivateFn, Router, UrlTree } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { validate as ISUUID } from 'uuid';
 
-import { AppState } from '../../app.config';
+import { AppState } from '@app/app.config';
 import { Observable, map } from 'rxjs';
 import { AuthState } from '@redux/reducers/auth.reducer';
 
@@ -23,15 +23,27 @@ export const verifyRoleMenuAllowedGuard: CanActivateFn = (route, state) : Observ
 
             const { webUrlPermissionMethods } = state;
 
-            const profilePattern = new RegExp("\/dashboard\/profile*", "i");
+            const profilePattern = new RegExp("\/dashboard\/profile\/*", "i");
 
-            if( ["/", "/#", "/dashboard", "/dashboard/home"].includes( routeUrl ) || profilePattern.test(routeUrl) ) return true;
+            const profileClientPattern = new RegExp("\/dashboard\/client-profile\/*", "i");
 
+            const isHaveProfileClientMenu = webUrlPermissionMethods.some( (allow) => allow.webUrl == '/dashboard/client-profile' );
+
+            const appMenuFefault = ["/", "/#", "/dashboard", "/dashboard/home"];
+
+            if( appMenuFefault.includes( routeUrl ) || profilePattern.test(routeUrl) ) {
+              return true;
+            }
             const webUrlsegments = routeUrl.split('/')
                             .map( (segment) => {
                               if( ISUUID(segment) ) return ':id';
                               return segment;
                             }).join('/');
+
+
+            if( isHaveProfileClientMenu && profileClientPattern.test( webUrlsegments ) ) {
+              return true;
+            }
 
             const isAllowed = webUrlPermissionMethods.some( (allow) => allow.webUrl == webUrlsegments );
 

@@ -32,6 +32,10 @@ export class ContractService {
     return this._http.get<ContractLotesBusied[]>(`${ this._baseUrl }/contract/by-proyect/${ proyectId }`);
   }
 
+  getContractsByClient( clientId: string ): Observable<ListContractResponse> {
+    return this._http.get<ListContractResponse>(`${ this._baseUrl }/contract/by-client/${ clientId }`);
+  }
+
   getContractById( contractId: string ): Observable<ContractByID> {
     return this._http.get<ContractByID>(`${ this._baseUrl }/contract/${ contractId }`);
   }
@@ -68,5 +72,7 @@ export class ContractService {
     });
 
   }
+
+
 
 }

@@ -1,0 +1,381 @@
+<!-- New Payment Modal (Initially Hidden) -->
+<div id="payment-modal" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 mt-5 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+
+  <div class="relative p-4 w-full max-w-4xl max-h-full">
+
+    <div class="bg-white rounded-lg shadow-xl w-full mx-4 dark:bg-gray-700">
+      <div class="p-6">
+        <div class="flex justify-between items-start mb-4">
+          <div>
+            <h2 class="text-xl font-semibold dark:text-white">
+              Registrar Nuevo Pago
+            </h2>
+          </div>
+          <button
+            #btnClosePaymentQuoteModal
+            type="button"
+            data-modal-toggle="payment-modal"
+            class="text-gray-400 hover:text-gray-500"
+            (click)="onResetAfterSubmit()"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <form class="space-y-4" [formGroup]="paymentQuoteForm" (submit)="onSubmit()" >
+
+          <!-- Modal Body -->
+          <div class="">
+            <div class="grid grid-cols-12 gap-8">
+
+              <!-- Left Column - Form -->
+              <div class="col-span-6" >
+
+                <div class="mb-4">
+                  <label for="cbxPaymentType" class="block mb-2 text-sm font-medium text-gray-900 dark:text-slate-100">
+                    Seleccione cuota(s) *
+                  </label>
+                  <ng-select
+                    id="cbxPaymentType"
+                    class="bg-gray-50 text-gray-900 text-sm rounded-md block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                    [items]="contractQuotes()"
+                    [multiple]="true"
+                    [closeOnSelect]="contractQuotes.length == 1"
+                    [hideSelected]="true"
+                    [readonly]="isReadOnly()"
+                    (ngModelChange)="onUpdateSelectQuotes( $event )"
+                    bindLabel="paymentDate"
+                    bindValue="id"
+                    placeholder="Seleccione Cuota"
+                    formControlName="contractQuotes"
+                    [class.border-red-400]=" inputErrors('contractQuotes') && isTouched('contractQuotes') "
+                  >
+
+                  <ng-template ng-label-tmp let-item="item" let-clear="clear" class="">
+                    <span class="ng-value-label dark:bg-slate-900">
+                      <span class="font-semibold text-md  dark:text-slate-200">
+                        {{ item.code }}
+                      </span>
+                    </span>
+                    <span class="ng-value-icon right" (click)="clear(item)" aria-hidden="true">×</span>
+                  </ng-template>
+
+                  <ng-template ng-option-tmp let-item="item" class="text-gray-900 whitespace-nowrap dark:text-white text-left ">
+
+                    <div class=" flex justify-between">
+                      <div class="text-normal flex justify-center items-center gap-1.5 ">
+                        <span class="italic text-slate-500 dark:text-slate-300">
+                          Cuota:
+                        </span>
+                        <span class="font-semibold text-md">
+                          {{ item.code }}
+                        </span>
+                      </div>
+                      <div class="text-left flex justify-start gap-2.5 w-36">
+                        {{ item.paymentDate | moment: 'createAt' }}
+                      </div>
+                    </div>
+
+                  </ng-template>
+
+                  </ng-select>
+
+                  @if (isTouched('contractQuotes')) {
+                    <span
+                      class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                      inputErrors
+                      [errors]="inputErrors('contractQuotes')"
+                      [class.hidden]="!inputErrors('contractQuotes')"
+                      inputLabel="Cuota(s)" >
+                    </span>
+                  }
+                </div>
+
+                <div class="space-y-2">
+                  <h3 class="text-lg font-semibold text-gray-800 dark:text-slate-100">Datos del Pago</h3>
+
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                    <div>
+
+                      <label for="txtPaidDate" class="block mb-2 text-sm font-medium text-gray-900 dark:text-slate-100">
+                        Fecha de pago *
+                      </label>
+                      <div class="relative">
+                        <span class="absolute left-3 top-2">
+                          <i class="fa-solid fa-calendar"></i>
+                        </span>
+
+                        <input
+                          #birthDateInput
+                          type="text"
+                          id="txtPaidDate"
+                          mwlFlatpickr
+                          locale="Spanish"
+                          [altInput]="true"
+                          [maxDate]="currentDate"
+                          class="bg-gray-50 ps-6 text-center border border-gray-300 text-gray-900 text-sm rounded-md focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                          placeholder="YYYY-MM-DD"
+                          formControlName="paymentDate"
+                          [class.border-red-400]=" inputErrors('paymentDate') && isTouched('paymentDate') "
+                        >
+                      </div>
+
+                      @if (isTouched('paymentDate')) {
+                        <span
+                          class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                          inputErrors
+                          [errors]="inputErrors('paymentDate')"
+                          [class.hidden]="!inputErrors('paymentDate')"
+                          inputLabel="fecha de pago" >
+                        </span>
+                      }
+                    </div>
+
+                    <div>
+                      <label for="txtAmountPaid" class="block text-sm font-medium text-gray-700 mb-2 dark:text-white">
+                        Monto pagado
+                      </label>
+                      <div class="relative">
+                        <span class="absolute left-3 top-2 dark:text-slate-400">S/ </span>
+                        <input
+                          id="txtAmountPaid"
+                          type="number"
+                          placeholder="0.00"
+                          step="0.50"
+                          class="bg-gray-50 border pl-10 border-gray-300 text-gray-900 text-sm rounded-md focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500 "
+                          formControlName="amount"
+                          [class.border-red-400]=" inputErrors('amount') && isTouched('amount') "
+                        >
+
+                        @if (isTouched('amount')) {
+                          <span
+                            class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                            inputErrors
+                            [errors]="inputErrors('amount')"
+                            [class.hidden]="!inputErrors('amount')"
+                            inputLabel="monto" >
+                          </span>
+                        }
+                      </div>
+                    </div>
+
+                    <div>
+                      <label for="cbxPaymentType" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                        Tipo de pago *
+                      </label>
+                      <ng-select
+                        id="cbxPaymentType"
+                        class="bg-gray-50 text-gray-900 text-sm rounded-md block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                        [items]="paymentsMethod()"
+                        bindLabel="name"
+                        bindValue="id"
+                        placeholder="Seleccione Método de pago"
+                        formControlName="paymentMethodId"
+                        [class.border-red-400]=" inputErrors('paymentMethodId') && isTouched('paymentMethodId') "
+                      >
+                      </ng-select>
+
+                      @if (isTouched('paymentMethodId')) {
+                        <span
+                          class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                          inputErrors
+                          [errors]="inputErrors('paymentMethodId')"
+                          [class.hidden]="!inputErrors('paymentMethodId')"
+                          inputLabel="Tipo de pago" >
+                        </span>
+                      }
+                    </div>
+
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-2 dark:text-white">
+                        ID Transacción
+                      </label>
+                      <input
+                        type="text"
+                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-md focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                        placeholder="#"
+                        formControlName="operationCode"
+                        [class.border-red-400]=" inputErrors('operationCode') && isTouched('operationCode') "
+                      >
+
+                      @if (isTouched('operationCode')) {
+                        <span
+                          class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                          inputErrors
+                          [errors]="inputErrors('operationCode')"
+                          [class.hidden]="!inputErrors('operationCode')"
+                          inputLabel="Nro operación" >
+                        </span>
+                      }
+                    </div>
+
+                  </div>
+
+                  <!-- File Upload -->
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2 dark:text-slate-100">
+                      Cargar documento
+                    </label>
+
+                    @if ( !file ) {
+
+                      <div class=" mt-1 flex justify-center items-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
+                        <div class="space-y-1 text-center h-[215px] pt-10">
+
+                          <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
+                            <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                          </svg>
+
+                          <div class="text-sm text-gray-600">
+                            <label
+                              for="file-upload"
+                              class="relative cursor-pointer bg-white rounded-md font-medium text-emerald-600 hover:text-emerald-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-emerald-500 dark:bg-slate-700"
+                            >
+                              <span>Sube un archivo</span>
+                              <input id="file-upload" name="file-upload" type="file" class="sr-only" (change)="onChangeFile( $event.target )">
+                            </label>
+                            <!-- <p class="pl-1">o arrastra y suelta</p> -->
+                          </div>
+                          <p class="text-xs text-gray-500">PNG, JPG, PDF hasta 10MB</p>
+                        </div>
+                      </div>
+                    } @else {
+                      <div class="flex justify-center items-center ">
+                        <div class="relative w-40">
+
+                          <img class="w-40 h-60 border-2 border-gray-300 border-dashed" [src]="fileUrl()" alt="Rounded avatar">
+                          <div class="absolute cursor-pointer inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-red-500 border-2 border-white rounded-full -top-2 -end-1.5 dark:border-gray-900"
+                            (click)="onRemoveFile()"
+                          >
+                            <i class="fa-solid fa-xmark"></i>
+                          </div>
+                        </div>
+                      </div>
+                    }
+
+                  </div>
+
+                </div>
+              </div>
+
+              <!-- Right Column - Details -->
+              <div class="col-span-6 h-full">
+                <div class=" max-h-96 h-96 bg-gray-50 rounded-md px-5 py-4 overflow-auto ">
+                  <h3 class="text-lg font-medium text-gray-800 mb-1">
+                    Detalles (Cuotas seleccionadas)
+                  </h3>
+
+                  <div class="space-y-4">
+                    <!-- Cuota #1 -->
+
+                    @for (item of contractQuotesSelected(); track $index) {
+                      <div class="border-b border-gray-200 pb-4">
+
+                        <div class=" flex justify-between mb-2">
+                            <span class="font-medium">
+                              Cuota: {{ item.code }}
+                            </span>
+                            <span class="text-sm text-green-500 font-semibold">
+                              {{ item.paymentDate | moment: 'createAt' }}
+                            </span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 text-sm">
+                          <div>
+                            <span class="text-gray-500">Cuota:</span>
+                            <span class="ml-1">
+                              S/ {{ item.amountToPay | number:'.2-2' }}
+                            </span>
+                          </div>
+                          <div>
+                            <span class="text-gray-500">Mora:</span>
+                            <span class="ml-1">
+                              S/ {{ item.tardinessAmount | number:'.2-2' }}
+                            </span>
+                          </div>
+                          <div>
+                            <span class="text-gray-500">Abonado:</span>
+                            <span class="ml-1">
+                              S/ {{ item.totalPaid | number:'.2-2' }}
+                            </span>
+                          </div>
+                          <div>
+                            <span class="text-gray-500">Deuda:</span>
+                            <span class="ml-1 font-medium">
+                              S/ {{ item.totalDebt | number:'.2-2' }}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                    }
+
+                    <!-- Total -->
+                    <div class="pt-2">
+                      <div class="flex justify-between items-center text-lg font-medium">
+                        <span>Total a pagar:</span>
+                        <span>
+                          S/ {{ totalDebt() | number:'.2-2' }}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Observations -->
+
+                </div>
+                <div class="pt-5">
+                  <label class="block text-sm font-medium text-gray-700 mb-2 dark:text-white">
+                    Observaciones
+                  </label>
+                  <textarea
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-md focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                    rows="6"
+                    placeholder="Agregar comentarios adicionales aquí..."
+                    formControlName="observation"
+                  >
+                  </textarea>
+
+                  @if (isTouched('observation')) {
+                    <span
+                      class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                      inputErrors
+                      [errors]="inputErrors('observation')"
+                      [class.hidden]="!inputErrors('observation')"
+                      inputLabel="Observación" >
+                    </span>
+                  }
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+          <div class="flex justify-end gap-3 ">
+            <button
+              type="button"
+              data-modal-toggle="payment-modal"
+              class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 dark:bg-slate-200 dark:text-slate-800  "
+              (click)="onResetAfterSubmit()"
+            >
+              Cancelar
+            </button>
+            <button type="submit" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-md">
+              <span *ngIf="!isSaving() else paidQuotesSpinner" >
+                Guardar
+              </span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<ng-template #paidQuotesSpinner>
+  <spinner></spinner>
+</ng-template>

@@ -17,13 +17,13 @@ import { PaginationComponent } from '@shared/components/pagination/pagination.co
 import { PipesModule } from '@pipes/pipes.module';
 import { SpinnerComponent } from '@shared/components/spinner/spinner.component';
 import { UploadFileService } from '@shared/services/upload-file.service';
-import { SellerPaymentService } from '../../../modules/admin/services/seller-payment.service';
+import { SellerPaymentService } from '@modules/admin/services/seller-payment.service';
 import PaymentIndicatorsComponent from '../../components/payment-indicators/payment-indicators.component';
-import { PaymentMethodService } from '../../../modules/admin/services/payment-method.service';
+import { PaymentMethodService } from '@modules/admin/services/payment-method.service';
 import { SellerPayment, SellerPaymentBody } from '../../interfaces';
-import { PaymentMethod } from '../../../modules/admin/interfaces';
-import { AppState } from '../../../app.config';
+import { PaymentMethod } from '@modules/admin/interfaces';
 import { Subscription } from 'rxjs';
+import { AppState } from '@app/app.config';
 
 @Component({
   selector: 'app-payment-profile',

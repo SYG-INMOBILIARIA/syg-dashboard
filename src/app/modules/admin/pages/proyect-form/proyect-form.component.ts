@@ -16,7 +16,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { AlertService } from '@shared/services/alert.service';
 import { Subscription } from 'rxjs';
 import { Store } from '@ngrx/store';
-import { AppState } from '../../../../app.config';
+import { AppState } from '@app/app.config';
 import { WebUrlPermissionMethods } from '../../../../auth/interfaces';
 import { apiProyect } from '@shared/helpers/web-apis.helper';
 

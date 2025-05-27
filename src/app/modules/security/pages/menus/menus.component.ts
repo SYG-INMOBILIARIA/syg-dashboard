@@ -18,7 +18,7 @@ import { translatePatt } from '@shared/helpers/regex.helper';
 import { MenuBody, MenuMoveBody } from '../../interfaces';
 import { MenuService } from '../../services/menu.service';
 import { AppFlatMenu, AppMenu, MenuHandler } from './menu-handler';
-import { AppState } from '../../../../app.config';
+import { AppState } from '@app/app.config';
 import { WebUrlPermissionMethods } from '../../../../auth/interfaces';
 import { apiMenu } from '@shared/helpers/web-apis.helper';
 

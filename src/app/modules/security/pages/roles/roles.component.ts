@@ -15,7 +15,7 @@ import { SpinnerComponent } from '@shared/components/spinner/spinner.component';
 import { AlertService } from '@shared/services/alert.service';
 import { PaginationComponent } from '@shared/components/pagination/pagination.component';
 import { PipesModule } from '@pipes/pipes.module';
-import { AppState } from '../../../../app.config';
+import { AppState } from '@app/app.config';
 import { WebUrlPermissionMethods } from '../../../../auth/interfaces';
 import { apiRole } from '@shared/helpers/web-apis.helper';
 

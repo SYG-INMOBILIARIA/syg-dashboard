@@ -1,7 +1,7 @@
 import { createReducer, on } from '@ngrx/store';
 import * as profileActions from '../actions/profile.actions';
-import { User } from '../../modules/security/interfaces';
-import { SellerPayment } from '../../profile/interfaces/seller-payment.interface';
+import { User } from '@modules/security/interfaces';
+import { SellerPayment } from '../../dashboard/pages/profile/interfaces/seller-payment.interface';
 
 export interface ProfileState {
     userProfile: User | null,
@@ -46,6 +46,17 @@ const _profileReducer = createReducer(
   on(
     profileActions.onLoadLastPayment,
     (state, { lastPayment }) => ({...state, lastPayment }),
+  ),
+
+  on(
+    profileActions.onResetProfile,
+    () => ({
+      userProfile: null,
+      profits: 0,
+      totalPayments: 0,
+      totalCommissions: 0,
+      lastPayment: null
+    }),
   ),
 
 );

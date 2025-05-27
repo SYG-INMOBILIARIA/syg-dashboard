@@ -26,6 +26,14 @@ export class ContractQuoteService {
     return this._http.get<ContractQuote>(`${ this._baseUrl }/contract-quote/${ id }`);
   }
 
+  getContractQuoteByClient(page: number, limit = 10, clientId: string ): Observable<ListContractQuoteResponse> {
+
+    let queryParams = `page=${ page }`;
+    queryParams += `&limit=${ limit }`;
+
+    return this._http.get<ListContractQuoteResponse>(`${ this._baseUrl }/contract-quote/by-client/${ clientId }?${ queryParams }` );
+  }
+
   exonerateTardiness( id: string ): Observable<ContractQuote> {
     return this._http.patch<ContractQuote>(`${ this._baseUrl }/contract-quote/exonerate-tardiness/${ id }`, {});
   }

@@ -20,7 +20,7 @@ import { Financing, FinancingBody, Proyect } from '../../interfaces';
 import { ProyectService } from '../../services/proyect.service';
 import { FinancingType } from '../../enum/financing-type.type';
 import { Store } from '@ngrx/store';
-import { AppState } from '../../../../app.config';
+import { AppState } from '@app/app.config';
 import { WebUrlPermissionMethods } from '../../../../auth/interfaces';
 import { apiFinancing } from '@shared/helpers/web-apis.helper';
 

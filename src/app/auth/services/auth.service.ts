@@ -8,7 +8,7 @@ import { Store } from '@ngrx/store';
 import { environments } from '@envs/environments';
 import { AuthStatus } from '../enums';
 import { AuthResponse, RoleMenuPermission, UserAuthenticated, WebUrlPermissionMethods } from '../interfaces';
-import { AppState } from '../../app.config';
+import { AppState } from '@app/app.config';
 
 import * as authActions from '@redux/actions/auth.actions';
 

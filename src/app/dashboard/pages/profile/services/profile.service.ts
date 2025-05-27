@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 
 import { environments } from '@envs/environments';
 import { ClientIndicators, MyCommissionsResponse, SellerIndicatorsResponse, SellerPaymentIndicatorsResponse } from '../interfaces';
-import { ListClientResponse } from '../../modules/admin/interfaces';
+import { ListClientResponse } from '@modules/admin/interfaces';
 
 @Injectable({providedIn: 'root'})
 export class ProfileService {

@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environments } from '@envs/environments';
-import { ListSellerPaymentResponse, SellerPayment, SellerPaymentBody } from '../../../profile/interfaces';
+import { ListSellerPaymentResponse, SellerPayment, SellerPaymentBody } from '../../../dashboard/pages/profile/interfaces';
 
 @Injectable({providedIn: 'root'})
 export class SellerPaymentService {

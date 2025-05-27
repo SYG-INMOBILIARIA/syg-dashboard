@@ -9,7 +9,7 @@ import { FlatpickrDirective } from 'angularx-flatpickr';
 import { Router, RouterModule } from '@angular/router';
 
 import { Store } from '@ngrx/store';
-import { AppState } from '../../../../app.config';
+import { AppState } from '@app/app.config';
 import { apiUser } from '@shared/helpers/web-apis.helper';
 
 import { PipesModule } from '@pipes/pipes.module';

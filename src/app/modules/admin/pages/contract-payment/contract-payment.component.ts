@@ -7,7 +7,7 @@ import { validate as ISUUID } from 'uuid';
 import { Subscription } from 'rxjs';
 import { Store } from '@ngrx/store';
 
-import { AppState } from '../../../../app.config';
+import { AppState } from '@app/app.config';
 import { Contract, ContractPayment, ContractPaymentBody, PaymentMethod } from '../../interfaces';
 import { WebUrlPermissionMethods } from '../../../../auth/interfaces';
 import { ContractService } from '../../services/contract.service';

@@ -10,7 +10,7 @@ import { validate as ISUUID } from 'uuid';
 import { InputErrorsDirective } from '@shared/directives/input-errors.directive';
 import { SpinnerComponent } from '@shared/components/spinner/spinner.component';
 import { SellerService } from '../../services/seller.service';
-import { AppState } from '../../../../app.config';
+import { AppState } from '@app/app.config';
 import { WebUrlPermissionMethods } from '../../../../auth/interfaces';
 import { UserService } from '../../../security/services/user.service';
 import { UserValidatorService } from '../../../security/validators/user-validator.service';

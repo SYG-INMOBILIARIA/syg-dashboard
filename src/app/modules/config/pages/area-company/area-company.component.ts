@@ -16,7 +16,7 @@ import { PipesModule } from '@pipes/pipes.module';
 import { AreaCompanyValdidatorService } from '../../validators/area-company-validator.service';
 import { AreaCompanyService } from '../../services/area-company.service';
 import { AreaCompany } from '../../interfaces';
-import { AppState } from '../../../../app.config';
+import { AppState } from '@app/app.config';
 import { WebUrlPermissionMethods } from '../../../../auth/interfaces';
 
 @Component({

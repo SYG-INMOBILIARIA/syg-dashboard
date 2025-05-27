@@ -1,10 +1,12 @@
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild, computed, inject, signal } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
-import { initFlowbite } from 'flowbite';
+import { CommonModule } from '@angular/common';
+import { Router, RouterModule } from '@angular/router';
 import { Subscription, forkJoin } from 'rxjs';
-import { NgSelectModule } from '@ng-select/ng-select';
-import { validate as ISUUID } from 'uuid';
 import { Store } from '@ngrx/store';
+import { initFlowbite } from 'flowbite';
+import { validate as ISUUID } from 'uuid';
+import { NgSelectModule } from '@ng-select/ng-select';
 import { FlatpickrDirective } from 'angularx-flatpickr';
 
 
@@ -12,7 +14,6 @@ import { ClientService } from '../../services/client.service';
 import { Client, ClientBody, IdentityDocument, PersonType } from '../../interfaces';
 import { AlertService } from '@shared/services/alert.service';
 import { emailPatt, fullTextPatt, numberDocumentPatt, numberPatt, phonePatt } from '@shared/helpers/regex.helper';
-import { CommonModule } from '@angular/common';
 import { SpinnerComponent } from '@shared/components/spinner/spinner.component';
 import { PaginationComponent } from '@shared/components/pagination/pagination.component';
 import { PipesModule } from '@pipes/pipes.module';
@@ -20,7 +21,7 @@ import { NomenclatureService } from '@shared/services/nomenclature.service';
 import { IdentityDocumentService } from '../../services/identity-document.service';
 import { InputErrorsDirective } from '@shared/directives/input-errors.directive';
 import { Nomenclature } from '@shared/interfaces';
-import { AppState } from '../../../../app.config';
+import { AppState } from '@app/app.config';
 import { WebUrlPermissionMethods } from '../../../../auth/interfaces';
 import { apiClient } from '@shared/helpers/web-apis.helper';
 import { ClientValidatorService } from '../../validators/client-validator.service';
@@ -36,7 +37,7 @@ import { ClientValidatorService } from '../../validators/client-validator.servic
     PaginationComponent,
     PipesModule,
     NgSelectModule,
-    FlatpickrDirective
+    FlatpickrDirective,
   ],
   templateUrl: './clients.component.html',
   styles: ``
@@ -54,6 +55,7 @@ export default class ClientsComponent implements OnInit, OnDestroy {
 
   maxBirthDate: Date = new Date(2005, 12, 31 );
 
+  private _router = inject( Router );
   private _clientService = inject( ClientService );
   private _clientValidatorService = inject( ClientValidatorService );
   private _identityDocService = inject( IdentityDocumentService );
@@ -131,7 +133,6 @@ export default class ClientsComponent implements OnInit, OnDestroy {
     this.onListenAuthRx();
     this.onGetSelectsData();
     this.onGetClients( 1 );
-
   }
 
   onListenAuthRx() {
@@ -314,7 +315,6 @@ export default class ClientsComponent implements OnInit, OnDestroy {
 
     if( this.isFormInvalid || this._isLoading() ) return;
 
-
     const { id = 'xD', ...body } = this.clientBody;
 
     if( !ISUUID( id ) ) {
@@ -377,6 +377,17 @@ export default class ClientsComponent implements OnInit, OnDestroy {
       }
     });
 
+  }
+
+  onNagivateToProfile( client: Client ) {
+    localStorage.setItem('clientProfileId', client.id);
+
+    const fullnameSanitize = client.fullname
+                                .replaceAll(' ', '-')
+                                .replaceAll(',', '-')
+                                .toUpperCase();
+
+    this._router.navigateByUrl(`/dashboard/client-profile/info/${ fullnameSanitize }`)
   }
 
   ngOnDestroy(): void {

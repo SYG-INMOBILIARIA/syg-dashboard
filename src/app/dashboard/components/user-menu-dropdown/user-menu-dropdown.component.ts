@@ -5,7 +5,7 @@ import { Subscription } from 'rxjs';
 import { AuthState, } from '@redux/reducers/auth.reducer';
 import { AuthService } from '../../../auth/services/auth.service';
 import { UserAuthenticated } from '../../../auth/interfaces';
-import { AppState } from '../../../app.config';
+import { AppState } from '@app/app.config';
 import { RouterModule } from '@angular/router';
 import { environments } from '@envs/environments';
 

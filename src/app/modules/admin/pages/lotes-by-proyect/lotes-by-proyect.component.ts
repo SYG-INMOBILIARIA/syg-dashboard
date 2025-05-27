@@ -17,7 +17,7 @@ import { PipesModule } from '@pipes/pipes.module';
 import { FormControl, Validators } from '@angular/forms';
 import { fullTextPatt } from '@shared/helpers/regex.helper';
 import { Store } from '@ngrx/store';
-import { AppState } from '../../../../app.config';
+import { AppState } from '@app/app.config';
 import { WebUrlPermissionMethods } from '../../../../auth/interfaces';
 import { apiLote } from '@shared/helpers/web-apis.helper';
 

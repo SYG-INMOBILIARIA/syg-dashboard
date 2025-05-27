@@ -3,7 +3,7 @@ import { Map, Marker } from 'mapbox-gl';
 import { v4 as uuid } from 'uuid';
 import { CommonModule } from '@angular/common';
 
-import { Coordinate, Proyect } from '../../../modules/admin/interfaces';
+import { Coordinate, Proyect } from '@modules/admin/interfaces';
 import { Photo } from '@shared/interfaces';
 
 @Component({

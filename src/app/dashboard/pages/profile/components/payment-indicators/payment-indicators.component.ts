@@ -6,7 +6,7 @@ import { Store } from '@ngrx/store';
 
 import { PipesModule } from '@pipes/pipes.module';
 import { ProfileService } from '../../services/profile.service';
-import { AppState } from '../../../app.config';
+import { AppState } from '@app/app.config';
 import { SellerPayment } from '../../interfaces';
 @Component({
   selector: 'payment-indicators',

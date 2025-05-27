@@ -86,7 +86,7 @@
                         {{ item.fullname }}
                       </div>
                       <div class="font-normal text-sm text-gray-500 pe-5">
-                        {{ item.identityDocument.shortDescription }} : {{ item.identityNumber }}
+                        {{ item?.identityDocument?.shortDescription ?? '...' }} : {{ item?.identityNumber ?? '---' }}
                       </div>
                     </div>
 

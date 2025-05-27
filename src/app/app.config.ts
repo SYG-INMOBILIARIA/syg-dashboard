@@ -10,16 +10,18 @@ import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 
 import { routes } from './app.routes';
 import { HandleErrorInterceptor, TokenInterceptor } from '@shared/interceptors';
-import { AuthState, ProfileState, authReducer, profileReducer } from '@redux/reducers';
+import { AuthState, ProfileState, ProfileClientState, authReducer, profileReducer, profileClientreducer } from '@redux/reducers';
 
 export interface AppState {
   auth: AuthState,
-  profile: ProfileState
+  profile: ProfileState,
+  profile_client: ProfileClientState
 }
 
 const appStore: ActionReducerMap<AppState> = {
   auth: authReducer,
-  profile: profileReducer
+  profile: profileReducer,
+  profile_client: profileClientreducer
 }
 
 export const appConfig: ApplicationConfig = {

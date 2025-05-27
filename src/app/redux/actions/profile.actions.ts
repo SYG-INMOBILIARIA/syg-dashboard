@@ -1,6 +1,6 @@
 import { createAction, props } from "@ngrx/store";
-import { User } from "../../modules/security/interfaces";
-import { SellerPayment } from "../../profile/interfaces";
+import { User } from "@modules/security/interfaces";
+import { SellerPayment } from "../../dashboard/pages/profile/interfaces";
 
 export const onLoadUserProfile = createAction(
   '[profileReducer] onLoadUserProfile',
@@ -23,4 +23,9 @@ export const onLoadPaymentIndicators = createAction(
 export const onLoadLastPayment = createAction(
   '[profileReducer] onLoadLastPayment',
   props<{ lastPayment: SellerPayment }>()
+);
+
+
+export const onResetProfile = createAction(
+  '[profileReducer] onResetProfile'
 );

@@ -14,10 +14,11 @@ import { Store } from '@ngrx/store';
 
 import { Nomenclature } from '@shared/interfaces';
 import { ContractDetailModalComponent } from '../../components/contract-detail-modal/contract-detail-modal.component';
-import { AppState } from '../../../../app.config';
+import { AppState } from '@app/app.config';
 import { WebUrlPermissionMethods } from '../../../../auth/interfaces';
 import { apiContract } from '@shared/helpers/web-apis.helper';
 import { RouterModule } from '@angular/router';
+import { initFlowbite } from 'flowbite';
 
 @Component({
   selector: 'app-contracts',
@@ -136,6 +137,10 @@ export default class ContractsComponent implements OnInit, OnDestroy {
         this._totalContracts.set( total );
         this._contracts.set( contracts );
         this._isLoading.set( false );
+
+        setTimeout(() => {
+          initFlowbite();
+        }, 400);
 
       }, error: (err) => {
         this._isLoading.set( false );

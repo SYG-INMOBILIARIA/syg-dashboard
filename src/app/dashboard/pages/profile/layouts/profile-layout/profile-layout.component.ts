@@ -1,30 +1,30 @@
 import { Component, ElementRef, OnInit, ViewChild, computed, inject, signal } from '@angular/core';
+import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { validate as ISUUID } from 'uuid';
 import { Store } from '@ngrx/store';
 import { CommonModule } from '@angular/common';
-
-import { UserService } from '../../modules/security/services/user.service';
-import { User } from '../../modules/security/interfaces';
-import { AppState } from '../../app.config';
-import * as profileActions from '@redux/actions/profile.actions';
+import { FlatpickrDirective } from 'angularx-flatpickr';
+import { NgSelectModule } from '@ng-select/ng-select';
 import { forkJoin } from 'rxjs';
-import { ProfileService } from '../../profile/services/profile.service';
+import { initFlowbite } from 'flowbite';
+
+import { UserService } from '@modules/security/services/user.service';
+import { User } from '@modules/security/interfaces';
+import { SellerPaymentService } from '@modules/admin/services/seller-payment.service';
+import { PaymentMethodService } from '@modules/admin/services/payment-method.service';
+import { PaymentMethod } from '@modules/admin/interfaces';
+import { AppState } from '@app/app.config';
+import * as profileActions from '@redux/actions/profile.actions';
 import { environments } from '@envs/environments';
-import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { descriptionPatt, operationCodePatt } from '@shared/helpers/regex.helper';
-import { SellerPaymentBody } from '../../profile/interfaces';
 import { AlertService } from '@shared/services/alert.service';
-import { SellerPaymentService } from '../../modules/admin/services/seller-payment.service';
 import { UploadFileService } from '@shared/services/upload-file.service';
 import { SpinnerComponent } from '@shared/components/spinner/spinner.component';
 import { onValidImg } from '@shared/helpers/files.helper';
-import { FlatpickrDirective } from 'angularx-flatpickr';
-import { NgSelectModule } from '@ng-select/ng-select';
 import { InputErrorsDirective } from '@shared/directives/input-errors.directive';
-import { PaymentMethodService } from '../../modules/admin/services/payment-method.service';
-import { PaymentMethod } from '../../modules/admin/interfaces';
-import { initFlowbite } from 'flowbite';
+import { ProfileService } from '../../services/profile.service';
+import { SellerPaymentBody } from '../../interfaces';
 
 @Component({
   selector: 'profile-layout',

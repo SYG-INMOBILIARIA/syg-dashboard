@@ -1,6 +1,6 @@
 import { Photo } from "@shared/interfaces";
-import { PaymentMethod } from '../../modules/admin/interfaces/payment-method.interface';
-import { IdentityDocument } from "../../auth/interfaces";
+import { PaymentMethod } from '@modules/admin/interfaces/payment-method.interface';
+import { IdentityDocument } from "../../../../auth/interfaces";
 
 export interface SellerPayment {
   isActive:      boolean;
