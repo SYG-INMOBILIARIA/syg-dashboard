@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { TextOptionsLight, jsPDF } from "jspdf";
 
 import { environments } from '@envs/environments';
-import { Contract, ContractByID, ContractLotesBusied, ListContractResponse, PaymentSchedule } from '../interfaces';
+import { Contract, ContractByID, ContractLotesBusied, ListContractResponse, ContractPaymentScheduleResponse } from '../interfaces';
 
 @Injectable({
   providedIn: 'root'
@@ -40,8 +40,8 @@ export class ContractService {
     return this._http.get<ContractByID>(`${ this._baseUrl }/contract/${ contractId }`);
   }
 
-  getPaymentScheduleByContract( contractId: string ): Observable<PaymentSchedule> {
-    return this._http.get<PaymentSchedule>(`${ this._baseUrl }/contract/payment-schedule/${ contractId }`);
+  getPaymentScheduleByContract( contractId: string ): Observable<ContractPaymentScheduleResponse> {
+    return this._http.get<ContractPaymentScheduleResponse>(`${ this._baseUrl }/contract/payment-schedule/${ contractId }`);
   }
 
   getDowlandPaymentSchedule( divHtmlId: string ): Promise<void> {

@@ -11,6 +11,8 @@ import { InputErrorsDirective } from '@shared/directives/input-errors.directive'
 import { PaginationComponent } from '@shared/components/pagination/pagination.component';
 import { SpinnerComponent } from '@shared/components/spinner/spinner.component';
 import { PaidQuotesModalComponent } from '@modules/admin/components/paid-quotes-modal/paid-quotes-modal.component';
+import { ContractDetailModalComponent } from '@modules/admin/components/contract-detail-modal/contract-detail-modal.component';
+import { PaymentScheduleModalComponent } from "../../../modules/admin/components/payment-schedule-modal/payment-schedule-modal.component";
 
 @NgModule({
   declarations: [
@@ -27,8 +29,10 @@ import { PaidQuotesModalComponent } from '@modules/admin/components/paid-quotes-
     ProfileClientRoutingModule,
     PaginationComponent,
     SpinnerComponent,
-    PaidQuotesModalComponent
-  ],
+    PaidQuotesModalComponent,
+    ContractDetailModalComponent,
+    PaymentScheduleModalComponent
+],
 
 })
 export default class ProfileClientModule { }

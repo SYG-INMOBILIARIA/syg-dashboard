@@ -280,14 +280,24 @@
                 </div>
               </div>
               <div class="flex items-center gap-2">
-                <a href="#" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                <button
+                  id="btnShowContractModal{{ $index }}"
+                  type="button"
+                  class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+                  (click)="onShowDetailModal( contract )"
+                >
                   <span class="iconify w-4 h-4 mr-2" data-icon="ph:file-text"></span>
                   Ver contrato
-                </a>
-                <a href="#" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                </button>
+                <button
+                  id="btnShowPaymentModal{{ $index }}"
+                  type="button"
+                  class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+                  (click)="onShowScheduleModal( contract )"
+                >
                   <span class="iconify w-4 h-4 mr-2" data-icon="ph:info"></span>
                   Ver detalle
-                </a>
+                </button>
               </div>
             </div>
           </div>
@@ -309,3 +319,33 @@
     </section>
   </div>
 </div>
+
+
+<button
+  #btnShowDetailContractModal
+  data-modal-target="contract-detail-modal"
+  data-modal-toggle="contract-detail-modal"
+  type="button"
+  class="hidden "
+  >
+  Detalle
+</button>
+
+<contract-detail-modal [contractId]="contractIdByModal()" >
+</contract-detail-modal>
+
+<button
+  #btnShowScheduleContractModal
+  data-modal-target="contract-schedule-modal"
+  data-modal-toggle="contract-schedule-modal"
+  type="button"
+  class="hidden "
+  >
+  Detalle
+</button>
+
+<payment-schedule-modal
+  [contractById]="contractById()"
+  [lotesByContract]="lotes()"
+  [contractQuotes]="contractQuotes()" >
+</payment-schedule-modal>

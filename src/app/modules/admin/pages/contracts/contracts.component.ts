@@ -6,7 +6,7 @@ import { PaginationComponent } from '@shared/components/pagination/pagination.co
 import { NomenclatureService } from '@shared/services/nomenclature.service';
 import { AlertService } from '@shared/services/alert.service';
 import { fullTextPatt } from '@shared/helpers/regex.helper';
-import { Contract, Schedule } from '../../interfaces';
+import { Contract, ContractQuote } from '../../interfaces';
 import { PipesModule } from '@pipes/pipes.module';
 import { MatDialog } from '@angular/material/dialog';
 import { Subscription, forkJoin } from 'rxjs';
@@ -19,6 +19,7 @@ import { WebUrlPermissionMethods } from '../../../../auth/interfaces';
 import { apiContract } from '@shared/helpers/web-apis.helper';
 import { RouterModule } from '@angular/router';
 import { initFlowbite } from 'flowbite';
+import { PaymentScheduleModalComponent } from '@modules/admin/components/payment-schedule-modal/payment-schedule-modal.component';
 
 @Component({
   selector: 'app-contracts',
@@ -30,6 +31,7 @@ import { initFlowbite } from 'flowbite';
     PaginationComponent,
     PipesModule,
     ContractDetailModalComponent,
+    PaymentScheduleModalComponent,
     RouterModule
   ],
   templateUrl: './contracts.component.html',
@@ -40,8 +42,6 @@ export default class ContractsComponent implements OnInit, OnDestroy {
   private _authrx$?: Subscription;
   private _store = inject<Store<AppState>>( Store<AppState> );
   private _webUrlPermissionMethods = signal<WebUrlPermissionMethods[]>([]);
-
-  private _dialog$?: Subscription;
 
   @ViewChild('btnCloseContractModal') btnCloseContractModal!: ElementRef<HTMLButtonElement>;
   @ViewChild('btnShowContractModal') btnShowContractModal!: ElementRef<HTMLButtonElement>;
@@ -62,42 +62,21 @@ export default class ContractsComponent implements OnInit, OnDestroy {
   private _contracts = signal<Contract[]>( [] );
   private _contractIdByModal = signal< string | null >( null );
   private _contractById = signal< Contract | null >( null );
-  private _contractSchedule = signal<Schedule[]>( [] );
+  private _contractSchedule = signal<ContractQuote[]>( [] );
 
-  public contractSchedule = computed( () => this._contractSchedule() );
   public downloadInProgress = computed( () => this._downloadInProgress() );
   public isLoading = computed( () => this._isLoading() );
   public isSaving = computed( () => this._isSaving() );
   public allowList = computed( () => this._allowList() );
   public totalContracts = computed( () => this._totalContracts() );
   public contracts = computed( () => this._contracts() );
-  public contractById = computed( () => this._contractById() );
   public contractIdByModal = computed( () => this._contractIdByModal() );
+  public contractById = computed( () => this._contractById() );
   public lotes = computed( () => this._contractById()?.lotes ?? [] );
-  public client = computed( () => this._contractById()?.client );
+  public contractSchedule = computed( () => this._contractSchedule() );
   public webUrlPermissionMethods = computed( () => this._webUrlPermissionMethods() );
 
   get isInvalidSearchInput() { return this.searchInput.invalid; }
-
-  get lotesAmount() {
-    return this.contractById()?.loteAmount ?? 0;
-  }
-
-  get interestPercent() {
-    return this.contractById()?.interestPercent ?? 0;
-  }
-
-  get amountToFinancing() {
-    return this.contractById()?.amountToFinancing ?? 0;
-  }
-
-  get amountToQuota() {
-    return this.contractById()?.quotesAmount ?? 0;
-  }
-
-  get numberOfQuotes() {
-    return this.contractById()?.numberOfQuotes ?? 0;
-  }
 
   ngOnInit(): void {
 
@@ -171,25 +150,15 @@ export default class ContractsComponent implements OnInit, OnDestroy {
     this._contractById.set( contract );
 
     this._contractService.getPaymentScheduleByContract( contract.id )
-    .subscribe( ({ schedule }) => {
+    .subscribe( ({ contractQuotes }) => {
 
-      this._contractSchedule.set( schedule );
+      this._contractSchedule.set( contractQuotes );
       this.btnShowScheduleContractModal.nativeElement.click();
     });
 
   }
 
-  async onDonwloadSchedule() {
-
-    if( this.downloadInProgress() ) return;
-
-    this._downloadInProgress.set( true );
-    await this._contractService.getDowlandPaymentSchedule('scheduleContractdiv');
-    this._downloadInProgress.set( false);
-  }
-
   ngOnDestroy(): void {
-    this._dialog$?.unsubscribe();
     this._authrx$?.unsubscribe();
   }
 

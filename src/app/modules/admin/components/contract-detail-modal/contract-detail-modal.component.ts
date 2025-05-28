@@ -4,7 +4,7 @@ import { AlertService } from '@shared/services/alert.service';
 import { ContractService } from '../../services/contract.service';
 import { CdkStepper, CdkStepperModule } from '@angular/cdk/stepper';
 import { CustomStepper } from '@shared/components/custom-stepper/custom-stepper.component';
-import { ContractByID, Coordinate, Lote, Schedule } from '../../interfaces';
+import { ContractByID, Coordinate, Lote, ContractQuote } from '../../interfaces';
 import { Map, Popup } from 'mapbox-gl';
 import { LoteStatus, PaymentType } from '../../enum';
 import { forkJoin } from 'rxjs';
