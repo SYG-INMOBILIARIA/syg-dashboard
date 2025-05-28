@@ -14,9 +14,10 @@ import { onValidImg } from '@shared/helpers/files.helper';
 import { PaymentMethodService } from '@modules/admin/services/payment-method.service';
 import { AlertService } from '@shared/services/alert.service';
 import { UploadFileService } from '@shared/services/upload-file.service';
-import { ContractQuoteService } from '@modules/admin/services/contract-quote.service';
 import { PaymentQuoteService } from '@modules/admin/services/payment-quote.service';
 import { PipesModule } from '@pipes/pipes.module';
+import { WebUrlPermissionMethods } from '@app/auth/interfaces';
+import { apiPaymentQuote } from '@shared/helpers/web-apis.helper';
 
 @Component({
   selector: 'paid-quotes-modal',
@@ -39,7 +40,9 @@ export class PaidQuotesModalComponent implements OnInit {
   @ViewChild('btnShowPaymentQuoteModal') btnShowPaymentQuoteModal!: ElementRef<HTMLButtonElement>;
   @ViewChild('btnClosePaymentQuoteModal') btnClosePaymentQuoteModal!: ElementRef<HTMLButtonElement>;
 
-  @Output() paidQuoteSuccess = new EventEmitter<any>();
+  @Input({ required: true }) set webUrlPermissionMethods( value: WebUrlPermissionMethods[] ) {
+    this._webUrlPermissionMethods = value ;
+  }
 
   @Input({ required: true }) set contractQuotesData( value: ContractQuote[] ) {
     this._contractQuotes.set( value );
@@ -60,11 +63,12 @@ export class PaidQuotesModalComponent implements OnInit {
 
   }
 
+  @Output() paidQuoteSuccess = new EventEmitter<any>();
+
   currentDate: Date = new Date();
 
   private _formBuilder = inject( UntypedFormBuilder );
   private _paymentMethodService = inject( PaymentMethodService );
-  private _contractQuoteService = inject( ContractQuoteService );
   private _paymentQuoteService = inject( PaymentQuoteService );
 
   private _alertService = inject( AlertService );
@@ -83,6 +87,7 @@ export class PaidQuotesModalComponent implements OnInit {
   private _file?: File;
 
   private _contractQuotes = signal<ContractQuote[]>( [] );
+  private _webUrlPermissionMethods: WebUrlPermissionMethods[] = [] ;
   private _contractQuotesSelected = signal<ContractQuote[]>( [] );
   private _paymentsMethod = signal<PaymentMethod[]>( [] );
   private _contractQuotesTotal = signal<number>( 0 );
@@ -128,7 +133,7 @@ export class PaidQuotesModalComponent implements OnInit {
   }
 
   onResetAfterSubmit() {
-    this.paymentQuoteForm.reset();
+    this.paymentQuoteForm?.reset();
     this._isSaving.set( false );
     this._file = undefined;
     this.fileUrl.set( environments.defaultImgUrl );
@@ -162,7 +167,7 @@ export class PaidQuotesModalComponent implements OnInit {
 
   onUpdateSelectQuotes( contractQuotesId: string[] ) {
 
-    const quotesSelected = this._contractQuotes().filter( (e) => contractQuotesId.includes( e.id ) );
+    const quotesSelected = this._contractQuotes()?.filter( (e) => contractQuotesId.includes( e.id ) );
     const totalDebt = quotesSelected.reduce( (acc, current) => acc + current.totalDebt , 0 );
     this._totalDebt.set( totalDebt );
 
@@ -189,39 +194,37 @@ export class PaidQuotesModalComponent implements OnInit {
 
     const body = this.paymentQuoteBody;
 
-    // const allowCreate = this._webUrlPermissionMethods.some(
-    //   (permission) => permission.webApi == apiPaymentMethod && permission.methods.includes( 'POST' )
-    // );
+    const allowCreate = this._webUrlPermissionMethods.some(
+      (permission) => permission.webApi == apiPaymentQuote && permission.methods.includes('POST')
+    );
 
-    // if( !allowCreate ) {
-    //   this._alertService.showAlert( undefined, 'No tiene permiso para crear un Método de pago', 'warning');
-    //   return;
-    // }
+    if( !allowCreate ) {
+      this._alertService.showAlert( undefined, 'No tiene permiso para crear un Pago de cuota', 'warning');
+      return;
+    }
 
     this._alertService.showLoading();
 
     this._paymentQuoteService.createPaymentQuote( body )
-      .subscribe({
-        next: async ( paymentQuoteCreated ) => {
+    .subscribe({
+      next: async ( paymentQuoteCreated ) => {
 
-          if( this._file ) {
-            await this._uploadService.uploadFile( this._file, paymentQuoteCreated.id, 'payment-quote' );
-          }
-
-          this.onResetAfterSubmit();
-          this.btnClosePaymentQuoteModal.nativeElement.click();
-          this._alertService.showAlert('Pago de cuota(s) creado exitosamente', undefined, 'success');
-
-          // FIXME: emitir evento a los padres
-          this.paidQuoteSuccess.emit( paymentQuoteCreated );
-
-        }, error: (err) => {
-          this._isSaving.set( false);
+        if( this._file ) {
+          await this._uploadService.uploadFile( this._file, paymentQuoteCreated.id, 'payment-quote' );
         }
-      });
+
+        this.onResetAfterSubmit();
+        this.btnClosePaymentQuoteModal.nativeElement.click();
+        this._alertService.showAlert('Pago de cuota(s) creado exitosamente', undefined, 'success');
+
+        this.paidQuoteSuccess.emit( paymentQuoteCreated );
+
+      }, error: (err) => {
+        this._isSaving.set( false);
+      }
+    });
 
   }
-
 
 
 }

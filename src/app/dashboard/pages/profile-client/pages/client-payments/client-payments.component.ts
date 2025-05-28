@@ -8,6 +8,7 @@ import { Client, ContractQuote } from '@modules/admin/interfaces';
 import { initFlowbite } from 'flowbite';
 import { AlertService } from '@shared/services/alert.service';
 import { ProfileClientService } from '@app/dashboard/services/profile-client.service';
+import { WebUrlPermissionMethods } from '@app/auth/interfaces';
 
 @Component({
   templateUrl: './client-payments.component.html',
@@ -15,8 +16,10 @@ import { ProfileClientService } from '@app/dashboard/services/profile-client.ser
 })
 export class ClientPaymentsComponent implements OnInit, OnDestroy {
 
+  private _authrx$?: Subscription;
   private _clientProfileRx$?: Subscription;
   private _store = inject<Store<AppState>>( Store<AppState> );
+  private _webUrlPermissionMethods = signal<WebUrlPermissionMethods[]>( [] );
 
   private _contractQuoteService = inject( ContractQuoteService );
   private _profileClientService = inject( ProfileClientService );
@@ -35,6 +38,7 @@ export class ClientPaymentsComponent implements OnInit, OnDestroy {
   private _countPaid = signal<number>( 0 );
 
   public isLoading = computed( () => this._isLoading() );
+  public webUrlPermissionMethods = computed( () => this._webUrlPermissionMethods() );
   public isRemoving = computed( () => this._isRemoving() );
   public contractQuotesAll = computed( () => this._contractQuotesAll() );
   public contractQuotes = computed( () => this._contractQuotes() );
@@ -47,6 +51,16 @@ export class ClientPaymentsComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.onClientProfileListen();
+    this.onListenAuthRx();
+  }
+
+  onListenAuthRx() {
+    this._authrx$ = this._store.select('auth')
+    .subscribe( (state) => {
+      const { webUrlPermissionMethods } = state;
+
+      this._webUrlPermissionMethods.set( webUrlPermissionMethods );
+    });
   }
 
   onClientProfileListen() {
@@ -176,6 +190,7 @@ export class ClientPaymentsComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this._clientProfileRx$?.unsubscribe();
+    this._authrx$?.unsubscribe();
   }
 
 }

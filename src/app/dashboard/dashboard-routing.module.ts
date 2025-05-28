@@ -45,7 +45,6 @@ const routes: Routes = [
       { path: 'sellers', loadComponent: () => import('../modules/admin/pages/sellers/sellers.component') },
       { path: 'create-contract', loadComponent: () => import('../modules/admin/pages/contract-form/contract-form.component') },
       { path: 'payments-method', loadComponent: () => import('../modules/admin/pages/payment-method/payment-method.component') },
-      { path: 'contract-payments', loadComponent: () => import('../modules/admin/pages/contract-payment/contract-payment.component') },
       { path: 'paid-quotes', loadComponent: () => import('../modules/admin/pages/paid-quotes/paid-quotes.component') },
       { path: 'tardiness-config', loadComponent: () => import('../modules/config/pages/tardiness-config/tardiness-config.component') },
       { path: 'area-company', loadComponent: () => import('../modules/config/pages/area-company/area-company.component') },

@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, ViewChild, computed, inject, signal } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild, computed, inject, signal } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { initFlowbite } from 'flowbite';
 import { NgSelectModule } from '@ng-select/ng-select';
@@ -14,10 +14,12 @@ import { PaymentMethodService } from '../../services/payment-method.service';
 import { PipesModule } from '@pipes/pipes.module';
 import { SpinnerComponent } from '@shared/components/spinner/spinner.component';
 import { AlertService } from '@shared/services/alert.service';
-import { PaymentQuoteService } from '../../services/payment-quote.service';
-import { UploadFileService } from '@shared/services/upload-file.service';
 import { PaidQuotesModalComponent } from '@modules/admin/components/paid-quotes-modal/paid-quotes-modal.component';
-import { forkJoin } from 'rxjs';
+import { Subscription, forkJoin } from 'rxjs';
+import { Store } from '@ngrx/store';
+import { AppState } from '@app/app.config';
+import { WebUrlPermissionMethods } from '@app/auth/interfaces';
+import { apiPaymentQuote } from '@shared/helpers/web-apis.helper';
 
 @Component({
   selector: 'app-paid-quotes',
@@ -36,17 +38,17 @@ import { forkJoin } from 'rxjs';
   templateUrl: './paid-quotes.component.html',
   styles: ``
 })
-export default class PaidQuotesComponent implements OnInit {
+export default class PaidQuotesComponent implements OnInit, OnDestroy {
+
+  private _authrx$?: Subscription;
+  private _store = inject<Store<AppState>>( Store<AppState> );
 
   @ViewChild('btnShowPaymentQuoteModal') btnShowPaymentQuoteModal!: ElementRef<HTMLButtonElement>;
   @ViewChild('btnClosePaymentQuoteModal') btnClosePaymentQuoteModal!: ElementRef<HTMLButtonElement>;
 
   private _contractService = inject( ContractService );
   private _contractQuoteService = inject( ContractQuoteService );
-  private _paymentMethodService = inject( PaymentMethodService );
-  private _paymentQuoteService = inject( PaymentQuoteService );
   private _alertService = inject( AlertService );
-  private _uploadService = inject( UploadFileService );
 
   public contractInput = new FormControl(null, []);
   public searchContractInput = new FormControl(null, [ Validators.pattern( fullTextPatt ) ]);
@@ -56,10 +58,10 @@ export default class PaidQuotesComponent implements OnInit {
   private _quoteResumen = signal<QuotesResumen | null>( null );
 
   private _contracts = signal<Contract[]>( [] );
+  private _webUrlPermissionMethods = signal<WebUrlPermissionMethods[]>( [] );
   private _contractQuotesSelected = signal<ContractQuote[]>( [] );
   private _contractQuotesAll = signal<ContractQuote[]>( [] );
   private _contractQuoteToPay = signal<ContractQuote | null>( null );
-  private _paymentsMethod = signal<PaymentMethod[]>( [] );
   private _contractQuotesTotal = signal<number>( 0 );
   private _totalDebt = signal<number>( 0 );
   private _isSaving = signal( false );
@@ -69,6 +71,7 @@ export default class PaidQuotesComponent implements OnInit {
   private _isRemoving = false;
 
   public contracts = computed( () => this._contracts() );
+  public webUrlPermissionMethods = computed( () => this._webUrlPermissionMethods() );
   public contractQuotes = computed( () => this._contractQuotes() );
   public quoteResumen = computed( () => this._quoteResumen() );
   public contractQuotesSelected = computed( () => this._contractQuotesSelected() );
@@ -77,7 +80,6 @@ export default class PaidQuotesComponent implements OnInit {
   public contractQuotesTotal = computed( () => this._contractQuotesTotal() );
   public totalDebt = computed( () => this._totalDebt() );
   public isSaving = computed( () => this._isSaving() );
-  public paymentsMethod = computed( () => this._paymentsMethod() );
   public allowList = computed( () => this._allowList() );
   public isLoading = computed( () => this._isLoading() );
 
@@ -91,9 +93,18 @@ export default class PaidQuotesComponent implements OnInit {
 
   ngOnInit(): void {
     initFlowbite();
+    this.onListenAuthRx();
     this.onGetContract();
-    this.onGetPaymentsMethod();
     this.onGetContractQuotes();
+  }
+
+  onListenAuthRx() {
+    this._authrx$ = this._store.select('auth')
+    .subscribe( (state) => {
+      const { webUrlPermissionMethods } = state;
+
+      this._webUrlPermissionMethods.set( webUrlPermissionMethods );
+    });
   }
 
   onGetContract() {
@@ -105,15 +116,6 @@ export default class PaidQuotesComponent implements OnInit {
       this._contracts.set( contracts );
 
     });
-  }
-
-  onGetPaymentsMethod( ) {
-
-    this._paymentMethodService.getPaymentsMethod( 1, '', 100 )
-    .subscribe(({ paymentsMethod, total }) => {
-      this._paymentsMethod.set( paymentsMethod );
-    });
-
   }
 
   onGetContractQuotes( page = 1 ) {
@@ -184,14 +186,14 @@ export default class PaidQuotesComponent implements OnInit {
 
   private _exonerateTardiness( contractQuoteId: string ) {
 
-    // const allowDelete = this._webUrlPermissionMethods.some(
-    //   (permission) => permission.webApi == apiPaymentMethod && permission.methods.includes( 'DELETE' )
-    // );
+    const allowUpdate = this._webUrlPermissionMethods().some(
+      (permission) => permission.webApi == apiPaymentQuote && permission.methods.includes( 'PATCH' )
+    );
 
-    // if( !allowDelete ) {
-    //   this._alertService.showAlert( undefined, 'No tiene permiso para eliminar un Método de pago', 'warning');
-    //   return;
-    // }
+    if( !allowUpdate ) {
+      this._alertService.showAlert( undefined, 'No tiene permiso para exonerar mora', 'warning');
+      return;
+    }
 
     if( this._isRemoving ) return;
 
@@ -212,6 +214,10 @@ export default class PaidQuotesComponent implements OnInit {
       }
     });
 
+  }
+
+  ngOnDestroy(): void {
+    this._authrx$?.unsubscribe();
   }
 
 }
