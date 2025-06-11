@@ -224,53 +224,16 @@ export class LotesMapComponent {
       this._isBuildingMap.set( false );
     }, 1500);
 
-    // const polygonId = uuid();
-
-    // this._map?.addSource( polygonId, {
-    //   'type': 'geojson',
-    //   'data': {
-    //       'type': 'Feature',
-    //       'properties': {},
-    //       'geometry': { 'type': 'Polygon', 'coordinates': [ points ] }
-    //   }
-    // });
-
-    // this._alertService.showLoading();
-
-    // this._map?.loadImage( urlImg, (err, image) => {
-    //   // Throw an error if something goes wrong.
-    //   if (err) throw err;
-
-    //   this._imageMapId = uuid();
-    //   // Add the image to the map style.
-    //   this._map!.addImage(this._imageMapId, image!, {
-    //     pixelRatio: 3,
-    //   });
-
-    //   // Create a new layer and style it using `fill-pattern`.
-    //   this._map!.addLayer({
-    //     'id': uuid(),
-    //     'type': 'fill',
-    //     'source': polygonId,
-    //     'paint': { 'fill-pattern': this._imageMapId }
-    //   });
-
-    //   this._alertService.close();
-
-    //   if( this._lotesRegistered.length > 0 ) {
-    //     this.onBuildPolygonByLotesRegistered();
-    //   }
-
-    // });
-
   }
 
   private _flyToLote( lote: Lote ) {
 
-    const { centerCoords } = lote;
+    const { centerCoords, zoomMap, bearingMap, pitchMap } = lote;
 
     this._map?.flyTo({
-      zoom: 17.8,
+      zoom: zoomMap,
+      bearing: bearingMap,
+      pitch: pitchMap,
       center: [ centerCoords[0], centerCoords[1] ]
     });
 

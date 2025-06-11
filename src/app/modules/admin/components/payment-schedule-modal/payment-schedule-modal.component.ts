@@ -20,7 +20,7 @@ export class PaymentScheduleModalComponent implements OnInit {
 
   @Input({ required: true }) set contractById( contract: Contract | null ) {
     this._contract.set( contract );
-    this._client.set( contract?.client ?? null );
+    this._clients.set( contract?.clients ?? [] );
   }
 
   @Input({ required: true }) set lotesByContract( lotes: Lote[] ) {
@@ -33,13 +33,13 @@ export class PaymentScheduleModalComponent implements OnInit {
 
   private _downloadInProgress = signal<boolean>( false );
   private _contract = signal<Contract | null>( null );
-  private _client = signal<Client | null>( null );
+  private _clients = signal<Client[]>( [] );
   private _lotes = signal<Lote[]>( [] );
   private _contractQuotes = signal<ContractQuote[]>( [] );
 
   public downloadInProgress = computed( () => this._downloadInProgress() );
   public contract = computed( () => this._contract() );
-  public client = computed( () => this._client() );
+  public clients = computed( () => this._clients() );
   public lotes = computed( () => this._lotes() );
   public contractSchedule = computed( () => this._contractQuotes() );
 

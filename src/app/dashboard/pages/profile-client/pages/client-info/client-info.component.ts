@@ -84,29 +84,29 @@ export class ClientInfoComponent implements OnInit, OnDestroy {
 
     forkJoin({
       listContractResponse: this._contractService.getContractsByClient( this._client()!.id ),
-      indicatorsResponse: this._profileClientService.getClientIndicators( this._client()!.id )
+      // indicatorsResponse: this._profileClientService.getClientIndicators( this._client()!.id )
     })
-    .subscribe( ({ listContractResponse, indicatorsResponse }) => {
+    .subscribe( ({ listContractResponse,  }) => { //indicatorsResponse
 
       this._contracts.set( listContractResponse.contracts );
       this._totalContracts.set( listContractResponse.total );
 
-      const { debtIndicators, paymentIndicators } = indicatorsResponse;
+      // const { debtIndicators, paymentIndicators } = indicatorsResponse;
 
-      const { totalDebt, totalPaid, countOverdueDebt } = debtIndicators.reduce<{ totalDebt: number; totalPaid: number; countOverdueDebt: number }>( (acc, current) => {
+      // const { totalDebt, totalPaid, countOverdueDebt } = debtIndicators.reduce<{ totalDebt: number; totalPaid: number; countOverdueDebt: number }>( (acc, current) => {
 
-        acc.totalDebt += (current.loteAmount + current.interestAmount);
-        acc.totalPaid += (current.totalPaid + current.initialAmount);
-        acc.totalPaid += current.countOverdueDebt;
+      //   acc.totalDebt += (current.loteAmount + current.interestAmount);
+      //   acc.totalPaid += (current.totalPaid + current.initialAmount);
+      //   acc.totalPaid += current.countOverdueDebt;
 
-        return acc;
-      }, { totalDebt: 0, totalPaid: 0, countOverdueDebt: 0 });
+      //   return acc;
+      // }, { totalDebt: 0, totalPaid: 0, countOverdueDebt: 0 });
 
-      this._totalDebt.set( totalDebt );
-      this._totalPaid.set( totalPaid );
+      // this._totalDebt.set( totalDebt );
+      // this._totalPaid.set( totalPaid );
 
-      this._lastPayment.set( paymentIndicators.lastPayment );
-      this._countOverdueDebt.set( countOverdueDebt );
+      // this._lastPayment.set( paymentIndicators.lastPayment );
+      // this._countOverdueDebt.set( countOverdueDebt );
 
       setTimeout(() => {
         initFlowbite();

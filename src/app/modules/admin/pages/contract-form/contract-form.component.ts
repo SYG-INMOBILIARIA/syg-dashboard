@@ -69,7 +69,7 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
   public searchUserInput = new FormControl('', [ Validators.pattern( fullTextPatt ) ]);
 
   public contractFormOne = this._formBuilder.group({
-    clientId:          [ null, [ Validators.required ] ],
+    clientIds:     [ null, [ Validators.required, Validators.minLength(1), Validators.maxLength(5) ] ],
     documentation:     [ '',   [ Validators.maxLength(450), Validators.pattern( descriptionPatt ) ] ],
     observation:       [ '',   [ Validators.pattern( descriptionPatt ) ] ],
     selledUserId:      [ null, [ Validators.required ] ],

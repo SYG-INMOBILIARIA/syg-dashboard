@@ -25,5 +25,5 @@ export interface Contract {
   userAnulate:        null;
   lotes:              Lote[];
   proyect:            Proyect;
-  client:             Client;
+  clients:            Client[];
 }

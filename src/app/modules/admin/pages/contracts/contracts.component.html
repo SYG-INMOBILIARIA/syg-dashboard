@@ -126,18 +126,27 @@
                         <!-- <div>
                           <img src="../assets/img/team-2.jpg" class="inline-flex items-center justify-center mr-4 text-sm text-white transition-all duration-200 ease-in-out h-9 w-9 rounded-xl" alt="user1" />
                         </div> -->
-                        <div class="flex flex-col justify-center">
-                          <h6 class="mb-0 text-sm leading-normal dark:text-gray-300 ">
-                            {{ contract.client.fullname }}
-                          </h6>
-                          <p class="mb-0 text-xs leading-tight  dark:opacity-80 text-slate-400 dark:text-gray-300">
-                            @if ( contract.client.address && contract.client.address.length > 35 ) {
-                              {{ contract.client.address | slice:0:35 }}...
-                            } @else {
-                              {{ contract.client.address  }}
+                        @for (client of contract.clients; track client.id; let i = $index) {
+
+                          <div class="ml-1">
+                            @if ( i > 0 ) {
+                              -
                             }
-                          </p>
-                        </div>
+                            {{ client.fullname }}
+                          </div>
+                          <!-- <div class="flex flex-col justify-center">
+                            <h6 class="mb-0 text-sm leading-normal dark:text-gray-300 ">
+                              {{ client.fullname }}
+                            </h6>
+                            <p class="mb-0 text-xs leading-tight  dark:opacity-80 text-slate-400 dark:text-gray-300">
+                              @if ( client.address && client.address.length > 35 ) {
+                                {{ client.address | slice:0:35 }}...
+                              } @else {
+                                {{ client.address  }}
+                              }
+                            </p>
+                          </div> -->
+                        }
                       </div>
                     </td>
 

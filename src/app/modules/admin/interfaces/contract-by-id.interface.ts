@@ -24,7 +24,7 @@ export interface ContractByID {
   anulateAt:          null;
   userAnulate:        null;
   lotes:              Lote[];
-  client:             Client;
+  clients:            Client[];
   proyect:            Proyect;
   financing:          Financing;
 }

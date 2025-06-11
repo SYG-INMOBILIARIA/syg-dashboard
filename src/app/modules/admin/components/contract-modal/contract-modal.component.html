@@ -35,7 +35,7 @@
 
                 <div class="col-span-6 xs:col-span-6 ">
                   <label for="cbxPersonType" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                    Cliente *
+                    Cliente(s) *
                   </label>
                   <ng-select
                     id="cbxPersonType"
@@ -43,11 +43,12 @@
                     [items]="clients()"
                     (ngModelChange)="onChangeClient( $event )"
                     [searchable]="false"
+                    [multiple]="true"
                     bindLabel="fullname"
                     bindValue="id"
                     placeholder="Seleccione cliente"
-                    formControlName="clientId"
-                    [class.border-red-400]=" inputErrors('clientId') && isTouched('clientId') "
+                    formControlName="clientIds"
+                    [class.border-red-400]=" inputErrors('clientIds') && isTouched('clientIds') "
                   >
 
                     <ng-template ng-header-tmp>
@@ -85,12 +86,12 @@
 
                   </ng-select>
 
-                  @if (isTouched('clientId')) {
+                  @if (isTouched('clientIds')) {
                     <span
                       class="flex items-center ms-1 mt-2 text-xs text-red-500"
                       inputErrors
-                      [errors]="inputErrors('clientId')"
-                      inputLabel="Cliente" >
+                      [errors]="inputErrors('clientIds')"
+                      inputLabel="Cliente(s)" >
                     </span>
                   }
                 </div>

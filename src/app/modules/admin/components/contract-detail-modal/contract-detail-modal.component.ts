@@ -55,7 +55,7 @@ export class ContractDetailModalComponent implements AfterViewInit, OnDestroy {
 
   public isBuildingMap = computed( () => this._isBuildingMap() );
   public contractById = computed( () => this._contractById() );
-  public client = computed( () => this._contractById()?.client );
+  public clients = computed( () => this._contractById()?.clients );
   public lotes = computed( () => this._contractById()?.lotes ?? [] );
   public proyect = computed( () => this._contractById()?.proyect );
 

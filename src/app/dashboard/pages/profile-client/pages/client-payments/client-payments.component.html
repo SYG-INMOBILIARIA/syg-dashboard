@@ -133,8 +133,14 @@
                   <td class="font-medium ">
                     {{ contractQuote.contract.code }}
                   </td>
-                  <td class="">
-                    {{ contractQuote.contract.client.fullname }}
+                  <td class="flex justify-start">
+
+                    @for (client of contractQuote.contract.clients; track client.id) {
+                      <div class="">
+                        {{ client.fullname }}
+                      </div>
+                    }
+
                   </td>
                   <td class="">
                     {{ contractQuote.paymentDate | moment:'createAt' }}

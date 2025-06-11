@@ -86,9 +86,9 @@ export class ClientPaymentsComponent implements OnInit, OnDestroy {
     forkJoin({
       listContractQuotesByClient: this._contractQuoteService.getContractQuoteByClient( page, 10, this._client()!.id ),
       listContactQuotesAllByClient: this._contractQuoteService.getContractQuoteByClient( 1, 100, this._client()!.id ),
-      indicatorsResponse: this._profileClientService.getClientIndicators( this._client()!.id )
+      // indicatorsResponse: this._profileClientService.getClientIndicators( this._client()!.id )
     })
-    .subscribe( ( { listContractQuotesByClient, listContactQuotesAllByClient, indicatorsResponse } ) => {
+    .subscribe( ( { listContractQuotesByClient, listContactQuotesAllByClient } ) => { // indicatorsResponse
 
       const { contractQuotes, total, resumen } = listContractQuotesByClient;
       this._isLoading.set( false );
@@ -97,21 +97,21 @@ export class ClientPaymentsComponent implements OnInit, OnDestroy {
 
       this._contractQuotesAll.set( listContactQuotesAllByClient.contractQuotes );
 
-      const { debtIndicators, paymentIndicators } = indicatorsResponse;
+      // const { debtIndicators, paymentIndicators } = indicatorsResponse;
 
-      const { totalDebt, totalPaid, countOverdueDebt } = debtIndicators.reduce<{ totalDebt: number; totalPaid: number; countOverdueDebt: number }>( (acc, current) => {
+      // const { totalDebt, totalPaid, countOverdueDebt } = debtIndicators.reduce<{ totalDebt: number; totalPaid: number; countOverdueDebt: number }>( (acc, current) => {
 
-        acc.totalDebt += (current.loteAmount + current.interestAmount);
-        acc.totalPaid += (current.totalPaid + current.initialAmount);
-        acc.totalPaid += current.countOverdueDebt;
+      //   acc.totalDebt += (current.loteAmount + current.interestAmount);
+      //   acc.totalPaid += (current.totalPaid + current.initialAmount);
+      //   acc.totalPaid += current.countOverdueDebt;
 
-        return acc;
-      }, { totalDebt: 0, totalPaid: 0, countOverdueDebt: 0 });
+      //   return acc;
+      // }, { totalDebt: 0, totalPaid: 0, countOverdueDebt: 0 });
 
-      this._totalDebt.set( totalDebt - totalPaid );
-      this._countDebt.set( paymentIndicators.countQuotesPending );
-      this._totalPaid.set( totalPaid );
-      this._countPaid.set( paymentIndicators.countQuotesPaid );
+      // this._totalDebt.set( totalDebt - totalPaid );
+      // this._countDebt.set( paymentIndicators.countQuotesPending );
+      // this._totalPaid.set( totalPaid );
+      // this._countPaid.set( paymentIndicators.countQuotesPaid );
 
       setTimeout(() => {
         initFlowbite();

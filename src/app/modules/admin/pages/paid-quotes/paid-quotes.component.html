@@ -251,8 +251,12 @@
                     <td class="font-medium ">
                       {{ contractQuote.contract.code }}
                     </td>
-                    <td class="">
-                      {{ contractQuote.contract.client.fullname }}
+                    <td class="block justify-start ">
+                      @for (client of contractQuote.contract.clients; track client.id; let i = $index) {
+                        <div >
+                          {{ client.fullname }}
+                        </div>
+                      }
                     </td>
                     <td class="">
                       {{ contractQuote.paymentDate | moment:'createAt' }}

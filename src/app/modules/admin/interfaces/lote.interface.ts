@@ -14,6 +14,9 @@ export interface Lote {
   year:            number;
   loteStatus:      string;
   centerCoords:    [number, number];
+  pitchMap:        number;
+  bearingMap:      number;
+  zoomMap:         number;
   photos:          any[];
   polygonCoords:   Coordinate[];
 }

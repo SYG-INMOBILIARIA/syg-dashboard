@@ -88,7 +88,11 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
       loteStatus:    [ null, [ Validators.required ] ],
       centerCoords:  [ [], [] ],
       polygonCoords: [ [], [] ],
-      proyectId:     [null, [] ]
+      proyectId:     [ null, [] ],
+
+      pitchMap:      [ 0, [] ],
+      bearingMap:    [ 0, [] ],
+      zoomMap:       [ 14, [] ],
   });
 
   private _isSaving = signal( false );
@@ -129,6 +133,8 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
       this.loteTitleModal = `Actualizar lote ${ lote.code }`;
 
       this.loteForm.reset( lote );
+
+
     }
 
   }
@@ -146,13 +152,23 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
       zoom: 14, //
     });
 
-    const { proyect } = this.data;
+    const { proyect, loteToUpdate } = this.data;
 
     this._map.on('load', () => {
 
       const { centerCoords, polygonCoords, flatImage } = proyect;
       this._map!.setCenter( centerCoords );
       this._map!.setZoom( 17 );
+
+      if( loteToUpdate ) {
+
+        const { centerCoords, bearingMap, zoomMap, pitchMap  } = loteToUpdate;
+        this._map!.setCenter( centerCoords );
+        this._map!.setZoom( zoomMap );
+        this._map!.setBearing( bearingMap );
+        this._map!.setPitch( pitchMap );
+
+      }
 
       if( flatImage ) {
         this._buildFlatProyect( flatImage, polygonCoords );
@@ -163,7 +179,16 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
     });
 
     this._map.on( 'moveend', (event) => {
-      this.loteForm.get('centerCoords')?.setValue( this._map?.getCenter().toArray() );
+
+      const pitch = this._map!.getPitch();
+      const bearing = this._map!.getBearing();
+      const zoom = this._map!.getZoom();
+      const centerCoords = this._map!.getCenter().toArray();
+
+      this.loteForm.get('centerCoords')?.setValue( centerCoords );
+      this.loteForm.get('pitchMap')?.setValue( pitch );
+      this.loteForm.get('bearingMap')?.setValue( bearing );
+      this.loteForm.get('zoomMap')?.setValue( zoom );
     });
 
   }
