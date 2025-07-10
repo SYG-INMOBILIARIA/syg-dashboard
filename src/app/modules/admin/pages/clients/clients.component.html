@@ -31,6 +31,47 @@
 
         <div class="flex items-center ">
 
+          <div class="pr-4 w-52">
+            <ng-select
+              id="cbxDepartment"
+              class="white text-gray-900 text-sm rounded-md block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+              [items]="departments()"
+              (change)="onGetProvincesToFilter( $event )"
+              bindLabel="department"
+              bindValue="code"
+              placeholder="-- Departamento --"
+              [formControl]="departmentInput"
+            >
+            </ng-select>
+          </div>
+
+          <div class="pr-4 w-52">
+            <ng-select
+              id="cbxDepartment"
+              class="white text-gray-900 text-sm rounded-md block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+              [items]="provincesToFilter()"
+              (change)="onGetDistrictsToFilter( $event )"
+              bindLabel="province"
+              bindValue="code"
+              placeholder="-- Provincia --"
+              [formControl]="provinceInput"
+            >
+            </ng-select>
+          </div>
+
+          <div class="pr-4 w-52">
+            <ng-select
+              id="cbxDepartment"
+              class="white text-gray-900 text-sm rounded-md block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+              [items]="districtsToFilter()"
+              bindLabel="district"
+              bindValue="code"
+              placeholder="-- Distrito --"
+              [formControl]="districtInput"
+            >
+            </ng-select>
+          </div>
+
           <div class="pr-4">
             <div class="relative flex flex-wrap items-stretch w-full transition-all rounded-lg ease">
               <span class="text-sm ease leading-5.6 absolute z-50 -ml-px flex h-full items-center whitespace-nowrap rounded-lg rounded-tr-none rounded-br-none border border-r-0 border-transparent bg-transparent py-2 px-2.5 text-center font-normal text-slate-500 transition-all">
@@ -83,6 +124,7 @@
                 <th class="px-6 py-3 font-bold text-left uppercase align-middle bg-transparent border-b border-collapse shadow-none dark:border-white/40 text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-800 dark:text-slate-100 opacity-70">Apellidos y Nombre / Razon social</th>
                 <th class="px-6 py-3 pl-2 font-bold text-left uppercase align-middle bg-transparent border-b border-collapse shadow-none dark:border-white/40 text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-800 dark:text-slate-100 opacity-70">Documento</th>
                 <th class="px-6 py-3 pl-2 font-bold text-left uppercase align-middle bg-transparent border-b border-collapse shadow-none dark:border-white/40 text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-800 dark:text-slate-100 opacity-70">Email</th>
+                <th class="px-6 py-3 pl-2 font-bold text-left uppercase align-middle bg-transparent border-b border-collapse shadow-none dark:border-white/40 text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-800 dark:text-slate-100 opacity-70">Ubigeo</th>
                 <th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-collapse shadow-none dark:border-white/40 text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-800 dark:text-slate-100 opacity-70">Estado</th>
                 <th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-collapse shadow-none dark:border-white/40 text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-800 dark:text-slate-100 opacity-70">F. creación</th>
                 <th class="px-6 py-3 font-semibold capitalize align-middle bg-transparent border-b border-collapse border-solid shadow-none dark:border-white/40 tracking-none whitespace-nowrap text-slate-800 dark:text-slate-100 opacity-70"></th>
@@ -126,6 +168,10 @@
 
                     <td class="p-2 align-middle bg-transparent border-b dark:border-white/40 whitespace-nowrap shadow-transparent dark:text-gray-300">
                       {{ client.email }}
+                    </td>
+
+                    <td class="p-2 align-middle bg-transparent border-b dark:border-white/40 whitespace-nowrap shadow-transparent dark:text-gray-300">
+                      {{ client.ubigeo?.ubigeoName }}
                     </td>
 
                     <td class="p-2 text-sm leading-normal text-center align-middle bg-transparent border-b dark:border-white/40 whitespace-nowrap shadow-transparent">
@@ -242,7 +288,7 @@
 
                 <div class="col-span-6 md:col-span-3">
                   <label for="cbxPersonType" class="block mb-1 text-sm font-medium text-gray-900 dark:text-white">
-                    Tipo *
+                    Tipo <span class="text-red-600">*</span>
                   </label>
                   <ng-select
                     id="cbxPersonType"
@@ -270,7 +316,7 @@
 
                 <div class="col-span-6 md:col-span-3">
                   <label for="cbxIdentityDocument" class="block mb-1 text-sm font-medium text-gray-900 dark:text-white">
-                    Documento de identidad *
+                    Documento de identidad <span class="text-red-600">*</span>
                   </label>
                   <ng-select
                     id="cbxIdentityDocument"
@@ -300,7 +346,7 @@
 
                   <div class="col-span-6 md:col-span-3">
                       <label for="txtNames" class="block mb-1 text-sm font-medium text-gray-900 dark:text-white">
-                        Nombres *
+                        Nombres <span class="text-red-600">*</span>
                       </label>
                       <input
                         type="text"
@@ -324,7 +370,7 @@
 
                   <div class="col-span-6 md:col-span-3">
                       <label for="txtSurname" class="block mb-1 text-sm font-medium text-gray-900 dark:text-white">
-                        Apellidos *
+                        Apellidos <span class="text-red-600">*</span>
                       </label>
                       <input
                         type="text"
@@ -350,7 +396,7 @@
 
                   <div class="col-span-6 xs:col-span-6">
                       <label for="txtBussinessName" class="block mb-1 text-sm font-medium text-gray-900 dark:text-white">
-                        Razón social *
+                        Razón social <span class="text-red-600">*</span>
                       </label>
                       <input
                         type="text"
@@ -372,11 +418,35 @@
                       }
                   </div>
 
+                  <div class="col-span-6 xs:col-span-6">
+                    <label for="txtLegalRepresentative" class="block mb-1 text-sm font-medium text-gray-900 dark:text-white">
+                      Representante legal <span class="text-red-600">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      id="txtLegalRepresentative"
+                      class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-md focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                      placeholder="Enter Legal Representative"
+                      formControlName="legalRepresentative"
+                      [class.border-red-400]=" inputErrors('legalRepresentative') && isTouched('legalRepresentative') "
+                    >
+
+                    @if (isTouched('legalRepresentative')) {
+                      <span
+                        class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                        inputErrors
+                        [errors]="inputErrors('legalRepresentative')"
+                        [class.hidden]="!inputErrors('legalRepresentative')"
+                        inputLabel="Representante legal" >
+                      </span>
+                    }
+                  </div>
+
                 }
 
                 <div class="col-span-6 xs:col-span-6">
                   <label for="txtAddress" class="block mb-1 text-sm font-medium text-gray-900 dark:text-white">
-                    Dirección *
+                    Dirección <span class="text-red-600">*</span>
                   </label>
                   <input
                     type="text"
@@ -399,8 +469,92 @@
                 </div>
 
                 <div class="col-span-6 md:col-span-2">
+                  <label for="cbxDepartment" class="block mb-1 text-sm font-medium text-gray-900 dark:text-white">
+                    Departamento <span class="text-red-600">*</span>
+                  </label>
+                  <ng-select
+                    id="cbxDepartment"
+                    class="bg-gray-50 text-gray-900 text-sm rounded-md block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                    [items]="departments()"
+                    (change)="onGetProvinces( $event )"
+                    bindLabel="department"
+                    bindValue="code"
+                    placeholder="Seleccione departamento"
+                    formControlName="departmentCode"
+                    [class.border-red-400]=" inputErrors('departmentCode') && isTouched('departmentCode') "
+                  >
+                  </ng-select>
+
+                  @if (isTouched('departmentCode')) {
+                    <span
+                      class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                      inputErrors
+                      [errors]="inputErrors('departmentCode')"
+                      [class.hidden]="!inputErrors('departmentCode')"
+                      inputLabel="Departamento" >
+                    </span>
+                  }
+                </div>
+
+                <div class="col-span-3 md:col-span-2">
+                  <label for="txtBirthDate" class="block mb-1 text-sm font-medium text-gray-900 dark:text-white">
+                    Provincia <span class="text-red-600">*</span>
+                  </label>
+
+                  <ng-select
+                    id="cbxDepartment"
+                    class="bg-gray-50 text-gray-900 text-sm rounded-md block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                    [items]="provinces()"
+                    (change)="onGetDistricts( $event )"
+                    bindLabel="province"
+                    bindValue="code"
+                    placeholder="Seleccione provincia"
+                    formControlName="provinceCode"
+                    [class.border-red-400]=" inputErrors('provinceCode') && isTouched('provinceCode') "
+                  >
+                  </ng-select>
+
+                  @if (isTouched('provinceCode')) {
+                    <span
+                      class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                      inputErrors
+                      [errors]="inputErrors('provinceCode')"
+                      [class.hidden]="!inputErrors('provinceCode')"
+                      inputLabel="provincia" >
+                    </span>
+                  }
+                </div>
+
+                <div class="col-span-3 md:col-span-2">
+                  <label for="cbxDistrito" class="block mb-1 text-sm font-medium text-gray-900 dark:text-white">
+                    Distrito <span class="text-red-600">*</span>
+                  </label>
+                  <ng-select
+                    id="cbxDistrito"
+                    class="bg-gray-50 text-gray-900 text-sm rounded-md block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                    [items]="districts()"
+                    bindLabel="district"
+                    bindValue="id"
+                    placeholder="Seleccione distrito"
+                    formControlName="districtId"
+                    [class.border-red-400]=" inputErrors('districtId') && isTouched('districtId') "
+                  >
+                  </ng-select>
+
+                  @if (isTouched('districtId')) {
+                    <span
+                      class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                      inputErrors
+                      [errors]="inputErrors('districtId')"
+                      [class.hidden]="!inputErrors('districtId')"
+                      inputLabel="Distrito" >
+                    </span>
+                  }
+                </div>
+
+                <div class="col-span-6 md:col-span-2">
                     <label for="txtDocumentNumber" class="block mb-1 text-sm font-medium text-gray-900 dark:text-white">
-                      Nro Documento *
+                      Nro Documento <span class="text-red-600">*</span>
                     </label>
                     <input
                       type="text"
@@ -424,7 +578,7 @@
 
                 <div class="col-span-3 md:col-span-2">
                   <label for="txtBirthDate" class="block mb-1 text-sm font-medium text-gray-900 dark:text-white">
-                    Fecha de nacimiento *
+                    Fecha de nacimiento <span class="text-red-600">*</span>
                   </label>
 
                   <div class="relative">
@@ -461,7 +615,7 @@
 
                 <div class="col-span-3 md:col-span-2">
                   <label for="txtPhone" class="block mb-1 text-sm font-medium text-gray-900 dark:text-white">
-                    Teléfono *
+                    Teléfono <span class="text-red-600">*</span>
                   </label>
                   <input
                     type="text"
@@ -485,7 +639,7 @@
 
                 <div class="col-span-6 md:col-span-4">
                     <label for="txtEmail" class="block mb-1 text-sm font-medium text-gray-900 dark:text-white">
-                      Email *
+                      Email <span class="text-red-600">*</span>
                     </label>
                     <input
                       type="text"
@@ -531,59 +685,62 @@
                   }
                 </div>
 
-                <div class="col-span-3 md:col-span-3 ">
-                  <label for="cbxPersonType" class="block mb-1 text-sm font-medium text-gray-900 dark:text-white">
-                    Estado civil *
-                  </label>
-                  <ng-select
-                    id="cbxPersonType"
-                    class="bg-gray-50 border text-gray-900 text-sm rounded-md block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                    [items]="civilStatus()"
-                    bindLabel="label"
-                    bindValue="value"
-                    placeholder="Seleccione estado civil"
-                    formControlName="civilStatus"
-                    [class.border-red-400]=" inputErrors('civilStatus') && isTouched('civilStatus') "
-                  >
-                  </ng-select>
+                @if ( !isJuridicPerson() ) {
 
-                  @if (isTouched('civilStatus')) {
-                    <span
-                      class="flex items-center ms-1 mt-2 text-xs text-red-500"
-                      inputErrors
-                      [errors]="inputErrors('civilStatus')"
-                      [class.hidden]="!inputErrors('civilStatus')"
-                      inputLabel="Estado civil" >
-                    </span>
-                  }
-                </div>
+                  <div class="col-span-3 md:col-span-3 ">
+                    <label for="cbxPersonType" class="block mb-1 text-sm font-medium text-gray-900 dark:text-white">
+                      Estado civil <span class="text-red-600">*</span>
+                    </label>
+                    <ng-select
+                      id="cbxPersonType"
+                      class="bg-gray-50 border text-gray-900 text-sm rounded-md block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                      [items]="civilStatus()"
+                      bindLabel="label"
+                      bindValue="value"
+                      placeholder="Seleccione estado civil"
+                      formControlName="civilStatus"
+                      [class.border-red-400]=" inputErrors('civilStatus') && isTouched('civilStatus') "
+                    >
+                    </ng-select>
 
-                <div class="col-span-3 md:col-span-3 ">
-                  <label for="cbxPersonType" class="block mb-1 text-sm font-medium text-gray-900 dark:text-white">
-                    Género *
-                  </label>
-                  <ng-select
-                    id="cbxPersonType"
-                    class="bg-gray-50 border text-gray-900 text-sm rounded-md block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                    [items]="genders()"
-                    bindLabel="label"
-                    bindValue="value"
-                    placeholder="Seleccione genero"
-                    formControlName="gender"
-                    [class.border-red-400]=" inputErrors('gender') && isTouched('gender') "
-                  >
-                  </ng-select>
+                    @if (isTouched('civilStatus')) {
+                      <span
+                        class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                        inputErrors
+                        [errors]="inputErrors('civilStatus')"
+                        [class.hidden]="!inputErrors('civilStatus')"
+                        inputLabel="Estado civil" >
+                      </span>
+                    }
+                  </div>
 
-                  @if (isTouched('gender')) {
-                    <span
-                      class="flex items-center ms-1 mt-2 text-xs text-red-500"
-                      inputErrors
-                      [errors]="inputErrors('gender')"
-                      [class.hidden]="!inputErrors('gender')"
-                      inputLabel="Genero" >
-                    </span>
-                  }
-                </div>
+                  <div class="col-span-3 md:col-span-3 ">
+                    <label for="cbxPersonType" class="block mb-1 text-sm font-medium text-gray-900 dark:text-white">
+                      Género <span class="text-red-600">*</span>
+                    </label>
+                    <ng-select
+                      id="cbxPersonType"
+                      class="bg-gray-50 border text-gray-900 text-sm rounded-md block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                      [items]="genders()"
+                      bindLabel="label"
+                      bindValue="value"
+                      placeholder="Seleccione genero"
+                      formControlName="gender"
+                      [class.border-red-400]=" inputErrors('gender') && isTouched('gender') "
+                    >
+                    </ng-select>
+
+                    @if (isTouched('gender')) {
+                      <span
+                        class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                        inputErrors
+                        [errors]="inputErrors('gender')"
+                        [class.hidden]="!inputErrors('gender')"
+                        inputLabel="Genero" >
+                      </span>
+                    }
+                  </div>
+                }
 
               </div>
 

@@ -65,6 +65,9 @@ export interface Client {
   observation:      string | null;
   identityDocument: IdentityDocument | null;
   assignedAdvisor:  AssignedAdvisor;
+
+  legalRepresentative?: string;
+  ubigeo?:              Ubigeo;
 }
 
 export interface AssignedAdvisor {
@@ -87,3 +90,25 @@ export interface AssignedAdvisor {
   identityDocument: IdentityDocument;
 }
 
+
+
+export interface Aux {
+  clients: Client[];
+  total:   number;
+}
+
+
+
+export interface Ubigeo {
+  isActive:       boolean;
+  userCreate:     null;
+  createAt:       Date;
+  id:             string;
+  departmentCode: string;
+  provinceCode:   string;
+  code:           string;
+  ubigeo:         string;
+  ubigeoName:     string;
+  district:       string;
+  countryCode:    string;
+}

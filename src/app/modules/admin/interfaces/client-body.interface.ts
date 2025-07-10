@@ -13,4 +13,8 @@ export interface ClientBody {
   address: string;
   gender: string;
   civilStatus: string;
+
+  departmentCode?: string;
+  provinceCode?: string;
+  districtId: string;
 }

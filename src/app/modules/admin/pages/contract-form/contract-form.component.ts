@@ -207,7 +207,7 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
   onGetClients() {
 
     const pattern = this.searchClientInput.value ?? '';
-    this._clientService.getClients( 1, pattern, 10 )
+    this._clientService.getClients( 1, pattern, 10, false , null, null, null )
     .subscribe( ({ clients, total }) => {
 
       this._clients.set( clients );
@@ -223,7 +223,7 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
     forkJoin({
       paymentTypesResponse: this._nomenclatureService.getPaymentType(),
       usersResponse: this._userService.getUsers( 1, pattern, 10 ),
-      clientsResponse: this._clientService.getClients( 1, patternClient, 10 ),
+      clientsResponse: this._clientService.getClients( 1, patternClient, 10, false, null, null, null ),
       proyectsResponse: this._proyectService.getProyects( 1, '', 10 ),
     }).subscribe( ({ paymentTypesResponse, usersResponse, clientsResponse, proyectsResponse }) => {
 

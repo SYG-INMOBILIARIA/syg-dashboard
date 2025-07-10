@@ -52,3 +52,12 @@ export * from './lead-body.interface';
 export * from './list-lead-response.interface';
 export * from './lead.interface';
 export * from './lead-indicators.interface';
+
+export * from './list-department-response.interface';
+export * from './department.interface';
+
+export * from './list-province-response.interface';
+export * from './province.interface';
+
+export * from './list-district-response.interface';
+export * from './district.interface';

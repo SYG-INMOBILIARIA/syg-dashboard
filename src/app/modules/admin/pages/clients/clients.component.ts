@@ -1,7 +1,7 @@
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild, computed, inject, signal } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Router, RouterModule } from '@angular/router';
+import { Router } from '@angular/router';
 import { Subscription, forkJoin } from 'rxjs';
 import { Store } from '@ngrx/store';
 import { initFlowbite } from 'flowbite';
@@ -9,21 +9,21 @@ import { validate as ISUUID } from 'uuid';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { FlatpickrDirective } from 'angularx-flatpickr';
 
-
-import { ClientService } from '../../services/client.service';
-import { Client, ClientBody, IdentityDocument, PersonType } from '../../interfaces';
 import { AlertService } from '@shared/services/alert.service';
 import { emailPatt, fullTextPatt, numberDocumentPatt, numberPatt, phonePatt } from '@shared/helpers/regex.helper';
 import { SpinnerComponent } from '@shared/components/spinner/spinner.component';
 import { PaginationComponent } from '@shared/components/pagination/pagination.component';
 import { PipesModule } from '@pipes/pipes.module';
 import { NomenclatureService } from '@shared/services/nomenclature.service';
-import { IdentityDocumentService } from '../../services/identity-document.service';
 import { InputErrorsDirective } from '@shared/directives/input-errors.directive';
 import { Nomenclature } from '@shared/interfaces';
 import { AppState } from '@app/app.config';
-import { WebUrlPermissionMethods } from '../../../../auth/interfaces';
 import { apiClient } from '@shared/helpers/web-apis.helper';
+import { UbigeoService } from '@modules/admin/services/ubigeo.service';
+import { ClientService } from '../../services/client.service';
+import { Client, ClientBody, Department, District, IdentityDocument, PersonType, Province } from '../../interfaces';
+import { IdentityDocumentService } from '../../services/identity-document.service';
+import { WebUrlPermissionMethods } from '../../../../auth/interfaces';
 import { ClientValidatorService } from '../../validators/client-validator.service';
 
 @Component({
@@ -57,6 +57,7 @@ export default class ClientsComponent implements OnInit, OnDestroy {
 
   private _router = inject( Router );
   private _clientService = inject( ClientService );
+  private _ubigeoService = inject( UbigeoService );
   private _clientValidatorService = inject( ClientValidatorService );
   private _identityDocService = inject( IdentityDocumentService );
   private _nomenclatureService = inject( NomenclatureService );
@@ -67,12 +68,16 @@ export default class ClientsComponent implements OnInit, OnDestroy {
   private _isJuridicPerson = signal( false );
   private _allowList = signal( true );
   public searchInput = new FormControl('', [ Validators.pattern( fullTextPatt ) ]);
+  public departmentInput = new FormControl( null, []);
+  public provinceInput = new FormControl( null, []);
+  public districtInput = new FormControl( null, []);
 
   public clientForm = this._formBuilder.group({
     id:                   [ '', [] ],
     name:                 [ '', [ Validators.required, Validators.pattern( fullTextPatt ) ] ],
     surname:              [ '', [ Validators.required, Validators.pattern( fullTextPatt ) ] ],
     bussinessName:        [ '', [ Validators.pattern( fullTextPatt ) ] ],
+    legalRepresentative:  [ '', [ Validators.pattern( fullTextPatt ) ] ],
     personType:           [ null, [ Validators.required ] ],
     identityDocumentId:   [ null, [ Validators.required ] ],
     identityNumber:       [ '', [ Validators.required, Validators.pattern( numberDocumentPatt ) ] ],
@@ -83,6 +88,10 @@ export default class ClientsComponent implements OnInit, OnDestroy {
     address:              [ '', [ Validators.required, Validators.pattern( fullTextPatt ) ] ],
     gender:               [ null, [ Validators.required ] ],
     civilStatus:          [ null, [ Validators.required ] ],
+
+    departmentCode:       [ null, [ Validators.required ] ],
+    provinceCode:         [ null, [ Validators.required ] ],
+    districtId:           [ null, [ Validators.required ] ],
   }, {
     updateOn: 'change',
     asyncValidators: [ this._clientValidatorService ],
@@ -96,6 +105,11 @@ export default class ClientsComponent implements OnInit, OnDestroy {
 
   // private _identityDocumentsAll = signal<IdentityDocument[]>([]);
   private _identityDocuments = signal<IdentityDocument[]>([]);
+  private _departments = signal<Department[]>([]);
+  private _provinces = signal<Province[]>([]);
+  private _provincesToFilter = signal<Province[]>([]);
+  private _districts = signal<District[]>([]);
+  private _districtsToFilter = signal<District[]>([]);
   private _civilStatus = signal<Nomenclature[]>([]);
   private _genders = signal<Nomenclature[]>([]);
   private _personTypes = signal<Nomenclature[]>([]);
@@ -103,6 +117,11 @@ export default class ClientsComponent implements OnInit, OnDestroy {
   public clients = computed( () => this._clients() );
 
   public identityDocuments = computed( () => this._identityDocuments() );
+  public departments = computed( () => this._departments() );
+  public provinces = computed( () => this._provinces() );
+  public provincesToFilter = computed( () => this._provincesToFilter() );
+  public districts = computed( () => this._districts() );
+  public districtsToFilter = computed( () => this._districtsToFilter() );
   public civilStatus = computed( () => this._civilStatus() );
   public genders = computed( () => this._genders() );
   public personTypes = computed( () => this._personTypes() );
@@ -157,8 +176,12 @@ export default class ClientsComponent implements OnInit, OnDestroy {
 
     this._filter = this.searchInput.value ?? '';
 
+    const dptCode = this.departmentInput.value ?? null;
+    const provCode = this.provinceInput.value ?? null;
+    const distCode = this.districtInput.value ?? null;
+
     this._isLoading.set( true );
-    this._clientService.getClients( page, this._filter )
+    this._clientService.getClients( page, this._filter, 10, false, dptCode, provCode, distCode )
     .subscribe({
       next: ({ clients, total }) => {
 
@@ -173,6 +196,46 @@ export default class ClientsComponent implements OnInit, OnDestroy {
 
   }
 
+  onGetProvinces( department: Department ) {
+
+    this._ubigeoService.getProvinces( department.code )
+    .subscribe( ({ provinces }) => {
+      this._provinces.set( provinces )
+    });
+
+  }
+
+  onGetProvincesToFilter( department: Department ) {
+
+    this._ubigeoService.getProvinces( department.code )
+    .subscribe( ({ provinces }) => {
+      this._provincesToFilter.set( provinces )
+    });
+
+  }
+
+  onGetDistricts( province: Province ) {
+
+    const { id = 'xD', departmentCode = '' } = this.clientBody;
+
+    this._ubigeoService.getDistricts( departmentCode, province.code )
+    .subscribe( ({ districts }) => {
+      this._districts.set( districts );
+    });
+
+  }
+
+  onGetDistrictsToFilter( province: Province ) {
+
+    const departmentCode = this.departmentInput.value ?? '';
+
+    this._ubigeoService.getDistricts( departmentCode, province.code )
+    .subscribe( ({ districts }) => {
+      this._districtsToFilter.set( districts );
+    });
+
+  }
+
   onGetSelectsData() {
 
     forkJoin({
@@ -180,20 +243,23 @@ export default class ClientsComponent implements OnInit, OnDestroy {
       gendersResponse: this._nomenclatureService.getGender(),
       civilStatusResponse: this._nomenclatureService.getCivilStatus(),
       personTypesResponse: this._nomenclatureService.getPersonType(),
-      identityDocumentsResponse: this._identityDocService.getIdentityDocuments()
+      identityDocumentsResponse: this._identityDocService.getIdentityDocuments(),
+      departmentResponse: this._ubigeoService.getDepartments(),
 
-    }).subscribe( ({ identityDocumentsResponse, personTypesResponse, civilStatusResponse, gendersResponse }) => {
+    }).subscribe( ({ identityDocumentsResponse, personTypesResponse, civilStatusResponse, gendersResponse, departmentResponse }) => {
 
       const { identityDocuments } = identityDocumentsResponse;
       const { nomenclatures: personTypes } = personTypesResponse;
       const { nomenclatures: civilStatus } = civilStatusResponse;
       const { nomenclatures: genders } = gendersResponse;
+      const { departments } = departmentResponse;
 
       // this._identityDocumentsAll.set( identityDocuments );
       this._identityDocuments.set( identityDocuments );
       this._civilStatus.set( civilStatus );
       this._genders.set( genders );
       this._personTypes.set( personTypes );
+      this._departments.set( departments );
 
     } );
 
@@ -266,16 +332,36 @@ export default class ClientsComponent implements OnInit, OnDestroy {
     this.clientForm.get('name')?.clearValidators();
     this.clientForm.get('surname')?.clearValidators();
     this.clientForm.get('bussinessName')?.clearValidators();
+    this.clientForm.get('legalRepresentative')?.clearValidators();
+    this.clientForm.get('gender')?.clearValidators();
+    this.clientForm.get('civilStatus')?.clearValidators();
 
     if( personType == PersonType.JuridicPerson ) {
+
+      this.clientForm.get('name')?.setValue('');
+      this.clientForm.get('surname')?.setValue('');
+      this.clientForm.get('gender')?.setValue(null);
+      this.clientForm.get('civilStatus')?.setValue(null);
 
       this.clientForm.get('bussinessName')?.addValidators( [
         Validators.required,
         Validators.pattern( fullTextPatt ),
         Validators.minLength( 6 ),
-       ] );
+      ] );
+
+      this.clientForm.get('legalRepresentative')?.addValidators( [
+        Validators.required,
+        Validators.pattern( fullTextPatt ),
+        Validators.minLength( 6 ),
+      ] );
+
+      this.clientForm.get('gender')?.clearValidators();
+      this.clientForm.get('civilStatus')?.clearValidators();
 
     } else {
+
+      this.clientForm.get('bussinessName')?.setValue('');
+      this.clientForm.get('legalRepresentative')?.setValue('');
 
       this.clientForm.get('name')?.addValidators( [
         Validators.required,
@@ -288,9 +374,17 @@ export default class ClientsComponent implements OnInit, OnDestroy {
         Validators.pattern( fullTextPatt ),
         Validators.minLength( 3 ),
       ] );
+
+      this.clientForm.get('gender')?.addValidators( [ Validators.required ] );
+      this.clientForm.get('civilStatus')?.addValidators( [ Validators.required ] );
     }
 
-    this.clientForm.updateValueAndValidity();
+    this.clientForm.get('name')?.updateValueAndValidity();
+    this.clientForm.get('surname')?.updateValueAndValidity();
+    this.clientForm.get('bussinessName')?.updateValueAndValidity();
+    this.clientForm.get('legalRepresentative')?.updateValueAndValidity();
+    this.clientForm.get('gender')?.updateValueAndValidity();
+    this.clientForm.get('civilStatus')?.updateValueAndValidity();
 
   }
 
@@ -306,7 +400,7 @@ export default class ClientsComponent implements OnInit, OnDestroy {
       Validators.maxLength( longitude ),
      ] );
 
-    this.clientForm.updateValueAndValidity();
+    this.clientForm.get('identityNumber')?.updateValueAndValidity();
   }
 
   onSubmit() {
@@ -315,7 +409,7 @@ export default class ClientsComponent implements OnInit, OnDestroy {
 
     if( this.isFormInvalid || this._isLoading() ) return;
 
-    const { id = 'xD', ...body } = this.clientBody;
+    const { id = 'xD',departmentCode, provinceCode, ...body } = this.clientBody;
 
     if( !ISUUID( id ) ) {
 
