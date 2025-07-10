@@ -2,7 +2,7 @@ const _fileValid = ['PNG', 'JPG', 'JPEG'];
 
 export const onValidImg = ( extension: string, size: number ): boolean => {
 
-  const sizeMegabytes = size / 2000000;
+  const sizeMegabytes = size / 4000000;
 
   let isValidFile = true;
 
