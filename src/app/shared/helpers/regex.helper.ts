@@ -1,6 +1,10 @@
 
 export const passwordPatt = new RegExp(/(?:(?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/);
 
+export const uppercasePatt = new RegExp(/[A-Z]/);
+export const lowercasePatt = new RegExp(/[a-z]/);
+export const includeNumberPatt = new RegExp(/[0-9]/);
+
 
 export const textUbigeoName = new RegExp(/^[a-zñ\s]{0,200}$/i);
 export const fullTextPatt = new RegExp(/^[a-záéíóúüñ\-\'\.\,\#\s\d\:]{0,400}$/i);
@@ -20,7 +24,7 @@ export const decimalPatt = new RegExp(/^\d+(?:\.\d{1,2})?$/);
 export const urlPatt = /^(https?|ftp):\/\/(([a-z\d]([a-z\d-]*[a-z\d])?\.)+[a-z]{2,}|localhost)(\/[-a-z\d%_.~+]*)*(\?[;&a-z\d%_.~+=-]*)?(\#[-a-z\d_]*)?$/i;
 
 export const translatePatt = new RegExp(/^[a-z\.]{0,200}$/i);
-export const classPatt = new RegExp(/^[a-z0-9\-\_\.]{0,200}$/i);
+export const classPatt = new RegExp(/^[a-z0-9\-\_\.\[\]]{0,200}$/i);
 
 export const timeZonePatt = new RegExp(/^[a-z\/\_]{0,50}$/i);
 

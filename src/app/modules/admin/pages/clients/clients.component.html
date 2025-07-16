@@ -111,6 +111,17 @@
               <i class="fa fa-plus" aria-hidden="true"></i>
               &nbsp;Nuevo
             </button>
+
+            <button
+              #btnShowCredentialsModal
+              type="button"
+              data-modal-target="credentials-modal"
+              data-modal-toggle="credentials-modal"
+              class="hidden  px-6 py-2 mr-3 font-semibold text-center text-white align-middle transition-all rounded cursor-pointer bg-emerald-600 hover:bg-emerald-700 leading-normal ease-in tracking-tight-rem shadow-xs bg-150 bg-x-25 hover:-translate-y-px active:opacity-85 hover:shadow-md "
+              >
+              <i class="fa fa-plus" aria-hidden="true"></i>
+              &nbsp;Credenciales
+            </button>
           </div>
 
         </div>
@@ -205,6 +216,12 @@
 
                     <td class=" bg-transparent border-b dark:border-white/40 whitespace-nowrap shadow-transparent">
                       <div class="flex  gap-3 justify-end pr-6">
+
+                        <a *ngIf="!client.user" href="javascript:;" class="flex gap-1 text-xs font-semibold leading-tight uppercase dark:opacity-80 text-slate-400 dark:text-gray-300" (click)="onAddCredentials( client )" >
+                          <i class="fa fa-user-plus" aria-hidden="true"></i>
+                          Usuario
+                        </a>
+
                         <a href="javascript:;" class="flex gap-1 text-xs font-semibold leading-tight uppercase dark:opacity-80 text-slate-400 dark:text-gray-300" (click)="onLoadToUpdate( client )">
                           <i class="fa fa-pencil" aria-hidden="true"></i>
                           Editar
@@ -758,6 +775,292 @@
   </div>
 </div>
 
+
+<!-- Modal para creación de credenciales de acceso -->
+<div id="credentials-modal" data-modal-backdrop="true" tabindex="-1" aria-hidden="false" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+  <div class="relative p-4 w-full max-w-md max-h-full">
+    <!-- Modal content -->
+    <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+      <!-- Modal header -->
+      <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+          <i class="fa fa-clock mr-2" aria-hidden="true"></i>
+          Crear Credenciales de Acceso
+        </h3>
+        <button
+          #btnCloseCredentialsModal
+          type="button"
+          data-modal-toggle="credentials-modal"
+          class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+          (click)="onResetAfterSubmitCredentials()"
+        >
+          <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+          </svg>
+          <span class="sr-only">Close modal</span>
+        </button>
+      </div>
+
+      <!-- Modal body -->
+      <form [formGroup]="credentialsForm" class="p-4" (submit)="onSubmitCredentials()">
+        <div class="space-y-4">
+          <!-- Información del cliente -->
+          <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 dark:bg-blue-900/20 dark:border-blue-800">
+            <div class="flex items-center mb-2">
+              <i class="fa fa-user text-blue-600 dark:text-blue-400 mr-2"></i>
+              <span class="text-sm font-medium text-blue-800 dark:text-blue-200">Cliente seleccionado</span>
+            </div>
+            <p class="text-sm text-blue-700 dark:text-blue-300" id="selectedClientName">
+              {{ selectedClient()?.fullname }}
+            </p>
+          </div>
+
+          <!-- Username -->
+          <div>
+            <label for="txtUsername" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+              Nombre de usuario <span class="text-red-600">*</span>
+            </label>
+            <div class="relative">
+              <div class="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none">
+                <i class="fa fa-user text-gray-500 dark:text-gray-400"></i>
+              </div>
+              <input
+                type="text"
+                id="txtUsername"
+                class="bg-gray-50 ps-10 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                placeholder="Enter Username"
+                formControlName="username"
+                [class.border-red-400]="inputErrorsCredentials('username') && isTouchedCredentials('username')"
+              >
+            </div>
+            @if (isTouchedCredentials('username')) {
+              <span
+                class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                inputErrors
+                [errors]="inputErrorsCredentials('username')"
+                [class.hidden]="!inputErrorsCredentials('username')"
+                inputLabel="Nombre de usuario">
+              </span>
+            }
+          </div>
+
+          <!-- Password -->
+          <div>
+            <label for="txtPassword" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+              Contraseña <span class="text-red-600">*</span>
+            </label>
+            <div class="relative">
+              <div class="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none">
+                <i class="fa fa-lock text-gray-500 dark:text-gray-400"></i>
+              </div>
+              <input
+                #passwordInput
+                [type]=" showPassword ? 'text' : 'password'"
+                id="txtPassword"
+                class="bg-gray-50 ps-10 pr-10 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                placeholder="••••••••"
+                formControlName="password"
+                [class.border-red-400]="inputErrorsCredentials('password') && isTouchedCredentials('password')"
+              >
+              <button
+                type="button"
+                class="absolute inset-y-0 end-0 flex items-center pe-3.5"
+
+              >
+                <i
+                  [class]=" showPassword ? 'fa fa-eye-slash text-gray-500 dark:text-gray-400' : 'fa fa-eye text-gray-500 dark:text-gray-400'"
+                  aria-hidden="true"
+                  (click)="showPassword = !showPassword "
+                >
+                </i>
+              </button>
+            </div>
+            @if (isTouchedCredentials('password')) {
+              <span
+                class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                inputErrors
+                [errors]="inputErrorsCredentials('password')"
+                [class.hidden]="!inputErrorsCredentials('password')"
+                inputLabel="Contraseña">
+              </span>
+            }
+          </div>
+
+          <!-- Confirm Password -->
+          <div>
+            <label for="txtConfirmPassword" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+              Confirmar contraseña <span class="text-red-600">*</span>
+            </label>
+            <div class="relative">
+              <div class="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none">
+                <i class="fa fa-lock text-gray-500 dark:text-gray-400"></i>
+              </div>
+              <input
+                #confirmPasswordInput
+                [type]=" showConfirmPassword ? 'text' : 'password'"
+                id="txtConfirmPassword"
+                class="bg-gray-50 ps-10 pr-10 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                placeholder="••••••••"
+                formControlName="confirmPassword"
+                [class.border-red-400]="inputErrorsCredentials('confirmPassword') && isTouchedCredentials('confirmPassword')"
+              >
+              <button
+                type="button"
+                class="absolute inset-y-0 end-0 flex items-center pe-3.5"
+
+              >
+                <i
+                  [class]=" showConfirmPassword ? 'fa fa-eye-slash text-gray-500 dark:text-gray-400' : 'fa fa-eye text-gray-500 dark:text-gray-400'"
+                  aria-hidden="true"
+                  (click)="showConfirmPassword = !showConfirmPassword "
+                >
+                </i>
+              </button>
+            </div>
+            @if (isTouchedCredentials('confirmPassword')) {
+              <span
+                class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                inputErrors
+                [errors]="inputErrorsCredentials('confirmPassword')"
+                [class.hidden]="!inputErrorsCredentials('confirmPassword')"
+                inputLabel="Confirmar contraseña">
+              </span>
+            }
+          </div>
+
+          <!-- Roles -->
+          <div>
+            <label for="cbxRoles" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+              Roles <span class="text-red-600">*</span>
+            </label>
+            <ng-select
+              id="cbxRoles"
+              class="bg-gray-50 text-gray-900 text-sm rounded-lg block w-full dark:bg-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+              [items]="roles()"
+              bindLabel="name"
+              bindValue="id"
+              placeholder="Seleccione roles"
+              [multiple]="true"
+              [closeOnSelect]="false"
+              formControlName="rolesId"
+              [class.border-red-400]="inputErrorsCredentials('rolesId') && isTouchedCredentials('rolesId')"
+            >
+              <ng-template ng-option-tmp let-item="item">
+                <div class="flex items-center">
+                  <i class="fa fa-shield mr-2 text-blue-600 dark:text-blue-400"></i>
+                  <span>{{ item.name }}</span>
+                </div>
+              </ng-template>
+            </ng-select>
+            @if (isTouchedCredentials('rolesId')) {
+              <span
+                class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                inputErrors
+                [errors]="inputErrorsCredentials('rolesId')"
+                [class.hidden]="!inputErrorsCredentials('rolesId')"
+                inputLabel="Roles">
+              </span>
+            }
+
+          </div>
+          <!-- Requisitos de contraseña -->
+          <div class="bg-gray-50 border border-gray-200 rounded-lg p-3 dark:bg-gray-700 dark:border-gray-600">
+            <div class="flex items-center mb-2">
+              <i class="fa fa-info-circle text-gray-600 dark:text-gray-400 mr-2"></i>
+              <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Requisitos de contraseña</span>
+            </div>
+            <ul class="text-xs text-gray-600 dark:text-gray-400 space-y-1">
+              <li class="flex items-center" >
+                <i
+                  class="fa mr-2"
+                  aria-hidden="true"
+                  [ngClass]="{
+                    'fa-check text-green-500': !errorLengthPassword ,
+                    'fa-times text-red-500': errorLengthPassword ,
+                  }"
+                  ></i>
+                Mínimo 8 caracteres
+              </li>
+              <li class="flex items-center" >
+                <i
+                  class="fa mr-2"
+                  [ngClass]="{
+                    'fa-check text-green-500': !errorUppercasePassword ,
+                    'fa-times text-red-500': errorUppercasePassword ,
+                  }"
+                ></i>
+                Al menos una letra mayúscula
+              </li>
+              <li class="flex items-center" >
+                <i
+                  class="fa mr-2"
+                  [ngClass]="{
+                    'fa-check text-green-500': !errorLowercasePassword ,
+                    'fa-times text-red-500': errorLowercasePassword ,
+                  }"
+                ></i>
+                Al menos una letra minúscula
+              </li>
+              <li class="flex items-center">
+                <i
+                  class="fa mr-2"
+                  [ngClass]="{
+                    'fa-check text-green-500': inputErrorsCredentials('password')?.['pattern'] === null ,
+                    'fa-times text-red-500': inputErrorsCredentials('password')?.['pattern'] !== null ,
+                  }"
+                ></i>
+                Al menos un número
+              </li>
+
+              <!--li class="flex items-center">
+                <i
+                  class="fa mr-2"
+                  [ngClass]="{
+                    'fa-check text-green-500': inputErrorsCredentials('password')?.['pattern'] === null ,
+                    'fa-times text-red-500': inputErrorsCredentials('password')?.['pattern'] !== null ,
+                  }"
+                ></i>
+                Al menos un carácter especial
+              </-li -->
+
+            </ul>
+          </div>
+
+        </div>
+
+        <!-- Modal footer -->
+        <div class="flex items-center justify-end space-x-3 pt-4 border-t border-gray-200 dark:border-gray-600">
+          <button
+            type="button"
+            data-modal-toggle="credentials-modal"
+            class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600"
+          >
+            Cancelar
+          </button>
+
+
+          <button
+            type="submit"
+            class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 disabled:opacity-50 disabled:cursor-not-allowed"
+            [disabled]="isCredentialsFormInvalid || isSavingCredentials() "
+          >
+            <span *ngIf="!isSavingCredentials() else credentialsSpinner">
+              <i class="fa fa-save mr-2"></i>
+              Crear Usuario
+
+            </span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
 <ng-template #singinSpinner>
+  <spinner></spinner>
+</ng-template>
+
+<ng-template #credentialsSpinner>
   <spinner></spinner>
 </ng-template>

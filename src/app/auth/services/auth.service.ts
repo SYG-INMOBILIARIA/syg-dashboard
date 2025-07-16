@@ -23,7 +23,7 @@ export class AuthService {
   private _store = inject( Store<AppState> );
 
   private _authStatus = signal<AuthStatus>( AuthStatus.checking );
-  private _personSession = signal<any | null>( null );
+  private _personSession = signal<UserAuthenticated | null>( null );
 
   public readonly authStatus = computed<AuthStatus>(
     () => this._authStatus()

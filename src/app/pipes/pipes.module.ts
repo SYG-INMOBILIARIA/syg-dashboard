@@ -9,6 +9,7 @@ import { ExpenseTypePipe } from './expense-type.pipe';
 import { ClientStatusPipe } from './client-status.pipe';
 import { InputChannelPipe } from './input-channel.pipe';
 import { LeadStatusPipe } from './lead-status.pipe';
+import { MomentDiffPipe } from './moment-diff.pipe';
 
 @NgModule({
   imports: [
@@ -21,7 +22,8 @@ import { LeadStatusPipe } from './lead-status.pipe';
     ExpenseTypePipe,
     ClientStatusPipe,
     InputChannelPipe,
-    LeadStatusPipe
+    LeadStatusPipe,
+    MomentDiffPipe
   ],
   exports: [
     MomentPipe,
@@ -33,7 +35,8 @@ import { LeadStatusPipe } from './lead-status.pipe';
     ExpenseTypePipe,
     ClientStatusPipe,
     InputChannelPipe,
-    LeadStatusPipe
+    LeadStatusPipe,
+    MomentDiffPipe
   ],
 })
 export class PipesModule {}

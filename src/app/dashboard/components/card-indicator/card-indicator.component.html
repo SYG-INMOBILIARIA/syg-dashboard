@@ -1,0 +1,27 @@
+<div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 dark:bg-gray-800 dark:border-gray-700">
+  <div class="flex items-center justify-between">
+    <div>
+      <p class="text-sm font-medium text-gray-600 dark:text-gray-400">
+        {{ title }}
+      </p>
+      <p class="text-2xl font-bold text-gray-900 mt-1 dark:text-white">
+        {{ value }}
+      </p>
+      <div class="flex items-center mt-2">
+        <span *ngIf="changeType !== 'now-datetime'" class="text-sm" [ngClass]="changeType === 'increase' ? 'text-green-600' : changeType === 'decrease' ? 'text-red-600' : 'text-gray-500'">
+
+          {{ changeType === 'increase' ? '+' : changeType === 'decrease' ? '-' : '' }}{{ percentDifference }}%
+        </span>
+
+        <span *ngIf="changeType === 'now-datetime' ">
+          {{ nowDate | moment:'createAt' }}
+        </span>
+
+        <span *ngIf="changeType !== 'now-datetime'" class="text-sm text-gray-500 ml-1 dark:text-gray-400">vs mes anterior</span>
+
+        <span *ngIf="changeType == 'now-datetime'" class="text-sm text-gray-500 ml-1 dark:text-gray-400">útimo pago realizado</span>
+      </div>
+    </div>
+    <div class="text-3xl">{{ icon }}</div>
+  </div>
+</div>

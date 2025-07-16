@@ -76,7 +76,7 @@
     >
       <!-- use a disabled button to provide padding for tree leaf -->
       <div class=" flex justify-center items-center gap-4">
-        <div class="example-list-section" [class.mr-10]="!tree._getLevel(node)" >
+        <div class="example-list-section " [class.mr-10]="!tree._getLevel(node)" >
           <button mat-icon-button disabled></button>
           <mat-checkbox
             color="primary"
@@ -86,7 +86,25 @@
             [indeterminate]="partiallyComplete(node)"
 
           >
-            {{node.label}}
+
+            <div class="flex items-center justify-start gap-2">
+
+              <mat-icon class="flex-shrink-0 justify-center w-6 h-6 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white ">
+                {{ node.iconClass }}
+              </mat-icon>
+
+              {{node.label}}
+
+              @if ( node.haveBadge && node.badge ) {
+                <span
+                  class="inline-flex justify-center items-center w-10 h-5 text-xs font-semibold rounded-full text-slate-100  dark:bg-primary-200 "
+                  [class]="node.badge.variant"
+                >
+                  {{ node.badge.text }}
+                </span>
+              }
+
+            </div>
           </mat-checkbox>
         </div>
 

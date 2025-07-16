@@ -1,3 +1,4 @@
+import { User } from "@modules/security/interfaces";
 import { IdentityDocument } from ".";
 
 // export interface Client {
@@ -68,6 +69,7 @@ export interface Client {
 
   legalRepresentative?: string;
   ubigeo?:              Ubigeo;
+  user?:                User;
 }
 
 export interface AssignedAdvisor {

@@ -45,6 +45,8 @@ export class PaidQuotesModalComponent implements OnInit {
   }
 
   @Input({ required: true }) set contractQuotesData( value: ContractQuote[] ) {
+
+    console.log({value});
     this._contractQuotes.set( value );
   }
 

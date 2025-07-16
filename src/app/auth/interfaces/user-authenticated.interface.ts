@@ -1,3 +1,4 @@
+import { Client } from "@modules/admin/interfaces";
 import { Photo } from "@shared/interfaces";
 
 export interface UserAuthenticated {
@@ -12,6 +13,7 @@ export interface UserAuthenticated {
   roles:            Role[];
   photo?:            Photo | null;
   identityDocument: IdentityDocument;
+  client?:           Client;
 }
 
 export interface Role {

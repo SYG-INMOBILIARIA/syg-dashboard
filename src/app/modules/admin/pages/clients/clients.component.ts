@@ -10,7 +10,7 @@ import { NgSelectModule } from '@ng-select/ng-select';
 import { FlatpickrDirective } from 'angularx-flatpickr';
 
 import { AlertService } from '@shared/services/alert.service';
-import { emailPatt, fullTextPatt, numberDocumentPatt, numberPatt, phonePatt } from '@shared/helpers/regex.helper';
+import { emailPatt, fullTextPatt, numberDocumentPatt, numberPatt, passwordPatt, phonePatt } from '@shared/helpers/regex.helper';
 import { SpinnerComponent } from '@shared/components/spinner/spinner.component';
 import { PaginationComponent } from '@shared/components/pagination/pagination.component';
 import { PipesModule } from '@pipes/pipes.module';
@@ -23,8 +23,11 @@ import { UbigeoService } from '@modules/admin/services/ubigeo.service';
 import { ClientService } from '../../services/client.service';
 import { Client, ClientBody, Department, District, IdentityDocument, PersonType, Province } from '../../interfaces';
 import { IdentityDocumentService } from '../../services/identity-document.service';
-import { WebUrlPermissionMethods } from '../../../../auth/interfaces';
+import { Role, WebUrlPermissionMethods } from '../../../../auth/interfaces';
 import { ClientValidatorService } from '../../validators/client-validator.service';
+import { RoleService } from '@modules/security/services/role.service';
+import { oneLowercaseInPassword, oneUppercaseInPassword } from '@modules/admin/validators/password-valdiator.service';
+import { CredentialsBody } from '../../interfaces/credentials-body.interface';
 
 @Component({
   standalone: true,
@@ -50,6 +53,9 @@ export default class ClientsComponent implements OnInit, OnDestroy {
 
   @ViewChild('btnCloseClientModal') btnCloseClientModal!: ElementRef<HTMLButtonElement>;
   @ViewChild('btnShowClientModal') btnShowClientModal!: ElementRef<HTMLButtonElement>;
+  @ViewChild('btnShowCredentialsModal') btnShowCredentialsModal!: ElementRef<HTMLButtonElement>;
+  @ViewChild('btnCloseCredentialsModal') btnCloseCredentialsModal!: ElementRef<HTMLButtonElement>;
+
 
   public clientModalTitle = 'Crear nuevo cliente';
 
@@ -63,9 +69,13 @@ export default class ClientsComponent implements OnInit, OnDestroy {
   private _nomenclatureService = inject( NomenclatureService );
   private _alertService = inject( AlertService );
   private _formBuilder = inject( UntypedFormBuilder );
+  private _roleService = inject( RoleService );
   private _isLoading = signal( true );
   private _isSaving = signal( false );
   private _isJuridicPerson = signal( false );
+  private _isSavingCredentials = signal( false );
+  showPassword =  false;
+  showConfirmPassword = false;
   private _allowList = signal( true );
   public searchInput = new FormControl('', [ Validators.pattern( fullTextPatt ) ]);
   public departmentInput = new FormControl( null, []);
@@ -97,11 +107,20 @@ export default class ClientsComponent implements OnInit, OnDestroy {
     asyncValidators: [ this._clientValidatorService ],
   });
 
+  public credentialsForm = this._formBuilder.group({
+    username:         [ '', [ Validators.required, Validators.pattern( emailPatt ) ] ],
+    password:         [ '', [ Validators.required, Validators.pattern( passwordPatt ), Validators.minLength( 8 ), oneUppercaseInPassword(), oneLowercaseInPassword() ] ],
+    confirmPassword:  [ '', [ Validators.required ] ],
+    rolesId:          [ [], [ Validators.required, Validators.minLength( 1 ) ] ],
+  });
+
   private _totalClients = signal<number>( 0 );
 
   private _filter = '';
   private _isRemoving = false;
   private _clients = signal<Client[]>( [] );
+  private _roles = signal<Role[]>( [] );
+  private _selectedClient = signal<Client | null>( null );
 
   // private _identityDocumentsAll = signal<IdentityDocument[]>([]);
   private _identityDocuments = signal<IdentityDocument[]>([]);
@@ -117,6 +136,8 @@ export default class ClientsComponent implements OnInit, OnDestroy {
   public clients = computed( () => this._clients() );
 
   public identityDocuments = computed( () => this._identityDocuments() );
+  public roles = computed( () => this._roles() );
+  public selectedClient = computed( () => this._selectedClient() );
   public departments = computed( () => this._departments() );
   public provinces = computed( () => this._provinces() );
   public provincesToFilter = computed( () => this._provincesToFilter() );
@@ -126,6 +147,7 @@ export default class ClientsComponent implements OnInit, OnDestroy {
   public genders = computed( () => this._genders() );
   public personTypes = computed( () => this._personTypes() );
   public allowList = computed( () => this._allowList() );
+  public isSavingCredentials = computed( () => this._isSavingCredentials() );
 
   public isLoading = computed( () => this._isLoading() );
   public isSaving = computed( () => this._isSaving() );
@@ -133,17 +155,60 @@ export default class ClientsComponent implements OnInit, OnDestroy {
   public totalClients = computed( () => this._totalClients() );
 
   get isFormInvalid() { return this.clientForm.invalid; }
+  get isCredentialsFormInvalid(){ return this.credentialsForm.invalid; }
   get clientBody(): ClientBody { return  this.clientForm.value as ClientBody; }
+  get credentialsBody(): CredentialsBody { return  this.credentialsForm.value as CredentialsBody; }
   get isInvalidSearchInput() { return this.searchInput.invalid; }
+
+  get errorsCredentials() { return this.credentialsForm.getError; }
 
   inputErrors( field: string ) {
     return this.clientForm.get(field)?.errors ?? null;
   }
 
+  inputErrorsCredentials( field: string ) {
+    return this.credentialsForm.get(field)?.errors ?? null;
+  }
+
+  get errorLengthPassword() {
+    const errorsPassword = this.credentialsForm.get('password')?.errors ?? [];
+    const errors = Object.keys( errorsPassword );
+
+    return errors.includes('minlength');
+  }
+
+  get errorUppercasePassword() {
+    const errorsPassword = this.credentialsForm.get('password')?.errors ?? [];
+    const errors = Object.keys( errorsPassword );
+
+    return errors.includes('oneUpperCase');
+  }
+
+  get errorLowercasePassword() {
+    const errorsPassword = this.credentialsForm.get('password')?.errors ?? [];
+    const errors = Object.keys( errorsPassword );
+
+    return errors.includes('oneLowercase');
+  }
+
+  get errorNumberPassword() {
+    const errorsPassword = this.credentialsForm.get('password')?.errors ?? [];
+    const errors = Object.keys( errorsPassword );
+
+    return errors.includes('oneNumber');
+  }
+
+
   get formErrors() { return this.clientForm.errors; }
+
+  get credentialsFormErrors() { return this.credentialsForm.errors; }
 
   isTouched( field: string ) {
     return this.clientForm.get(field)?.touched ?? false;
+  }
+
+  isTouchedCredentials( field: string ) {
+    return this.credentialsForm.get(field)?.touched ?? false;
   }
 
   ngOnInit(): void {
@@ -245,14 +310,15 @@ export default class ClientsComponent implements OnInit, OnDestroy {
       personTypesResponse: this._nomenclatureService.getPersonType(),
       identityDocumentsResponse: this._identityDocService.getIdentityDocuments(),
       departmentResponse: this._ubigeoService.getDepartments(),
-
-    }).subscribe( ({ identityDocumentsResponse, personTypesResponse, civilStatusResponse, gendersResponse, departmentResponse }) => {
+      rolesResponse: this._roleService.getRoles( 1, '', 100 ),
+    }).subscribe( ({ identityDocumentsResponse, personTypesResponse, civilStatusResponse, gendersResponse, departmentResponse, rolesResponse }) => {
 
       const { identityDocuments } = identityDocumentsResponse;
       const { nomenclatures: personTypes } = personTypesResponse;
       const { nomenclatures: civilStatus } = civilStatusResponse;
       const { nomenclatures: genders } = gendersResponse;
       const { departments } = departmentResponse;
+      const { roles } = rolesResponse;
 
       // this._identityDocumentsAll.set( identityDocuments );
       this._identityDocuments.set( identityDocuments );
@@ -260,15 +326,27 @@ export default class ClientsComponent implements OnInit, OnDestroy {
       this._genders.set( genders );
       this._personTypes.set( personTypes );
       this._departments.set( departments );
+      this._roles.set( roles );
 
     } );
 
+  }
+
+  onAddCredentials( client: Client ) {
+    this._selectedClient.set( client );
+
+    this.btnShowCredentialsModal.nativeElement.click();
   }
 
   onResetAfterSubmit() {
     this.clientModalTitle = 'Crear nuevo cliente';
     this.clientForm.reset();
     this._isSaving.set( false );
+  }
+
+  onResetAfterSubmitCredentials() {
+    this.credentialsForm.reset();
+    this._isSavingCredentials.set( false );
   }
 
   onLoadToUpdate( client: Client ) {
@@ -470,6 +548,56 @@ export default class ClientsComponent implements OnInit, OnDestroy {
         this._isLoading.set( false );
       }
     });
+
+  }
+
+  onSubmitCredentials() {
+
+    console.log( this.errorsCredentials );
+
+    this.credentialsForm.markAllAsTouched();
+
+    if( this.isCredentialsFormInvalid || this._isSavingCredentials() ) return;
+
+    const allowCreate = this._webUrlPermissionMethods.some(
+      (permission) => permission.webApi == apiClient && permission.methods.includes( 'POST' )
+    );
+
+    if( !allowCreate ) {
+      this._alertService.showAlert( undefined, 'No tiene permiso para crear credenciales', 'warning');
+      return;
+    }
+
+    this._isSavingCredentials.set( true );
+
+    const { id: clientId = '', identityDocument, identityNumber, name, surname, email } = this.selectedClient() ?? {};
+
+    const body = {
+      ...this.credentialsBody,
+      identityDocumentId: identityDocument?.id,
+      identityNumber,
+      name,
+      surname,
+      email,
+    };
+
+    this._clientService.createCredentials( clientId, body )
+    .subscribe({
+      next: async ( clientCreated ) => {
+
+        this.onResetAfterSubmit();
+        this.btnCloseCredentialsModal.nativeElement.click();
+        this.onGetClients();
+
+        this._alertService.showAlert('Credenciales creadas exitosamente', undefined, 'success');
+        // this._isLoading.set( false );
+
+      }, error: (err) => {
+
+        this._isLoading.set( false );
+      }
+    });
+
 
   }
 

@@ -7,6 +7,7 @@ import { SidenavComponent } from './sidenav/sidenav.component';
 import { NavbarComponent } from './navbar/navbar.component';
 import { NotificationDropdownComponent } from './notification-dropdown/notification-dropdown.component';
 import { UserMenuDropdownComponent } from './user-menu-dropdown/user-menu-dropdown.component';
+import CardIndicatorComponent from './card-indicator/card-indicator.component';
 
 @NgModule({
   declarations: [
@@ -18,11 +19,15 @@ import { UserMenuDropdownComponent } from './user-menu-dropdown/user-menu-dropdo
     RouterModule,
     MatIconModule,
     NotificationDropdownComponent,
-    UserMenuDropdownComponent
+    UserMenuDropdownComponent,
+    CardIndicatorComponent
   ],
   exports: [
     SidenavComponent,
     NavbarComponent,
+    NotificationDropdownComponent,
+    UserMenuDropdownComponent,
+    CardIndicatorComponent
   ]
 })
 export class ComponentsModule { }

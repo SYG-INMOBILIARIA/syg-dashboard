@@ -61,3 +61,5 @@ export * from './province.interface';
 
 export * from './list-district-response.interface';
 export * from './district.interface';
+
+export * from './credentials-body.interface';

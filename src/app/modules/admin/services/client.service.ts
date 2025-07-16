@@ -3,7 +3,7 @@ import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 
 import { environments } from '@envs/environments';
-import { Client, ClientBody, ListClientResponse } from '../interfaces';
+import { Client, ClientBody, CredentialsBody, ListClientResponse } from '../interfaces';
 import { ValidationErrors } from '@angular/forms';
 
 @Injectable({
@@ -29,6 +29,10 @@ export class ClientService {
 
   createClient( body: ClientBody ): Observable<Client> {
     return this._http.post<Client>(`${ this._baseUrl }/client`, body );
+  }
+
+  createCredentials( clientId: string, body: any ): Observable<Client> {
+    return this._http.post<Client>(`${ this._baseUrl }/client/credentials/${ clientId }`, body );
   }
 
   updateClient( id: string, body: ClientBody ): Observable<Client> {

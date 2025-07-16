@@ -48,6 +48,11 @@ export class UserMenuDropdownComponent implements OnInit, OnDestroy {
     this._authService.onSingOut();
   }
 
+  onClearUserProfileID() {
+    localStorage.removeItem('userProfileId');
+    localStorage.removeItem('userProfileName');
+  }
+
   ngOnDestroy(): void {
     this._authRx$?.unsubscribe();
   }

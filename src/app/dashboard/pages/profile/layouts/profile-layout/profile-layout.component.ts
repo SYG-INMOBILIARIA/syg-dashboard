@@ -6,7 +6,7 @@ import { Store } from '@ngrx/store';
 import { CommonModule } from '@angular/common';
 import { FlatpickrDirective } from 'angularx-flatpickr';
 import { NgSelectModule } from '@ng-select/ng-select';
-import { forkJoin } from 'rxjs';
+import { forkJoin, Subscription } from 'rxjs';
 import { initFlowbite } from 'flowbite';
 
 import { UserService } from '@modules/security/services/user.service';
@@ -46,10 +46,11 @@ export default class ProfileLayoutComponent implements OnInit {
 
   @ViewChild('btnCloseSellerPaymentModal') btnCloseSellerPaymentModal!: ElementRef<HTMLButtonElement>;
 
+  private _authRx$?: Subscription;
   private _router = inject( Router );
   private _userService = inject( UserService );
   private _profileService = inject( ProfileService );
-  private _store = inject( Store<AppState> );
+  private _store = inject<Store<AppState>>( Store<AppState> );
 
   private _paymentMethodService = inject( PaymentMethodService );
   private _alertService = inject( AlertService );
@@ -116,7 +117,9 @@ export default class ProfileLayoutComponent implements OnInit {
 
     initFlowbite();
 
-    this._userProfileName.set( localStorage.getItem('userProfileName') );
+    this.onListenAuthRx();
+
+    /**this._userProfileName.set( localStorage.getItem('userProfileName') );
 
     this._sellerUserId = localStorage.getItem('userProfileId') ?? '';
 
@@ -128,8 +131,38 @@ export default class ProfileLayoutComponent implements OnInit {
     this.sellerPaymentLayoutForm.get('sellerUserId')?.setValue( this._sellerUserId );
 
     this.onGetUserProfile();
-    this.onGetPaymentsMethod();
+    this.onGetPaymentsMethod();*/
 
+  }
+
+  onListenAuthRx() {
+
+    this._authRx$ = this._store.select('auth')
+    .subscribe( (state) => {
+      const { userAuthenticated } = state;
+
+      this._userProfileName.set( localStorage.getItem('userProfileName') );
+      this._sellerUserId = localStorage.getItem('userProfileId') ?? '';
+
+
+      if( !ISUUID( this._sellerUserId ) ) {
+
+        this._userProfileName.set( userAuthenticated?.fullname ?? null );
+
+        this._sellerUserId = userAuthenticated?.id ?? '';
+
+        if( !ISUUID( this._sellerUserId ) ) {
+          this._router.navigateByUrl('/dashboard');
+          return;
+        }
+      }
+
+      this.sellerPaymentLayoutForm.get('sellerUserId')?.setValue( this._sellerUserId );
+
+      this.onGetUserProfile();
+      this.onGetPaymentsMethod();
+
+    });
   }
 
   onGetPaymentsMethod() {

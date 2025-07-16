@@ -27,7 +27,11 @@ export const verifyRoleMenuAllowedGuard: CanActivateFn = (route, state) : Observ
 
             const profileClientPattern = new RegExp("\/dashboard\/client-profile\/*", "i");
 
+            const overviewClientPattern = new RegExp("\/dashboard\/overview-client\/*", "i");
+
             const isHaveProfileClientMenu = webUrlPermissionMethods.some( (allow) => allow.webUrl == '/dashboard/client-profile' );
+
+            const isHaveOverviewClientMenu = webUrlPermissionMethods.some( (allow) => allow.webUrl == '/dashboard/overview-client' );
 
             const appMenuFefault = ["/", "/#", "/dashboard", "/dashboard/home"];
 
@@ -42,6 +46,10 @@ export const verifyRoleMenuAllowedGuard: CanActivateFn = (route, state) : Observ
 
 
             if( isHaveProfileClientMenu && profileClientPattern.test( webUrlsegments ) ) {
+              return true;
+            }
+
+            if( isHaveOverviewClientMenu && overviewClientPattern.test( webUrlsegments ) ) {
               return true;
             }
 

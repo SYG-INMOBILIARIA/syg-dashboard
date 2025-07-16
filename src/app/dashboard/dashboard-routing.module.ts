@@ -61,6 +61,11 @@ const routes: Routes = [
         loadChildren: () => import('./pages/profile-client/profile-client.module')
       },
 
+      {
+        path: 'overview-client',
+        loadChildren: () => import('./pages/overview-client/overview-client.module')
+      },
+
       // {
       //   path: 'profile/:nombre-usuario',
       //   loadChildren: () => import('../profile/profile.module')

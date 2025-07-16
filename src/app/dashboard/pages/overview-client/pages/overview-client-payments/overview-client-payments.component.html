@@ -1,0 +1,68 @@
+<!-- Payments Tab -->
+<div class="space-y-4">
+  <div class="overflow-x-auto">
+    <table class="min-w-full divide-y divide-gray-200">
+      <thead class="bg-gray-50">
+        <tr>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"># operación</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Monto</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha de pago</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Método</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha de registro</th>
+          <!--th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th-->
+        </tr>
+      </thead>
+      <tbody class="bg-white divide-y divide-gray-200">
+
+        @if (isLoading()) {
+          <tr>
+            <td colspan="5" class="px-6 py-4 whitespace-nowrap text-center text-xl italic text-gray-400">
+              Cargando...
+            </td>
+          </tr>
+        }
+
+        @for (payment of payments(); track payment.id) {
+
+          <tr class="hover:bg-gray-50">
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div>
+                <div class="text-sm font-medium text-gray-900">
+                  {{ payment.operationCode }}
+                </div>
+                <div class="text-sm text-gray-500">
+                  {{ payment.observation }}
+                </div>
+              </div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+              {{ payment.amount | number:'.2-2'  | currency:'PEN':'S/ '}}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              {{ payment.paymentDate | moment:'createAt' }}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              {{ payment?.paymentMethod?.name }}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              {{ payment.createAt | moment:'dateTime' }}
+            </td>
+            <!--td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+              <button class="text-blue-600 hover:text-blue-900 mr-3">Editar</button>
+              <button class="text-red-600 hover:text-red-900">Eliminar</button>
+            </td-->
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="5" class="px-6 py-4 whitespace-nowrap text-center text-xl italic text-gray-400">
+              No hay pagos para mostrar
+            </td>
+          </tr>
+        }
+
+      </tbody>
+    </table>
+  </div>
+</div>
+
+

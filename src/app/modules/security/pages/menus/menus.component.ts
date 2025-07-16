@@ -8,6 +8,7 @@ import { Subscription } from 'rxjs';
 import { ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { initFlowbite } from 'flowbite';
 import { Store } from '@ngrx/store';
+import { validate as ISUUID } from 'uuid';
 
 import { AlertService } from '@shared/services/alert.service';
 import { MaterialModule } from '@shared/material.module';
@@ -181,6 +182,7 @@ export default class MenusComponent implements OnInit, OnDestroy {
           badgeText = badge.text;
         }
 
+        console.log({restMenu});
         this.menuForm.reset( {...restMenu, badgeClass, badgeText} );
 
         this.onChangeHaveTranslate();
@@ -308,9 +310,9 @@ export default class MenusComponent implements OnInit, OnDestroy {
 
     if( this.isInvalidForm || this._isRecording ) return;
 
-    const { id, ...body } = this.menuBody;
+    const { id = '', ...body } = this.menuBody;
 
-    if( !id ) {
+    if( !ISUUID( id ) ) {
 
       const allowCreate = this._webUrlPermissionMethods.some(
         (permission) => permission.webApi == apiMenu && permission.methods.includes( 'POST' )

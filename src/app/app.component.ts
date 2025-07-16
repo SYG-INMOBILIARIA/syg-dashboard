@@ -1,12 +1,13 @@
 import { Component, OnInit, effect, inject } from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
 import { initFlowbite } from 'flowbite';
-import { AuthService } from './auth/services/auth.service';
-import { AppTheme, SettingsService } from '@shared/services/settings.service';
-import { AuthStatus } from './auth/enums';
 import { Spanish } from 'flatpickr/dist/l10n/es';
 import flatpickr from 'flatpickr';
 import mapboxgl from 'mapbox-gl';
+
+import { AuthStatus } from './auth/enums';
+import { AuthService } from './auth/services/auth.service';
+import { AppTheme, SettingsService } from '@shared/services/settings.service';
 import { environments } from '@envs/environments';
 
 mapboxgl.accessToken = environments.mapbox_key;
@@ -34,7 +35,9 @@ export class AppComponent implements OnInit {
         this.isLoading = false;
       }, 1000);
 
-      const currentPage = localStorage.getItem('currentPage') ?? '/dashboard';
+      const userAuthenticated = this._authService.personSession();
+
+      const currentPage = localStorage.getItem('currentPage') ?? userAuthenticated?.client?.id ? '/dashboard/overview-client' : '/dashboard';
       // console.log({currentPage});
 
       switch ( this._authService.authStatus() ) {
