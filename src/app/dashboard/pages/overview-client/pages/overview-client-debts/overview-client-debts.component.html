@@ -60,8 +60,17 @@
               <button class="text-red-600 hover:text-red-900">Eliminar</button>
             </td-->
           </tr>
+        } @empty {
+          <tr>
+            <td colspan="5" class="px-6 py-4 whitespace-nowrap text-center text-xl italic">
+              No hay registros encontrados
+            </td>
+          </tr>
         }
       </tbody>
     </table>
+  </div>
+  <div>
+    <app-pagination [totalItems]="total()" (onChangePage)="getDebtsByClient( $event )"  ></app-pagination>
   </div>
 </div>

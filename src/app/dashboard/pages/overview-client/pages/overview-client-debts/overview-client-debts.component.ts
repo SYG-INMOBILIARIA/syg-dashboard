@@ -5,6 +5,7 @@ import { ContractQuote } from '@modules/admin/interfaces';
 import { ContractQuoteService } from '@modules/admin/services/contract-quote.service';
 import { Store } from '@ngrx/store';
 import { PipesModule } from '@pipes/pipes.module';
+import { PaginationComponent } from '@shared/components/pagination/pagination.component';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -12,7 +13,8 @@ import { Subscription } from 'rxjs';
   standalone: true,
   imports: [
     CommonModule,
-    PipesModule
+    PipesModule,
+    PaginationComponent
   ],
   templateUrl: './overview-client-debts.component.html',
   styles: ``

@@ -1,7 +1,8 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { AppState } from '@app/app.config';
-import { PaymentQuote } from '@app/dashboard/interfaces';
 import { DashboardClientService } from '@app/dashboard/services/dashboard-client.service';
+import { ContractQuote } from '@modules/admin/interfaces';
+import { ContractQuoteService } from '@modules/admin/services/contract-quote.service';
 import { Store } from '@ngrx/store';
 import { Subscription } from 'rxjs';
 
@@ -9,21 +10,21 @@ import { Subscription } from 'rxjs';
   templateUrl: './overview-client-payments.component.html',
   styles: ``
 })
-export default class OverviewClientPaymentsComponent implements OnInit {
+export default class OverviewClientPaymentsComponent implements OnInit, OnDestroy {
 
   private _authRx$?: Subscription;
   private _store = inject<Store<AppState>>( Store );
 
-  private _dashboardClientService = inject( DashboardClientService );
+  private _contractQuoteService = inject( ContractQuoteService );
 
   private _clientId = signal<string | null>( null );
 
-  private _payments = signal<PaymentQuote[]>( [] );
+  private _contractQuotesPayment = signal<ContractQuote[]>( [] );
   private _total = signal<number>( 0 );
 
   private _isLoading = signal<boolean>( false );
 
-  public payments = computed(() => this._payments());
+  public contractQuotesPayment = computed(() => this._contractQuotesPayment());
   public total = computed(() => this._total());
   public isLoading = computed(() => this._isLoading());
 
@@ -61,11 +62,11 @@ export default class OverviewClientPaymentsComponent implements OnInit {
 
     this._isLoading.set( true );
 
-    this._dashboardClientService.getPaymentsByClient( 1, 10, this._clientId()! )
+    this._contractQuoteService.getContractQuoteByClient( 1, 10, this._clientId()!, undefined, true )
     .subscribe( {
-      next: ( { payments, total } ) => {
+      next: ( { contractQuotes, total } ) => {
 
-        this._payments.set( payments );
+        this._contractQuotesPayment.set( contractQuotes );
         this._total.set( total );
 
       },
@@ -77,6 +78,10 @@ export default class OverviewClientPaymentsComponent implements OnInit {
       }
     });
 
+  }
+
+  ngOnDestroy(): void {
+    this._authRx$?.unsubscribe();
   }
 
 }

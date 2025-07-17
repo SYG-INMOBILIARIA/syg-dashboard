@@ -26,11 +26,12 @@ export class ContractQuoteService {
     return this._http.get<ContractQuote>(`${ this._baseUrl }/contract-quote/${ id }`);
   }
 
-  getContractQuoteByClient(page: number, limit = 10, clientId: string, onlyIsNotPaid = false ): Observable<ListContractQuoteResponse> {
+  getContractQuoteByClient(page: number, limit = 10, clientId: string, onlyIsNotPaid = false, onlyIsPaid = false ): Observable<ListContractQuoteResponse> {
 
     let queryParams = `page=${ page }`;
     queryParams += `&limit=${ limit }`;
     queryParams += `&onlyIsNotPaid=${ onlyIsNotPaid }`;
+    queryParams += `&onlyIsPaid=${ onlyIsPaid }`;
 
     console.log({queryParams});
 

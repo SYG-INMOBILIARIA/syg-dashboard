@@ -1,4 +1,4 @@
-import { PaymentMethod } from "@modules/admin/interfaces";
+import { Contract, PaymentMethod } from "@modules/admin/interfaces";
 
 export interface ListPaymentQuoteByClientResponse {
   payments: PaymentQuote[];
@@ -37,7 +37,7 @@ export interface Quote {
   order:                  number;
   isPaid:                 boolean;
   isExoneratedTardiness:  boolean;
-  contract:               PaymentMethod;
+  contract:               Contract;
   paidAt:                 Date;
   exonerateTardinessAt:   Date;
   userExonerateTardiness: string;

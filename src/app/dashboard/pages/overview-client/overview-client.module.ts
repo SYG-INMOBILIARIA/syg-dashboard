@@ -7,6 +7,7 @@ import OverviewClientPaymentsComponent from './pages/overview-client-payments/ov
 import CardIndicatorComponent from '@app/dashboard/components/card-indicator/card-indicator.component';
 import { PipesModule } from '@pipes/pipes.module';
 import { PaidQuotesModalComponent } from '@modules/admin/components/paid-quotes-modal/paid-quotes-modal.component';
+import { PaginationComponent } from '@shared/components/pagination/pagination.component';
 
 
 @NgModule({
@@ -17,6 +18,7 @@ import { PaidQuotesModalComponent } from '@modules/admin/components/paid-quotes-
   imports: [
     CommonModule,
     PipesModule,
+    PaginationComponent,
     PaidQuotesModalComponent,
     CardIndicatorComponent,
     FormsModule,

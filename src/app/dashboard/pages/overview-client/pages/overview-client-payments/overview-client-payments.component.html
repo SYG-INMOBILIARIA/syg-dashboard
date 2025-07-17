@@ -4,10 +4,10 @@
     <table class="min-w-full divide-y divide-gray-200">
       <thead class="bg-gray-50">
         <tr>
-          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"># operación</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contrato</th>
           <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Monto</th>
           <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha de pago</th>
-          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Método</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha de pago realizado</th>
           <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha de registro</th>
           <!--th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th-->
         </tr>
@@ -22,30 +22,43 @@
           </tr>
         }
 
-        @for (payment of payments(); track payment.id) {
+        @for (contractQuote of contractQuotesPayment(); track contractQuote.id) {
 
           <tr class="hover:bg-gray-50">
             <td class="px-6 py-4 whitespace-nowrap">
               <div>
                 <div class="text-sm font-medium text-gray-900">
-                  {{ payment.operationCode }}
+                  {{ contractQuote.code }}
                 </div>
-                <div class="text-sm text-gray-500">
-                  {{ payment.observation }}
+
+                <div class="flex justify-between gap-2 pt-1">
+
+                  <div *ngFor="let lote of contractQuote.contract.lotes" class="text-sm text-gray-500">
+                    <div class="">
+                      <div class="flex justify-start items-center gap-2">
+                        <i class="fa-solid fa-house text-blue-700 text-sm"></i>
+                        <span class="text-blue-700 text-xs font-semibold">{{ lote.code }}</span>
+                      </div>
+                      <div>
+                        {{ lote.squareMeters | number:'.2-2' }} m²
+                      </div>
+                    </div>
+                  </div>
+
                 </div>
               </div>
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-              {{ payment.amount | number:'.2-2'  | currency:'PEN':'S/ '}}
+              {{ contractQuote.amountToPay | number:'.2-2'  | currency:'PEN':'S/ '}}
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-              {{ payment.paymentDate | moment:'createAt' }}
+              {{ contractQuote.paymentDate | moment:'createAt' }}
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-              {{ payment?.paymentMethod?.name }}
+              {{ contractQuote.paidAt | moment:'dateTime' }}
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-              {{ payment.createAt | moment:'dateTime' }}
+              {{ contractQuote.createAt | moment:'dateTime' }}
             </td>
             <!--td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
               <button class="text-blue-600 hover:text-blue-900 mr-3">Editar</button>
@@ -62,6 +75,11 @@
 
       </tbody>
     </table>
+  </div>
+  <div>
+
+    <app-pagination [totalItems]="total()" (onChangePage)="getPaymentsByClient( $event )"  ></app-pagination>
+
   </div>
 </div>
 

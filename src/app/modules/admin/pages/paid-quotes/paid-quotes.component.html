@@ -91,17 +91,19 @@
 
                 <div class="italic text-slate-500 ">
 
-                  Cliente:
+                  Clientes:
 
                 </div>
 
                 <div class="w-64">
-                  <div class="uppercase font-semibold">
-                    {{ item.client.fullname }}
-                  </div>
-                  <div class="font-normal text-sm text-gray-500 pe-5">
-                    {{ item.client?.identityDocument?.shortDescription ?? '---' }} : {{ item.client?.identityNumber ?? '---' }}
-                  </div>
+                  @for (client of item.clients; track client.id; let i = $index) {
+                    <div class="uppercase font-semibold">
+                      {{ client.fullname }}
+                    </div>
+                    <div class="font-normal text-sm text-gray-500 pe-5">
+                      {{ client.identityDocument?.shortDescription ?? '---' }} : {{ client.identityNumber ?? '---' }}
+                    </div>
+                  }
                 </div>
 
               </div>

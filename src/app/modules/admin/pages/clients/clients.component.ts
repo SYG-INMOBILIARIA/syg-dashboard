@@ -570,7 +570,7 @@ export default class ClientsComponent implements OnInit, OnDestroy {
 
     this._isSavingCredentials.set( true );
 
-    const { id: clientId = '', identityDocument, identityNumber, name, surname, email } = this.selectedClient() ?? {};
+    const { id: clientId = '', identityDocument, identityNumber, name, surname, email = '' } = this.selectedClient() ?? {};
 
     const body = {
       ...this.credentialsBody,
@@ -578,7 +578,7 @@ export default class ClientsComponent implements OnInit, OnDestroy {
       identityNumber,
       name,
       surname,
-      email,
+      email: email == null || email == '' ? this.credentialsBody.username : email,
     };
 
     this._clientService.createCredentials( clientId, body )
@@ -590,11 +590,13 @@ export default class ClientsComponent implements OnInit, OnDestroy {
         this.onGetClients();
 
         this._alertService.showAlert('Credenciales creadas exitosamente', undefined, 'success');
-        // this._isLoading.set( false );
 
       }, error: (err) => {
 
-        this._isLoading.set( false );
+        this._isSavingCredentials.set( false );
+      },
+      complete: () => {
+        this._isSavingCredentials.set( false );
       }
     });
 
