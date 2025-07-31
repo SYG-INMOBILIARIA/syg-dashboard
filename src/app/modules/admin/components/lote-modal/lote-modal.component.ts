@@ -52,7 +52,7 @@ interface PolygonCoord {
   styles: `
     #map {
       width: 100%;
-      height: 430px;
+      height: 500px;
       margin: 0px;
       background-color: blueviolet;
     }
@@ -157,6 +157,7 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
       center: [ -80.6987307175805,-4.926770405375706 ], // starting position [lng, lat]
       zoom: 14, //
     });
+
 
     const { proyect, loteToUpdate } = this.data;
 

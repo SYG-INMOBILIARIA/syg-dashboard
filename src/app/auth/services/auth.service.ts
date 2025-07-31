@@ -78,7 +78,7 @@ export class AuthService {
         tap(() => {
           this.loadMenuAloweedByRoles().subscribe();
         }),
-        delay( 700 ),
+        delay( 2500 ),
         tap( () => this._authStatus.set( AuthStatus.authenticated ) ),
         map( () => true )
       );

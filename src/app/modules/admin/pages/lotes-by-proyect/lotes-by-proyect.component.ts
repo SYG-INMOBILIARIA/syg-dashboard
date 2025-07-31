@@ -57,6 +57,8 @@ export default class LotesByProyectComponent implements OnInit, OnDestroy {
 
   private _searchInProgress = signal( false );
   private _isSaving = signal( false );
+  private _isLoading = signal( false );
+
   private _allowList = signal( true );
   private _proyect = signal<Proyect | undefined>( undefined );
   private _proyectAndLotes = signal<{ proyect: Proyect, lotes: Lote[] } | undefined>( undefined );
@@ -76,6 +78,7 @@ export default class LotesByProyectComponent implements OnInit, OnDestroy {
   public centerProyect = computed( () => this._centerProyect() );
   public polygonCoords = computed( () => this._polygonCoords() );
   public isBuildLotesInProgress = computed( () => this._isBuildLotesInProgress() );
+  public isLoading = computed( () => this._isLoading() );
   public allowList = computed( () => this._allowList() );
 
   options = {
@@ -124,6 +127,8 @@ export default class LotesByProyectComponent implements OnInit, OnDestroy {
       return;
     }
 
+    this._isLoading.set( true );
+
     const filter = this.searchInput.value ?? '';
 
     forkJoin({
@@ -137,6 +142,8 @@ export default class LotesByProyectComponent implements OnInit, OnDestroy {
       const proyect = this._proyect()!;
       this._proyectAndLotes.set( { proyect: proyect, lotes: lotesForMap.lotes } )
 
+      this._isLoading.set( false );
+
     } )
   }
 
@@ -144,11 +151,15 @@ export default class LotesByProyectComponent implements OnInit, OnDestroy {
 
     this._searchInProgress.set( true );
 
+    this._isLoading.set( true );
+
     const filter = this.searchInput.value ?? '';
     this._loteService.getLotes( this._proyectId, 1, filter, 1000 )
     .subscribe( ({ lotes }) => {
       this._lotes.set( lotes );
       this._searchInProgress.set( false );
+
+      this._isLoading.set( false );
     } );
   }
 
@@ -211,7 +222,7 @@ export default class LotesByProyectComponent implements OnInit, OnDestroy {
 
     const dialogRef = this.dialog.open(LoteModalComponent, {
       width: '750px',
-      height: '800px',
+      height: '850px',
       enterAnimationDuration: '0ms',
       exitAnimationDuration: '0ms',
       closeOnNavigation: true,

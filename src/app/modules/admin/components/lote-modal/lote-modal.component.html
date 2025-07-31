@@ -20,7 +20,7 @@
 
   <form [formGroup]="loteForm"  >
 
-    <div class="grid gap-4 mb-4 grid-cols-8">
+    <div class="grid gap-4 mb-2 grid-cols-8">
 
       <div class="col-span-6 xs:col-span-6">
           <label for="txtUbication" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
@@ -71,7 +71,7 @@
     </div>
 
 
-    <div class="grid gap-4 mb-4 grid-cols-8">
+    <div class="grid gap-4 mb-2 grid-cols-8">
 
       <div class="col-span-2 xs:col-span-6 ">
           <label for="txtMz" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
@@ -171,9 +171,14 @@
 
     </div>
 
-    <div class="relative">
+    <div class="relative  ">
       <div id="map" #map ></div>
-      <div class="hidden" *ngIf="!isBuildingMap() else spinnerMap" ></div>
+      <div class="hidden text-center" *ngIf="!isBuildingMap() else spinnerMap" >
+        <div class="text-white font-semibold text-2xl flex items-center gap-3 dark:text-slate-950">
+          <spinner></spinner>
+          Espere...
+        </div>
+      </div>
     </div>
 
   </form>

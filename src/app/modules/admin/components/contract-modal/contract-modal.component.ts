@@ -203,7 +203,7 @@ export class ContractModalComponent implements OnInit, AfterViewInit, OnDestroy 
   onGetClients() {
 
     const pattern = this.searchClientInput.value ?? '';
-    this._clientService.getClients( 1, pattern, 10 )
+    this._clientService.getClients( 1, pattern, 10, true, null, null, null )
     .subscribe( ({ clients, total }) => {
 
       this._clients.set( clients );

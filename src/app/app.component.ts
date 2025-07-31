@@ -33,11 +33,15 @@ export class AppComponent implements OnInit {
 
       setTimeout(() => {
         this.isLoading = false;
-      }, 1000);
+      }, 3400);
 
       const userAuthenticated = this._authService.personSession();
 
-      const currentPage = localStorage.getItem('currentPage') ?? userAuthenticated?.client?.id ? '/dashboard/overview-client' : '/dashboard';
+      if( userAuthenticated?.client?.id ) {
+        localStorage.setItem('currentPage', '/dashboard/overview-client');
+      }
+
+      const currentPage = localStorage.getItem('currentPage') ?? '/dashboard';
       // console.log({currentPage});
 
       switch ( this._authService.authStatus() ) {
