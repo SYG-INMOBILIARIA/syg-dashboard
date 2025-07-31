@@ -89,6 +89,7 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
       centerCoords:  [ [], [] ],
       polygonCoords: [ [], [] ],
       proyectId:     [ null, [] ],
+      stage:         [ null, [ Validators.required ] ],
 
       pitchMap:      [ 0, [] ],
       bearingMap:    [ 0, [] ],
@@ -99,14 +100,21 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
   public isSaving = computed( () => this._isSaving() );
   private get _loteBody(): LoteBody { return this.loteForm.value as LoteBody; }
 
-  private _loteStatus = signal<Nomenclature[]>( [] );
-  public loteStatus = computed( () => this._loteStatus() );
+  private _stages = [
+    { value: 'I', label: 'I' },
+    { value: 'II', label: 'II' },
+    { value: 'III', label: 'III' },
+    { value: 'IV', label: 'IV' },
+    { value: 'V', label: 'V' }
+  ];
 
   private _isBuildingMap = signal<boolean>( false );
 
   public isBuildingMap = computed( () => this._isBuildingMap() );
 
   loteTitleModal = 'Crear nuevo lote';
+
+  public stages = computed( () => this._stages );
 
   get isFormInvalid() { return this.loteForm.invalid; }
 
@@ -125,7 +133,6 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
     const { loteStatus, proyect, loteToUpdate, webUrlPermissionMethods } = this.data;
 
     this._webUrlPermissionMethods = webUrlPermissionMethods;
-    this._loteStatus.set( loteStatus );
     this.loteForm.get('proyectId')?.setValue( proyect.id );
 
     if( loteToUpdate ) {
@@ -133,7 +140,6 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
       this.loteTitleModal = `Actualizar lote ${ lote.code }`;
 
       this.loteForm.reset( lote );
-
 
     }
 

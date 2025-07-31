@@ -210,8 +210,8 @@ export default class LotesByProyectComponent implements OnInit, OnDestroy {
   openDialog( loteToUpdate?: Lote ): void {
 
     const dialogRef = this.dialog.open(LoteModalComponent, {
-      width: '700px',
-      height: '760px',
+      width: '750px',
+      height: '800px',
       enterAnimationDuration: '0ms',
       exitAnimationDuration: '0ms',
       closeOnNavigation: true,

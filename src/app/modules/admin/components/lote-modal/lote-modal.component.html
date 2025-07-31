@@ -143,27 +143,27 @@
       </div>
 
       <div class="col-span-2 xs:col-span-6 ">
-          <label for="cbxLoteStatus" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-            Estado *
+          <label for="cbxStage" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+            Etapa *
           </label>
           <ng-select
-            id="cbxLoteStatus"
+            id="cbxStage"
             class="bg-gray-50 border text-gray-900 text-sm rounded-lg block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-            [items]="loteStatus()"
+            [items]="stages()"
             bindLabel="label"
             bindValue="value"
-            placeholder="Seleccione estado"
-            formControlName="loteStatus"
-            [class.border-red-400]=" inputErrors('loteStatus') && isTouched('loteStatus') "
+            placeholder="Seleccione etapa"
+            formControlName="stage"
+            [class.border-red-400]=" inputErrors('stage') && isTouched('stage') "
           >
           </ng-select>
 
-          @if (isTouched('loteStatus')) {
+          @if (isTouched('stage')) {
             <span
               class="flex items-center ms-1 mt-2 text-xs text-red-500"
               inputErrors
-              [errors]="inputErrors('loteStatus')"
-              inputLabel="Estado" >
+              [errors]="inputErrors('stage')"
+              inputLabel="Etapa" >
             </span>
           }
 
