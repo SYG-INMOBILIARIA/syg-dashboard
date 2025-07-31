@@ -54,7 +54,7 @@ export class AuthService {
         tap(() => {
           this.loadMenuAloweedByRoles().subscribe();
         }),
-        delay( 500 ),
+        delay( 2500 ),
         tap( () => this._authStatus.set( AuthStatus.authenticated ) ),
         // tap( () => this._router.navigateByUrl('/dashboard') ),
         map(() => true )
