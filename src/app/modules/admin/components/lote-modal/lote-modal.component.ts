@@ -525,12 +525,17 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
       this._isSaving.set( true );
 
       this._loteService.createLote( body )
-      .subscribe( (loteCreated) => {
+      .subscribe( {
+        next: (loteCreated) => {
 
-        this._alertService.showAlert(`Lote #${ loteCreated.code }, creado exitosamente`, undefined, 'success');
-        this.onResetAfterSubmit();
-        this.dialogRef.close( loteCreated );
+          this._alertService.showAlert(`Lote #${ loteCreated.code }, creado exitosamente`, undefined, 'success');
+          this.onResetAfterSubmit();
+          this.dialogRef.close( loteCreated );
 
+        },
+        complete: () => {
+          this._isSaving.set( false );
+        }
       });
       return;
     }
