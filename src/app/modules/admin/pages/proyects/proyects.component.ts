@@ -46,6 +46,7 @@ export default class ProyectsComponent implements OnInit, OnDestroy {
   public proyects = computed( () => this._proyects() );
   public totalProyects = computed( () => this._totalProyects() );
   public allowList = computed( () => this._allowList() );
+  public isLoading = computed( () => this._isLoading() );
 
   get isInvalidSearchInput() { return this.searchInput.invalid; }
 
@@ -79,6 +80,8 @@ export default class ProyectsComponent implements OnInit, OnDestroy {
       return;
     }
 
+    this._isLoading.set( true );
+
     this._proyectService.getProyects( page, this._filter )
     .subscribe( ( { proyects, total }) => {
 
@@ -88,6 +91,8 @@ export default class ProyectsComponent implements OnInit, OnDestroy {
       setTimeout(() => {
         initFlowbite();
       }, 400);
+
+      this._isLoading.set( false );
 
     } )
   }

@@ -339,11 +339,17 @@ export class LotesMapComponent {
 
     const priceFormater = formatNumber( price, 'en-US', '.2-2' );
 
+    if( this._popup ) this._popup.remove();
+
+    let html = `<span class="font-extrabold text-md text-blue-500" >Lote: ${ code }</span>`;
+    html += `<p class="text-md font-semibold">`;
+      html += `Área: ${ squareMeters } m2`;
+      html += `<br>Precio: <span class="font-extrabold text-md text-green-500" >S/ ${ priceFormater }</span>`;
+    html += `</p>`;
+
     this._popup = new Popup()
           .setLngLat( point )
-          .setHTML(
-            `<span class="font-extrabold text-md" >Lote: ${ code }</span><p class="text-md font-semibold">Área: ${ squareMeters } m2"<br>Precio: S/ ${ priceFormater }</p>`
-          )
+          .setHTML( html )
           .addTo(this._map!);
   }
 

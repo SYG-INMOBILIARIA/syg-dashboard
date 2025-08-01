@@ -100,17 +100,17 @@
                       <ul class="py-2" >
                       <li>
                           <a [routerLink]="['/dashboard/update-proyect', proyect.id ]" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">
-                              Edit
+                            <i class="fa fa-edit mr-1" aria-hidden="true"></i> Editar
                           </a>
                       </li>
                       <li>
                           <a [routerLink]="['/dashboard/lotes-by-proyect', proyect.id ]" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">
-                            Ver lotes
+                            <i class="fa fa-map-marker mr-1" aria-hidden="true"></i> Ver lotes
                           </a>
                       </li>
                       <li>
                           <a [routerLink]="['/dashboard/financings-by-proyect', proyect.id ]" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">
-                            Financiamientos
+                            <i class="fa fa-money mr-1" aria-hidden="true"></i> Financiamientos
                           </a>
                       </li>
                       </ul>
@@ -119,11 +119,11 @@
             </div>
 
             <div class="p-5">
-                <a href="#">
+                <div>
                     <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
                       {{ proyect.name }} - {{ proyect.year }}
                     </h5>
-                </a>
+                </div>
                 <p class="mb-3 font-normal text-gray-700 dark:text-gray-400">
                   {{ proyect.description }}
                 </p>
@@ -137,6 +137,17 @@
           <p class="text-center text-xl text-slate-500 p-3">
             No tiene permiso para listar proyectos inmobiliarios
           </p>
+        </div>
+      }
+
+      @if ( isLoading() ) {
+        <div class="col-span-6 h-52">
+          <div class="flex items-center justify-center gap-3">
+            <i class="fa fa-spinner fa-spin" aria-hidden="true"></i>
+            <span class="text-xl text-slate-500">
+              Cargando proyectos...
+            </span>
+          </div>
         </div>
       }
 
