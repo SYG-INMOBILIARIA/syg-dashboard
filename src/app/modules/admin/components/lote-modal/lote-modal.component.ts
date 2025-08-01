@@ -25,6 +25,7 @@ import { AlertService } from '@shared/services/alert.service';
 import { LoteStatus } from '../../enum';
 import { WebUrlPermissionMethods } from '../../../../auth/interfaces';
 import { apiLote } from '@shared/helpers/web-apis.helper';
+import { NgxPaginationModule } from "ngx-pagination";
 
 interface PolygonCoord {
   lng: number;
@@ -46,8 +47,9 @@ interface PolygonCoord {
     FormsModule,
     ReactiveFormsModule,
     SpinnerComponent,
-    NgSelectModule
-  ],
+    NgSelectModule,
+    NgxPaginationModule
+],
   templateUrl: './lote-modal.component.html',
   styles: `
     #map {
