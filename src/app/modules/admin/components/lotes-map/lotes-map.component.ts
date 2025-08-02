@@ -339,7 +339,7 @@ export class LotesMapComponent {
 
     const priceFormater = formatNumber( price, 'en-US', '.2-2' );
 
-    if( this._popup ) this._popup.remove();
+    //if( this._popup ) this._popup.remove();
 
     let html = `<span class="font-extrabold text-md text-blue-500" >Lote: ${ code }</span>`;
     html += `<p class="text-md font-semibold">`;

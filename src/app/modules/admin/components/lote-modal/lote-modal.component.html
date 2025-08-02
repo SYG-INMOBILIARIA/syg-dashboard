@@ -20,9 +20,32 @@
 
   <form [formGroup]="loteForm"  >
 
-    <div class="grid gap-4 mb-2 grid-cols-8">
+    <div class="grid gap-4 mb-2 grid-cols-12">
 
-      <div class="col-span-6 xs:col-span-6">
+      <div class="col-span-1 xs:col-span-12">
+        <label for="txtNumberLote" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+          Nro. Lote
+        </label>
+        <input
+          type="text"
+          id="txtNumberLote"
+          class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+          placeholder="##"
+          formControlName="numberLote"
+          [class.border-red-400]=" inputErrors('numberLote') && isTouched('numberLote') "
+        >
+
+        @if (isTouched('numberLote')) {
+          <span
+            class="flex items-center ms-1 mt-2 text-xs text-red-500"
+            inputErrors
+            [errors]="inputErrors('numberLote')"
+            inputLabel="Nro. Lote" >
+          </span>
+        }
+      </div>
+
+      <div class="col-span-3 xs:col-span-12">
           <label for="txtUbication" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
             Ubicación
           </label>
@@ -45,9 +68,9 @@
           }
       </div>
 
-      <div class="col-span-2 xs:col-span-6">
+      <div class="col-span-2 xs:col-span-12">
           <label for="txtSquareMeters" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-            Metros cuadrados <span class="text-red-600">*</span>
+            m² <span class="text-red-600">*</span>
           </label>
           <input
             type="number"
@@ -68,12 +91,7 @@
           }
       </div>
 
-    </div>
-
-
-    <div class="grid gap-4 mb-2 grid-cols-8">
-
-      <div class="col-span-2 xs:col-span-6 ">
+      <div class="col-span-1 xs:col-span-2">
           <label for="txtMz" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
             MZ <span class="text-red-600">*</span>
           </label>
@@ -96,7 +114,7 @@
           }
       </div>
 
-      <div class="col-span-2 xs:col-span-6 ">
+      <div class="col-span-1 xs:col-span-2 ">
           <label for="txtBlock" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
             Bloque
           </label>
@@ -119,7 +137,34 @@
           }
       </div>
 
-      <div class="col-span-2 xs:col-span-6 ">
+      <div class="col-span-2 xs:col-span-3 ">
+        <label for="cbxStage" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+          Etapa <span class="text-red-600">*</span>
+        </label>
+        <ng-select
+          id="cbxStage"
+          class="bg-gray-50 border text-gray-900 text-sm rounded-lg block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+          [items]="stages()"
+          bindLabel="label"
+          bindValue="value"
+          placeholder="Seleccione etapa"
+          formControlName="stage"
+          [class.border-red-400]=" inputErrors('stage') && isTouched('stage') "
+        >
+        </ng-select>
+
+        @if (isTouched('stage')) {
+          <span
+            class="flex items-center ms-1 mt-2 text-xs text-red-500"
+            inputErrors
+            [errors]="inputErrors('stage')"
+            inputLabel="Etapa" >
+          </span>
+        }
+
+      </div>
+
+      <div class="col-span-2 xs:col-span-3 ">
           <label for="txtPrice" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
             Precio <span class="text-red-600">*</span>
           </label>
@@ -142,36 +187,10 @@
           }
       </div>
 
-      <div class="col-span-2 xs:col-span-6 ">
-          <label for="cbxStage" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-            Etapa <span class="text-red-600">*</span>
-          </label>
-          <ng-select
-            id="cbxStage"
-            class="bg-gray-50 border text-gray-900 text-sm rounded-lg block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-            [items]="stages()"
-            bindLabel="label"
-            bindValue="value"
-            placeholder="Seleccione etapa"
-            formControlName="stage"
-            [class.border-red-400]=" inputErrors('stage') && isTouched('stage') "
-          >
-          </ng-select>
-
-          @if (isTouched('stage')) {
-            <span
-              class="flex items-center ms-1 mt-2 text-xs text-red-500"
-              inputErrors
-              [errors]="inputErrors('stage')"
-              inputLabel="Etapa" >
-            </span>
-          }
-
-      </div>
-
     </div>
 
-    <div class="relative  ">
+
+    <div class="relative">
       <div id="map" #map ></div>
       <div class="hidden text-center" *ngIf="!isBuildingMap() else spinnerMap" >
         <div class="text-white font-semibold text-2xl flex items-center gap-3 dark:text-slate-950">
@@ -186,22 +205,21 @@
 </mat-dialog-content>
 
 <mat-dialog-actions class="bg-white shadow dark:bg-gray-700">
-  <div class="p-4 w-full">
+  <div class="p-3 w-full">
     <button
       (click)="onSubmit()"
       type="button"
       class="text-white inline-flex justify-center items-center w-full bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
     >
-      <span *ngIf="!isSaving() else singinSpinner" >
+      <span *ngIf="!isSaving() else submitSpinner" >
         Guardar Lote
       </span>
     </button>
   </div>
 </mat-dialog-actions>
 
-
 <ng-template #spinnerMap>
-  <div class="absolute inset-y-0 start-0 w-full h-full flex items-center justify-center bg-slate-600 dark:bg-slate-200 opacity-50">
+  <div class="absolute inset-y-0 start-0 w-full h-[100vh] flex items-center justify-center bg-slate-600 dark:bg-slate-200 opacity-50">
     <div class="text-white font-semibold text-2xl flex items-center gap-3 dark:text-slate-950">
 
       <div role="status">
@@ -218,6 +236,6 @@
 </ng-template>
 
 
-<ng-template #singinSpinner>
+<ng-template #submitSpinner>
   <spinner></spinner>
 </ng-template>

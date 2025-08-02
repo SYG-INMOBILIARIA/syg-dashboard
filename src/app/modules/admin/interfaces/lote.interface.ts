@@ -19,4 +19,5 @@ export interface Lote {
   zoomMap:         number;
   photos:          any[];
   polygonCoords:   Coordinate[];
+  stage:           string;
 }

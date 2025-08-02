@@ -189,9 +189,13 @@ export default class LotesByProyectComponent implements OnInit, OnDestroy {
   }
 
   onLoadToUpdate( lote: Lote ) {
+
+    this._alertService.showLoading();
+
     this._loteService.getLoteById( lote.id )
     .subscribe( (lote) => {
 
+      this._alertService.close();
       this.openDialog( lote );
     });
   }
@@ -212,7 +216,7 @@ export default class LotesByProyectComponent implements OnInit, OnDestroy {
   private _onRemoveLote( loteId: string ) {
     this._loteService.removeLote( loteId )
     .subscribe( (loteDeleted) => {
-      this._alertService.showAlert(undefined, `Lote eliminado exitosamente`, 'success');
+      this._alertService.showAlert( 'OK', `Lote eliminado exitosamente`, 'success');
 
       this.onGetLotes();
     });
@@ -221,8 +225,10 @@ export default class LotesByProyectComponent implements OnInit, OnDestroy {
   openDialog( loteToUpdate?: Lote ): void {
 
     const dialogRef = this.dialog.open(LoteModalComponent, {
-      width: '750px',
-      height: '850px',
+      width: '60vw',
+      height: '100vh',
+      maxWidth: '60vw',
+      // maxHeight: '100vh',
       enterAnimationDuration: '0ms',
       exitAnimationDuration: '0ms',
       closeOnNavigation: true,
@@ -235,6 +241,7 @@ export default class LotesByProyectComponent implements OnInit, OnDestroy {
         loteToUpdate
       }
     });
+
 
     this._dialog$ = dialogRef.afterClosed().subscribe(result => {
       if (result !== undefined) {

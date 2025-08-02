@@ -14,7 +14,7 @@ import { v4 as uuid, validate as ISUUID } from 'uuid';
 import * as turf from '@turf/turf';
 import { Coordinate, Lote, LoteBody, LoteDialogPayload } from '../../interfaces';
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
-import { alphaNumericPatt, decimalPatt, fullTextPatt } from '@shared/helpers/regex.helper';
+import { alphaNumericPatt, decimalPatt, fullTextPatt, numberPatt } from '@shared/helpers/regex.helper';
 import { InputErrorsDirective } from '@shared/directives/input-errors.directive';
 import { CommonModule } from '@angular/common';
 import { SpinnerComponent } from '@shared/components/spinner/spinner.component';
@@ -54,12 +54,13 @@ interface PolygonCoord {
   styles: `
     #map {
       width: 100%;
-      height: 500px;
+      height: 100vh;
       margin: 0px;
       background-color: blueviolet;
     }
 
     .mat-mdc-dialog-content {
+      max-height: 100vh;
       overflow: hidden;
     }
   `
@@ -88,6 +89,7 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
       squareMeters:  [  0, [ Validators.required, Validators.min( 60 ), Validators.max( 5000 ) ] ],
       price:         [ null, [ Validators.required, Validators.min( 5000 ), Validators.pattern( decimalPatt ) ] ],
       // loteStatus:    [ null, [ Validators.required ] ],
+      numberLote:   [ '', [ Validators.required, Validators.pattern( numberPatt) ], Validators.maxLength( 3 ) ],
       centerCoords:  [ [], [] ],
       polygonCoords: [ [], [] ],
       proyectId:     [ null, [] ],
@@ -144,6 +146,8 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
       this.loteForm.reset( lote );
 
     }
+
+
 
   }
 
