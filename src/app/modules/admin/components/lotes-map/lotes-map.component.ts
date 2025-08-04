@@ -1,5 +1,5 @@
 import { Component, ElementRef, Input, ViewChild, computed, inject, signal } from '@angular/core';
-import { LngLatLike, Map, Popup } from 'mapbox-gl';
+import { LngLatLike, Map, Marker, Popup } from 'mapbox-gl';
 import { v4 as uuid } from 'uuid';
 
 import { Coordinate, Lote, Proyect } from '../../interfaces';
@@ -15,6 +15,7 @@ import { AlertService } from '@shared/services/alert.service';
     CommonModule
   ],
   templateUrl: './lotes-map.component.html',
+
 })
 export class LotesMapComponent {
 
@@ -86,6 +87,8 @@ export class LotesMapComponent {
       // minZoom: 17.0
     });
 
+
+
     this._map.on('load', () => {
       // this._map!.resize();
 
@@ -99,6 +102,7 @@ export class LotesMapComponent {
     });
 
     this._map.on('moveend', () => {
+
       this._centerMap = this._map?.getCenter().toArray() ?? [ -80.6987307175805,-4.926770405375706 ];
       this._zoom = this._map?.getZoom() ?? this._zoom;
     });

@@ -7,7 +7,7 @@ import {
   MatDialogContent,
   MatDialogRef,
 } from '@angular/material/dialog';
-import { LngLatLike, Map } from 'mapbox-gl';
+import { LngLatLike, Map, Marker, Popup } from 'mapbox-gl';
 import MapboxDraw from '@mapbox/mapbox-gl-draw';
 
 import { v4 as uuid, validate as ISUUID } from 'uuid';
@@ -41,7 +41,6 @@ interface PolygonCoord {
     CommonModule,
     MatButtonModule,
     MatDialogActions,
-    MatDialogClose,
     MatDialogContent,
     InputErrorsDirective,
     FormsModule,
@@ -54,7 +53,7 @@ interface PolygonCoord {
   styles: `
     #map {
       width: 100%;
-      height: 100vh;
+      height: 75vh;
       margin: 0px;
       background-color: blueviolet;
     }
@@ -63,7 +62,11 @@ interface PolygonCoord {
       max-height: 100vh;
       overflow: hidden;
     }
+
+
   `
+
+
 })
 export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
 
@@ -100,6 +103,7 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
       zoomMap:       [ 14, [] ],
   });
 
+  private _loteCreated: Lote | undefined = undefined;
   private _isSaving = signal( false );
   public isSaving = computed( () => this._isSaving() );
   private get _loteBody(): LoteBody { return this.loteForm.value as LoteBody; }
@@ -147,8 +151,6 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
 
     }
 
-
-
   }
 
   ngAfterViewInit(): void {
@@ -164,12 +166,11 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
       zoom: 14, //
     });
 
-
     const { proyect, loteToUpdate } = this.data;
+    const { centerCoords, polygonCoords, flatImage } = proyect;
 
     this._map.on('load', () => {
 
-      const { centerCoords, polygonCoords, flatImage } = proyect;
       this._map!.setCenter( centerCoords );
       this._map!.setZoom( 17 );
 
@@ -329,7 +330,6 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
 
     if( !this._map ) throw new Error(`Div map container not found!!!`);
 
-
     this._draw = new MapboxDraw({
         displayControlsDefault: false,
         // Select which mapbox-gl-draw control buttons to add to the map.
@@ -340,6 +340,60 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
         // Set mapbox-gl-draw to draw by default.
         // The user does not have to click the polygon control button first.
         defaultMode: 'draw_polygon',
+        styles: [
+          // Línea discontinua mientras se dibuja
+          {
+            id: 'gl-draw-line',
+            type: 'line',
+            filter: ['all', ['==', '$type', 'LineString'], ['!=', 'mode', 'static']],
+            paint: {
+              'line-color': '#007cbf',
+              'line-width': 2,
+              'line-dasharray': [4, 2] // Línea discontinua azul
+            }
+          },
+          // Borde del polígono mientras se dibuja
+          {
+            id: 'gl-draw-polygon-stroke-active',
+            type: 'line',
+            filter: ['all', ['==', '$type', 'Polygon'], ['!=', 'mode', 'static']],
+            paint: {
+              'line-color': '#007cbf',
+              'line-width': 2,
+              'line-dasharray': [4, 2]
+            }
+          },
+          // Relleno mientras se dibuja
+          {
+            id: 'gl-draw-polygon-fill-active',
+            type: 'fill',
+            filter: ['all', ['==', '$type', 'Polygon'], ['!=', 'mode', 'static']],
+            paint: {
+              'fill-color': '#007cbf',
+              'fill-opacity': 0.1
+            }
+          },
+          // Puntos de vértice
+          {
+            id: 'gl-draw-points',
+            type: 'circle',
+            filter: ['all', ['==', '$type', 'Point'], ['!=', 'meta', 'midpoint']],
+            paint: {
+              'circle-radius': 5,
+              'circle-color': '#007cbf'
+            }
+          },
+          // Midpoints (puntos intermedios entre vértices)
+          {
+            id: 'gl-draw-midpoints',
+            type: 'circle',
+            filter: ['all', ['==', '$type', 'Point'], ['==', 'meta', 'midpoint']],
+            paint: {
+              'circle-radius': 3.5,
+              'circle-color': '#27BBF5'
+            }
+          }
+        ]
     });
 
     this._map.addControl( this._draw );
@@ -375,30 +429,50 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
 
     }
 
-    this._map.on('draw.create', ( e ) => this.updateArea( e ));
-    this._map.on('draw.delete', ( e ) => this.updateArea( e ));
-    this._map.on('draw.update', ( e ) => this.updateArea( e ));
+    this._map.on('draw.create', ( e ) => this.updateArea( e, 'create' ));
+    this._map.on('draw.delete', ( e ) => this.updateArea( e, 'delete' ));
+    this._map.on('draw.update', ( e ) => this.updateArea( e, 'update' ));
 
   }
 
-  updateArea(e: any) {
+  updateArea( e: any, action: 'create' | 'delete' | 'update' ) {
 
     if( !this._draw ) throw new Error('Draw no loaded!!');
 
     const data = this._draw.getAll();
-    const coordinates = (data.features[0].geometry as any).coordinates as number[][][];
 
     // console.log({data, coordinates});
 
-    const polygonCoords = coordinates[0].map( (coord) => {
-      return {
-        id: null,
-        lng: coord[0],
-        lat: coord[1],
-      };
-    });
+    const polygon = e.features[0];
 
-    this.loteForm.get('polygonCoords')?.setValue( polygonCoords );
+    if( ['create', 'update'].includes( action ) ) {
+
+      const kinks = turf.kinks(polygon);
+
+      console.log({kinks});
+
+      if (kinks.features.length > 0) {
+        alert('❌ El polígono tiene autointersecciones.');
+
+        // Opcional: eliminarlo automáticamente
+        this._draw?.deleteAll();
+      } else {
+
+        const coordinates = (data.features[0].geometry as any).coordinates as number[][][];
+        const polygonCoords = coordinates[0].map( (coord) => {
+          return {
+            id: null,
+            lng: coord[0],
+            lat: coord[1],
+          };
+        });
+
+        this.loteForm.get('polygonCoords')?.setValue( polygonCoords );
+
+        console.log('✅ Polígono válido');
+      }
+    }
+
 
     // const answer = document.getElementById('calculated-area');
     if (data.features.length > 0) {
@@ -429,14 +503,14 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
       if (Object.prototype.hasOwnProperty.call(lotes, key)) {
 
         const lote = lotes[key];
-        this._onBuilLoteDPolygon( lote );
+        this._onBuilLotePolygon( lote );
 
       }
     }
 
   }
 
-  private _onBuilLoteDPolygon( lote: Lote ) {
+  private _onBuilLotePolygon( lote: Lote ) {
 
     if( !this._map ) throw new Error(`Map not found!!!`);
 
@@ -504,8 +578,16 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   onResetAfterSubmit() {
+    const { proyect } = this.data;
     this._isSaving.set( false );
-    this.loteForm.reset();
+    this.loteForm.reset({
+      proyectId: proyect.id
+    });
+
+  }
+
+  onClose() {
+    this.dialogRef.close( this._loteCreated );
   }
 
   onSubmit() {
@@ -536,7 +618,10 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
 
           this._alertService.showAlert(`Lote #${ loteCreated.code }, creado exitosamente`, undefined, 'success');
           this.onResetAfterSubmit();
-          this.dialogRef.close( loteCreated );
+          this._onBuilLotePolygon( loteCreated );
+          //this.dialogRef.close( loteCreated );
+          this._draw?.deleteAll()
+          this._loteCreated = loteCreated;
 
         },
         complete: () => {
@@ -562,7 +647,10 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
 
         this._alertService.showAlert(`Lote #${ loteUpdate.code }, actualizado exitosamente`, undefined, 'success');
         this.onResetAfterSubmit();
-        this.dialogRef.close( loteUpdate );
+        this._onBuilLotePolygon( loteUpdate );
+        this._loteCreated = loteUpdate;
+        this._draw?.deleteAll()
+        //this.dialogRef.close( loteUpdate );
 
       });
 
