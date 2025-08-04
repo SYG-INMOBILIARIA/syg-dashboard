@@ -90,7 +90,7 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
       block:         [ '', [ Validators.maxLength(3), Validators.pattern( alphaNumericPatt ) ] ],
       ubication:     [ '', [ Validators.pattern( fullTextPatt ) ] ],
       squareMeters:  [  0, [ Validators.required, Validators.min( 60 ), Validators.max( 5000 ) ] ],
-      price:         [ null, [ Validators.required, Validators.min( 5000 ), Validators.pattern( decimalPatt ) ] ],
+      price:         [ null, [ Validators.required, Validators.min( 2000 ), Validators.pattern( decimalPatt ) ] ],
       // loteStatus:    [ null, [ Validators.required ] ],
       numberLote:   [ '', [ Validators.required, Validators.pattern( numberPatt) ], Validators.maxLength( 3 ) ],
       centerCoords:  [ [], [] ],
