@@ -646,11 +646,10 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
       .subscribe( (loteUpdate) => {
 
         this._alertService.showAlert(`Lote #${ loteUpdate.code }, actualizado exitosamente`, undefined, 'success');
-        this.onResetAfterSubmit();
-        this._onBuilLotePolygon( loteUpdate );
+
         this._loteCreated = loteUpdate;
         this._draw?.deleteAll()
-        //this.dialogRef.close( loteUpdate );
+        this.dialogRef.close( loteUpdate );
 
       });
 
