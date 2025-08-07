@@ -51,6 +51,7 @@ export default class LotesByProyectComponent implements OnInit, OnDestroy {
   private _lotes = signal<Lote[]>( [] );
   private _lotesForMap = signal<Lote[]>( [] );
   private _loteToFly = signal<Lote | undefined>( undefined );
+  private _loteToDeleted = signal<Lote | undefined>( undefined );
   private _centerProyect = signal<number[]>( [] );
   private _polygonCoords = signal<Coordinate[]>( [] );
   private _isBuildLotesInProgress = signal<boolean>( false );
@@ -65,6 +66,7 @@ export default class LotesByProyectComponent implements OnInit, OnDestroy {
   public isSaving = computed( () => this._isSaving() );
   public searchInProgress = computed( () => this._searchInProgress() );
   public loteToFly = computed( () => this._loteToFly() );
+  public loteToDeleted = computed( () => this._loteToDeleted() );
 
   loteModalTitle = 'Crear nuevo Lote';
 
@@ -218,7 +220,8 @@ export default class LotesByProyectComponent implements OnInit, OnDestroy {
     .subscribe( (loteDeleted) => {
       this._alertService.showAlert( 'OK', `Lote eliminado exitosamente`, 'success');
 
-      this.onGetLotes();
+      this._loteToDeleted.set( loteDeleted );
+      this.onSearchLotes();
     });
   }
 

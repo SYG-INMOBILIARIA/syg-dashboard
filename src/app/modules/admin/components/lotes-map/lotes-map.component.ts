@@ -57,6 +57,12 @@ export class LotesMapComponent {
     }
   }
 
+  @Input({ required: false }) set deletedLote( lote: Lote | undefined ) {
+    if( lote ) {
+      this._onRemoveLotePolygon( lote );
+    }
+  }
+
   private _lotesRegistered: Lote[] = [];
 
   private _centerMap: [number, number] = [ -80.6987307175805,-4.926770405375706 ];
