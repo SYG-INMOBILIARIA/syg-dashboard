@@ -260,10 +260,10 @@ export class LotesMapComponent {
       return acc;
     }, []);
 
-    const souceId = lote.id;
-    // const souceId = uuid();
+    const sourceId = lote.id;
+    // const sourceId = uuid();
 
-    this._map.addSource( souceId, {
+    this._map.addSource( sourceId, {
       'type': 'geojson',
       'data': {
           'type': 'Feature',
@@ -296,12 +296,12 @@ export class LotesMapComponent {
         break;
     }
 
-    const polygonFillId = uuid();
+    // const polygonFillId = uuid();
 
     this._map.addLayer({
-      'id': polygonFillId,
+      'id': sourceId,
       'type': 'fill',
-      'source': souceId,
+      'source': sourceId,
       'layout': {},
       'paint': {
         'fill-color': fillColor,
@@ -309,7 +309,7 @@ export class LotesMapComponent {
       },
     });
 
-    this._map.on('click', polygonFillId, (e) => {
+    this._map.on('click', sourceId, (e) => {
 
       const feature = e.features?.find((e, i) => i == 0);
       const lote = feature?.properties as Lote;
@@ -319,22 +319,22 @@ export class LotesMapComponent {
 
     // Change the cursor to a pointer when
     // the mouse is over the states layer.
-    this._map.on('mouseenter', polygonFillId, () => {
+    this._map.on('mouseenter', sourceId, () => {
       this._map!.getCanvas().style.cursor = 'pointer';
     });
 
     // Change the cursor back to a pointer
     // when it leaves the states layer.
-    this._map.on('mouseleave', polygonFillId, () => {
+    this._map.on('mouseleave', sourceId, () => {
         this._map!.getCanvas().style.cursor = '';
     });
 
 
     // add a line layer to visualize the clipping region.
     this._map.addLayer({
-        'id': uuid(),
+        'id':  sourceId + '-border',//uuid(),
         'type': 'line',
-        'source': souceId,
+        'source': sourceId,
         'paint': {
             'line-color': '#000',
             'line-dasharray': [0, 4, 3],
@@ -365,6 +365,8 @@ export class LotesMapComponent {
   }
 
   private _onRemoveLotePolygon( lote: Lote ) {
+    this._map?.removeLayer( lote.id );
+    this._map?.removeLayer( lote.id + '-border' );
     this._map?.removeSource( lote.id );
   }
 

@@ -216,6 +216,8 @@ export default class LotesByProyectComponent implements OnInit, OnDestroy {
   }
 
   private _onRemoveLote( loteId: string ) {
+
+    this._alertService.showLoading();
     this._loteService.removeLote( loteId )
     .subscribe( (loteDeleted) => {
       this._alertService.showAlert( 'OK', `Lote eliminado exitosamente`, 'success');
