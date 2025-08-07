@@ -260,7 +260,8 @@ export class LotesMapComponent {
       return acc;
     }, []);
 
-    const souceId = uuid();
+    const souceId = lote.id;
+    // const souceId = uuid();
 
     this._map.addSource( souceId, {
       'type': 'geojson',
