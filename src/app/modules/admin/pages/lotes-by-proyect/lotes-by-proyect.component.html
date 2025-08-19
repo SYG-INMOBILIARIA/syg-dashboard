@@ -58,6 +58,8 @@
       [proyectAndLotes]="proyectAndLotes()"
       [flyToLote]="loteToFly()"
       [deletedLote]="loteToDeleted()"
+      [createdLote]="loteToCreated()"
+      [showLoading]="listLotesInProgress()"
     >
     </lotes-map>
 
@@ -66,58 +68,75 @@
   <div class="col-span-3 ">
 
 
-    <div class="grid grid-cols-6 gap-3 w-full p-2 bg-white border border-gray-200 rounded-lg shadow sm:p-4 dark:bg-gray-800 dark:border-gray-700 mb-4">
+    <div class=" p-2 bg-white border border-gray-200 rounded-lg shadow sm:p-4 dark:bg-gray-800 dark:border-gray-700 mb-4">
 
-      <div class="col-span-4">
-        <label for="input-group-1" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-          Filtros
-        </label>
-        <div class="relative mb-2">
-          <div class="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none">
-            <svg
-              class="w-5 h-5 text-gray-500 dark:text-gray-400"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                fill-rule="evenodd"
-                clip-rule="evenodd"
-                d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-              ></path>
-            </svg>
+
+      <form [formGroup]="loteFilterForm" (submit)="onGetLotesForList()" >
+
+        <div class="grid grid-cols-12 gap-3 w-full">
+
+          <div class="col-span-12">
+            <label class=" text-sm font-medium text-gray-900 dark:text-white">
+              Filtros
+            </label>
           </div>
-          <input
-            type="text"
-            id="input-group-1"
-            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-            placeholder="Enter client name"
-            [formControl]="searchInput"
-          >
+          <div class="col-span-4">
+            <div class="relative mb-2">
+              <div class="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none">
+                <svg class="w-4 h-4 text-gray-500 dark:text-gray-300" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                  <path stroke="currentColor" stroke-linecap="round" stroke-width="2" d="M18.796 4H5.204a1 1 0 0 0-.753 1.659l5.302 6.058a1 1 0 0 1 .247.659v4.874a.5.5 0 0 0 .2.4l3 2.25a.5.5 0 0 0 .8-.4v-7.124a1 1 0 0 1 .247-.659l5.302-6.059c.566-.646.106-1.658-.753-1.658Z"/>
+                </svg>
+              </div>
+              <input
+                type="text"
+                id="input-group-1"
+                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                placeholder="Código"
+                formControlName="code"
+              >
+            </div>
+          </div>
+
+          <div class="col-span-4">
+            <div class="relative mb-2">
+              <div class="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none">
+
+                <svg class="w-4 h-4 text-gray-500 dark:text-gray-300" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                  <path stroke="currentColor" stroke-linecap="round" stroke-width="2" d="M18.796 4H5.204a1 1 0 0 0-.753 1.659l5.302 6.058a1 1 0 0 1 .247.659v4.874a.5.5 0 0 0 .2.4l3 2.25a.5.5 0 0 0 .8-.4v-7.124a1 1 0 0 1 .247-.659l5.302-6.059c.566-.646.106-1.658-.753-1.658Z"/>
+                </svg>
+
+              </div>
+              <input
+                type="text"
+                id="input-group-1"
+                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                placeholder="MZ"
+                formControlName="mz"
+              >
+            </div>
+          </div>
+
+          <div class="col-span-4">
+
+            <button
+              type="submit"
+              class="inline-block w-full px-6 py-3 font-bold text-center text-white uppercase align-middle transition-all rounded-lg cursor-pointer bg-gradient-to-tl from-blue-500 to-violet-500 leading-normal text-xs ease-in tracking-tight-rem shadow-xs bg-150 bg-x-25 hover:-translate-y-px active:opacity-85 hover:shadow-md "
+              [disabled]="searchInProgress()"
+            >
+
+              @if ( searchInProgress() ) {
+                <i class="fa-solid fa-spinner fa-pulse"></i>
+              } @else {
+                <i class="fa fa-search" aria-hidden="true"></i>
+              }
+              &nbsp;Buscar
+            </button>
+          </div>
         </div>
-      </div>
 
-      <div class="col-span-2">
+      </form>
 
-        <div class="mb-7"></div>
-
-        <button
-          type="button"
-          class="inline-block w-full px-6 py-3 font-bold text-center text-white uppercase align-middle transition-all rounded-lg cursor-pointer bg-gradient-to-tl from-blue-500 to-violet-500 leading-normal text-xs ease-in tracking-tight-rem shadow-xs bg-150 bg-x-25 hover:-translate-y-px active:opacity-85 hover:shadow-md "
-          (click)="onSearchLotes()"
-          [disabled]="searchInProgress()"
-        >
-
-          @if ( searchInProgress() ) {
-            <i class="fa-solid fa-spinner fa-pulse"></i>
-          } @else {
-            <i class="fa fa-search" aria-hidden="true"></i>
-          }
-          &nbsp;Buscar
-        </button>
-      </div>
-
-      <div class="col-span-6">
+      <div class="">
 
         <button
           (click)="openDialog()"
@@ -132,20 +151,17 @@
     </div>
 
     <div class="w-full p-4 h-290 bg-white border border-gray-200 rounded-lg shadow sm:p-4 dark:bg-gray-800 dark:border-gray-700">
-      <div class="flex items-center justify-between mb-4">
+      <div class="flex items-center justify-between mb-2">
             <h5 class="text-lg font-bold leading-none text-gray-900 dark:text-white">
               Lista de lotes
             </h5>
-            <!-- <a href="#" class="text-sm font-medium text-blue-600 hover:underline dark:text-blue-500">
-                View all
-            </a> -->
       </div>
       <div class="flow-root ">
-        <ngx-simplebar [options]="options" class="h-110 w-auto ">
+        <ngx-simplebar [options]="options" class="h-[440px] w-auto ">
             <ul role="list" class="divide-y divide-gray-200 dark:divide-gray-700 ">
 
 
-              @if ( !isLoading() ) {
+              @if ( !searchInProgress() ) {
 
                 @if ( allowList() ) {
                   @for (lote of lotes(); track $index) {
@@ -214,7 +230,7 @@
               }
 
 
-              @if ( isLoading() ) {
+              @if ( searchInProgress() ) {
                 <li class="py-5 sm:py-4">
                   <div class="flex items-center justify-center gap-3">
                     <spinner></spinner>
@@ -228,6 +244,14 @@
 
             </ul>
           </ngx-simplebar>
+      </div>
+      <div>
+        <app-pagination
+          [totalItems]="totalLotes()"
+          [viewIsColumn]="true"
+          (onChangePage)="onGetLotesForList($event)"
+        >
+        </app-pagination>
       </div>
     </div>
 

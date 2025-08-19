@@ -1,5 +1,5 @@
 import { Component, ElementRef, Input, ViewChild, computed, inject, signal } from '@angular/core';
-import { LngLatLike, Map, Marker, Popup } from 'mapbox-gl';
+import { GeoJSONFeature, LngLatLike, Map, Marker, Popup } from 'mapbox-gl';
 import { v4 as uuid } from 'uuid';
 
 import { Coordinate, Lote, Proyect } from '../../interfaces';
@@ -63,6 +63,16 @@ export class LotesMapComponent {
     }
   }
 
+  @Input({ required: false }) set createdLote( lote: Lote | undefined ) {
+    if( lote ) {
+      this._onBuildLotePolygon( lote );
+    }
+  }
+
+  @Input({ required: true }) set showLoading( value: boolean ) {
+    this._isBuildingMap.set( value );
+  }
+
   private _lotesRegistered: Lote[] = [];
 
   private _centerMap: [number, number] = [ -80.6987307175805,-4.926770405375706 ];
@@ -79,8 +89,6 @@ export class LotesMapComponent {
   ngAfterViewInit(): void {
 
     if( !this.mapContainer ) throw new Error(`Div map container not found!!!`);
-
-    this._isBuildingMap.set( true );
 
     this._map = new Map({
       container: this.mapContainer.nativeElement,
@@ -187,13 +195,9 @@ export class LotesMapComponent {
         }
     });
 
-    setTimeout(() => {
-      if( this._lotesRegistered.length > 0 ) {
-        this.onBuildPolygonByLotesRegistered();
-      }
-
-      this._isBuildingMap.set( false );
-    }, 200);
+    if( this._lotesRegistered.length > 0 ) {
+      this.onBuildPolygonByLotesRegistered();
+    }
 
   }
 
@@ -230,9 +234,6 @@ export class LotesMapComponent {
       }
     }, 200);
 
-    setTimeout(() => {
-      this._isBuildingMap.set( false );
-    }, 1500);
 
   }
 
@@ -274,7 +275,6 @@ export class LotesMapComponent {
           },
       }
     });
-
 
     let fillColor = '#2d91ff';
 

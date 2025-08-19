@@ -14,20 +14,23 @@ import { LoteModalComponent } from '../../components/lote-modal/lote-modal.compo
 import { NomenclatureService } from '@shared/services/nomenclature.service';
 import { Nomenclature } from '@shared/interfaces';
 import { PipesModule } from '@pipes/pipes.module';
-import { FormControl, Validators } from '@angular/forms';
-import { fullTextPatt } from '@shared/helpers/regex.helper';
+import { FormControl, UntypedFormBuilder, Validators } from '@angular/forms';
+import { fullTextNumberPatt, fullTextPatt } from '@shared/helpers/regex.helper';
 import { Store } from '@ngrx/store';
 import { AppState } from '@app/app.config';
 import { WebUrlPermissionMethods } from '../../../../auth/interfaces';
 import { apiLote } from '@shared/helpers/web-apis.helper';
+import { LoteDialogResponse, LoteFilterBody } from './interfaces';
+import { PaginationComponent } from "@shared/components/pagination/pagination.component";
 
 @Component({
   selector: 'app-lotes-by-proyect',
   standalone: true,
   imports: [
     LotesModule,
-    PipesModule
-  ],
+    PipesModule,
+    PaginationComponent
+],
   templateUrl: './lotes-by-proyect.component.html',
   styles: ``
 })
@@ -50,15 +53,16 @@ export default class LotesByProyectComponent implements OnInit, OnDestroy {
 
   private _lotes = signal<Lote[]>( [] );
   private _lotesForMap = signal<Lote[]>( [] );
+  private _totalLotes = signal<number>( 0 );
   private _loteToFly = signal<Lote | undefined>( undefined );
   private _loteToDeleted = signal<Lote | undefined>( undefined );
+  private _loteToCreated = signal<Lote | undefined>( undefined );
   private _centerProyect = signal<number[]>( [] );
   private _polygonCoords = signal<Coordinate[]>( [] );
-  private _isBuildLotesInProgress = signal<boolean>( false );
 
   private _searchInProgress = signal( false );
   private _isSaving = signal( false );
-  private _isLoading = signal( false );
+  private _listLotesInProgress = signal( false );
 
   private _allowList = signal( true );
   private _proyect = signal<Proyect | undefined>( undefined );
@@ -67,20 +71,26 @@ export default class LotesByProyectComponent implements OnInit, OnDestroy {
   public searchInProgress = computed( () => this._searchInProgress() );
   public loteToFly = computed( () => this._loteToFly() );
   public loteToDeleted = computed( () => this._loteToDeleted() );
+  public loteToCreated = computed( () => this._loteToCreated() );
 
   loteModalTitle = 'Crear nuevo Lote';
 
-  public searchInput = new FormControl('', [ Validators.pattern( fullTextPatt ) ]);
+  private readonly _formBuilder = inject( UntypedFormBuilder );
+
+  public loteFilterForm = this._formBuilder.group({
+    code: ['', [ Validators.pattern( fullTextNumberPatt ) ]],
+    mz:   ['', [ Validators.pattern( fullTextNumberPatt ) ]],
+  });
 
   public proyect = computed( () => this._proyect() );
   public proyectAndLotes = computed( () => this._proyectAndLotes() );
   public proyectName = computed( () => this._proyect()?.name ?? '' );
   public lotes = computed( () => this._lotes() );
+  public totalLotes = computed( () => this._totalLotes() );
   public lotesForMap = computed( () => this._lotesForMap() );
   public centerProyect = computed( () => this._centerProyect() );
   public polygonCoords = computed( () => this._polygonCoords() );
-  public isBuildLotesInProgress = computed( () => this._isBuildLotesInProgress() );
-  public isLoading = computed( () => this._isLoading() );
+  public listLotesInProgress = computed( () => this._listLotesInProgress() );
   public allowList = computed( () => this._allowList() );
 
   options = {
@@ -91,7 +101,20 @@ export default class LotesByProyectComponent implements OnInit, OnDestroy {
   private _proyectId = '';
   private _loteStatus = signal<Nomenclature[]>( [] );
   public loteStatus = computed( () => this._loteStatus() );
-  get isInvalidSearchInput() { return this.searchInput.invalid; }
+
+  private get _loteFilterBody(): LoteFilterBody { return this.loteFilterForm.value as LoteFilterBody; }
+
+  get isFormInvalid() { return this.loteFilterForm.invalid; }
+
+  inputErrors( field: string ) {
+    return this.loteFilterForm.get(field)?.errors ?? null;
+  }
+
+  get formErrors() { return this.loteFilterForm.errors; }
+
+  isTouched( field: string ) {
+    return this.loteFilterForm.get(field)?.touched ?? false;
+  }
 
   ngOnInit(): void {
 
@@ -118,7 +141,7 @@ export default class LotesByProyectComponent implements OnInit, OnDestroy {
     });
   }
 
-  onGetLotes() {
+  private _onValidateGetAllow() {
 
     const allowList = this._webUrlPermissionMethods.some(
       (permission) => permission.webApi == apiLote && permission.methods.includes( 'GET' )
@@ -129,63 +152,61 @@ export default class LotesByProyectComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this._isLoading.set( true );
-
-    const filter = this.searchInput.value ?? '';
-
-    forkJoin({
-      lotesForMap: this._loteService.getLotes( this._proyectId, 1, '', 1000 ),
-      lotesForList: this._loteService.getLotes( this._proyectId, 1, filter, 1000 ),
-    }).subscribe( ({ lotesForMap, lotesForList }) => {
-
-      this._lotes.set( lotesForList.lotes );
-      this._lotesForMap.set( lotesForMap.lotes );
-
-      const proyect = this._proyect()!;
-      this._proyectAndLotes.set( { proyect: proyect, lotes: lotesForMap.lotes } )
-
-      this._isLoading.set( false );
-
-    } )
   }
 
-  onSearchLotes() {
+  onGetLotesForMap() {
+
+    this._onValidateGetAllow();
+
+    this._loteService.getLotes( this._proyectId, 1, '', 1000 )
+    .subscribe( ({ lotes }) => {
+
+      this._lotesForMap.set( lotes );
+
+      const proyect = this._proyect()!;
+      this._proyectAndLotes.set( { proyect, lotes } )
+      this._listLotesInProgress.set( false );
+
+    })
+  }
+
+  onGetLotesForList( page = 1 ) {
+
+    this._onValidateGetAllow();
 
     this._searchInProgress.set( true );
 
-    this._isLoading.set( true );
+    const { code, mz } = this._loteFilterBody;
+    const filter = `code-${code};mz-${mz}`;
 
-    const filter = this.searchInput.value ?? '';
-    this._loteService.getLotes( this._proyectId, 1, filter, 1000 )
-    .subscribe( ({ lotes }) => {
+    this._loteService.getLotes( this._proyectId, page, filter, 20 )
+    .subscribe( ({ lotes, total }) => {
       this._lotes.set( lotes );
+      this._totalLotes.set( total );
       this._searchInProgress.set( false );
-
-      this._isLoading.set( false );
     } );
   }
 
   onLoadData( proyectId: string ) {
 
+    this._listLotesInProgress.set( true );
+
     forkJoin({
       proyect: this._proyectService.getProyectById( proyectId ),
-      // lotesResponse: this._loteService.getLotes( proyectId, 1, '', 500 ),
       loteStatusResponse: this._nomenclatureService.getLoteStatus()
     }).subscribe( ( { proyect, loteStatusResponse } ) => {
 
       const { centerCoords, polygonCoords, flatImage } = proyect;
-      // const { lotes } = lotesResponse;
       const { nomenclatures } = loteStatusResponse;
 
       this._proyect.set( proyect );
       this._centerProyect.set( centerCoords );
       this._polygonCoords.set( polygonCoords );
-      // this._lotes.set( lotes );
-      // this._lotesForMap.set( lotes );
-      // this._proyectAndLotes.set( { proyect, lotes } );
       this._loteStatus.set( nomenclatures );
 
-      this.onGetLotes();
+      this.onGetLotesForMap();
+      this.onGetLotesForList();
+
     });
 
   }
@@ -223,7 +244,7 @@ export default class LotesByProyectComponent implements OnInit, OnDestroy {
       this._alertService.showAlert( 'OK', `Lote eliminado exitosamente`, 'success');
 
       this._loteToDeleted.set( loteDeleted );
-      this.onSearchLotes();
+      this.onGetLotesForList();
     });
   }
 
@@ -241,16 +262,33 @@ export default class LotesByProyectComponent implements OnInit, OnDestroy {
       data: {
         proyect: this._proyect(),
         loteStatus: this.loteStatus(),
-        lotes: this.lotes(),
+        lotes: this.lotesForMap(),
         webUrlPermissionMethods: this._webUrlPermissionMethods,
         loteToUpdate
       }
     });
 
 
-    this._dialog$ = dialogRef.afterClosed().subscribe(result => {
+    this._dialog$ = dialogRef.afterClosed().subscribe( (result: LoteDialogResponse) => {
       if (result !== undefined) {
-        this.onGetLotes();
+
+        if( result.lotes.length > 0 ) {
+
+          if( result.action == 'updated' ) {
+
+            for (const lote of result.lotes) {
+              this._loteToDeleted.set( lote );
+              this._loteToCreated.set( lote );
+            }
+
+          } else {
+            for (const lote of result.lotes) {
+              this._loteToCreated.set( lote );
+            }
+          }
+
+        }
+
       }
 
       this._dialog$?.unsubscribe();

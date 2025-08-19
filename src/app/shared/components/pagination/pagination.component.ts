@@ -12,9 +12,9 @@ import { NgxPaginationModule, PaginationInstance, PaginationControlsDirective } 
   ],
   templateUrl: './pagination.component.html',
   styles: ``,
-  host: {
-    class: "flex justify-between pl-4 pr-5 pt-3 pb-2"
-  }
+  /**host: {
+    class: "flex justify-between  "
+  }*/
 })
 export class PaginationComponent {
 
@@ -26,7 +26,10 @@ export class PaginationComponent {
     this.config.itemsPerPage = value;
   };
 
+  @Input() viewIsColumn: boolean = false;
+
   onChangePage = output<number>();
+
 
   @ViewChild('paginateElement') paginateElement!: PaginationControlsDirective;
 

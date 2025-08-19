@@ -33,7 +33,6 @@ interface PolygonCoord {
   id: string | null;
 }
 
-
 @Component({
   selector: 'app-lote-modal',
   standalone: true,
@@ -62,11 +61,7 @@ interface PolygonCoord {
       max-height: 100vh;
       overflow: hidden;
     }
-
-
   `
-
-
 })
 export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
 
@@ -81,6 +76,8 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly _alertService = inject( AlertService );
   readonly dialogRef = inject(MatDialogRef<LoteModalComponent>);
   readonly data = inject<LoteDialogPayload>(MAT_DIALOG_DATA);
+
+  private _lotesCreatedOrUpdated: Lote[] = [];
 
   private _formBuilder = inject( UntypedFormBuilder );
 
@@ -587,7 +584,10 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   onClose() {
-    this.dialogRef.close( this._loteCreated );
+    this.dialogRef.close({
+      lotes: this._lotesCreatedOrUpdated,
+      action: 'created'
+    });
   }
 
   onSubmit() {
@@ -619,9 +619,10 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
           this._alertService.showAlert(`Lote #${ loteCreated.code }, creado exitosamente`, undefined, 'success');
           this.onResetAfterSubmit();
           this._onBuilLotePolygon( loteCreated );
+          this._lotesCreatedOrUpdated.push( loteCreated );
           //this.dialogRef.close( loteCreated );
           this._draw?.deleteAll()
-          this._loteCreated = loteCreated;
+
 
         },
         complete: () => {
@@ -647,9 +648,12 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
 
         this._alertService.showAlert(`Lote #${ loteUpdate.code }, actualizado exitosamente`, undefined, 'success');
 
-        this._loteCreated = loteUpdate;
+        this._lotesCreatedOrUpdated.push( loteUpdate );
         this._draw?.deleteAll()
-        this.dialogRef.close( loteUpdate );
+        this.dialogRef.close({
+          lotes: this._lotesCreatedOrUpdated,
+          action: 'updated'
+        });
 
       });
 

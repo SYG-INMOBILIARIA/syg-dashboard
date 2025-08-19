@@ -14,6 +14,7 @@ export class LoteService {
 
   getLotes( proyectId: string, page: number, filter: string, limit = 10, showInactive = false ): Observable<ListLotesResponse> {
 
+    console.log({filter});
     let queryParams = `filter=${ filter }`;
     queryParams += `&page=${ page }`;
     queryParams += `&limit=${ limit }`;

@@ -5,6 +5,7 @@ import { LotesMapComponent } from '../../components/lotes-map/lotes-map.componen
 import { SimplebarAngularModule } from 'simplebar-angular';
 import { SpinnerComponent } from '@shared/components/spinner/spinner.component';
 import { InputErrorsDirective } from '@shared/directives/input-errors.directive';
+import { PaginationComponent } from '@shared/components/pagination/pagination.component';
 
 @NgModule({
   imports: [
@@ -15,6 +16,7 @@ import { InputErrorsDirective } from '@shared/directives/input-errors.directive'
     SimplebarAngularModule,
     SpinnerComponent,
     InputErrorsDirective,
+    PaginationComponent
   ],
   exports: [
     CommonModule,
@@ -24,6 +26,7 @@ import { InputErrorsDirective } from '@shared/directives/input-errors.directive'
     SimplebarAngularModule,
     SpinnerComponent,
     InputErrorsDirective,
+    PaginationComponent
   ],
   providers: [],
 })
