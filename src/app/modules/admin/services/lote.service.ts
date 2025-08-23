@@ -14,13 +14,22 @@ export class LoteService {
 
   getLotes( proyectId: string, page: number, filter: string, limit = 10, showInactive = false ): Observable<ListLotesResponse> {
 
-    console.log({filter});
     let queryParams = `filter=${ filter }`;
     queryParams += `&page=${ page }`;
     queryParams += `&limit=${ limit }`;
     queryParams += `&isActive=${ !showInactive }`;
 
     return this._http.get<ListLotesResponse>(`${ this._baseUrl }/lote/by-proyect/${proyectId}?${ queryParams }`);
+  }
+
+  getLotesForMap( proyectId: string, page: number, filter: string, limit = 10, showInactive = false ): Observable<ListLotesResponse> {
+
+    let queryParams = `filter=${ filter }`;
+    queryParams += `&page=${ page }`;
+    queryParams += `&limit=${ limit }`;
+    queryParams += `&isActive=${ !showInactive }`;
+
+    return this._http.get<ListLotesResponse>(`${ this._baseUrl }/lote/by-proyect-for-map/${proyectId}?${ queryParams }`);
   }
 
   getLoteById( proyectId: string ): Observable<Lote> {

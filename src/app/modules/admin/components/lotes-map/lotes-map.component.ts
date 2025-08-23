@@ -73,6 +73,13 @@ export class LotesMapComponent {
     this._isBuildingMap.set( value );
   }
 
+  @Input({ required: true }) set showLock( value: { show: boolean, text: string } ) {
+    this._showLockContainer.set( value.show );
+    this._lockContainerText.set( value.text );
+  }
+
+  private _showLockContainer = signal<boolean>( false );
+  private _lockContainerText = signal<string>( '' );
   private _lotesRegistered: Lote[] = [];
 
   private _centerMap: [number, number] = [ -80.6987307175805,-4.926770405375706 ];
@@ -85,6 +92,8 @@ export class LotesMapComponent {
   private _isBuildingMap = signal<boolean>( false );
 
   public isBuildingMap = computed( () => this._isBuildingMap() );
+  public showLockContainer = computed( () => this._showLockContainer() );
+  public lockContainerText = computed( () => this._lockContainerText() );
 
   ngAfterViewInit(): void {
 
@@ -97,18 +106,11 @@ export class LotesMapComponent {
       zoom: this._zoom,
       bearing: this._bearing,
       pitch: this._pitch
-      // maxZoom: 18,
-      // minZoom: 17.0
     });
 
-
-
     this._map.on('load', () => {
-      // this._map!.resize();
-
       if( this._flatImage ) {
         this._buildFlatProyect( this._flatImage );
-
       } else {
         this._onBuildBorderPolygon( this._polygonCoords );
       }
@@ -228,11 +230,13 @@ export class LotesMapComponent {
       'paint': { 'raster-opacity': 1.0 }
     });
 
-    setTimeout(() => {
+    console.log('Se cargo plano del mapa !!! ✅ ');
+
+    // setTimeout(() => {
       if( this._lotesRegistered.length > 0 ) {
         this.onBuildPolygonByLotesRegistered();
       }
-    }, 200);
+    // }, 200);
 
 
   }
@@ -331,16 +335,16 @@ export class LotesMapComponent {
 
 
     // add a line layer to visualize the clipping region.
-    this._map.addLayer({
-        'id':  sourceId + '-border',//uuid(),
-        'type': 'line',
-        'source': sourceId,
-        'paint': {
-            'line-color': '#000',
-            'line-dasharray': [0, 4, 3],
-            'line-width': 0.7
-        }
-    });
+    // this._map.addLayer({
+    //     'id':  sourceId + '-border',//uuid(),
+    //     'type': 'line',
+    //     'source': sourceId,
+    //     'paint': {
+    //         'line-color': '#000',
+    //         'line-dasharray': [0, 4, 3],
+    //         'line-width': 0.7
+    //     }
+    // });
 
   }
 
@@ -366,7 +370,7 @@ export class LotesMapComponent {
 
   private _onRemoveLotePolygon( lote: Lote ) {
     this._map?.removeLayer( lote.id );
-    this._map?.removeLayer( lote.id + '-border' );
+    // this._map?.removeLayer( lote.id + '-border' );
     this._map?.removeSource( lote.id );
   }
 

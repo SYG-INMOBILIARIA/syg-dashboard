@@ -5,6 +5,7 @@
 
 
     <div class="hidden" *ngIf="!isBuildingMap() else spinner" ></div>
+    <div class="hidden" *ngIf="!showLockContainer() else lockContainer" ></div>
   </div>
 
 
@@ -21,7 +22,21 @@
       </div>
 
 
-      Espere...
+      <span class="text-2xl italic font-semibold">
+        Espere...
+      </span>
+    </div>
+  </div>
+</ng-template>
+
+
+<ng-template #lockContainer>
+  <div class="absolute inset-y-0 start-0 w-full h-full flex items-center justify-center bg-slate-600 dark:bg-slate-200 opacity-40">
+    <div class="text-white font-semibold text-2xl flex items-center gap-3 dark:text-slate-950">
+
+      <span class="text-3xl italic font-semibold">
+        {{ lockContainerText() }}
+      </span>
     </div>
   </div>
 </ng-template>

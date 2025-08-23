@@ -14,14 +14,15 @@ import { LoteModalComponent } from '../../components/lote-modal/lote-modal.compo
 import { NomenclatureService } from '@shared/services/nomenclature.service';
 import { Nomenclature } from '@shared/interfaces';
 import { PipesModule } from '@pipes/pipes.module';
-import { FormControl, UntypedFormBuilder, Validators } from '@angular/forms';
-import { fullTextNumberPatt, fullTextPatt } from '@shared/helpers/regex.helper';
+import { UntypedFormBuilder, UntypedFormControl, Validators } from '@angular/forms';
+import { fullTextNumberPatt } from '@shared/helpers/regex.helper';
 import { Store } from '@ngrx/store';
 import { AppState } from '@app/app.config';
 import { WebUrlPermissionMethods } from '../../../../auth/interfaces';
 import { apiLote } from '@shared/helpers/web-apis.helper';
 import { LoteDialogResponse, LoteFilterBody } from './interfaces';
 import { PaginationComponent } from "@shared/components/pagination/pagination.component";
+import { NgSelectModule } from '@ng-select/ng-select';
 
 @Component({
   selector: 'app-lotes-by-proyect',
@@ -29,7 +30,8 @@ import { PaginationComponent } from "@shared/components/pagination/pagination.co
   imports: [
     LotesModule,
     PipesModule,
-    PaginationComponent
+    PaginationComponent,
+    NgSelectModule
 ],
   templateUrl: './lotes-by-proyect.component.html',
   styles: ``
@@ -43,6 +45,16 @@ export default class LotesByProyectComponent implements OnInit, OnDestroy {
   private _dialog$?: Subscription;
 
   readonly dialog = inject(MatDialog);
+
+  private _stages = [
+    { value: 'I', label: 'I' },
+    { value: 'II', label: 'II' },
+    { value: 'III', label: 'III' },
+    { value: 'IV', label: 'IV' },
+    { value: 'V', label: 'V' }
+  ];
+
+  public stages = computed( () => this._stages );
 
   private readonly _nomenclatureService = inject( NomenclatureService );
   private _alertService = inject( AlertService );
@@ -77,9 +89,11 @@ export default class LotesByProyectComponent implements OnInit, OnDestroy {
 
   private readonly _formBuilder = inject( UntypedFormBuilder );
 
+  public stageFilter = new UntypedFormControl( null, [Validators.required] );
+
   public loteFilterForm = this._formBuilder.group({
-    code: ['', [ Validators.pattern( fullTextNumberPatt ) ]],
-    mz:   ['', [ Validators.pattern( fullTextNumberPatt ) ]],
+    code:  ['', [ Validators.pattern( fullTextNumberPatt ) ]],
+    mz:    ['', [ Validators.pattern( fullTextNumberPatt ) ]],
   });
 
   public proyect = computed( () => this._proyect() );
@@ -109,6 +123,12 @@ export default class LotesByProyectComponent implements OnInit, OnDestroy {
   inputErrors( field: string ) {
     return this.loteFilterForm.get(field)?.errors ?? null;
   }
+
+  get stageFilterIsInvalid() { return this.stageFilter.invalid; }
+  get stageFilterIsTouched() { return this.stageFilter.touched; }
+  get stageFilterErrors() { return this.stageFilter.errors; }
+
+  get showLockMap() { return { show: this.stageFilterIsInvalid, text:'Seleccione primero Etapa' }; }
 
   get formErrors() { return this.loteFilterForm.errors; }
 
@@ -158,7 +178,11 @@ export default class LotesByProyectComponent implements OnInit, OnDestroy {
 
     this._onValidateGetAllow();
 
-    this._loteService.getLotes( this._proyectId, 1, '', 1000 )
+    this._listLotesInProgress.set( true );
+
+    const stageQuery = this.stageFilter.value ?? '';
+
+    this._loteService.getLotesForMap( this._proyectId, 1, `stage=${ stageQuery }`, 1000 )
     .subscribe( ({ lotes }) => {
 
       this._lotesForMap.set( lotes );
@@ -177,7 +201,8 @@ export default class LotesByProyectComponent implements OnInit, OnDestroy {
     this._searchInProgress.set( true );
 
     const { code, mz } = this._loteFilterBody;
-    const filter = `code-${code};mz-${mz}`;
+    const stageQuery = this.stageFilter.value ?? '';
+    const filter = `code=${code};mz=${mz};stage=${ stageQuery }`;
 
     this._loteService.getLotes( this._proyectId, page, filter, 20 )
     .subscribe( ({ lotes, total }) => {
@@ -188,8 +213,6 @@ export default class LotesByProyectComponent implements OnInit, OnDestroy {
   }
 
   onLoadData( proyectId: string ) {
-
-    this._listLotesInProgress.set( true );
 
     forkJoin({
       proyect: this._proyectService.getProyectById( proyectId ),
@@ -204,10 +227,14 @@ export default class LotesByProyectComponent implements OnInit, OnDestroy {
       this._polygonCoords.set( polygonCoords );
       this._loteStatus.set( nomenclatures );
 
-      this.onGetLotesForMap();
-      this.onGetLotesForList();
-
     });
+
+  }
+
+  onLoadLotesByStage( stage: Nomenclature ){
+
+    this.onGetLotesForMap();
+    this.onGetLotesForList();
 
   }
 
