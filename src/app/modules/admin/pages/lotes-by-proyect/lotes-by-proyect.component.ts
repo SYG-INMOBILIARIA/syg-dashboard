@@ -67,8 +67,10 @@ export default class LotesByProyectComponent implements OnInit, OnDestroy {
   private _lotesForMap = signal<Lote[]>( [] );
   private _totalLotes = signal<number>( 0 );
   private _loteToFly = signal<Lote | undefined>( undefined );
-  private _loteToDeleted = signal<Lote | undefined>( undefined );
-  private _loteToCreated = signal<Lote | undefined>( undefined );
+
+  // private _loteToDeleted = signal<Lote | undefined>( undefined );
+  // private _loteToCreated = signal<Lote | undefined>( undefined );
+
   private _centerProyect = signal<number[]>( [] );
   private _polygonCoords = signal<Coordinate[]>( [] );
 
@@ -78,12 +80,10 @@ export default class LotesByProyectComponent implements OnInit, OnDestroy {
 
   private _allowList = signal( true );
   private _proyect = signal<Proyect | undefined>( undefined );
-  private _proyectAndLotes = signal<{ proyect: Proyect, lotes: Lote[] } | undefined>( undefined );
   public isSaving = computed( () => this._isSaving() );
   public searchInProgress = computed( () => this._searchInProgress() );
   public loteToFly = computed( () => this._loteToFly() );
-  public loteToDeleted = computed( () => this._loteToDeleted() );
-  public loteToCreated = computed( () => this._loteToCreated() );
+
 
   loteModalTitle = 'Crear nuevo Lote';
 
@@ -97,7 +97,6 @@ export default class LotesByProyectComponent implements OnInit, OnDestroy {
   });
 
   public proyect = computed( () => this._proyect() );
-  public proyectAndLotes = computed( () => this._proyectAndLotes() );
   public proyectName = computed( () => this._proyect()?.name ?? '' );
   public lotes = computed( () => this._lotes() );
   public totalLotes = computed( () => this._totalLotes() );
@@ -186,9 +185,6 @@ export default class LotesByProyectComponent implements OnInit, OnDestroy {
     .subscribe( ({ lotes }) => {
 
       this._lotesForMap.set( lotes );
-
-      const proyect = this._proyect()!;
-      this._proyectAndLotes.set( { proyect, lotes } )
       this._listLotesInProgress.set( false );
 
     })
@@ -219,7 +215,7 @@ export default class LotesByProyectComponent implements OnInit, OnDestroy {
       loteStatusResponse: this._nomenclatureService.getLoteStatus()
     }).subscribe( ( { proyect, loteStatusResponse } ) => {
 
-      const { centerCoords, polygonCoords, flatImage } = proyect;
+      const { centerCoords, polygonCoords } = proyect;
       const { nomenclatures } = loteStatusResponse;
 
       this._proyect.set( proyect );
@@ -270,7 +266,8 @@ export default class LotesByProyectComponent implements OnInit, OnDestroy {
     .subscribe( (loteDeleted) => {
       this._alertService.showAlert( 'OK', `Lote eliminado exitosamente`, 'success');
 
-      this._loteToDeleted.set( loteDeleted );
+      this._lotesForMap.update( (lotes) => lotes.filter( (l) => l.id !== loteDeleted.id ) );
+
       this.onGetLotesForList();
     });
   }
@@ -301,18 +298,19 @@ export default class LotesByProyectComponent implements OnInit, OnDestroy {
 
         if( result.lotes.length > 0 ) {
 
-          if( result.action == 'updated' ) {
+          let lotesForMap = this.lotesForMap();
 
-            for (const lote of result.lotes) {
-              this._loteToDeleted.set( lote );
-              this._loteToCreated.set( lote );
+          for (const lote of result.lotes) {
+
+            if( result.action == 'updated' ) {
+              lotesForMap = lotesForMap.filter( (l) => l.id !== lote.id );
             }
 
-          } else {
-            for (const lote of result.lotes) {
-              this._loteToCreated.set( lote );
-            }
+            lotesForMap.unshift( lote );
+
           }
+
+          this._lotesForMap.set( [...lotesForMap] );
 
         }
 

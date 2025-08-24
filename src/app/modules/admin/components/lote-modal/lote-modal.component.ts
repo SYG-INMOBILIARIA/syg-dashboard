@@ -50,7 +50,7 @@ interface PolygonCoord {
 ],
   templateUrl: './lote-modal.component.html',
   styles: `
-    #map {
+    #containerLoteModalMap {
       width: 100%;
       height: 75vh;
       margin: 0px;
@@ -67,10 +67,26 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private _webUrlPermissionMethods: WebUrlPermissionMethods[] = [];
 
-  @ViewChild('map') mapContainer?: ElementRef<HTMLDivElement>;
+  @ViewChild('containerLoteModalMap') mapContainer?: ElementRef<HTMLDivElement>;
 
   private _map?: Map;
   private _draw?: MapboxDraw;
+
+  //#FIXME: nueva lógica para mostrar lotes
+  private _popup: Popup = new Popup({ closeButton: false, closeOnClick: false });
+  private hoveredId: string | number | null = null;
+  private selectedId: string | number | null = null;
+
+  private readonly SOURCE_ID = 'lotesSource';
+  private readonly FILL_ID   = 'lotes-fill';
+  private readonly DASHED_LINE_ID   = 'lotes-dashed-line';
+  private readonly FLAT_SOURCE_ID   = 'lotes-flat-image-source';
+  private readonly FLAT_LAYER_ID   = 'lotes-flat-image-layer';
+  private readonly FLAT_BORDER_SOURCE_ID   = 'lotes-flat-border';
+
+  private readonly _emptyImage = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEUAAACnej3aAAAAAXRSTlMAQObYZgAAAApJREFUCNdjYAAAAAIAAc/INeUAAAAASUVORK5CYII=';
+
+  //#FIXME: nueva lógica para mostrar lotes
 
   private readonly _loteService = inject( LoteService );
   private readonly _alertService = inject( AlertService );
@@ -105,7 +121,7 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
   public isSaving = computed( () => this._isSaving() );
   private get _loteBody(): LoteBody { return this.loteForm.value as LoteBody; }
 
-  private _stages = [
+  private readonly _stages = [
     { value: 'I', label: 'I' },
     { value: 'II', label: 'II' },
     { value: 'III', label: 'III' },
@@ -135,18 +151,16 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnInit(): void {
 
-    const { loteStatus, proyect, loteToUpdate, webUrlPermissionMethods } = this.data;
+      const { proyect, loteToUpdate, webUrlPermissionMethods } = this.data;
 
-    this._webUrlPermissionMethods = webUrlPermissionMethods;
-    this.loteForm.get('proyectId')?.setValue( proyect.id );
+      this._webUrlPermissionMethods = webUrlPermissionMethods;
+      this.loteForm.get('proyectId')?.setValue( proyect.id );
 
-    if( loteToUpdate ) {
-      const { polygonCoords, ...lote } = loteToUpdate;
-      this.loteTitleModal = `Actualizar lote ${ lote.code }`;
-
-      this.loteForm.reset( lote );
-
-    }
+      if( loteToUpdate ) {
+        const { polygonCoords, ...lote } = loteToUpdate;
+        this.loteTitleModal = `Actualizar lote ${ lote.code }`;
+        this.loteForm.reset( lote );
+      }
 
   }
 
@@ -168,8 +182,11 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this._map.on('load', () => {
 
-      this._map!.setCenter( centerCoords );
-      this._map!.setZoom( 17 );
+      // this._map!.setCenter( centerCoords );
+      // this._map!.setZoom( 17 );
+
+      this._onAddMapxboxElements();
+      this._onAddMapboxEvents();
 
       if( loteToUpdate ) {
 
@@ -188,6 +205,89 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
       }
 
     });
+
+
+  }
+
+  private _onAddMapxboxElements() {
+
+    if( !this._map ) throw new Error(`Map not found!!!`);
+
+    //TODO: Elementos para plano de mapa
+    // Coordenadas dummy o iniciales
+    const initialCoords: [[number, number], [number, number], [number, number], [number, number]] = [
+      [-76.95, -12.10], // top-left
+      [-76.94, -12.10], // top-right
+      [-76.94, -12.11], // bottom-right
+      [-76.95, -12.11]  // bottom-left
+    ];
+
+    this._map.addSource( this.FLAT_SOURCE_ID, {
+      type: 'image',
+      url: this._emptyImage,
+      coordinates: initialCoords
+    });
+
+    this._map.addLayer({
+      id: this.FLAT_LAYER_ID,
+      type: 'raster',
+      source: this.FLAT_SOURCE_ID,
+    });
+    //TODO: Elementos para plano
+
+    //TODO: Elementos para borde de plano
+    // source vacío al inicio; borramos si no hay plano
+    this._map.addSource(this.FLAT_BORDER_SOURCE_ID, {
+      type: 'geojson',
+      data: { type: 'FeatureCollection', features: [] },
+      promoteId: 'id-2',
+    });
+
+     // add a line layer to visualize the clipping region.
+     this._map.addLayer({
+      'id': 'dashed-line',
+      'type': 'line',
+      'source': this.FLAT_BORDER_SOURCE_ID,
+      'paint': {
+          'line-color': 'rgba(255, 0, 0, 0.9)',
+          'line-dasharray': [0, 4, 3],
+          'line-width': 5
+      }
+    });
+
+    //TODO: Elementos para borde de plano
+
+    // source vacío al inicio; promoteId para feature-state
+    this._map.addSource(this.SOURCE_ID, {
+      type: 'geojson',
+      data: { type: 'FeatureCollection', features: [] },
+      promoteId: 'id',
+    });
+
+    // fill con estilo por estado
+    this._map.addLayer({
+      id: this.FILL_ID, type: 'fill', source: this.SOURCE_ID,
+      paint: {
+        'fill-color': '#67e8f9',
+        'fill-opacity': [
+          'case',
+            ['boolean', ['feature-state', 'selected'], false], 0.55,
+            ['boolean', ['feature-state', 'hovered'],  false], 0.45,
+            0.3
+        ],
+      }
+    });
+
+    this._map.addLayer({
+      id: this.DASHED_LINE_ID, type: 'line', source: this.SOURCE_ID,
+      paint: { 'line-color': '#1f2937', 'line-width': 0.5 }
+    });
+
+  }
+
+  private _onAddMapboxEvents() {
+
+    if( !this._map ) throw new Error(`Map not found!!!`);
 
     this._map.on( 'moveend', (event) => {
 
@@ -215,31 +315,19 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
       return acc;
     }, []);
 
-    this._map.addSource('eraser', {
-        'type': 'geojson',
-        'data': {
-            'type': 'FeatureCollection',
-            'features': [
-                {
-                    'type': 'Feature',
-                    'properties': {},
-                    'geometry': { 'coordinates': [ points ], 'type': 'Polygon' }
-                }
-            ]
-        }
-    });
+    const features = [
+      {
+          'type': 'Feature',
+          'properties': {},
+          'geometry': {
+              'coordinates': [ points ],
+              'type': 'Polygon'
+          }
+      }
+    ];
 
-    // add a line layer to visualize the clipping region.
-    this._map.addLayer({
-        'id': 'eraser-debug',
-        'type': 'line',
-        'source': 'eraser',
-        'paint': {
-            'line-color': 'rgba(255, 0, 0, 0.9)',
-            'line-dasharray': [0, 4, 3],
-            'line-width': 5
-        }
-    });
+    const fc = { type: 'FeatureCollection', features } as GeoJSON.FeatureCollection;
+    (this._map!.getSource(this.FLAT_BORDER_SOURCE_ID) as mapboxgl.GeoJSONSource).setData(fc);
 
     this.onAllowDrawer();
     this.onBuildLotes( lotes );
@@ -253,8 +341,8 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
   private async _buildFlatProyect( flatImage: Photo, polygonCoords: Coordinate[] ) {
 
     if( !this._map ) throw new Error(`Div map container not found!!!`);
-    const { urlImg } = flatImage;
 
+    const { urlImg } = flatImage;
     const { lotes } = this.data;
 
     const points = polygonCoords.reduce<any>( (acc: number[][], current) => {
@@ -262,21 +350,26 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
       return acc;
     }, []);
 
-    const imgSourceId = uuid();
+    // const imgSourceId = uuid();
 
-    // Add an image source
-    this._map.addSource(imgSourceId, {
-      'type': 'image',
-      'url': urlImg,
-      'coordinates': points
-    });
+    // // Add an image source
+    // this._map.addSource(imgSourceId, {
+    //   'type': 'image',
+    //   'url': urlImg,
+    //   'coordinates': points
+    // });
 
-    // Add a layer for displaying the image
-    this._map.addLayer({
-      'id': uuid(),
-      'type': 'raster',
-      'source': imgSourceId,
-      'paint': { 'raster-opacity': 1.0 }
+    // // Add a layer for displaying the image
+    // this._map.addLayer({
+    //   'id': uuid(),
+    //   'type': 'raster',
+    //   'source': imgSourceId,
+    //   'paint': { 'raster-opacity': 1.0 }
+    // });
+
+    (this._map.getSource( this.FLAT_SOURCE_ID) as mapboxgl.ImageSource).updateImage({
+      url: urlImg,
+      coordinates: points
     });
 
     this.onAllowDrawer();
@@ -286,40 +379,6 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
       this._isBuildingMap.set( false );
     }, 1200);
 
-    // const polygonId = uuid();
-
-    // this._map?.addSource( polygonId, {
-    //   'type': 'geojson',
-    //   'data': {
-    //       'type': 'Feature',
-    //       'properties': {},
-    //       'geometry': { 'type': 'Polygon', 'coordinates': [ points ] }
-    //   }
-    // });
-
-    // this._alertService.showLoading();
-
-    // this._map?.loadImage( urlImg, (err, image) => {
-    //   if (err) throw err;
-
-    //   const imageId = uuid();
-    //   // Add the image to the map style.
-    //   this._map!.addImage(imageId, image!, {
-    //     pixelRatio: 3
-    //   });
-
-    //   // Create a new layer and style it using `fill-pattern`.
-    //   this._map!.addLayer({
-    //     'id': uuid(),
-    //     'type': 'fill',
-    //     'source': polygonId,
-    //     'paint': { 'fill-pattern': imageId }
-    //   });
-
-    //   this._alertService.close();
-    //   this.onAllowDrawer();
-    //   this.onBuildLotes( lotes );
-    // });
 
   }
 
@@ -496,14 +555,35 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
       lotes = lotes.filter( (lote) => lote.id != loteToUpdate.id );
     }
 
-    for ( const key in lotes ) {
-      if (Object.prototype.hasOwnProperty.call(lotes, key)) {
+    // for ( const key in lotes ) {
+    //   if (Object.prototype.hasOwnProperty.call(lotes, key)) {
 
-        const lote = lotes[key];
-        this._onBuilLotePolygon( lote );
+    //     const lote = lotes[key];
+    //     this._onBuilLotePolygon( lote );
 
+    //   }
+    // }
+
+    const features = lotes.map( (lote) => ({
+      type: 'Feature',
+      id: lote.id, // <- clave para feature-state
+      properties: {
+        id: lote.id,
+        code: lote.code,
+        price: lote.price,
+        squareMeters: lote.squareMeters,
+        status: lote.loteStatus, // 'Available' | 'Selled' | 'InProgress'
+        center: lote.centerCoords,
+      },
+      geometry: {
+        type: 'Polygon',
+        coordinates: [ lote.polygonCoords.map(p => [Number(p.lng.toFixed(6)), Number(p.lat.toFixed(6))]) ],
+        // coordinates: points,
       }
-    }
+    }));
+
+    const fc = { type: 'FeatureCollection', features } as GeoJSON.FeatureCollection;
+    (this._map.getSource(this.SOURCE_ID) as mapboxgl.GeoJSONSource).setData(fc);
 
   }
 
@@ -618,7 +698,14 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
 
           this._alertService.showAlert(`Lote #${ loteCreated.code }, creado exitosamente`, undefined, 'success');
           this.onResetAfterSubmit();
-          this._onBuilLotePolygon( loteCreated );
+
+          const { lotes } = this.data;
+
+          const newLotes = [...lotes, loteCreated];
+
+          this.onBuildLotes( newLotes );
+          // this._onBuilLotePolygon( loteCreated );
+
           this._lotesCreatedOrUpdated.push( loteCreated );
           //this.dialogRef.close( loteCreated );
           this._draw?.deleteAll()

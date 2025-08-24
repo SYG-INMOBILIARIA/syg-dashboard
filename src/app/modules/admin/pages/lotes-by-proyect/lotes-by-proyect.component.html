@@ -55,10 +55,9 @@
 
     <lotes-map
       class="w-full h-full border-2 border-dashed rounded-lg"
-      [proyectAndLotes]="proyectAndLotes()"
+      [lotes]="lotesForMap()"
+      [project]="proyect()"
       [flyToLote]="loteToFly()"
-      [deletedLote]="loteToDeleted()"
-      [createdLote]="loteToCreated()"
       [showLoading]="listLotesInProgress()"
       [showLock]="showLockMap"
     >

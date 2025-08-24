@@ -1,10 +1,10 @@
 import { Component, ElementRef, Input, ViewChild, computed, inject, signal } from '@angular/core';
-import { GeoJSONFeature, LngLatLike, Map, Marker, Popup } from 'mapbox-gl';
+import { GeoJSONFeature, LngLatLike, Map, Popup } from 'mapbox-gl';
 import { v4 as uuid } from 'uuid';
 
 import { Coordinate, Lote, Proyect } from '../../interfaces';
 import { LoteStatus } from '../../enum';
-import { CommonModule, formatNumber } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { Photo } from '@shared/interfaces';
 import { AlertService } from '@shared/services/alert.service';
 
@@ -22,50 +22,54 @@ export class LotesMapComponent {
   @ViewChild('lotesMap') mapContainer?: ElementRef<HTMLDivElement>;
 
   private _map?: Map;
-  private _popup?: Popup;
+  //#FIXME: nueva lógica para mostrar lotes
+  private _popup: Popup = new Popup({ closeButton: true, closeOnClick: false });
+  private hoveredId: string | number | null = null;
+  private selectedId: string | number | null = null;
 
-  private _alertService = inject( AlertService );
+  private readonly SOURCE_ID = 'lotesSource';
+  private readonly FILL_ID   = 'lotes-fill';
+  private readonly DASHED_LINE_ID   = 'lotes-dashed-line';
+  private readonly FLAT_SOURCE_ID   = 'lotes-flat-image-source';
+  private readonly FLAT_LAYER_ID   = 'lotes-flat-image-layer';
+  private readonly FLAT_BORDER_SOURCE_ID   = 'lotes-flat-border';
+
+  private readonly _emptyImage = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEUAAACnej3aAAAAAXRSTlMAQObYZgAAAApJREFUCNdjYAAAAAIAAc/INeUAAAAASUVORK5CYII=';
+
+  //#FIXME: nueva lógica para mostrar lotes
+
   private _flatImage?: Photo;
 
-  @Input({ required: true }) set proyectAndLotes( value: { proyect: Proyect, lotes: Lote[] } | undefined ) {
-    if( value ) {
+  @Input({ required: true }) set project( project: Proyect | undefined ) {
 
-      const { proyect, lotes } = value;
+    if( project ) {
 
-      const { centerCoords, polygonCoords, flatImage, bearingMap, pitchMap, zoomMap } = proyect;
-      this._centerMap = centerCoords;
-      this._zoom = zoomMap;
-      this._bearing = bearingMap;
-      this._pitch = pitchMap;
+      const { centerCoords, polygonCoords, flatImage, bearingMap, pitchMap, zoomMap } = project;
 
-      this._map?.setCenter( this._centerMap );
-      this._map?.setZoom( this._zoom );
-      this._map?.setBearing( this._bearing );
-      this._map?.setPitch( this._pitch );
+      this._map?.setCenter( centerCoords );
+      this._map?.setZoom( zoomMap );
+      this._map?.setBearing( bearingMap );
+      this._map?.setPitch( pitchMap );
       this._polygonCoords = polygonCoords;
       this._flatImage = flatImage;
 
-      setTimeout(() => {
-        this._onUpdateLotesRegistered( lotes );
-      }, 400);
+      if( this._flatImage ) {
+        this._buildFlatProyect( this._flatImage );
+      } else {
+        this._onBuildBorderPolygon( this._polygonCoords );
+      }
     }
+
+  }
+
+  @Input({ required: true }) set lotes( lotes: Lote[] ) {
+    // this._lotesRegistered = lotes;x
+    this.onBuildPolygonByLotesRegistered( lotes );
   }
 
   @Input({ required: false }) set flyToLote( lote: Lote | undefined ) {
     if( lote ) {
       this._flyToLote( lote );
-    }
-  }
-
-  @Input({ required: false }) set deletedLote( lote: Lote | undefined ) {
-    if( lote ) {
-      this._onRemoveLotePolygon( lote );
-    }
-  }
-
-  @Input({ required: false }) set createdLote( lote: Lote | undefined ) {
-    if( lote ) {
-      this._onBuildLotePolygon( lote );
     }
   }
 
@@ -80,14 +84,8 @@ export class LotesMapComponent {
 
   private _showLockContainer = signal<boolean>( false );
   private _lockContainerText = signal<string>( '' );
-  private _lotesRegistered: Lote[] = [];
 
-  private _centerMap: [number, number] = [ -80.6987307175805,-4.926770405375706 ];
-  private _zoom = 17;
-  private _bearing = 0;
-  private _pitch = 0;
   private _polygonCoords: Coordinate[] = [];
-  private _imageMapId?: string;
 
   private _isBuildingMap = signal<boolean>( false );
 
@@ -102,58 +100,169 @@ export class LotesMapComponent {
     this._map = new Map({
       container: this.mapContainer.nativeElement,
       style: 'mapbox://styles/mapbox/streets-v12', // style URL
-      center: this._centerMap, // starting position [lng, lat]
-      zoom: this._zoom,
-      bearing: this._bearing,
-      pitch: this._pitch
+      center: [ -80.6987307175805,-4.926770405375706 ], // starting position [lng, lat]
+      zoom: 17,
+      bearing: 0,
+      pitch: 0
     });
 
     this._map.on('load', () => {
-      if( this._flatImage ) {
-        this._buildFlatProyect( this._flatImage );
-      } else {
-        this._onBuildBorderPolygon( this._polygonCoords );
-      }
 
+      this._onAddMapxboxElements();
+      this._onAddMapboxEvents();
     });
-
-    this._map.on('moveend', () => {
-
-      this._centerMap = this._map?.getCenter().toArray() ?? [ -80.6987307175805,-4.926770405375706 ];
-      this._zoom = this._map?.getZoom() ?? this._zoom;
-    });
-
   }
 
-  onBuildPolygonByLotesRegistered() {
-
-    this._lotesRegistered.forEach( (lote) => {
-      this._onBuildLotePolygon( lote );
-    });
-
-  }
-
-  private _onUpdateLotesRegistered( lotes: Lote[] ) {
+  private _onAddMapxboxElements() {
 
     if( !this._map ) throw new Error(`Map not found!!!`);
 
-    if( this._lotesRegistered.length > 0 ) {
+    // Coordenadas dummy o iniciales
+    const initialCoords: [[number, number], [number, number], [number, number], [number, number]] = [
+      [-76.95, -12.10], // top-left
+      [-76.94, -12.10], // top-right
+      [-76.94, -12.11], // bottom-right
+      [-76.95, -12.11]  // bottom-left
+    ];
 
-      this._map?.remove();
-      this._lotesRegistered = lotes;
-      this.ngAfterViewInit();
+    this._map.addSource( this.FLAT_SOURCE_ID, {
+      type: 'image',
+      url: this._emptyImage,
+      coordinates: initialCoords
+    });
 
-    } else {
+    this._map.addLayer({
+      id: this.FLAT_LAYER_ID,
+      type: 'raster',
+      source: this.FLAT_SOURCE_ID,
+    });
 
-      this._lotesRegistered = lotes;
+    // source vacío al inicio; borramos si no hay plano
+    this._map.addSource(this.FLAT_BORDER_SOURCE_ID, {
+      type: 'geojson',
+      data: { type: 'FeatureCollection', features: [] },
+      promoteId: 'id-2',
+    });
 
-      if( this._flatImage ) {
-        this._buildFlatProyect( this._flatImage );
-      } else {
-        this._onBuildBorderPolygon( this._polygonCoords );
+     // add a line layer to visualize the clipping region.
+     this._map.addLayer({
+      'id': 'dashed-line',
+      'type': 'line',
+      'source': this.FLAT_BORDER_SOURCE_ID,
+      'paint': {
+          'line-color': 'rgba(255, 0, 0, 0.9)',
+          'line-dasharray': [0, 4, 3],
+          'line-width': 5
       }
+    });
 
-    }
+    // source vacío al inicio; promoteId para feature-state
+    this._map.addSource(this.SOURCE_ID, {
+      type: 'geojson',
+      data: { type: 'FeatureCollection', features: [] },
+      promoteId: 'id',
+    });
+
+    // fill con estilo por estado
+    this._map.addLayer({
+      id: this.FILL_ID, type: 'fill', source: this.SOURCE_ID,
+      paint: {
+        'fill-color': '#67e8f9',
+        // [
+        //   'match', ['get', 'loteStatus'],
+        //   'AVAILABLE', '#67e8f9',
+        //   'SELLED',    '#31c48d',
+        //   'IN_PROGRESS','#6b7280',
+        //   /* default */ '#fce96a'
+        // ],
+        'fill-opacity': [
+          'case',
+            ['boolean', ['feature-state', 'selected'], false], 0.55,
+            ['boolean', ['feature-state', 'hovered'],  false], 0.45,
+            0.3
+        ],
+      }
+    });
+
+    this._map.addLayer({
+      id: this.DASHED_LINE_ID, type: 'line', source: this.SOURCE_ID,
+      paint: { 'line-color': '#1f2937', 'line-width': 0.5 }
+    });
+
+  }
+
+  private _onAddMapboxEvents() {
+
+    if( !this._map ) throw new Error(`Map not found!!!`);
+
+    // eventos UNA sola vez sobre el layer
+    this._map.on('mousemove', this.FILL_ID, (e) => {
+      const f = e.features?.[0];
+      if (!f) return;
+      const id = f.id as string | number;
+      if (this.hoveredId !== null && this.hoveredId !== id) {
+        this._map!.setFeatureState({ source: this.SOURCE_ID, id: this.hoveredId }, { hovered: false });
+      }
+      this.hoveredId = id;
+      this._map!.setFeatureState({ source: this.SOURCE_ID, id }, { hovered: true });
+      this._map!.getCanvas().style.cursor = 'pointer';
+    });
+
+    this._map.on('mouseleave', this.FILL_ID, () => {
+      if (this.hoveredId !== null) {
+        this._map!.setFeatureState({ source: this.SOURCE_ID, id: this.hoveredId }, { hovered: false });
+        this.hoveredId = null;
+      }
+      this._map!.getCanvas().style.cursor = '';
+    });
+
+    this._map.on('click', this.FILL_ID, (e) => {
+      const f = e.features?.[0]; if (!f) return;
+      const id = f.id as string | number;
+
+      // quitar selección anterior
+      if (this.selectedId !== null) {
+        this._map!.setFeatureState({ source: this.SOURCE_ID, id: this.selectedId }, { selected: false });
+      }
+      this.selectedId = id;
+      this._map!.setFeatureState({ source: this.SOURCE_ID, id }, { selected: true });
+
+      const p = f.properties as any;
+      const html = `
+        <span class="font-extrabold text-md text-blue-500">Lote: ${p.code}</span>
+        <p class="text-md font-semibold">
+          Área: ${p.squareMeters} m²<br>
+          Precio: <span class="font-extrabold text-md text-green-500">S/ ${Number(p.price).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+        </p>`;
+      this._popup.setLngLat(e.lngLat).setHTML(html).addTo(this._map!);
+    });
+
+  }
+
+  onBuildPolygonByLotesRegistered( lotes: Lote[] ) {
+
+    if( !this._map ) throw new Error(`Div map container not found!!!`);
+
+    const features = lotes.map( (lote) => ({
+        type: 'Feature',
+        id: lote.id, // <- clave para feature-state
+        properties: {
+          id: lote.id,
+          code: lote.code,
+          price: lote.price,
+          squareMeters: lote.squareMeters,
+          status: lote.loteStatus, // 'Available' | 'Selled' | 'InProgress'
+          center: lote.centerCoords,
+        },
+        geometry: {
+          type: 'Polygon',
+          coordinates: [ lote.polygonCoords.map(p => [Number(p.lng.toFixed(6)), Number(p.lat.toFixed(6))]) ],
+          // coordinates: points,
+        }
+    }));
+
+    const fc = { type: 'FeatureCollection', features } as GeoJSON.FeatureCollection;
+    (this._map.getSource(this.SOURCE_ID) as mapboxgl.GeoJSONSource).setData(fc);
 
   }
 
@@ -166,7 +275,7 @@ export class LotesMapComponent {
       return acc;
     }, []);
 
-    const eraserId = uuid();
+    /**const eraserId = uuid();
 
     this._map.addSource( eraserId, {
         'type': 'geojson',
@@ -195,11 +304,21 @@ export class LotesMapComponent {
             'line-dasharray': [0, 4, 3],
             'line-width': 5
         }
-    });
+    }); **/
 
-    if( this._lotesRegistered.length > 0 ) {
-      this.onBuildPolygonByLotesRegistered();
-    }
+    const features = [
+      {
+          'type': 'Feature',
+          'properties': {},
+          'geometry': {
+              'coordinates': [ points ],
+              'type': 'Polygon'
+          }
+      }
+    ];
+
+    const fc = { type: 'FeatureCollection', features } as GeoJSON.FeatureCollection;
+    (this._map!.getSource(this.FLAT_BORDER_SOURCE_ID) as mapboxgl.GeoJSONSource).setData(fc);
 
   }
 
@@ -213,31 +332,10 @@ export class LotesMapComponent {
       return acc;
     }, []);
 
-    const imgSourceId = uuid();
-
-    // Add an image source
-    this._map.addSource(imgSourceId, {
-      'type': 'image',
-      'url': urlImg,
-      'coordinates': points
+    (this._map.getSource( this.FLAT_SOURCE_ID) as mapboxgl.ImageSource).updateImage({
+      url: urlImg,
+      coordinates: points
     });
-
-    // Add a layer for displaying the image
-    this._map.addLayer({
-      'id': uuid(),
-      'type': 'raster',
-      'source': imgSourceId,
-      'paint': { 'raster-opacity': 1.0 }
-    });
-
-    console.log('Se cargo plano del mapa !!! ✅ ');
-
-    // setTimeout(() => {
-      if( this._lotesRegistered.length > 0 ) {
-        this.onBuildPolygonByLotesRegistered();
-      }
-    // }, 200);
-
 
   }
 
@@ -249,129 +347,24 @@ export class LotesMapComponent {
       zoom: zoomMap,
       bearing: bearingMap,
       pitch: pitchMap,
-      center: [ centerCoords[0], centerCoords[1] ]
+      center: ( centerCoords as LngLatLike )
     });
 
     this._onShowLotePopup( lote, centerCoords as LngLatLike );
 
   }
 
-  private _onBuildLotePolygon( lote: Lote ) {
-
-    if( !this._map ) throw new Error(`Map not found!!!`);
-
-    const points = lote.polygonCoords.reduce<[number, number][]>( (acc, current) => {
-      acc.push( [ current.lng, current.lat ] );
-      return acc;
-    }, []);
-
-    const sourceId = lote.id;
-    // const sourceId = uuid();
-
-    this._map.addSource( sourceId, {
-      'type': 'geojson',
-      'data': {
-          'type': 'Feature',
-          'properties': { ...lote },
-          'geometry': {
-              'type': 'Polygon',
-              'coordinates': [ points ],
-          },
-      }
-    });
-
-    let fillColor = '#2d91ff';
-
-    switch ( lote.loteStatus ) {
-      case LoteStatus.Available:
-          fillColor = '#67e8f9';
-        break;
-
-        case LoteStatus.Selled:
-          fillColor = '#31c48d';
-          break;
-
-          case LoteStatus.InProgress:
-            fillColor = '#6b7280';
-            break;
-
-      default:
-        fillColor = '#fce96a';
-        break;
-    }
-
-    // const polygonFillId = uuid();
-
-    this._map.addLayer({
-      'id': sourceId,
-      'type': 'fill',
-      'source': sourceId,
-      'layout': {},
-      'paint': {
-        'fill-color': fillColor,
-        'fill-opacity': 0.3,
-      },
-    });
-
-    this._map.on('click', sourceId, (e) => {
-
-      const feature = e.features?.find((e, i) => i == 0);
-      const lote = feature?.properties as Lote;
-      this._onShowLotePopup( lote, e.lngLat );
-
-    });
-
-    // Change the cursor to a pointer when
-    // the mouse is over the states layer.
-    this._map.on('mouseenter', sourceId, () => {
-      this._map!.getCanvas().style.cursor = 'pointer';
-    });
-
-    // Change the cursor back to a pointer
-    // when it leaves the states layer.
-    this._map.on('mouseleave', sourceId, () => {
-        this._map!.getCanvas().style.cursor = '';
-    });
-
-
-    // add a line layer to visualize the clipping region.
-    // this._map.addLayer({
-    //     'id':  sourceId + '-border',//uuid(),
-    //     'type': 'line',
-    //     'source': sourceId,
-    //     'paint': {
-    //         'line-color': '#000',
-    //         'line-dasharray': [0, 4, 3],
-    //         'line-width': 0.7
-    //     }
-    // });
-
-  }
-
-  private _onShowLotePopup( lote: Lote, point: LngLatLike) {
+  private _onShowLotePopup( lote: Lote, coords: LngLatLike) {
 
     const { code, price, squareMeters } = lote;
 
-    const priceFormater = formatNumber( price, 'en-US', '.2-2' );
-
-    //if( this._popup ) this._popup.remove();
-
-    let html = `<span class="font-extrabold text-md text-blue-500" >Lote: ${ code }</span>`;
-    html += `<p class="text-md font-semibold">`;
-      html += `Área: ${ squareMeters } m2`;
-      html += `<br>Precio: <span class="font-extrabold text-md text-green-500" >S/ ${ priceFormater }</span>`;
-    html += `</p>`;
-
-    this._popup = new Popup()
-          .setLngLat( point )
-          .setHTML( html )
-          .addTo(this._map!);
-  }
-
-  private _onRemoveLotePolygon( lote: Lote ) {
-    this._map?.removeLayer( lote.id );
-    // this._map?.removeLayer( lote.id + '-border' );
-    this._map?.removeSource( lote.id );
+    const html = `
+        <span class="font-extrabold text-md text-blue-500">Lote: ${code}</span>
+        <p class="text-md font-semibold">
+          Área: ${squareMeters} m²<br>
+          Precio: <span class="font-extrabold text-md text-green-500">S/ ${Number(price).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+        </p>`;
+      this._popup.setLngLat( coords ).setHTML(html).addTo(this._map!);
   }
 
   ngOnDestroy(): void {
