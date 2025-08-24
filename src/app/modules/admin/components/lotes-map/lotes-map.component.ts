@@ -1,12 +1,10 @@
-import { Component, ElementRef, Input, ViewChild, computed, inject, signal } from '@angular/core';
-import { GeoJSONFeature, LngLatLike, Map, Popup } from 'mapbox-gl';
-import { v4 as uuid } from 'uuid';
+import { Component, ElementRef, Input, ViewChild, computed, signal } from '@angular/core';
+import { LngLatLike, Map, Popup } from 'mapbox-gl';
 
 import { Coordinate, Lote, Proyect } from '../../interfaces';
 import { LoteStatus } from '../../enum';
 import { CommonModule } from '@angular/common';
 import { Photo } from '@shared/interfaces';
-import { AlertService } from '@shared/services/alert.service';
 
 @Component({
   selector: 'lotes-map',
@@ -34,7 +32,7 @@ export class LotesMapComponent {
   private readonly FLAT_LAYER_ID   = 'lotes-flat-image-layer';
   private readonly FLAT_BORDER_SOURCE_ID   = 'lotes-flat-border';
 
-  private readonly _emptyImage = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEUAAACnej3aAAAAAXRSTlMAQObYZgAAAApJREFUCNdjYAAAAAIAAc/INeUAAAAASUVORK5CYII=';
+  private readonly _emptyImage = '/assets/img/empty.png';
 
   //#FIXME: nueva lógica para mostrar lotes
 
@@ -64,7 +62,9 @@ export class LotesMapComponent {
 
   @Input({ required: true }) set lotes( lotes: Lote[] ) {
     // this._lotesRegistered = lotes;x
-    this.onBuildPolygonByLotesRegistered( lotes );
+    if( lotes.length > 0 ) {
+      this.onBuildPolygonByLotesRegistered( lotes );
+    }
   }
 
   @Input({ required: false }) set flyToLote( lote: Lote | undefined ) {
@@ -135,6 +135,9 @@ export class LotesMapComponent {
       id: this.FLAT_LAYER_ID,
       type: 'raster',
       source: this.FLAT_SOURCE_ID,
+      paint: {
+        'raster-opacity': 0.85  // ← opacidad del plano
+      }
     });
 
     // source vacío al inicio; borramos si no hay plano
@@ -142,6 +145,7 @@ export class LotesMapComponent {
       type: 'geojson',
       data: { type: 'FeatureCollection', features: [] },
       promoteId: 'id-2',
+
     });
 
      // add a line layer to visualize the clipping region.
