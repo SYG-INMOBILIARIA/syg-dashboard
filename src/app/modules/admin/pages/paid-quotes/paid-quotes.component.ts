@@ -8,7 +8,7 @@ import { InputErrorsDirective } from '@shared/directives/input-errors.directive'
 import { PaginationComponent } from '@shared/components/pagination/pagination.component';
 import { fullTextPatt } from '@shared/helpers/regex.helper';
 import { ContractService } from '../../services/contract.service';
-import { Contract, ContractQuote, PaymentMethod, QuotesResumen } from '../../interfaces';
+import { Contract, ContractQuote, QuotesResumen } from '../../interfaces';
 import { ContractQuoteService } from '../../services/contract-quote.service';
 import { PaymentMethodService } from '../../services/payment-method.service';
 import { PipesModule } from '@pipes/pipes.module';

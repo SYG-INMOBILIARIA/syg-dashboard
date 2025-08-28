@@ -1,10 +1,10 @@
 
 export interface ClientProfileIndicatorsResponse {
-  debtIndicators:    DebtIndicator[];
+  debtIndicators:    DebtIndicators;
   paymentIndicators: PaymentIndicators;
 }
 
-export interface DebtIndicator {
+export interface DebtIndicators {
   loteAmount:       number;
   initialAmount:    number;
   interestAmount:   number;

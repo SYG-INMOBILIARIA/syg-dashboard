@@ -4,11 +4,13 @@ import { Subscription, forkJoin } from 'rxjs';
 
 import { ContractQuoteService } from '@modules/admin/services/contract-quote.service';
 import { AppState } from '@app/app.config';
-import { Client, ContractQuote } from '@modules/admin/interfaces';
+import { Client, Contract, ContractQuote } from '@modules/admin/interfaces';
 import { initFlowbite } from 'flowbite';
 import { AlertService } from '@shared/services/alert.service';
 import { ProfileClientService } from '@app/dashboard/services/profile-client.service';
 import { WebUrlPermissionMethods } from '@app/auth/interfaces';
+import { ContractService } from '@modules/admin/services/contract.service';
+import { UntypedFormControl, Validators } from '@angular/forms';
 
 @Component({
   templateUrl: './client-payments.component.html',
@@ -22,12 +24,15 @@ export class ClientPaymentsComponent implements OnInit, OnDestroy {
   private _webUrlPermissionMethods = signal<WebUrlPermissionMethods[]>( [] );
 
   private _contractQuoteService = inject( ContractQuoteService );
-  private _profileClientService = inject( ProfileClientService );
+  private _contractService = inject( ContractService );
   private _alertService = inject( AlertService );
+
+  public contractInput = new UntypedFormControl( null, [ Validators.required ] )
 
   private _isLoading = signal<boolean>( false );
   private _isRemoving = signal( false );
   private _client = signal<Client | null>( null );
+  private _contracts = signal<Contract[]>( [] );
   private _contractQuotesAll = signal<ContractQuote[]>( [] );
   private _contractQuotes = signal<ContractQuote[]>( [] );
   private _contractQuoteToPay = signal<ContractQuote | null>( null );
@@ -40,6 +45,7 @@ export class ClientPaymentsComponent implements OnInit, OnDestroy {
   public isLoading = computed( () => this._isLoading() );
   public webUrlPermissionMethods = computed( () => this._webUrlPermissionMethods() );
   public isRemoving = computed( () => this._isRemoving() );
+  public contracts = computed( () => this._contracts() );
   public contractQuotesAll = computed( () => this._contractQuotesAll() );
   public contractQuotes = computed( () => this._contractQuotes() );
   public contractQuoteToPay = computed( () => this._contractQuoteToPay() );
@@ -48,6 +54,14 @@ export class ClientPaymentsComponent implements OnInit, OnDestroy {
   public countDebt = computed( () => this._countDebt() );
   public totalPaid = computed( () => this._totalPaid() );
   public countPaid = computed( () => this._countPaid() );
+
+  get contractInputIsTouched() {
+    return this.contractInput?.touched ?? false;
+  }
+
+  get contractInputErrors(  ) {
+    return this.contractInput?.errors ?? null;
+  }
 
   ngOnInit(): void {
     this.onClientProfileListen();
@@ -72,8 +86,53 @@ export class ClientPaymentsComponent implements OnInit, OnDestroy {
 
       if( client != null ) {
         this._client.set( client );
-        this.onGetContractQuotes();
+        this.onGetContractsByClient();
       }
+
+    });
+
+  }
+
+  onGetContractsByClient() {
+
+    if( !this._client() ) throw new Error('Client undefined!!!');
+
+    const clientId = this._client()!.id;
+
+    this._contractService.getContractsByClient( clientId )
+    .subscribe( ({contracts}) => {
+      this._contracts.set( contracts );
+    })
+
+  }
+
+  onChangeContractSelected( contract: Contract ) {
+    this.onGetAllContractQuotes( contract.id );
+    this.onGetContractQuotes();
+  }
+
+  onGetAllContractQuotes( contractId: string ) {
+
+    if( !this._client() ) throw new Error('Client undefined!!!');
+
+    const clientId = this._client()!.id;
+
+    this._alertService.showLoading();
+
+    this._contractQuoteService.getContractQuoteByClient( 1, 100, clientId, undefined, undefined, contractId )
+    .subscribe( ({ contractQuotes, resumen }) => {
+
+      this._contractQuotesAll.set( contractQuotes.filter( (c) => !c.isPaid ) );
+
+      const countDebt = contractQuotes.filter( (c) => !c.isPaid ).length;
+      const countPait = contractQuotes.filter( (c) => c.isPaid ).length;
+
+      this._totalDebt.set( resumen.totalDebt );
+      this._countDebt.set( countDebt );
+      this._totalPaid.set( resumen.totalPaid );
+      this._countPaid.set( countPait );
+
+      this._alertService.close();
 
     });
 
@@ -81,37 +140,18 @@ export class ClientPaymentsComponent implements OnInit, OnDestroy {
 
   onGetContractQuotes( page = 1 ) {
 
+    if( !this._client() ) throw new Error('Client undefined!!!');
+
+    const clientId = this._client()!.id;
+
     this._isLoading.set( true );
 
-    forkJoin({
-      listContractQuotesByClient: this._contractQuoteService.getContractQuoteByClient( page, 10, this._client()!.id ),
-      listContactQuotesAllByClient: this._contractQuoteService.getContractQuoteByClient( 1, 100, this._client()!.id ),
-      // indicatorsResponse: this._profileClientService.getClientIndicators( this._client()!.id )
-    })
-    .subscribe( ( { listContractQuotesByClient, listContactQuotesAllByClient } ) => { // indicatorsResponse
+    this._contractQuoteService.getContractQuoteByClient( page, 10, clientId )
+    .subscribe( ({ contractQuotes, total } ) => {
 
-      const { contractQuotes, total, resumen } = listContractQuotesByClient;
       this._isLoading.set( false );
       this._contractQuotes.set( contractQuotes );
       this._contractQuotesTotal.set( total );
-
-      this._contractQuotesAll.set( listContactQuotesAllByClient.contractQuotes );
-
-      // const { debtIndicators, paymentIndicators } = indicatorsResponse;
-
-      // const { totalDebt, totalPaid, countOverdueDebt } = debtIndicators.reduce<{ totalDebt: number; totalPaid: number; countOverdueDebt: number }>( (acc, current) => {
-
-      //   acc.totalDebt += (current.loteAmount + current.interestAmount);
-      //   acc.totalPaid += (current.totalPaid + current.initialAmount);
-      //   acc.totalPaid += current.countOverdueDebt;
-
-      //   return acc;
-      // }, { totalDebt: 0, totalPaid: 0, countOverdueDebt: 0 });
-
-      // this._totalDebt.set( totalDebt - totalPaid );
-      // this._countDebt.set( paymentIndicators.countQuotesPending );
-      // this._totalPaid.set( totalPaid );
-      // this._countPaid.set( paymentIndicators.countQuotesPaid );
 
       setTimeout(() => {
         initFlowbite();

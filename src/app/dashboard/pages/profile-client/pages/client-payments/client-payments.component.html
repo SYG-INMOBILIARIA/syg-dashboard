@@ -62,7 +62,70 @@
           <h1 class="text-3xl font-bold text-gray-800 dark:text-slate-100">
             Cuotas pendientes
           </h1>
+
+
         </div>
+
+        <div>
+          <div class="w-[500px] flex justify-center items-center gap-3 ">
+            <label for="cbxContract" class="block mb-2  font-medium text-gray-900 dark:text-white">
+              Contrato:
+            </label>
+            <ng-select
+              id="cbxContract"
+              class="navbar bg-gray-50 border text-gray-900 text-sm rounded-lg block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+              [items]="contracts()"
+              [searchable]="false"
+              bindLabel="code"
+              bindValue="id"
+              placeholder="Seleccione contrato"
+              [formControl]="contractInput"
+              [class.border-red-400]=" contractInputErrors && contractInputIsTouched"
+              (change)="onChangeContractSelected($event)"
+            >
+
+              <ng-template ng-option-tmp let-item="item" class="text-gray-900 whitespace-nowrap dark:text-white text-left ">
+
+                <div class=" flex justify-between">
+                  <div class="text-normal flex justify-center items-center gap-1.5 ">
+                    <span class="italic text-slate-500 c">
+                      Código:
+                    </span>
+                    <span class="font-semibold text-md">
+                      {{ item.code }}
+                    </span>
+                  </div>
+
+                  <div class=" flex justify-end items-center gap-2.5">
+
+                    <div class="italic text-slate-500 ">
+
+                      Clientes:
+
+                    </div>
+
+                    <div >
+                      @for (client of item.clients; track client.id; let i = $index) {
+                        <div class="uppercase font-semibold">
+                          {{ client.fullname }}
+                        </div>
+                        <div class="font-normal text-sm text-gray-500 pe-5">
+                          {{ client.identityDocument?.shortDescription ?? '---' }} : {{ client.identityNumber ?? '---' }}
+                        </div>
+                      }
+                    </div>
+
+                  </div>
+                </div>
+
+              </ng-template>
+
+            </ng-select>
+
+
+          </div>
+        </div>
+
         <div class="flex items-center gap-3">
           <button
             #btnShowPaymentQuoteModal

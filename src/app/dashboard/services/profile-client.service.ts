@@ -14,4 +14,5 @@ export class ProfileClientService {
     return this._http.get<ClientProfileIndicatorsResponse>(`${this._baseUrl}/profile-client/indicators/${ clientId }`);
   }
 
+
 }

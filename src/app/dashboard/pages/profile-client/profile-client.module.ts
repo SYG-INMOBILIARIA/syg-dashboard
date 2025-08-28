@@ -13,6 +13,7 @@ import { SpinnerComponent } from '@shared/components/spinner/spinner.component';
 import { PaidQuotesModalComponent } from '@modules/admin/components/paid-quotes-modal/paid-quotes-modal.component';
 import { ContractDetailModalComponent } from '@modules/admin/components/contract-detail-modal/contract-detail-modal.component';
 import { PaymentScheduleModalComponent } from "../../../modules/admin/components/payment-schedule-modal/payment-schedule-modal.component";
+import { NgSelectModule } from '@ng-select/ng-select';
 
 @NgModule({
   declarations: [
@@ -31,7 +32,8 @@ import { PaymentScheduleModalComponent } from "../../../modules/admin/components
     SpinnerComponent,
     PaidQuotesModalComponent,
     ContractDetailModalComponent,
-    PaymentScheduleModalComponent
+    PaymentScheduleModalComponent,
+    NgSelectModule
 ],
 
 })
