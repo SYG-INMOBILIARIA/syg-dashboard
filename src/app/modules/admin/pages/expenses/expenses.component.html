@@ -252,7 +252,7 @@
 
                 <div class="mb-3">
                   <label for="txtCodePm" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                    Fecha de egreso *
+                    Fecha de egreso <span class="text-red-500">*</span>
                   </label>
 
                   <div class="relative">
@@ -277,7 +277,7 @@
 
                   @if (isTouched('expenseDate')) {
                     <span
-                      class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                      class="flex items-center ms-1 mt-1 text-xs text-red-500"
                       inputErrors
                       [errors]="inputErrors('expenseDate')"
                       inputLabel="fecha de egreso" >
@@ -288,7 +288,7 @@
                 <div class="grid gap-3 grid-cols-6">
                   <div class="col-span-4 mb-3">
                     <label for="cbxMoney" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                      Tipo moneda *
+                      Tipo moneda <span class="text-red-500">*</span>
                     </label>
                     <ng-select
                       id="cbxMoney"
@@ -304,7 +304,7 @@
 
                     @if (isTouched('moneyType')) {
                       <span
-                        class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                        class="flex items-center ms-1 mt-1 text-xs text-red-500"
                         inputErrors
                         [errors]="inputErrors('moneyType')"
                         inputLabel="Tipo de moneda" >
@@ -327,7 +327,7 @@
                     >
                     @if (isTouched('amount')) {
                       <span
-                        class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                        class="flex items-center ms-1 mt-1 text-xs text-red-500"
                         inputErrors
                         [errors]="inputErrors('amount')"
                         inputLabel="Nombre" >
@@ -337,30 +337,34 @@
                 </div>
 
                 <div class="mb-3">
-                  <label for="txtSourceAccount" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                    Nro cuenta de origen
+                  <label for="cbxPaymentMethod" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                    Tipo de pago <span class="text-red-500">*</span>
                   </label>
-                  <input
-                    type="text"
-                    id="txtSourceAccount"
-                    class=" bg-white border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                    placeholder="Enter #Source Account"
-                    formControlName="sourceAccount"
-                    [class.border-red-400]=" inputErrors('sourceAccount') && isTouched('sourceAccount') "
-                  >
-                  @if (isTouched('sourceAccount')) {
-                    <span
-                      class="flex items-center ms-1 mt-2 text-xs text-red-500"
-                      inputErrors
-                      [errors]="inputErrors('sourceAccount')"
-                      inputLabel="Nombre" >
-                    </span>
-                  }
+                  <ng-select
+                      id="cbxPaymentMethod"
+                      class="bg-white text-gray-900 text-sm rounded-lg block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                      [items]="paymentMethods()"
+                      bindLabel="name"
+                      bindValue="id"
+                      placeholder="Seleccione Tipo de pago"
+                      formControlName="paymentMethodId"
+                      [class.border-red-400]=" inputErrors('paymentMethodId') && isTouched('paymentMethodId') "
+                    >
+                    </ng-select>
+
+                    @if (isTouched('paymentMethodId')) {
+                      <span
+                        class="flex items-center ms-1 mt-1 text-xs text-red-500"
+                        inputErrors
+                        [errors]="inputErrors('paymentMethodId')"
+                        inputLabel="Tipo de pago" >
+                      </span>
+                    }
                 </div>
 
                 <div class="mb-3">
                   <label for="cbxExpenseType" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                    Tipo de egreso *
+                    Tipo de egreso <span class="text-red-500">*</span>
                   </label>
                   <ng-select
                     id="cbxExpenseType"
@@ -369,16 +373,16 @@
                     bindLabel="name"
                     bindValue="id"
                     placeholder="Seleccione Tipo de egreso"
-                    formControlName="expenseType"
-                    [class.border-red-400]=" inputErrors('expenseType') && isTouched('expenseType') "
+                    formControlName="expenseTypeId"
+                    [class.border-red-400]=" inputErrors('expenseTypeId') && isTouched('expenseTypeId') "
                   >
                   </ng-select>
 
-                  @if (isTouched('expenseType')) {
+                  @if (isTouched('expenseTypeId')) {
                     <span
-                      class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                      class="flex items-center ms-1 mt-1 text-xs text-red-500"
                       inputErrors
-                      [errors]="inputErrors('expenseType')"
+                      [errors]="inputErrors('expenseTypeId')"
                       inputLabel="Tipo de egreso" >
                     </span>
                   }
@@ -386,7 +390,7 @@
 
                 <div class="mb-3">
                   <label for="cbxArea" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                    Área *
+                    Área <span class="text-red-500">*</span>
                   </label>
                   <ng-select
                     id="cbxArea"
@@ -402,7 +406,7 @@
 
                   @if (isTouched('areaCompanyId')) {
                     <span
-                      class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                      class="flex items-center ms-1 mt-1 text-xs text-red-500"
                       inputErrors
                       [errors]="inputErrors('areaCompanyId')"
                       inputLabel="Área" >
@@ -419,12 +423,13 @@
                       class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                       rows="4"
                       [value]=""
+                      placeholder="#Ingresa una descripción"
                       formControlName="description"
                       [class.border-red-400]=" inputErrors('description') && isTouched('description') "
                     ></textarea>
                   @if (isTouched('description')) {
                     <span
-                      class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                      class="flex items-center ms-1 mt-1 text-xs text-red-500"
                       inputErrors
                       [errors]="inputErrors('description')"
                       inputLabel="description" >
@@ -444,13 +449,13 @@
                     type="text"
                     id="txtOperationId"
                     class=" bg-white border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                    placeholder="Enter #Source Account"
+                    placeholder="Ingresa Nro de operación"
                     formControlName="voucherId"
                     [class.border-red-400]=" inputErrors('voucherId') && isTouched('voucherId') "
                   >
                   @if (isTouched('voucherId')) {
                     <span
-                      class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                      class="flex items-center ms-1 mt-1 text-xs text-red-500"
                       inputErrors
                       [errors]="inputErrors('voucherId')"
                       inputLabel="Nro Operación" >
@@ -515,7 +520,7 @@
               </button>
               <button type="submit" class="px-16 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-md">
                 <span *ngIf="!isLoading() else paymentMethodSpinner" >
-                  Guardar {{ isFormInvalid }}
+                  Guardar
                 </span>
               </button>
             </div>

@@ -1,5 +1,6 @@
 import { Photo } from "@shared/interfaces";
-import { AreaCompany } from "../../config/interfaces";
+import { AreaCompany, ExpenseType } from "../../config/interfaces";
+import { PaymentMethod } from ".";
 
 export interface Expense {
   isActive:      boolean;
@@ -9,12 +10,13 @@ export interface Expense {
   amount:        number;
   expenseDate:   Date;
   sourceAccount: string | null;
-  expenseType:   string;
   voucherId:     string;
   description:   string;
   moneyType:     string;
   photo?:         Photo;
   areaCompany:   AreaCompany;
+  paymentMethod: PaymentMethod;
+  expenseType:   ExpenseType;
 }
 
 

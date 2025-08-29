@@ -33,7 +33,7 @@ export const ubigeoCodePatt = new RegExp(/^[0-9]{2,3}$/i);
 export const numberDocumentPatt = new RegExp(/^[a-z\d]{0,15}$/i);
 // export const isoThreePatt = new RegExp(/^[a-zA-Z]{2,3}$/);
 
-export const operationCodePatt = new RegExp(/^[\d]{6,12}$/);
+export const operationCodePatt = new RegExp(/^[\d]{0,12}$/);
 export const codePatt = new RegExp(/^[a-z\_]{2,20}$/i);
 
 export const symbolPatt = new RegExp(/^[a-z\€\$\/\¥\£]{1,5}$/i);

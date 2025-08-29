@@ -5,29 +5,30 @@ import { Subscription, forkJoin } from 'rxjs';
 import { validate as ISUUID } from 'uuid';
 import { FlatpickrDirective } from 'angularx-flatpickr';
 import { NgSelectModule } from '@ng-select/ng-select';
+import { Store } from '@ngrx/store';
+import { initFlowbite } from 'flowbite';
 
-import { descriptionPatt, fullTextPatt, numberPatt } from '@shared/helpers/regex.helper';
+import { descriptionPatt, fullTextPatt, numberPatt, operationCodePatt } from '@shared/helpers/regex.helper';
 import { PaginationComponent } from '@shared/components/pagination/pagination.component';
 import { AlertService } from '@shared/services/alert.service';
-import { ExpenseService } from '../../services/expense.service';
-import { Expense, ExpenseBody } from '../../interfaces';
 import { PipesModule } from '@pipes/pipes.module';
-import { initFlowbite } from 'flowbite';
-import { Store } from '@ngrx/store';
 
 import { InputErrorsDirective } from '@shared/directives/input-errors.directive';
 import { NomenclatureService } from '@shared/services/nomenclature.service';
+import { UploadFileService } from '@shared/services/upload-file.service';
+import { SpinnerComponent } from '@shared/components/spinner/spinner.component';
 import { Nomenclature } from '@shared/interfaces';
 import { environments } from '@envs/environments';
 import { onValidImg } from '@shared/helpers/files.helper';
-import { AreaCompanyService } from '../../../config/services/area-company.service';
-import { AreaCompany, ExpenseType } from '../../../config/interfaces';
-import { SpinnerComponent } from '@shared/components/spinner/spinner.component';
-import { UploadFileService } from '@shared/services/upload-file.service';
-import { AppState } from '@app/app.config';
-import { WebUrlPermissionMethods } from '../../../../auth/interfaces';
 import { apiExpense } from '@shared/helpers/web-apis.helper';
+import { AppState } from '@app/app.config';
+import { ExpenseService } from '../../services/expense.service';
+import { AreaCompanyService } from '../../../config/services/area-company.service';
 import { ExpenseTypeService } from '../../../config/services/expense-type.service';
+import { Expense, ExpenseBody, PaymentMethod } from '../../interfaces';
+import { WebUrlPermissionMethods } from '../../../../auth/interfaces';
+import { AreaCompany, ExpenseType } from '../../../config/interfaces';
+import { PaymentMethodService } from '@modules/admin/services/payment-method.service';
 
 @Component({
   selector: 'app-expenses',
@@ -62,6 +63,7 @@ export default class ExpensesComponent implements OnInit, OnDestroy {
   private _expenseTypeService = inject( ExpenseTypeService );
   private _nomenclatureService = inject( NomenclatureService );
   private _areaCompanyService = inject( AreaCompanyService );
+  private _paymentMethodService = inject( PaymentMethodService );
 
   private _isLoading = signal( true );
   private _isSaving = signal( false );
@@ -74,6 +76,7 @@ export default class ExpensesComponent implements OnInit, OnDestroy {
   private _moneyTypes = signal<Nomenclature[]>( [] );
   private _expenseTypes = signal<ExpenseType[]>( [] );
   private _areasCompany = signal<AreaCompany[]>( [] );
+  private _paymentMethods = signal<PaymentMethod[]>( [] );
 
   public isLoading = computed( () => this._isLoading() );
   public isSaving = computed( () => this._isSaving() );
@@ -83,6 +86,7 @@ export default class ExpensesComponent implements OnInit, OnDestroy {
   public moneyTypes = computed( () => this._moneyTypes() );
   public areasCompany = computed( () => this._areasCompany() );
   public totalExpenses = computed( () => this._totalExpenses() );
+  public paymentMethods = computed( () => this._paymentMethods() );
 
   private _formBuilder = inject( UntypedFormBuilder );
 
@@ -96,21 +100,21 @@ export default class ExpensesComponent implements OnInit, OnDestroy {
   public searchInput = new FormControl('', [ Validators.pattern( fullTextPatt ) ]);
 
   public expenseForm = this._formBuilder.group({
-    id:            [ null, [] ],
-    expenseDate:   [ '', [ Validators.required ] ],
-    moneyType:     [ null, [ Validators.required ] ],
-    amount:        [ null, [ Validators.required, Validators.min(1), Validators.pattern( numberPatt ) ] ],
-    sourceAccount: [ '', [ Validators.pattern( fullTextPatt ) ] ],
-    expenseType:   [ null, [ Validators.required ] ],
-    areaCompanyId: [ null, [ Validators.required ] ],
-    description:   [ '', [ Validators.pattern( descriptionPatt ) ] ],
-    voucherId:     [ '', [ Validators.required, Validators.pattern( fullTextPatt ) ] ],
+    id:              [ null, [] ],
+    expenseDate:     [ '', [ Validators.required ] ],
+    moneyType:       [ null, [ Validators.required ] ],
+    amount:          [ null, [ Validators.required, Validators.min(1), Validators.pattern( numberPatt ) ] ],
+    sourceAccount:   [ '', [ Validators.pattern( fullTextPatt ) ] ],
+    expenseTypeId :  [ null, [ Validators.required ] ],
+    areaCompanyId:   [ null, [ Validators.required ] ],
+    paymentMethodId: [ null, [ Validators.required ] ],
+    description:     [ '', [ Validators.pattern( descriptionPatt ) ] ],
+    voucherId:       [ null, [ Validators.pattern( operationCodePatt ) ] ],
   });
 
   inputErrors( field: string ) {
     return this.expenseForm.get(field)?.errors ?? null;
   }
-
 
   get file() { return this._file; }
   get isHavePhotoUpdated() { return this._isHavePhotoUpdated; }
@@ -175,15 +179,17 @@ export default class ExpensesComponent implements OnInit, OnDestroy {
 
     forkJoin({
       moneyTypesResponse: this._nomenclatureService.getMoneyType(),
-      expenseTypesResponse: this._expenseTypeService.getExpenseTypes( 1, '', 100 ),
-      areasCompanyResponse: this._areaCompanyService.getAreasCompany( 1, '', 100 )
-    }).subscribe( ( { moneyTypesResponse, expenseTypesResponse, areasCompanyResponse } ) => {
+      expenseTypesResponse: this._expenseTypeService.getExpenseTypes( 1, '', 50 ),
+      areasCompanyResponse: this._areaCompanyService.getAreasCompany( 1, '', 50 ),
+      paymentMethodResponse: this._paymentMethodService.getPaymentsMethod( 1, '', 50 )
+    }).subscribe( ( { moneyTypesResponse, expenseTypesResponse, areasCompanyResponse, paymentMethodResponse } ) => {
 
       this._moneyTypes.set( moneyTypesResponse.nomenclatures );
       this._expenseTypes.set( expenseTypesResponse.expenseTypes );
       this._areasCompany.set( areasCompanyResponse.areasComapny );
+      this._paymentMethods.set( paymentMethodResponse.paymentsMethod );
 
-    } );
+    });
 
   }
 
@@ -194,11 +200,13 @@ export default class ExpensesComponent implements OnInit, OnDestroy {
     .subscribe({
       next: (expenseById) => {
 
-        const { createAt, isActive, userCreate, photo, areaCompany, ...rest } = expenseById;
+        const { createAt, isActive, userCreate, photo, areaCompany, paymentMethod, expenseType, ...rest } = expenseById;
 
         this.expenseForm.reset({
           ...rest,
-          areaCompanyId: areaCompany.id
+          areaCompanyId: areaCompany.id,
+          expenseTypeId: expenseType.id,
+          paymentMethodId: paymentMethod.id,
         });
         this.fileUrl.set( photo?.urlImg || environments.defaultImgUrl );
         this._isHavePhotoUpdated = photo ? true : false ;
