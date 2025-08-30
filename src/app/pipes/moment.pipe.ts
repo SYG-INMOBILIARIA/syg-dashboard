@@ -3,7 +3,7 @@ import moment from 'moment';
 import 'moment/locale/es';
 moment.locale('es');
 
-export type MomentFormat = 'createAt' | 'time' | 'dayName' | 'day' | 'monthName' | 'startTime' | 'endTime' | 'now' | 'dateTime';
+export type MomentFormat = 'createAt' | 'shortDate' | 'time' | 'dayName' | 'day' | 'monthName' | 'startTime' | 'endTime' | 'now' | 'dateTime';
 
 @Pipe({
   name: 'moment',
@@ -34,6 +34,8 @@ export class MomentPipe implements PipeTransform {
                         return moment( value ).fromNow();
                         case 'dateTime':
                           return moment( value ).format('DD [de] MMMM YYYY[,] h:mm a');
+                          case 'shortDate':
+                          return moment( value ).format('DD [de] MMM YYYY');
 
         default:
         return value

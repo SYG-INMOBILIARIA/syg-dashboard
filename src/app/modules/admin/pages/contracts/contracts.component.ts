@@ -3,16 +3,14 @@ import { Component, ElementRef, OnDestroy, OnInit, ViewChild, computed, inject, 
 import { FormControl, FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { ContractService } from '../../services/contract.service';
 import { PaginationComponent } from '@shared/components/pagination/pagination.component';
-import { NomenclatureService } from '@shared/services/nomenclature.service';
 import { AlertService } from '@shared/services/alert.service';
 import { fullTextPatt } from '@shared/helpers/regex.helper';
 import { Contract, ContractQuote } from '../../interfaces';
 import { PipesModule } from '@pipes/pipes.module';
 import { MatDialog } from '@angular/material/dialog';
-import { Subscription, forkJoin } from 'rxjs';
+import { Subscription } from 'rxjs';
 import { Store } from '@ngrx/store';
 
-import { Nomenclature } from '@shared/interfaces';
 import { ContractDetailModalComponent } from '../../components/contract-detail-modal/contract-detail-modal.component';
 import { AppState } from '@app/app.config';
 import { WebUrlPermissionMethods } from '../../../../auth/interfaces';
@@ -20,6 +18,7 @@ import { apiContract } from '@shared/helpers/web-apis.helper';
 import { RouterModule } from '@angular/router';
 import { initFlowbite } from 'flowbite';
 import { PaymentScheduleModalComponent } from '@modules/admin/components/payment-schedule-modal/payment-schedule-modal.component';
+import { SpinnerComponent } from '@shared/components/spinner/spinner.component';
 
 @Component({
   selector: 'app-contracts',
@@ -32,7 +31,8 @@ import { PaymentScheduleModalComponent } from '@modules/admin/components/payment
     PipesModule,
     ContractDetailModalComponent,
     PaymentScheduleModalComponent,
-    RouterModule
+    RouterModule,
+    SpinnerComponent
   ],
   templateUrl: './contracts.component.html',
   styles: ``
@@ -147,6 +147,7 @@ export default class ContractsComponent implements OnInit, OnDestroy {
 
   onShowScheduleModal( contract: Contract ) {
 
+    this._alertService.showLoading();
     this._contractById.set( contract );
 
     this._contractService.getPaymentScheduleByContract( contract.id )
@@ -154,6 +155,7 @@ export default class ContractsComponent implements OnInit, OnDestroy {
 
       this._contractSchedule.set( contractQuotes );
       this.btnShowScheduleContractModal.nativeElement.click();
+      this._alertService.close();
     });
 
   }

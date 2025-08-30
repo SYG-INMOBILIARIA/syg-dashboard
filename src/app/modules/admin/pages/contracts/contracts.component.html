@@ -134,18 +134,6 @@
                             }
                             {{ client.fullname }}
                           </div>
-                          <!-- <div class="flex flex-col justify-center">
-                            <h6 class="mb-0 text-sm leading-normal dark:text-gray-300 ">
-                              {{ client.fullname }}
-                            </h6>
-                            <p class="mb-0 text-xs leading-tight  dark:opacity-80 text-slate-400 dark:text-gray-300">
-                              @if ( client.address && client.address.length > 35 ) {
-                                {{ client.address | slice:0:35 }}...
-                              } @else {
-                                {{ client.address  }}
-                              }
-                            </p>
-                          </div> -->
                         }
                       </div>
                     </td>
@@ -199,20 +187,20 @@
 
                     <td class=" bg-transparent border-b dark:border-white/40 whitespace-nowrap shadow-transparent">
                       <div class="flex gap-3 justify-end pr-6">
-                        <a href="javascript:;" class="flex gap-1 text-xs font-semibold leading-tight uppercase dark:opacity-80 text-slate-400 dark:text-gray-300" (click)="onShowDetailModal( contract )">
+                        <span class="cursor-pointer flex gap-1 text-xs font-semibold leading-tight uppercase dark:opacity-80 text-slate-400 dark:text-gray-300" (click)="onShowDetailModal( contract )">
                           <i class="fa fa-eye"></i>
                           Ver
-                        </a>
+                        </span>
 
-                        <a href="javascript:;" class="flex gap-1 text-xs font-semibold leading-tight uppercase dark:opacity-80 text-slate-400 dark:text-gray-300" (click)="onShowScheduleModal( contract )">
+                        <span class="cursor-pointer flex gap-1 text-xs font-semibold leading-tight uppercase dark:opacity-80 text-slate-400 dark:text-gray-300" (click)="onShowScheduleModal( contract )">
                           <i class="fa fa-eye"></i>
                           Cronograma
-                        </a>
+                        </span>
 
-                        <a href="javascript:;" class="flex gap-2 text-xs font-semibold leading-tight uppercase dark:opacity-80 text-red-500" (click)="onRemoveConfirm( contract )" >
+                        <span class="cursor-pointer flex gap-2 text-xs font-semibold leading-tight uppercase dark:opacity-80 text-red-500" (click)="onRemoveConfirm( contract )" >
                           <i class="fa fa-trash" aria-hidden="true"></i>
                           Anular
-                        </a>
+                        </span>
                       </div>
 
                     </td>
@@ -224,6 +212,15 @@
                       <td colspan="8">
                         <div class="text-center p-4 border-b text-xl text-slate-400">
                           <h3>Sin registros</h3>
+                        </div>
+                      </td>
+                    </tr>
+                  } @else {
+                    <tr>
+                      <td colspan="8">
+                        <div class=" py-6 flex justify-center items-center gap-2 ">
+                          <spinner></spinner>
+                          <h3 >Espere por favor</h3>
                         </div>
                       </td>
                     </tr>
@@ -248,7 +245,6 @@
 
           <!-- (onChangePage)="" -->
           <app-pagination [totalItems]="totalContracts()" (onChangePage)="onGetContracts( $event )"  >
-
           </app-pagination>
 
         </div>

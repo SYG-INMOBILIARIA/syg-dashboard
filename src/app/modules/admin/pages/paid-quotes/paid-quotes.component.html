@@ -32,7 +32,7 @@
 
       <div class="w-full">
         <label for="cbxContract" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-          Buscar Contrato:
+          Buscar Contrato: <span class="text-red-500">*</span>
         </label>
         <ng-select
           id="cbxContract"
@@ -43,7 +43,7 @@
           bindValue="id"
           placeholder="Seleccione contrato"
           [formControl]="contractInput"
-          [class.border-red-400]="searchInputIsTouched && searchInputErrors"
+          [ngClass]="{'border !border-red-400': contractInputIsTouched && contractInputErrors  }"
         >
 
           <ng-template ng-header-tmp>
@@ -113,20 +113,30 @@
 
         </ng-select>
 
-
       </div>
-
-
       <button
         type="button"
-        class="flex justify-center items-end border border-gray-300 text-gray-700  px-4 py-2 mr-3 font-semibold text-center  align-middle transition-all rounded cursor-pointer leading-normal ease-in tracking-tight-rem shadow-xs bg-150 bg-x-25 hover:-translate-y-px active:opacity-75 hover:shadow-md dark:text-slate-200"
-        (click)="onGetContractQuotes()"
+        class="flex justify-center items-end border border-gray-300 text-gray-700 px-4 py-2 mr-3 font-semibold text-center  align-middle transition-all rounded cursor-pointer leading-normal ease-in tracking-tight-rem shadow-xs bg-150 bg-x-25 hover:-translate-y-px active:opacity-75 hover:shadow-md dark:text-slate-200"
+        (click)="onGetQuotesByContract()"
+        [disabled]="contractInputErrors"
+        [ngClass]="{'bg-gray-100 !text-slate-400': contractInputErrors}"
       >
         <i class="fa-solid fa-filter h-5 w-5 mr-1"></i>
         Filtrar
       </button>
 
+    </div>
 
+    <div>
+      @if ( contractInputIsTouched ) {
+        <span
+          class="flex items-center ms-1 mt-2 text-xs text-red-500"
+          inputErrors
+          [errors]="contractInputErrors"
+          [class.hidden]="!contractInputErrors"
+          inputLabel="Contrato" >
+        </span>
+      }
     </div>
 
   </div>
@@ -231,110 +241,108 @@
 
             @if ( allowList() ) {
 
-              @if (isLoading()) {
-                <tr>
-                  <td colspan="10">
-                    <div class="flex justify-center items-center gap-2 h-14 p-2">
-                      <spinner></spinner>
-                      Cargando...
-                    </div>
+              @for ( contractQuote of contractQuotes(); track $index) {
+
+                <!-- Row 1 hover:bg-gray-50/50-->
+                <tr class="border-b dark:border-white/40 border-gray-200 dark:text-slate-400 ">
+
+                  <td class="font-medium p-4">
+                    {{ contractQuote.code }}
                   </td>
-                </tr>
-              } @else {
-
-                @for ( contractQuote of contractQuotes(); track $index) {
-
-                  <!-- Row 1 hover:bg-gray-50/50-->
-                  <tr class="border-b dark:border-white/40 border-gray-200 dark:text-slate-400 ">
-
-                    <td class="font-medium p-4">
-                      {{ contractQuote.code }}
-                    </td>
-                    <td class="font-medium ">
-                      {{ contractQuote.contract.code }}
-                    </td>
-                    <td class="block justify-start ">
-                      @for (client of contractQuote.contract.clients; track client.id; let i = $index) {
-                        <div >
-                          {{ client.fullname }}
-                        </div>
+                  <td class="font-medium ">
+                    {{ contractQuote.contract.code }}
+                  </td>
+                  <td class="block justify-start ">
+                    @for (client of contractQuote.contract.clients; track client.id; let i = $index) {
+                      <div >
+                        {{ client.fullname }}
+                      </div>
+                    }
+                  </td>
+                  <td class="">
+                    {{ contractQuote.paymentDate | moment:'createAt' }}
+                  </td>
+                  <td class="">
+                    <span
+                      class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium "
+                      [ngClass]="{
+                        'bg-[#F2FCE2] text-[#16a34a]': contractQuote.isPaid,
+                        'bg-[#FFDEE2] text-[#ea384c]': !contractQuote.isPaid
+                        }"
+                    >
+                      @if (contractQuote.isPaid) {
+                        Pagado
+                      } @else {
+                        No pagado
                       }
-                    </td>
-                    <td class="">
-                      {{ contractQuote.paymentDate | moment:'createAt' }}
-                    </td>
-                    <td class="">
-                      <span
-                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium "
-                        [ngClass]="{
-                          'bg-[#F2FCE2] text-[#16a34a]': contractQuote.isPaid,
-                          'bg-[#FFDEE2] text-[#ea384c]': !contractQuote.isPaid
-                          }"
-                      >
-                        @if (contractQuote.isPaid) {
-                          Pagado
-                        } @else {
-                          No pagado
-                        }
-                      </span>
-                    </td>
-                    <td class="  font-semibold">
-                      S/ {{ contractQuote.amountToPay | number: '.2-2' }}
-                    </td>
-                    <td class="  font-semibold">
-                      S/ {{ contractQuote.tardinessAmount | number: '.2-2' }}
-                    </td>
-                    <td class="  font-semibold">
-                      S/ {{ contractQuote.totalPaid| number: '.2-2' }}
-                    </td>
-                    <td class="  font-semibold">
-                      S/ {{ contractQuote.totalDebt| number: '.2-2' }}
-                    </td>
-                    <td class="  ">
+                    </span>
+                  </td>
+                  <td class="  font-semibold">
+                    S/ {{ contractQuote.amountToPay | number: '.2-2' }}
+                  </td>
+                  <td class="  font-semibold">
+                    S/ {{ contractQuote.tardinessAmount | number: '.2-2' }}
+                  </td>
+                  <td class="  font-semibold">
+                    S/ {{ contractQuote.totalPaid| number: '.2-2' }}
+                  </td>
+                  <td class="  font-semibold">
+                    S/ {{ contractQuote.totalDebt| number: '.2-2' }}
+                  </td>
+                  <td class="  ">
 
-                      @if ( !contractQuote.isPaid ) {
+                    @if ( !contractQuote.isPaid ) {
 
-                        <div class=" flex justify-center items-center gap-3">
+                      <div class=" flex justify-center items-center gap-3">
 
-                          @if ( !contractQuote.isExoneratedTardiness ) {
-                            <button
-                              type="button"
-                              class="bg-gray-100 text-gray-600 hover:bg-gray-200 border border-gray-200 px-3 py-1 rounded-md"
-                              (click)="onExonerateTardinessConfirm( contractQuote )"
-                            >
-                              Exo. Mora
-                            </button>
-                          }
-
+                        @if ( !contractQuote.isExoneratedTardiness ) {
                           <button
                             type="button"
-                            data-modal-target="payment-modal"
-                            data-modal-toggle="payment-modal"
-                            class=" bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1 rounded-md"
-                            (click)="onSetContractQuoteToPay( contractQuote )"
+                            class="bg-gray-100 text-gray-600 hover:bg-gray-200 border border-gray-200 px-3 py-1 rounded-md"
+                            (click)="onExonerateTardinessConfirm( contractQuote )"
                           >
-                            Pagar
+                            Exo. Mora
                           </button>
-                        </div>
+                        }
 
-                      }
+                        <button
+                          type="button"
+                          data-modal-target="payment-modal"
+                          data-modal-toggle="payment-modal"
+                          class=" bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1 rounded-md"
+                          (click)="onSetContractQuoteToPay( contractQuote )"
+                        >
+                          Pagar
+                        </button>
+                      </div>
 
+                    }
+
+                  </td>
+                </tr>
+
+              } @empty {
+
+                @if (!isLoading()) {
+                  <tr>
+                    <td colspan="7">
+                      <div class="text-center p-4 border-b text-xl text-slate-400">
+                        Sin registros
+                      </div>
                     </td>
                   </tr>
-
-                } @empty {
-
-                  @if (!isLoading()) {
-                    <tr>
-                      <td colspan="10">
-                        <div class="text-center p-4 border-b text-xl text-slate-400">
-                         Sin registros
-                        </div>
-                      </td>
-                    </tr>
-                  }
+                } @else {
+                  <tr>
+                    <td colspan="7">
+                      <div class=" py-6 flex justify-center items-center gap-2 ">
+                        <spinner></spinner>
+                        <h3 >Espere por favor</h3>
+                      </div>
+                    </td>
+                  </tr>
                 }
               }
+
 
             } @else {
               <tr>
@@ -352,7 +360,7 @@
         <div class="" >
 
           <!-- (onChangePage)="" -->
-          <app-pagination [totalItems]="contractQuotesTotal()" (onChangePage)="onGetContractQuotesPagination( $event )"  >
+          <app-pagination [totalItems]="contractQuotesTotal()" (onChangePage)="onGetContractQuotes( $event )"  >
           </app-pagination>
 
         </div>

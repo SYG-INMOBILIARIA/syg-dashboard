@@ -248,9 +248,9 @@
                   } @else {
                     <tr>
                       <td colspan="7">
-                        <div class=" py-2 flex justify-center items-center gap-3 ">
+                        <div class=" py-6 flex justify-center items-center gap-2 ">
                           <spinner></spinner>
-                          <h3>Espere por favor</h3>
+                          <h3 >Espere por favor</h3>
                         </div>
                       </td>
                     </tr>
@@ -272,9 +272,7 @@
         </div>
         <div class="" >
 
-          <!-- (onChangePage)="" -->
           <app-pagination [totalItems]="totalClients()" (onChangePage)="onGetClients( $event )"  >
-
           </app-pagination>
 
         </div>
@@ -320,7 +318,7 @@
                     id="cbxPersonType"
                     class="bg-gray-50 text-gray-900 text-sm rounded-md block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                     [items]="personTypes()"
-                    (ngModelChange)="onChangePersonType( $event )"
+                    (change)="onChangePersonType( $event )"
                     bindLabel="label"
                     bindValue="value"
                     placeholder="Seleccione tipo de persona"

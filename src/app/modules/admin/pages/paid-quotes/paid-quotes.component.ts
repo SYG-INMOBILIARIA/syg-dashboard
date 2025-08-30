@@ -1,5 +1,5 @@
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild, computed, inject, signal } from '@angular/core';
-import { FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormControl, FormsModule, ReactiveFormsModule, UntypedFormControl, Validators } from '@angular/forms';
 import { initFlowbite } from 'flowbite';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { CommonModule } from '@angular/common';
@@ -50,8 +50,8 @@ export default class PaidQuotesComponent implements OnInit, OnDestroy {
   private _contractQuoteService = inject( ContractQuoteService );
   private _alertService = inject( AlertService );
 
-  public contractInput = new FormControl(null, []);
-  public searchContractInput = new FormControl(null, [ Validators.pattern( fullTextPatt ) ]);
+  public contractInput = new UntypedFormControl( null, [ Validators.required ]);
+  public searchContractInput = new UntypedFormControl(null, [ Validators.pattern( fullTextPatt ) ]);
 
   private _contractQuotes = signal<ContractQuote[]>( [] );
 
@@ -83,19 +83,24 @@ export default class PaidQuotesComponent implements OnInit, OnDestroy {
   public allowList = computed( () => this._allowList() );
   public isLoading = computed( () => this._isLoading() );
 
-  get searchInputIsTouched() {
-    return this.searchContractInput?.touched ?? false;
-  }
+  get searchInputIsTouched() { return this.searchContractInput.touched; }
+  get searchInputErrors() { return this.searchContractInput.errors; }
 
-  get searchInputErrors(  ) {
-    return this.searchContractInput?.errors ?? null;
-  }
+  get contractInputIsTouched() { return this.contractInput.touched; }
+  get contractInputErrors() { return this.contractInput.errors; }
 
   ngOnInit(): void {
     initFlowbite();
     this.onListenAuthRx();
     this.onGetContract();
     this.onGetContractQuotes();
+  }
+
+  ngAfterViewInit(): void {
+    setTimeout(() => {
+      initFlowbite();
+    }, 400);
+
   }
 
   onListenAuthRx() {
@@ -124,48 +129,33 @@ export default class PaidQuotesComponent implements OnInit, OnDestroy {
 
     this._isLoading.set( true );
 
-    forkJoin({
-      listContractQuotes: this._contractQuoteService.getContractQuotes( page, '', contractId ),
-      listContractQuotesAll: this._contractQuoteService.getContractQuotes( page, '', contractId, 100 ),
+    this._contractQuoteService.getContractQuotes( page, '', contractId )
+    .subscribe( ( { contractQuotes, total, resumen } ) => {
 
-    })
-    .subscribe( ( { listContractQuotes, listContractQuotesAll } ) => {
-
-      const { contractQuotes, total, resumen } = listContractQuotes;
       this._contractQuotes.set( contractQuotes );
       this._contractQuotesTotal.set( total );
       this._quoteResumen.set( resumen );
-
-      this._contractQuotesAll.set( listContractQuotesAll.contractQuotes );
-
-      setTimeout(() => {
-        initFlowbite();
-      }, 400);
 
       this._isLoading.set( false );
     });
 
   }
 
-  onGetContractQuotesPagination( page = 1 ) {
+  onGetQuotesToSelect() {
 
     const contractId = this.contractInput.value;
 
-    this._isLoading.set( true );
-
-    this._contractQuoteService.getContractQuotes( page, '', contractId )
-    .subscribe( ({ contractQuotes, total, resumen }) => {
-
-      this._contractQuotes.set( contractQuotes );
-      this._contractQuotesTotal.set( total );
-      this._quoteResumen.set( resumen );
-
-      setTimeout(() => {
-        initFlowbite();
-      }, 400);
-
-      this._isLoading.set( false );
+    this._contractQuoteService.getContractQuotes( 1, '', contractId, 100, true )
+    .subscribe( ( { contractQuotes } ) => {
+      this._contractQuotesAll.set( contractQuotes );
     });
+
+  }
+
+  onGetQuotesByContract() {
+
+    this.onGetContractQuotes();
+    this.onGetQuotesToSelect();
 
   }
 
