@@ -2,7 +2,7 @@ import { Component, ElementRef, OnDestroy, OnInit, ViewChild, computed, inject, 
 import { FormControl, FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { Subscription, forkJoin } from 'rxjs';
+import { Subscription, firstValueFrom, forkJoin } from 'rxjs';
 import { Store } from '@ngrx/store';
 import { initFlowbite } from 'flowbite';
 import { validate as ISUUID } from 'uuid';
@@ -246,6 +246,7 @@ export default class ClientsComponent implements OnInit, OnDestroy {
     const distCode = this.districtInput.value ?? null;
 
     this._isLoading.set( true );
+    this._alertService.showLoading();
     this._clientService.getClients( page, this._filter, 10, false, dptCode, provCode, distCode )
     .subscribe({
       next: ({ clients, total }) => {
@@ -253,9 +254,11 @@ export default class ClientsComponent implements OnInit, OnDestroy {
         this._totalClients.set( total );
         this._clients.set( clients );
         this._isLoading.set( false );
+        this._alertService.close();
 
       }, error: (err) => {
         this._isLoading.set( false );
+        this._alertService.close();
       }
     });
 
@@ -356,9 +359,9 @@ export default class ClientsComponent implements OnInit, OnDestroy {
     this._alertService.showLoading();
 
     this._clientService.getClientById( id )
-    .subscribe( (client) => {
+    .subscribe( async (client) => {
 
-      const { identityDocument, personType, userCreate, isActive, createAt, ...rest } = client;
+      const { identityDocument, personType, userCreate, isActive, createAt, ubigeo, ...rest } = client;
 
       this.onChangePersonType( personType );
 
@@ -369,8 +372,27 @@ export default class ClientsComponent implements OnInit, OnDestroy {
       this.clientForm.reset({
         ...rest,
         personType,
-        identityDocumentId: identityDocument?.id
+        identityDocumentId: identityDocument?.id,
+
+        departmentCode: ubigeo?.departmentCode,
+        provinceCode: ubigeo?.provinceCode,
+        districtId: ubigeo?.id,
       });
+
+      if( ubigeo ) {
+
+        const { provinces } = await firstValueFrom(
+          this._ubigeoService.getProvinces( ubigeo.departmentCode )
+        );
+
+        const { districts } = await firstValueFrom(
+          this._ubigeoService.getDistricts( ubigeo.departmentCode, ubigeo.provinceCode )
+        );
+
+        this._districts.set( districts );
+        this._provinces.set( provinces );
+      }
+
 
       this.clientForm.markAllAsTouched();
 

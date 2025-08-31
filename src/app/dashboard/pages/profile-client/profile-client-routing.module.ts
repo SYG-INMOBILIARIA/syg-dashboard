@@ -17,11 +17,13 @@ const routes: Routes = [
       { path: '', component: ClientInfoComponent },
       {
         path: 'info/:nombre-usuario',
-        component: ClientInfoComponent
+        component: ClientInfoComponent,
+        data: { title: 'Overview' }
       },
       {
         path: 'payments/:nombre-usuario',
-        component: ClientPaymentsComponent
+        component: ClientPaymentsComponent,
+        data: { title: 'Pagos' }
       },
 
       { path: '**', redirectTo: 'home' },

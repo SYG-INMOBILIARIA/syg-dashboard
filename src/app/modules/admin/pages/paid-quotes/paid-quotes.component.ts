@@ -128,6 +128,7 @@ export default class PaidQuotesComponent implements OnInit, OnDestroy {
     const contractId = this.contractInput.value;
 
     this._isLoading.set( true );
+    this._alertService.showLoading();
 
     this._contractQuoteService.getContractQuotes( page, '', contractId )
     .subscribe( ( { contractQuotes, total, resumen } ) => {
@@ -136,6 +137,7 @@ export default class PaidQuotesComponent implements OnInit, OnDestroy {
       this._contractQuotesTotal.set( total );
       this._quoteResumen.set( resumen );
 
+      this._alertService.close();
       this._isLoading.set( false );
     });
 

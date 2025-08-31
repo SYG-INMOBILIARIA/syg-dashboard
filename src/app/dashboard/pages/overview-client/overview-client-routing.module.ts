@@ -17,19 +17,23 @@ const routes: Routes = [
       //{ path: '', component: OverviewClientPaymentsComponent },
       {
         path: 'payments',
-        component: OverviewClientPaymentsComponent
+        component: OverviewClientPaymentsComponent,
+        data: { title: 'Pagos' }
       },
       {
         path: 'debts',
-        loadComponent: () => import('./pages/overview-client-debts/overview-client-debts.component')
+        loadComponent: () => import('./pages/overview-client-debts/overview-client-debts.component'),
+        data: { title: 'Deudas' }
       },
       {
         path: 'charts',
-        loadComponent: () => import('./pages/overview-client-charts/overview-client-charts.component')
+        loadComponent: () => import('./pages/overview-client-charts/overview-client-charts.component'),
+        data: { title: 'Estadísticas' }
       },
       {
         path: 'timeline',
-        loadComponent: () => import('./pages/overview-client-timeline/overview-client-timeline.component')
+        loadComponent: () => import('./pages/overview-client-timeline/overview-client-timeline.component'),
+        data: { title: 'Línea de tiempo' }
       },
       { path: '**', redirectTo: 'payments' },
 

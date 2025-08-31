@@ -8,11 +8,13 @@ import { NavbarComponent } from './navbar/navbar.component';
 import { NotificationDropdownComponent } from './notification-dropdown/notification-dropdown.component';
 import { UserMenuDropdownComponent } from './user-menu-dropdown/user-menu-dropdown.component';
 import CardIndicatorComponent from './card-indicator/card-indicator.component';
+import { BreadCrumbsComponent } from './bread-crumbs/bread-crumbs.component';
 
 @NgModule({
   declarations: [
     SidenavComponent,
     NavbarComponent,
+    BreadCrumbsComponent
   ],
   imports: [
     CommonModule,
@@ -27,7 +29,8 @@ import CardIndicatorComponent from './card-indicator/card-indicator.component';
     NavbarComponent,
     NotificationDropdownComponent,
     UserMenuDropdownComponent,
-    CardIndicatorComponent
+    CardIndicatorComponent,
+    BreadCrumbsComponent,
   ]
 })
 export class ComponentsModule { }

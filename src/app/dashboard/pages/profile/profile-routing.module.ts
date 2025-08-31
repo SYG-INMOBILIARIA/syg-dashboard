@@ -15,19 +15,23 @@ const routes: Routes = [
       { path: '', component: HomeProfileComponent },
       {
         path: 'home/:nombre-usuario',
-        component: HomeProfileComponent
+        component: HomeProfileComponent,
+        data: { title: 'Overview' }
       },
       {
         path: 'clients/:nombre-usuario',
-        loadComponent: () => import('./pages/client-profile/client-profile.component')
+        loadComponent: () => import('./pages/client-profile/client-profile.component'),
+        data: { title: 'Clientes' }
       },
       {
         path: 'commissions/:nombre-usuario',
-        loadComponent: () => import('./pages/commission-profile/commission-profile.component')
+        loadComponent: () => import('./pages/commission-profile/commission-profile.component'),
+        data: { title: 'Comisiones' }
       },
       {
         path: 'payments/:nombre-usuario',
-        loadComponent: () => import('./pages/payment-profile/payment-profile.component')
+        loadComponent: () => import('./pages/payment-profile/payment-profile.component'),
+        data: { title: 'Pagos' }
       },
       { path: '**', redirectTo: 'home' },
 
