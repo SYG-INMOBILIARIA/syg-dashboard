@@ -507,7 +507,7 @@ export default class ClientsComponent implements OnInit, OnDestroy {
 
     this.clientForm.markAllAsTouched();
 
-    if( this.isFormInvalid || this._isLoading() ) return;
+    if( this.isFormInvalid || this._isSaving() ) return;
 
     const { id = 'xD',departmentCode, provinceCode, ...body } = this.clientBody;
 
@@ -522,7 +522,7 @@ export default class ClientsComponent implements OnInit, OnDestroy {
         return;
       }
 
-      this._isLoading.set( true );
+      this._isSaving.set( true );
 
       this._clientService.createClient( body )
       .subscribe({
@@ -533,11 +533,10 @@ export default class ClientsComponent implements OnInit, OnDestroy {
           this.onGetClients();
 
           this._alertService.showAlert('Cliente creado exitosamente', undefined, 'success');
-          // this._isLoading.set( false );
 
         }, error: (err) => {
 
-          this._isLoading.set( false );
+          this._isSaving.set( false );
         }
       });
       return;
@@ -552,7 +551,7 @@ export default class ClientsComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this._isLoading.set( true );
+    this._isSaving.set( true );
 
     this._clientService.updateClient( id, body )
     .subscribe({
@@ -561,13 +560,12 @@ export default class ClientsComponent implements OnInit, OnDestroy {
         this.onResetAfterSubmit();
         this.btnCloseClientModal.nativeElement.click();
         this.onGetClients();
-        this._isLoading.set( false );
 
         this._alertService.showAlert('Cliente actualizado exitosamente', undefined, 'success');
 
       }, error: (err) => {
 
-        this._isLoading.set( false );
+        this._isSaving.set( false );
       }
     });
 

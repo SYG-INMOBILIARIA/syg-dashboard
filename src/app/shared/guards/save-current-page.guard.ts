@@ -21,10 +21,10 @@ export const saveCurrentPageGuard: CanActivateFn = (
 
   // console.log({routeUrl});
 
-  if( routeUrl == '/404' ) {
-    localStorage.setItem('currentPage', routeUrl);
-    return true;
-  }
+  // if( routeUrl == '/404' ) {
+  //   localStorage.setItem('currentPage', routeUrl);
+  //   return true;
+  // }
 
   localStorage.setItem('currentPage', routeUrl);
 
