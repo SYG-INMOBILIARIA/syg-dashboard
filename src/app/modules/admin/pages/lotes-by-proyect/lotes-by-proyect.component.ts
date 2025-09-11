@@ -299,18 +299,22 @@ export default class LotesByProyectComponent implements OnInit, OnDestroy {
         if( result.lotes.length > 0 ) {
 
           let lotesForMap = this.lotesForMap();
+          let lotesForList = this.lotes();
 
           for (const lote of result.lotes) {
 
             if( result.action == 'updated' ) {
               lotesForMap = lotesForMap.filter( (l) => l.id !== lote.id );
+              lotesForList = lotesForList.filter( (l) => l.id !== lote.id );
             }
 
             lotesForMap.unshift( lote );
+            lotesForList.unshift( lote );
 
           }
 
           this._lotesForMap.set( [...lotesForMap] );
+          this._lotes.set( [...lotesForList] );
 
         }
 

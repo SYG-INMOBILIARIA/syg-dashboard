@@ -47,7 +47,7 @@
                         >
 
                         <button type="button" class=" w-36 px-3 py-2 text-xs font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-                          (click)="onGetClients()"
+                          (click)="onSearchClients()"
                         >
                           Buscar
                         </button>
@@ -239,7 +239,7 @@
                   id="cbxProyect"
                   class="bg-gray-50 border text-gray-900 text-sm rounded-lg block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                   [items]="proyects()"
-                  (ngModelChange)="onChangeProyect( $event )"
+                  (change)="onChangeProyect( $event )"
                   bindLabel="name"
                   bindValue="id"
                   placeholder="Seleccione proyecto"
@@ -272,10 +272,10 @@
                 </div>
               }
 
-              <ul class="absolute bottom-7 w-32 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+              <ul class="absolute bottom-7 w-32 text-sm font-medium text-gray-900 dark:text-white ml-2">
 
                 @for (lote of lotesSelected(); track $index) {
-                  <li class="w-full px-4 py-2 border-b border-gray-200 rounded-t-lg dark:border-gray-600">
+                  <li class="w-full px-4 py-2 mb-1 bg-white border border-gray-200 rounded-lg dark:bg-gray-700 dark:border-gray-600  shadow ">
                     <div class="flex justify-between">
                       {{ lote.code }}
 
@@ -339,11 +339,11 @@
 
           <form [formGroup]="contractFormThree" >
 
-            <div class="grid gap-4 grid-cols-6 ">
+            <div class="grid gap-4 grid-cols-12 ">
 
               <div class="col-span-3 xs:col-span-6">
                 <label for="cbxPaymentType" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                  Tipo de pago *
+                  Tipo de pago <span class="text-red-500">*</span>
                 </label>
                 <ng-select
                   id="cbxPaymentType"
@@ -363,6 +363,7 @@
                     class="flex items-center ms-1 mt-2 text-xs text-red-500"
                     inputErrors
                     [errors]="inputErrorsThree('paymentType')"
+                    [class.hidden]="!inputErrorsThree('paymentType')"
                     inputLabel="Tipo de pago" >
                   </span>
                 }
@@ -370,7 +371,7 @@
 
               <div class="col-span-3 xs:col-span-6">
                 <label for="txtInitialAmount" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                  Monto Inicial *
+                  Monto Inicial <span class="text-red-500">*</span>
                 </label>
                 <input
                   type="number"
@@ -387,16 +388,70 @@
                     class="flex items-center ms-1 mt-2 text-xs text-red-500"
                     inputErrors
                     [errors]="inputErrorsThree('initialAmount')"
+                    [class.hidden]="!inputErrorsThree('initialAmount')"
                     inputLabel="Monto inicial" >
+                  </span>
+                }
+              </div>
+
+              <div class="col-span-3 xs:col-span-6">
+                <label for="txtNumberOfQuotesPaid" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                  Número de cuotas pagadas <span class="text-red-500">*</span>
+                </label>
+                <input
+                  type="number"
+                  id="txtNumberOfQuotesPaid"
+                  class="bg-gray-50 border text-right border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                  placeholder="0"
+                  formControlName="numberOfQuotesPaid"
+                  [class.border-red-400]=" inputErrorsThree('numberOfQuotesPaid') && isTouchedThree('numberOfQuotesPaid') "
+                >
+
+                @if (isTouchedThree('numberOfQuotesPaid')) {
+                  <span
+                    class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                    inputErrors
+                    [errors]="inputErrorsThree('numberOfQuotesPaid')"
+                    [class.hidden]="!inputErrorsThree('numberOfQuotesPaid')"
+                    inputLabel="Monto inicial" >
+                  </span>
+                }
+              </div>
+
+              <div class="col-span-3 xs:col-span-6" >
+                <label for="txtContractDate" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                  Fecha de contrato
+                </label>
+                <input
+                  #contractDateInput
+                  type="text"
+                  id="txtContractDate"
+                  mwlFlatpickr
+                  locale="Spanish"
+                  [altInput]="true"
+                  [maxDate]="maxDate"
+                  class="bg-gray-50 border text-center border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                  placeholder="YYYY-MM-DD"
+                  formControlName="contractDate"
+                  [class.border-red-400]=" inputErrorsThree('contractDate') && isTouchedThree('contractDate') "
+                >
+
+                @if (isTouchedThree('contractDate')) {
+                  <span
+                    class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                    inputErrors
+                    [errors]="inputErrorsThree('contractDate')"
+                    [class.hidden]="!inputErrorsThree('contractDate')"
+                    inputLabel="fecha de contrato" >
                   </span>
                 }
               </div>
 
               @if (!paymentTypeIsCash) {
 
-                <div class="col-span-3 xs:col-span-6">
+                <div class="col-span-6 xs:col-span-12">
                   <label for="cbxProyect" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                    Financiamiento *
+                    Financiamiento <span class="text-red-500">*</span>
                   </label>
                   <ng-select
                     id="cbxProyect"
@@ -417,14 +472,15 @@
                       class="flex items-center ms-1 mt-2 text-xs text-red-500"
                       inputErrors
                       [errors]="inputErrorsThree('financingId')"
+                      [class.hidden]="!inputErrorsThree('financingId')"
                       inputLabel="Financiamiento" >
                     </span>
                   }
                 </div>
 
-                <div class="col-span-3 xs:col-span-6">
+                <div class="col-span-6 xs:col-span-12">
                   <label for="cbxProyect" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                    Coutas de pago *
+                    Coutas de pago <span class="text-red-500">*</span>
                   </label>
                   <ng-select
                     id="cbxProyect"
@@ -445,6 +501,7 @@
                       class="flex items-center ms-1 mt-2 text-xs text-red-500"
                       inputErrors
                       [errors]="inputErrorsThree('quotaId')"
+                      [class.hidden]="!inputErrorsThree('quotaId')"
                       inputLabel="Cuotas" >
                     </span>
                   }

@@ -1,4 +1,14 @@
-import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild, computed, forwardRef, inject, signal } from '@angular/core';
+import { AfterViewInit
+  , Component
+  , ElementRef
+  , OnDestroy
+  , OnInit
+  , ViewChild
+  , computed
+  , forwardRef
+  , inject
+  , signal
+} from '@angular/core';
 import { Router } from '@angular/router';
 import { formatNumber } from '@angular/common';
 import { ContractFormModule } from './contract-form.module';
@@ -14,27 +24,35 @@ import { FormControl, UntypedFormBuilder, Validators } from '@angular/forms';
 import { ClientService } from '../../services/client.service';
 import { ProyectService } from '../../services/proyect.service';
 import { WebUrlPermissionMethods } from '../../../../auth/interfaces';
-import { Client, ContractFormOne, ContractFormThree, ContractFormTwo, Coordinate, Financing, Lote, LoteSelectedInMap, Proyect, Quota } from '../../interfaces';
+import {
+  Client
+  , ContractFormOne
+  , ContractFormThree
+  , ContractFormTwo
+  , Coordinate
+  , Financing
+  , Lote
+  , LoteSelectedInMap
+  , Proyect
+  , Quota
+} from '../../interfaces';
 import { LoteService } from '../../services/lote.service';
 import { ContractService } from '../../services/contract.service';
 import { FinancingService } from '../../services/financing.service';
 import { UserService } from '../../../security/services/user.service';
 import { AlertService } from '@shared/services/alert.service';
-import { descriptionPatt, fullTextPatt } from '@shared/helpers/regex.helper';
+import { descriptionPatt, fullTextPatt, numberPatt } from '@shared/helpers/regex.helper';
 import { User } from '../../../security/interfaces';
 import { FinancingType, LoteStatus, PaymentType } from '../../enum';
-import { apiContract } from '@shared/helpers/web-apis.helper';
 import { NomenclatureService } from '@shared/services/nomenclature.service';
 
 @Component({
   selector: 'app-contract-form',
   standalone: true,
   imports: [
-
     ContractFormModule,
     forwardRef(() => CustomStepper ),
     CdkStepperModule
-
   ],
   templateUrl: './contract-form.component.html',
   styles: `
@@ -52,7 +70,20 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
   @ViewChild('myStepper') stepper?: CdkStepper;
 
   private _map?: Map;
-  private _popup?: Popup;
+  public readonly maxDate = new Date();
+
+  private _popup: Popup = new Popup({ closeButton: true, closeOnClick: false });
+  private hoveredId: string | number | null = null;
+  private selectedId: string | number | null = null;
+
+  private readonly SOURCE_ID        = 'lotesSource';
+  private readonly FILL_ID          = 'lotes-fill';
+  private readonly DASHED_LINE_ID   = 'lotes-dashed-line';
+  private readonly FLAT_SOURCE_ID   = 'lotes-flat-image-source';
+  private readonly FLAT_LAYER_ID    = 'lotes-flat-image-layer';
+  private readonly FLAT_BORDER_SOURCE_ID   = 'lotes-flat-border';
+
+  private readonly _emptyImage = '/assets/img/empty.png';
 
   private _router = inject( Router );
   private _formBuilder = inject( UntypedFormBuilder );
@@ -82,10 +113,13 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
   });
 
   public contractFormThree = this._formBuilder.group({
-    paymentType:    [ null, [ Validators.required ] ],
-    financingId:    [ null, [ ] ],
-    quotaId:        [ null, [ ] ],
-    initialAmount:  [ null, [ Validators.required, Validators.min(5000) ] ],
+    paymentType:        [ null, [ Validators.required ] ],
+    financingId:        [ null, [ ] ],
+    quotaId:            [ null, [ ] ],
+    initialAmount:      [ null, [ Validators.required, Validators.min(5000) ] ],
+    //BUG: el valor máximo debe ser el número de cuotas
+    numberOfQuotesPaid: [ 0, [ Validators.required, Validators.min(0), Validators.pattern( numberPatt ) ] ],
+    contractDate:       [ null, [ ] ],
   });
 
   private _initialAmoutDisabled = signal( false );
@@ -199,17 +233,190 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
       container: this.mapContainer.nativeElement,
       style: 'mapbox://styles/mapbox/streets-v12', // style URL
       center: [ -80.6987307175805,-4.926770405375706 ], // starting position [lng, lat]
-      zoom: 14, //
+      zoom: 17,
+      bearing: 0,
+      pitch: 0
+    });
+
+    this._map.on('load', () => {
+      this._onAddMapxboxElements();
+      this._onAddMapboxEvents();
     });
 
   }
 
-  onGetClients() {
+  private _onAddMapxboxElements() {
 
+    if( !this._map ) throw new Error(`Map not found!!!`);
+
+    // Coordenadas dummy o iniciales
+    const initialCoords: [[number, number], [number, number], [number, number], [number, number]] = [
+      [-76.95, -12.10], // top-left
+      [-76.94, -12.10], // top-right
+      [-76.94, -12.11], // bottom-right
+      [-76.95, -12.11]  // bottom-left
+    ];
+
+    this._map.addSource( this.FLAT_SOURCE_ID, {
+      type: 'image',
+      url: this._emptyImage,
+      coordinates: initialCoords
+    });
+
+    this._map.addLayer({
+      id: this.FLAT_LAYER_ID,
+      type: 'raster',
+      source: this.FLAT_SOURCE_ID,
+      paint: {
+        'raster-opacity': 0.85  // ← opacidad del plano
+      }
+    });
+
+    // source vacío al inicio; borramos si no hay plano
+    this._map.addSource(this.FLAT_BORDER_SOURCE_ID, {
+      type: 'geojson',
+      data: { type: 'FeatureCollection', features: [] },
+      promoteId: 'id-2',
+
+    });
+
+     // add a line layer to visualize the clipping region.
+     this._map.addLayer({
+      'id': 'dashed-line',
+      'type': 'line',
+      'source': this.FLAT_BORDER_SOURCE_ID,
+      'paint': {
+          'line-color': 'rgba(255, 0, 0, 0.9)',
+          'line-dasharray': [0, 4, 3],
+          'line-width': 5
+      }
+    });
+
+    // source vacío al inicio; promoteId para feature-state
+    this._map.addSource(this.SOURCE_ID, {
+      type: 'geojson',
+      data: { type: 'FeatureCollection', features: [] },
+      promoteId: 'id',
+    });
+
+    // fill con estilo por estado
+    this._map.addLayer({
+      id: this.FILL_ID, type: 'fill', source: this.SOURCE_ID,
+      paint: {
+        // 'fill-color': '#67e8f9',
+        // [
+        //   'match', ['get', 'loteStatus'],
+        //   'AVAILABLE', '#67e8f9',
+        //   'SELLED',    '#31c48d',
+        //   'IN_PROGRESS','#6b7280',
+        //   /* default */ '#fce96a'
+        // ],
+        'fill-opacity': [
+          'case',
+            ['boolean', ['feature-state', 'selected'], false], 0.55,
+            ['boolean', ['feature-state', 'hovered'],  false], 0.45,
+            0.3
+        ],
+        'fill-color': [
+          'case',
+            ['boolean', ['feature-state', 'busied'], false], '#E65757',
+            ['boolean', ['feature-state', 'selectedForSale'],  false], '#78E657',
+            '#67e8f9'
+        ],
+      }
+    });
+
+    this._map.addLayer({
+      id: this.DASHED_LINE_ID, type: 'line', source: this.SOURCE_ID,
+      paint: { 'line-color': '#1f2937', 'line-width': 0.5 }
+    });
+
+  }
+
+  private _onAddMapboxEvents() {
+
+    if( !this._map ) throw new Error(`Map not found!!!`);
+
+    // eventos UNA sola vez sobre el layer
+    this._map.on('mousemove', this.FILL_ID, (e) => {
+
+      const f = e.features?.[0];
+      if (!f) return;
+
+      const id = f.id as string;
+
+      if (this.hoveredId !== null && this.hoveredId !== id) {
+        this._map!.setFeatureState({ source: this.SOURCE_ID, id: this.hoveredId }, { hovered: false });
+      }
+      this.hoveredId = id;
+      this._map!.setFeatureState({ source: this.SOURCE_ID, id }, { hovered: true });
+      this._map!.getCanvas().style.cursor = 'pointer';
+
+      const lote = f.properties as Lote;
+      let popupHtml = `
+        <span class="font-extrabold text-md text-blue-500">Lote: ${lote.code}</span>
+        <p class="text-md font-semibold">
+          Área: ${lote.squareMeters} m²<br>
+          Precio: <span class="font-extrabold text-md text-green-500">S/ ${Number(lote.price).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+        </p>`;
+
+      const lotesBusiedId = this.lotesIdsBusied;
+      const loteIsBusied = lotesBusiedId.includes( lote.id );
+
+      if( loteIsBusied ) {
+        popupHtml += `
+          <div class="flex justify-start items-center pt-1" >
+            <div class="w-4 h-4 bg-red-500 border-2 border-red-500 rounded-full dark:border-gray-900 mr-4"></div>
+            <span class="text-red-600 font-semibold">
+              Ocupado
+            </span>
+          </div>
+        `;
+      }
+
+      this._popup.setLngLat(e.lngLat).setHTML(popupHtml).addTo(this._map!);
+
+    });
+
+    this._map.on('mouseleave', this.FILL_ID, () => {
+      if (this.hoveredId !== null) {
+        this._map!.setFeatureState({ source: this.SOURCE_ID, id: this.hoveredId }, { hovered: false });
+        this.hoveredId = null;
+      }
+      this._map!.getCanvas().style.cursor = '';
+    });
+
+    this._map.on('click', this.FILL_ID, (e) => {
+      const f = e.features?.[0]; if (!f) return;
+      const id = f.id as string;
+
+      // quitar selección anterior
+      if (this.selectedId !== null) {
+        this._map!.setFeatureState({ source: this.SOURCE_ID, id: this.selectedId }, { selected: false });
+      }
+      this.selectedId = id;
+      this._map!.setFeatureState({ source: this.SOURCE_ID, id }, { selected: true });
+
+      const lote = f.properties as Lote;
+
+      const lotesBusiedId = this.lotesIdsBusied;
+      const lotesSelectedIds = this.lotesIdsSelected;
+      const loteIsBusied = lotesBusiedId.includes( lote.id );
+      const loteIsSelected = lotesSelectedIds.includes( lote.id );
+
+      if( !loteIsBusied && !loteIsSelected ) {
+        this._map!.setFeatureState({ source: this.SOURCE_ID, id }, { selectedForSale: true });
+        this._lotesSelected.update( (value) => [ lote, ...value ] );
+      }
+
+    });
+
+  }
+
+  onSearchClients() {
     const pattern = this.searchClientInput.value ?? '';
     this._clientService.getClients( 1, pattern, 10, false , null, null, null )
-    .subscribe( ({ clients, total }) => {
-
+    .subscribe( ({ clients }) => {
       this._clients.set( clients );
       this.searchClientInput.reset();
     });
@@ -244,150 +451,67 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
     });
   }
 
-  private _onBuildLotes( ) {
-
+  private _onBuildLotes() {
     if( !this._map ) throw new Error(`Map not found!!!`);
 
     const lotes = this._lotes();
-    const lotesBusiedId = this.lotesIdsBusied;
 
-    lotes.forEach(lote => {
-      this._onBuilLotePolygon( lote, lotesBusiedId );
-    });
-
-  }
-
-  private _onBuilLotePolygon( lote: Lote, lotesBusiedId: string[] ) {
-
-    if( !this._map ) throw new Error(`Map not found!!!`);
-
-    const points = lote.polygonCoords.reduce<[number, number][]>( (acc, current) => {
-      acc.push( [ current.lng, current.lat ] );
-      return acc;
-    }, []);
-
-    this._map.addSource( lote.id, {
-      'type': 'geojson',
-      'data': {
-          'type': 'Feature',
-          'properties': {
-            ...lote
-          },
-          'geometry': {
-              'type': 'Polygon',
-              'coordinates': [ points ]
-          }
+    const features = lotes.map( (lote) => ({
+      type: 'Feature',
+      id: lote.id, // <- clave para feature-state
+      properties: { ...lote },
+      geometry: {
+        type: 'Polygon',
+        coordinates: [ lote.polygonCoords.map(p => [Number(p.lng.toFixed(6)), Number(p.lat.toFixed(6))]) ],
       }
-    });
+    }));
 
-    let fillColor = '#2d91ff';
-
-    switch ( lote.loteStatus ) {
-      case LoteStatus.Available:
-          fillColor = '#67e8f9';
-        break;
-
-        case LoteStatus.Selled:
-          fillColor = '#31c48d';
-          break;
-
-          case LoteStatus.InProgress:
-            fillColor = '#6b7280';
-            break;
-
-      default:
-        fillColor = '#fce96a';
-        break;
-    }
-
-    const loteIsBusied = lotesBusiedId.includes( lote.id );
-
-    this._map.addLayer({
-      'id': lote.id,
-      'type': 'fill',
-      'source': lote.id,
-      'paint': {
-        'fill-color': loteIsBusied ? 'rgba(255, 0, 0, 0.9)' : fillColor,
-        'fill-opacity': 0.3
-      },
-    });
-
-    // add a line layer to visualize the clipping region.
-    this._map.addLayer({
-        'id': uuid(),
-        'type': 'line',
-        'source': lote.id,
-        'paint': {
-            'line-color': '#000',
-            'line-dasharray': [0, 4, 3],
-            'line-width': 0.7
-        }
-    });
+    const fc = { type: 'FeatureCollection', features } as GeoJSON.FeatureCollection;
+    (this._map.getSource(this.SOURCE_ID) as mapboxgl.GeoJSONSource).setData(fc);
 
   }
 
-  onBuildBorderProyect() {
+  onBuildBorderProyect( polygonCoords: Coordinate[] ) {
     if( !this._map ) throw new Error(`Div map container not found!!!`);
 
-    const points = this._polygonCoords.reduce<number[][]>( (acc: number[][], current) => {
+    const points = polygonCoords.reduce<number[][]>( (acc: number[][], current) => {
       acc.push( [ current.lng, current.lat ] );
       return acc;
     }, []);
 
-    const eraserId = uuid();
+    const features = [{
+      'type': 'Feature',
+      'properties': {},
+      'geometry': {
+        'coordinates': [ points ],
+        'type': 'Polygon'
+      }
+    }];
 
-    this._map.addSource( eraserId, {
-        'type': 'geojson',
-        'data': {
-            'type': 'FeatureCollection',
-            'features': [
-                {
-                    'type': 'Feature',
-                    'properties': {},
-                    'geometry': {
-                        'coordinates': [
-                          points
-                        ],
-                        'type': 'Polygon'
-                    }
-                }
-            ]
-        }
-    });
-
-    // add a line layer to visualize the clipping region.
-    this._map.addLayer({
-        'id': uuid(),
-        'type': 'line',
-        'source': eraserId,
-        'paint': {
-            'line-color': 'rgba(255, 0, 0, 0.9)',
-            'line-dasharray': [0, 4, 3],
-            'line-width': 5
-        }
-    });
-
-    this._onBuildLotes();
+    const fc = { type: 'FeatureCollection', features } as GeoJSON.FeatureCollection;
+    (this._map!.getSource(this.FLAT_BORDER_SOURCE_ID) as mapboxgl.GeoJSONSource).setData(fc);
 
   }
 
-  onChangeProyect( proyectId?: string ) {
+  onChangeProyect( proyect: Proyect ) {
+
+    const proyectId = proyect.id;
 
     if( !proyectId ) return;
 
+    this._buildMapInProgress.set( true );
+
     forkJoin({
       proyectByIdResponse: this._proyectService.getProyectById( proyectId ),
-      lotesResponse: this._loteService.getLotes( proyectId, 1, '', 500 ),
+      lotesResponse: this._loteService.getLotesForMap( proyectId, 1, '', 1000 ),
       contractLotesBusied: this._contractService.getContractsByProyect( proyectId ),
     }).subscribe( ( { proyectByIdResponse, lotesResponse, contractLotesBusied } ) => {
 
-      // console.log({contractLotesBusied});
 
       this._lotesBusied.set([]);
       this._lotesSelected.set([]);
 
       contractLotesBusied.forEach(({ lotes }) => {
-
         this._lotesBusied.update( (lotesBusied) => {
           return [ ...lotes, ...lotesBusied];
         });
@@ -399,31 +523,22 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
       this._lotes.set( lotes );
       this._polygonCoords = polygonCoords;
 
-      this._map?.remove();
-      this.onBuildMap();
+      this._map?.flyTo({ zoom: 17, center: centerCoords });
 
-      this._map?.on('load', () => {
+      if( flatImage ) {
+        this._buildFlatProyect( flatImage );
+      } else {
+        this.onBuildBorderProyect( polygonCoords );
+      }
 
-        this._map?.flyTo({
-          zoom: 17,
-          center: centerCoords
-        });
+      this._onBuildLotes();
 
-        if( flatImage ) {
-          this._buildFlatProyect( flatImage );
-        } else {
-          this.onBuildBorderProyect();
-        }
-
-        this.onListenSelecLote();
-        this.onShowLotePopupInHover();
-        this._buildMapInProgress.set( false );
-      });
+      this._buildMapInProgress.set( false );
 
     });
   }
 
-  private async _buildFlatProyect(  flatImage: Photo ) {
+  private _buildFlatProyect(  flatImage: Photo ) {
 
     if( !this._map ) throw new Error(`Div map container not found!!!`);
     const { urlImg } = flatImage;
@@ -433,131 +548,10 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
       return acc;
     }, []);
 
-    const imgSourceId = uuid();
-
-    // Add an image source
-    this._map.addSource(imgSourceId, {
-      'type': 'image',
-      'url': urlImg,
-      'coordinates': points
+    (this._map.getSource( this.FLAT_SOURCE_ID) as mapboxgl.ImageSource).updateImage({
+      url: urlImg,
+      coordinates: points
     });
-
-    // Add a layer for displaying the image
-    this._map.addLayer({
-      'id': uuid(),
-      'type': 'raster',
-      'source': imgSourceId,
-      'paint': { 'raster-opacity': 1.0 }
-    });
-
-    this._onBuildLotes();
-
-  }
-
-  onListenSelecLote() {
-    if( !this._map ) throw new Error(`Map not found!!!`);
-
-    this._map.on('click', (e) => {
-
-      const lotesBusiedId = this.lotesIdsBusied;
-      const lotesSelectedId = this.lotesIdsSelected;
-
-      const loteIds = this._lotes().reduce<string[]>( (acc, lote) => {
-        acc.push( lote.id );
-        return acc;
-      }, []);
-
-      // Set `bbox` as 5px reactangle area around clicked point.
-      const bbox: [PointLike, PointLike] = [
-          [e.point.x - 5, e.point.y - 5],
-          [e.point.x + 5, e.point.y + 5]
-      ];
-      // Find features intersecting the bounding box.
-      const selectedFeatures = this._map!.queryRenderedFeatures( bbox, {
-          layers: loteIds
-      });
-      const fips = selectedFeatures.map(
-          (feature) => (feature.properties as Lote)
-      );
-
-      console.log({selectedFeatures, fips});
-      // Set a filter matching selected features by FIPS codes
-      // to activate the 'counties-highlighted' layer.
-
-
-      for (const key in fips) {
-        if (Object.prototype.hasOwnProperty.call(fips, key)) {
-          const lote = fips[key];
-
-          if( lotesBusiedId.includes( lote.id ) || lotesSelectedId.includes( lote.id ) ) continue;
-
-          this._lotesSelected.update( (value) => [ lote, ...value ] );
-
-          this._map?.setPaintProperty( lote.id , 'fill-color', '#a1dab4');
-          this._map?.setPaintProperty( lote.id , 'fill-opacity', 0.5);
-
-        }
-      }
-
-    });
-  }
-
-  onShowLotePopupInHover() {
-
-    if( !this._map ) throw new Error(`Map not found!!!`);
-
-    const lotes = this._lotes();
-    const lotesBusiedId = this.lotesIdsBusied;
-
-    for (const key in lotes) {
-      if (Object.prototype.hasOwnProperty.call(lotes, key)) {
-        const lote = lotes[key];
-
-        const { code, squareMeters, price } = lote;
-        const priceFormater = formatNumber( price, 'en-US', '.2-2' );
-        const loteIsBusied = lotesBusiedId.includes( lote.id );
-
-        // When the user moves their mouse over the state-fill layer, we'll update the
-        // feature state for the feature under the mouse.
-
-        let popupHtml = `
-          <span class="font-extrabold text-md" >
-            Lote: ${ code }
-          </span>
-          <p class="text-md font-semibold">
-            Área: ${ squareMeters } m2"<br>
-            Precio: S/ ${ priceFormater }
-          </p>
-        `;
-
-        if( loteIsBusied ) {
-          popupHtml += `
-            <div class="flex justify-start items-center pt-1" >
-              <div class="w-4 h-4 bg-red-500 border-2 border-red-500 rounded-full dark:border-gray-900 mr-4"></div>
-              <span class="text-red-600 font-semibold">
-                Ocupado
-              </span>
-            </div>
-          `;
-        }
-
-        this._map.on('mousemove', lote.id, (e) => {
-
-          this._popup?.remove();
-          this._popup = new Popup()
-            .setLngLat( e.lngLat )
-            .setHTML( popupHtml )
-            .addTo(this._map!);
-
-        });
-
-        // When the mouse leaves the state-fill layer, update the feature state of the
-        // previously hovered feature.
-        this._map.on('mouseleave', lote.id, () => {
-          this._popup?.remove();
-        });
-      }
-    }
 
   }
 
@@ -566,29 +560,7 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
       return lotes.filter( (loteSelected) => loteSelected.id != lote.id );
     });
 
-    let fillColor = '#2d91ff';
-
-    switch ( lote.loteStatus ) {
-      case LoteStatus.Available:
-          fillColor = '#67e8f9';
-        break;
-
-        case LoteStatus.Selled:
-          fillColor = '#31c48d';
-          break;
-
-          case LoteStatus.InProgress:
-            fillColor = '#6b7280';
-            break;
-
-      default:
-        fillColor = '#fce96a';
-        break;
-    }
-
-    this._map?.setPaintProperty( lote.id , 'fill-color', fillColor);
-    this._map?.setPaintProperty( lote.id , 'fill-opacity', 0.3);
-
+    this._map!.setFeatureState({ source: this.SOURCE_ID, id: lote.id }, { selectedForSale: false });
   }
 
   onChangePaymentType( paymentType?: Nomenclature ) {
@@ -601,6 +573,7 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
     this.contractFormThree.get('financingId')?.clearValidators();
     this.contractFormThree.get('quotaId')?.clearValidators();
     this.contractFormThree.get('initialAmount')?.clearValidators();
+    this.contractFormThree.get('numberOfQuotesPaid')?.clearValidators();
 
     // initialAmount
     if( value == PaymentType.cash ) {
@@ -609,21 +582,25 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
       this.contractFormThree.get('financingId')?.setValue(null);
       this.contractFormThree.get('quotaId')?.setValue(null);
       this.contractFormThree.get('initialAmount')?.addValidators([ Validators.required, Validators.min(totalLote) ]);
+      this.contractFormThree.get('numberOfQuotesPaid')?.addValidators([ Validators.required, Validators.pattern( numberPatt ), Validators.min(0), Validators.max(1) ]);
       this.contractFormThree.get('initialAmount')?.setValue( totalLote );
       this._initialAmoutDisabled.set( true );
     } else {
+      this.contractFormThree.get('numberOfQuotesPaid')?.addValidators([ Validators.required, Validators.pattern( numberPatt ), Validators.min(0) ]);
       this.contractFormThree.get('financingId')?.addValidators( [ Validators.required ] );
       this.contractFormThree.get('quotaId')?.addValidators( [ Validators.required ] );
       this._initialAmoutDisabled.set( false );
     }
 
-    this.contractFormThree.updateValueAndValidity();
+    this.contractFormThree.get('financingId')?.updateValueAndValidity();
+    this.contractFormThree.get('quotaId')?.updateValueAndValidity();
+    this.contractFormThree.get('initialAmount')?.updateValueAndValidity();
+    this.contractFormThree.get('numberOfQuotesPaid')?.updateValueAndValidity();
   }
 
   onChangeFinancing( financing: Financing ) {
     const { quotas, initial, financingType } = financing;
     const totalLote = this._lotesAmount();
-
 
     this._quotas.set( quotas );
 
@@ -634,9 +611,13 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
     }
 
     this.contractFormThree.get('initialAmount')?.clearValidators();
-    this.contractFormThree.get('initialAmount')?.addValidators([ Validators.required, Validators.min(initialValueMin) ]);
+    this.contractFormThree.get('numberOfQuotesPaid')?.clearValidators();
 
-    this.contractFormThree.updateValueAndValidity();
+    this.contractFormThree.get('initialAmount')?.addValidators([ Validators.required, Validators.min(initialValueMin) ]);
+    this.contractFormThree.get('numberOfQuotesPaid')?.addValidators([ Validators.required, Validators.pattern( numberPatt ), Validators.min(0), Validators.max( quotas.length ) ]);
+
+    this.contractFormThree.get('initialAmount')?.updateValueAndValidity();
+    this.contractFormThree.get('numberOfQuotesPaid')?.updateValueAndValidity();
 
   }
 
@@ -648,8 +629,6 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
     const { initialAmount } = this.valueFormThree;
 
     const totalInterest = totalLotes * ( interestPercent / 100 );
-
-    // const totalToFinancing = (totalLotes - initialAmount);
 
     const totalToFinancingFinal = (totalLotes + totalInterest) - initialAmount;
 

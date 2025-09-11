@@ -20,21 +20,20 @@ export class LotesMapComponent {
   @ViewChild('lotesMap') mapContainer?: ElementRef<HTMLDivElement>;
 
   private _map?: Map;
-  //#FIXME: nueva lógica para mostrar lotes
+  //FIXME: nueva lógica para mostrar lotes
   private _popup: Popup = new Popup({ closeButton: true, closeOnClick: false });
   private hoveredId: string | number | null = null;
   private selectedId: string | number | null = null;
 
-  private readonly SOURCE_ID = 'lotesSource';
-  private readonly FILL_ID   = 'lotes-fill';
+  private readonly SOURCE_ID        = 'lotesSource';
+  private readonly FILL_ID          = 'lotes-fill';
   private readonly DASHED_LINE_ID   = 'lotes-dashed-line';
   private readonly FLAT_SOURCE_ID   = 'lotes-flat-image-source';
-  private readonly FLAT_LAYER_ID   = 'lotes-flat-image-layer';
+  private readonly FLAT_LAYER_ID    = 'lotes-flat-image-layer';
   private readonly FLAT_BORDER_SOURCE_ID   = 'lotes-flat-border';
 
   private readonly _emptyImage = '/assets/img/empty.png';
-
-  //#FIXME: nueva lógica para mostrar lotes
+  //FIXME: nueva lógica para mostrar lotes
 
   private _flatImage?: Photo;
 
@@ -171,7 +170,7 @@ export class LotesMapComponent {
     this._map.addLayer({
       id: this.FILL_ID, type: 'fill', source: this.SOURCE_ID,
       paint: {
-        'fill-color': '#67e8f9',
+        // 'fill-color': '#67e8f9',
         // [
         //   'match', ['get', 'loteStatus'],
         //   'AVAILABLE', '#67e8f9',
@@ -185,6 +184,7 @@ export class LotesMapComponent {
             ['boolean', ['feature-state', 'hovered'],  false], 0.45,
             0.3
         ],
+
       }
     });
 
@@ -250,14 +250,7 @@ export class LotesMapComponent {
     const features = lotes.map( (lote) => ({
         type: 'Feature',
         id: lote.id, // <- clave para feature-state
-        properties: {
-          id: lote.id,
-          code: lote.code,
-          price: lote.price,
-          squareMeters: lote.squareMeters,
-          status: lote.loteStatus, // 'Available' | 'Selled' | 'InProgress'
-          center: lote.centerCoords,
-        },
+        properties: { ...lote },
         geometry: {
           type: 'Polygon',
           coordinates: [ lote.polygonCoords.map(p => [Number(p.lng.toFixed(6)), Number(p.lat.toFixed(6))]) ],
@@ -310,16 +303,14 @@ export class LotesMapComponent {
         }
     }); **/
 
-    const features = [
-      {
-          'type': 'Feature',
-          'properties': {},
-          'geometry': {
-              'coordinates': [ points ],
-              'type': 'Polygon'
-          }
+    const features = [{
+      'type': 'Feature',
+      'properties': {},
+      'geometry': {
+          'coordinates': [ points ],
+          'type': 'Polygon'
       }
-    ];
+    }];
 
     const fc = { type: 'FeatureCollection', features } as GeoJSON.FeatureCollection;
     (this._map!.getSource(this.FLAT_BORDER_SOURCE_ID) as mapboxgl.GeoJSONSource).setData(fc);

@@ -85,7 +85,7 @@ const routes: Routes = [
         data: { title: 'Asesores comerciales' }
       },
       {
-        path: 'create-contract',
+        path: 'contracts/create-contract',
         loadComponent: () => import('../modules/admin/pages/contract-form/contract-form.component'),
         data: { title: 'Crear contrato' }
       },

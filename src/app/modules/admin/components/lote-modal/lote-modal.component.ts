@@ -116,7 +116,6 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
       zoomMap:       [ 14, [] ],
   });
 
-  private _loteCreated: Lote | undefined = undefined;
   private _isSaving = signal( false );
   public isSaving = computed( () => this._isSaving() );
   private get _loteBody(): LoteBody { return this.loteForm.value as LoteBody; }
@@ -129,11 +128,11 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
     { value: 'V', label: 'V' }
   ];
 
+  loteTitleModal = 'Crear nuevo lote';
+  private _lotesRegistered: Lote[] = [];
   private _isBuildingMap = signal<boolean>( false );
-
   public isBuildingMap = computed( () => this._isBuildingMap() );
 
-  loteTitleModal = 'Crear nuevo lote';
 
   public stages = computed( () => this._stages );
 
@@ -151,16 +150,16 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnInit(): void {
 
-      const { proyect, loteToUpdate, webUrlPermissionMethods } = this.data;
+    const { proyect, loteToUpdate, webUrlPermissionMethods } = this.data;
 
-      this._webUrlPermissionMethods = webUrlPermissionMethods;
-      this.loteForm.get('proyectId')?.setValue( proyect.id );
+    this._webUrlPermissionMethods = webUrlPermissionMethods;
+    this.loteForm.get('proyectId')?.setValue( proyect.id );
 
-      if( loteToUpdate ) {
-        const { polygonCoords, ...lote } = loteToUpdate;
-        this.loteTitleModal = `Actualizar lote ${ lote.code }`;
-        this.loteForm.reset( lote );
-      }
+    if( loteToUpdate ) {
+      const { polygonCoords, ...lote } = loteToUpdate;
+      this.loteTitleModal = `Actualizar lote ${ lote.code }`;
+      this.loteForm.reset( lote );
+    }
 
   }
 
@@ -177,13 +176,13 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
       zoom: 14, //
     });
 
-    const { proyect, loteToUpdate } = this.data;
+    const { proyect, loteToUpdate, lotes } = this.data;
     const { centerCoords, polygonCoords, flatImage } = proyect;
 
     this._map.on('load', () => {
 
-      // this._map!.setCenter( centerCoords );
-      // this._map!.setZoom( 17 );
+      this._map!.setCenter( centerCoords );
+      this._map!.setZoom( 17 );
 
       this._onAddMapxboxElements();
       this._onAddMapboxEvents();
@@ -203,6 +202,9 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
       } else {
         this._onBuildBorderPolygon( polygonCoords );
       }
+
+      this._lotesRegistered = lotes;
+      this.onBuildLotes( lotes );
 
     });
 
@@ -308,7 +310,7 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
 
     if( !this._map ) throw new Error(`Div map container not found!!!`);
 
-    const { lotes } = this.data;
+    // const { lotes } = this.data;
 
     const points = polygonCoords.reduce<number[][]>( (acc: number[][], current) => {
       acc.push( [ current.lng, current.lat ] );
@@ -330,7 +332,7 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
     (this._map!.getSource(this.FLAT_BORDER_SOURCE_ID) as mapboxgl.GeoJSONSource).setData(fc);
 
     this.onAllowDrawer();
-    this.onBuildLotes( lotes );
+    // this.onBuildLotes( lotes );
 
     setTimeout(() => {
       this._isBuildingMap.set( false );
@@ -343,29 +345,12 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
     if( !this._map ) throw new Error(`Div map container not found!!!`);
 
     const { urlImg } = flatImage;
-    const { lotes } = this.data;
+    // const { lotes } = this.data;
 
     const points = polygonCoords.reduce<any>( (acc: number[][], current) => {
       acc.push( [ current.lng, current.lat ] );
       return acc;
     }, []);
-
-    // const imgSourceId = uuid();
-
-    // // Add an image source
-    // this._map.addSource(imgSourceId, {
-    //   'type': 'image',
-    //   'url': urlImg,
-    //   'coordinates': points
-    // });
-
-    // // Add a layer for displaying the image
-    // this._map.addLayer({
-    //   'id': uuid(),
-    //   'type': 'raster',
-    //   'source': imgSourceId,
-    //   'paint': { 'raster-opacity': 1.0 }
-    // });
 
     (this._map.getSource( this.FLAT_SOURCE_ID) as mapboxgl.ImageSource).updateImage({
       url: urlImg,
@@ -373,7 +358,7 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
     });
 
     this.onAllowDrawer();
-    this.onBuildLotes( lotes );
+    // this.onBuildLotes( lotes );
 
     setTimeout(() => {
       this._isBuildingMap.set( false );
@@ -587,73 +572,6 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
 
   }
 
-  private _onBuilLotePolygon( lote: Lote ) {
-
-    if( !this._map ) throw new Error(`Map not found!!!`);
-
-    const points = lote.polygonCoords.reduce<[number, number][]>( (acc, current) => {
-      acc.push( [ current.lng, current.lat ] );
-      return acc;
-    }, []);
-
-    const sourceId = lote.id;
-
-    this._map.addSource( sourceId, {
-      'type': 'geojson',
-      'data': {
-          'type': 'Feature',
-          'properties': {},
-          'geometry': {
-              'type': 'Polygon',
-              'coordinates': [ points ]
-          }
-      }
-    });
-
-    let fillColor = '#2d91ff';
-
-    switch ( lote.loteStatus ) {
-      case LoteStatus.Available:
-          fillColor = '#67e8f9';
-        break;
-
-        case LoteStatus.Selled:
-          fillColor = '#31c48d';
-          break;
-
-          case LoteStatus.InProgress:
-            fillColor = '#6b7280';
-            break;
-
-      default:
-        fillColor = '#fce96a';
-        break;
-    }
-
-    this._map.addLayer({
-      'id': uuid(),
-      'type': 'fill',
-      'source': sourceId,
-      'paint': {
-        'fill-color': fillColor,
-        'fill-opacity': 0.3
-      },
-    });
-
-    // add a line layer to visualize the clipping region.
-    this._map.addLayer({
-        'id': uuid(),
-        'type': 'line',
-        'source': sourceId,
-        'paint': {
-            'line-color': '#000',
-            'line-dasharray': [0, 4, 3],
-            'line-width': 0.7
-        }
-    });
-
-  }
-
   onResetAfterSubmit() {
     const { proyect } = this.data;
     this._isSaving.set( false );
@@ -699,12 +617,8 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
           this._alertService.showAlert(`Lote #${ loteCreated.code }, creado exitosamente`, undefined, 'success');
           this.onResetAfterSubmit();
 
-          const { lotes } = this.data;
-
-          const newLotes = [...lotes, loteCreated];
-
-          this.onBuildLotes( newLotes );
-          // this._onBuilLotePolygon( loteCreated );
+          this._lotesRegistered.push( loteCreated );
+          this.onBuildLotes( this._lotesRegistered );
 
           this._lotesCreatedOrUpdated.push( loteCreated );
           //this.dialogRef.close( loteCreated );

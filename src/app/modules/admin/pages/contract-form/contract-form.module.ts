@@ -7,6 +7,7 @@ import { NgSelectModule } from '@ng-select/ng-select';
 
 import { SpinnerComponent } from '@shared/components/spinner/spinner.component';
 import { InputErrorsDirective } from '@shared/directives/input-errors.directive';
+import { FlatpickrDirective } from 'angularx-flatpickr';
 
 @NgModule({
   imports: [
@@ -18,7 +19,8 @@ import { InputErrorsDirective } from '@shared/directives/input-errors.directive'
     MatDialogContent,
     SpinnerComponent,
     NgSelectModule,
-    InputErrorsDirective
+    InputErrorsDirective,
+    FlatpickrDirective
   ],
   exports: [
     CommonModule,
@@ -30,7 +32,8 @@ import { InputErrorsDirective } from '@shared/directives/input-errors.directive'
     SpinnerComponent,
     NgSelectModule,
     InputErrorsDirective,
-    RouterModule
+    RouterModule,
+    FlatpickrDirective
   ],
 })
 export class ContractFormModule { }
