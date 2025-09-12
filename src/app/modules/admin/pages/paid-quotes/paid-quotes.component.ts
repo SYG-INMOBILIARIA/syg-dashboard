@@ -139,6 +139,11 @@ export default class PaidQuotesComponent implements OnInit, OnDestroy {
 
       this._alertService.close();
       this._isLoading.set( false );
+
+      setTimeout(() => {
+        initFlowbite();
+      }, 400);
+
     });
 
   }
