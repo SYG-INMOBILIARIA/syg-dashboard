@@ -166,6 +166,8 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
   public amountPaidPending = computed( () => this._amountPaidPending() );
   public countQuotesPending = computed( () => this._countQuotesPending() );
 
+  private _financingQuota: Quota | null = null;
+
   private _polygonCoords: Coordinate[] = [];
 
   inputErrors( field: string ) {
@@ -575,8 +577,10 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
 
     if( !paymentType ) return;
 
-    const { value, label } = paymentType;
+    const { value } = paymentType;
     const totalLote = this._lotesAmount();
+    this._financingQuota = null;
+    // const { numberOfQuotesPaid } = this.valueFormThree;
 
     this.contractFormThree.get('financingId')?.clearValidators();
     this.contractFormThree.get('quotaId')?.clearValidators();
@@ -585,25 +589,31 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
 
     // initialAmount
     if( value == PaymentType.cash ) {
-      this._interestPercent.set( 0 );
-      this._amountToFinancing.set( 0 );
+      // this._interestPercent.set( 0 );
+      // this._amountToFinancing.set( 0 );
       this.contractFormThree.get('financingId')?.setValue(null);
       this.contractFormThree.get('quotaId')?.setValue(null);
       this.contractFormThree.get('initialAmount')?.addValidators([ Validators.required, Validators.min(totalLote) ]);
       this.contractFormThree.get('numberOfQuotesPaid')?.addValidators([ Validators.required, Validators.pattern( numberPatt ), Validators.min(0), Validators.max(1) ]);
       this.contractFormThree.get('initialAmount')?.setValue( totalLote );
       this._initialAmoutDisabled.set( true );
+
+
     } else {
       this.contractFormThree.get('numberOfQuotesPaid')?.addValidators([ Validators.required, Validators.pattern( numberPatt ), Validators.min(0) ]);
       this.contractFormThree.get('financingId')?.addValidators( [ Validators.required ] );
       this.contractFormThree.get('quotaId')?.addValidators( [ Validators.required ] );
       this._initialAmoutDisabled.set( false );
+      this.contractFormThree.get('initialAmount')?.setValue( 0 );
     }
 
     this.contractFormThree.get('financingId')?.updateValueAndValidity();
     this.contractFormThree.get('quotaId')?.updateValueAndValidity();
     this.contractFormThree.get('initialAmount')?.updateValueAndValidity();
     this.contractFormThree.get('numberOfQuotesPaid')?.updateValueAndValidity();
+
+    this.onCalculateAmountTotals();
+
   }
 
   onChangeFinancing( financing: Financing ) {
@@ -630,23 +640,51 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
   }
 
   onChangeQuota( quota: Quota ) {
+    this._financingQuota = quota;
+    this.onCalculateAmountTotals();
+  }
+
+  // TODO: crear una funcion qye realize los cálculos
+  //cada vez que hay cambios en los campos, tipo de pago, monto inicial, nro cuotas pagadas, cuotas de pago
+  onCalculateAmountTotals() {
 
     const totalLotes = this._lotesAmount();
-    const { interestPercent, numberOfQuotes } = quota;
+    const { initialAmount, numberOfQuotesPaid, paymentType } = this.valueFormThree;
 
-    const { initialAmount, numberOfQuotesPaid } = this.valueFormThree;
-    const totalInterest = totalLotes * ( interestPercent / 100 );
-    const totalToFinancingFinal = (totalLotes + totalInterest) - initialAmount;
+    if( this._financingQuota ) {
 
-    const amountQuota = totalToFinancingFinal / numberOfQuotes;
-    const amountPaid = amountQuota * numberOfQuotesPaid;
+      const { interestPercent, numberOfQuotes } = this._financingQuota;
 
-    this._interestPercent.set( interestPercent );
-    this._amountToFinancing.set( totalToFinancingFinal );
-    this._amountToQuota.set( amountQuota );
-    this._countQuotesPending.set( numberOfQuotes - numberOfQuotesPaid );
-    this._amountPaid.set( amountPaid );
-    this._amountPaidPending.set( totalToFinancingFinal - amountPaid );
+      const totalInterest = totalLotes * ( interestPercent / 100 );
+      const totalToFinancingFinal = (totalLotes + totalInterest) - initialAmount;
+
+      const amountQuota = totalToFinancingFinal / numberOfQuotes;
+      const amountPaid = amountQuota * numberOfQuotesPaid;
+
+      this._interestPercent.set( interestPercent );
+      this._amountToFinancing.set( totalToFinancingFinal );
+      this._amountToQuota.set( amountQuota );
+
+      this._countQuotesPending.set( numberOfQuotes - numberOfQuotesPaid );
+      this._amountPaid.set( amountPaid );
+      this._amountPaidPending.set( totalToFinancingFinal - amountPaid );
+
+    } else if( paymentType == PaymentType.cash ) {
+
+      const totalToFinancingFinal = totalLotes;
+
+      const amountQuota = totalToFinancingFinal;
+      const amountPaid = amountQuota * numberOfQuotesPaid;
+
+      this._interestPercent.set( 0 );
+      this._amountToFinancing.set( totalToFinancingFinal );
+      this._amountToQuota.set( amountQuota );
+
+      this._countQuotesPending.set( 1 - numberOfQuotesPaid );
+      this._amountPaid.set( amountPaid );
+      this._amountPaidPending.set( totalToFinancingFinal - amountPaid );
+    }
+
   }
 
   onResetAfterSubmit( ) {
