@@ -14,4 +14,7 @@ export interface ContractFormThree {
   financingId: string;
   quotaId: string;
   initialAmount: number;
+
+  numberOfQuotesPaid: number;
+  contractDate?: string;
 }

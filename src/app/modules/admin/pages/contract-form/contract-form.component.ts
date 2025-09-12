@@ -117,7 +117,7 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
     financingId:        [ null, [ ] ],
     quotaId:            [ null, [ ] ],
     initialAmount:      [ null, [ Validators.required, Validators.min(5000) ] ],
-    //BUG: el valor máximo debe ser el número de cuotas
+
     numberOfQuotesPaid: [ 0, [ Validators.required, Validators.min(0), Validators.pattern( numberPatt ) ] ],
     contractDate:       [ null, [ ] ],
   });
@@ -142,6 +142,9 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
   private _interestPercent = signal<number>( 0 );
   private _amountToFinancing = signal<number>( 0 );
   private _amountToQuota = signal<number>( 0 );
+  private _amountPaid = signal<number>( 0 );
+  private _amountPaidPending = signal<number>( 0 );
+  private _countQuotesPending = signal<number>( 0 );
 
   public paymentTypes = computed( () => this._paymentTypes() );
   public initialAmoutDisabled = computed( () => this._initialAmoutDisabled() );
@@ -159,6 +162,9 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
   public interestPercent = computed( () => this._interestPercent() );
   public amountToFinancing = computed( () => this._amountToFinancing() );
   public amountToQuota = computed( () => this._amountToQuota() );
+  public amountPaid = computed( () => this._amountPaid() );
+  public amountPaidPending = computed( () => this._amountPaidPending() );
+  public countQuotesPending = computed( () => this._countQuotesPending() );
 
   private _polygonCoords: Coordinate[] = [];
 
@@ -179,6 +185,8 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
   get invalidFormOne() { return this.contractFormOne.invalid; }
   get invalidFormTwo() { return this.contractFormTwo.invalid; }
   get invalidFormThree() { return this.contractFormThree.invalid; }
+  get numberOfQuotesPaid() { return this.contractFormThree.get('numberOfQuotesPaid')?.value ?? 0; }
+
 
   isTouched( field: string ) {
     return this.contractFormOne.get(field)?.touched ?? false;
@@ -626,16 +634,19 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
     const totalLotes = this._lotesAmount();
     const { interestPercent, numberOfQuotes } = quota;
 
-    const { initialAmount } = this.valueFormThree;
-
+    const { initialAmount, numberOfQuotesPaid } = this.valueFormThree;
     const totalInterest = totalLotes * ( interestPercent / 100 );
-
     const totalToFinancingFinal = (totalLotes + totalInterest) - initialAmount;
+
+    const amountQuota = totalToFinancingFinal / numberOfQuotes;
+    const amountPaid = amountQuota * numberOfQuotesPaid;
 
     this._interestPercent.set( interestPercent );
     this._amountToFinancing.set( totalToFinancingFinal );
-    this._amountToQuota.set( totalToFinancingFinal / numberOfQuotes )
-
+    this._amountToQuota.set( amountQuota );
+    this._countQuotesPending.set( numberOfQuotes - numberOfQuotesPaid );
+    this._amountPaid.set( amountPaid );
+    this._amountPaidPending.set( totalToFinancingFinal - amountPaid );
   }
 
   onResetAfterSubmit( ) {

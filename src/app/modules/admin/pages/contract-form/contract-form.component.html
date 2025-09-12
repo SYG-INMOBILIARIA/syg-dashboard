@@ -566,6 +566,35 @@
                           S/ {{ amountToFinancing() | number: '.2-2' }}
                         </td>
                       </tr>
+
+                      <tr class="font-semibold text-gray-900 dark:text-white">
+                        <th scope="row" class="px-6 py-1 text-base">Cant. Cuotas pagadas</th>
+                        <td class="px-6 py-1 text-right">
+                          {{ numberOfQuotesPaid }}
+                        </td>
+                      </tr>
+
+                      <tr class="font-semibold text-gray-900 dark:text-white">
+                        <th scope="row" class="px-6 py-1 text-base">Cant. Cuotas pendientes</th>
+                        <td class="px-6 py-1 text-right">
+                          {{ countQuotesPending() }}
+                        </td>
+                      </tr>
+
+                      <tr class="font-semibold text-gray-900 dark:text-white">
+                        <th scope="row" class="px-6 py-1 text-base">Monto pagado</th>
+                        <td class="px-6 py-1 text-right">
+                          S/ {{ amountPaid() | number: '.2-2' }}
+                        </td>
+                      </tr>
+
+                      <tr class="font-semibold text-gray-900 dark:text-white">
+                        <th scope="row" class="px-6 py-1 text-base">Monto por pagar</th>
+                        <td class="px-6 py-1 text-right">
+                          S/ {{ amountPaidPending() | number: '.2-2' }}
+                        </td>
+                      </tr>
+
                       <tr class="font-semibold text-gray-900 dark:text-white">
                         <th scope="row" class="px-6 py-1 text-base">Monto por cuota</th>
                         <td class="px-6 py-1 text-right">

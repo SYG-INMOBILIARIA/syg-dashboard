@@ -170,7 +170,7 @@ export class LotesMapComponent {
     this._map.addLayer({
       id: this.FILL_ID, type: 'fill', source: this.SOURCE_ID,
       paint: {
-        // 'fill-color': '#67e8f9',
+        'fill-color': '#67e8f9',
         // [
         //   'match', ['get', 'loteStatus'],
         //   'AVAILABLE', '#67e8f9',
@@ -272,48 +272,17 @@ export class LotesMapComponent {
       return acc;
     }, []);
 
-    /**const eraserId = uuid();
-
-    this._map.addSource( eraserId, {
-        'type': 'geojson',
-        'data': {
-            'type': 'FeatureCollection',
-            'features': [
-                {
-                    'type': 'Feature',
-                    'properties': {},
-                    'geometry': {
-                        'coordinates': [ points ],
-                        'type': 'Polygon'
-                    }
-                }
-            ]
-        }
-    });
-
-    // add a line layer to visualize the clipping region.
-    this._map.addLayer({
-        'id': uuid(),
-        'type': 'line',
-        'source': eraserId,
-        'paint': {
-            'line-color': 'rgba(255, 0, 0, 0.9)',
-            'line-dasharray': [0, 4, 3],
-            'line-width': 5
-        }
-    }); **/
-
     const features = [{
       'type': 'Feature',
       'properties': {},
       'geometry': {
-          'coordinates': [ points ],
+          'coordinates': [ ...points ],
           'type': 'Polygon'
       }
     }];
 
     const fc = { type: 'FeatureCollection', features } as GeoJSON.FeatureCollection;
-    (this._map!.getSource(this.FLAT_BORDER_SOURCE_ID) as mapboxgl.GeoJSONSource).setData(fc);
+    (this._map!.getSource<mapboxgl.GeoJSONSource>(this.FLAT_BORDER_SOURCE_ID))?.setData(fc);
 
   }
 
