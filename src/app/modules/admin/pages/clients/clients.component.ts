@@ -56,7 +56,6 @@ export default class ClientsComponent implements OnInit, OnDestroy {
   @ViewChild('btnShowCredentialsModal') btnShowCredentialsModal!: ElementRef<HTMLButtonElement>;
   @ViewChild('btnCloseCredentialsModal') btnCloseCredentialsModal!: ElementRef<HTMLButtonElement>;
 
-
   public clientModalTitle = 'Crear nuevo cliente';
 
   maxBirthDate: Date = new Date(2005, 12, 31 );
@@ -91,9 +90,9 @@ export default class ClientsComponent implements OnInit, OnDestroy {
     personType:           [ null, [ Validators.required ] ],
     identityDocumentId:   [ null, [ Validators.required ] ],
     identityNumber:       [ '', [ Validators.required, Validators.pattern( numberDocumentPatt ) ] ],
-    birthDate:            [ '', [] ],
-    email:                [ '', [ Validators.required, Validators.pattern( emailPatt ) ] ],
-    phone:                [ '', [ Validators.required, Validators.pattern( phonePatt ) ] ],
+    birthDate:            [ null, [] ],
+    email:                [ null, [ Validators.pattern( emailPatt ) ] ],
+    phone:                [ null, [ Validators.pattern( phonePatt ) ] ],
     secondaryPhone:       [ '', [ Validators.pattern( phonePatt ) ] ],
     address:              [ '', [ Validators.required, Validators.pattern( fullTextPatt ) ] ],
     gender:               [ null, [ Validators.required ] ],

@@ -651,38 +651,43 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
     const totalLotes = this._lotesAmount();
     const { initialAmount, numberOfQuotesPaid, paymentType } = this.valueFormThree;
 
+    let totalToFinancing = 0;
+
     if( this._financingQuota ) {
 
       const { interestPercent, numberOfQuotes } = this._financingQuota;
 
-      const totalInterest = totalLotes * ( interestPercent / 100 );
-      const totalToFinancingFinal = (totalLotes + totalInterest) - initialAmount;
+      totalToFinancing = totalLotes - initialAmount;
 
-      const amountQuota = totalToFinancingFinal / numberOfQuotes;
+      const totalInterest = totalToFinancing * ( interestPercent / 100 );
+
+      totalToFinancing += totalInterest;
+
+      const amountQuota = totalToFinancing / numberOfQuotes;
       const amountPaid = amountQuota * numberOfQuotesPaid;
 
       this._interestPercent.set( interestPercent );
-      this._amountToFinancing.set( totalToFinancingFinal );
+      this._amountToFinancing.set( totalToFinancing );
       this._amountToQuota.set( amountQuota );
 
       this._countQuotesPending.set( numberOfQuotes - numberOfQuotesPaid );
       this._amountPaid.set( amountPaid );
-      this._amountPaidPending.set( totalToFinancingFinal - amountPaid );
+      this._amountPaidPending.set( totalToFinancing - amountPaid );
 
     } else if( paymentType == PaymentType.cash ) {
 
-      const totalToFinancingFinal = totalLotes;
+      totalToFinancing = totalLotes;
 
-      const amountQuota = totalToFinancingFinal;
+      const amountQuota = totalToFinancing;
       const amountPaid = amountQuota * numberOfQuotesPaid;
 
       this._interestPercent.set( 0 );
-      this._amountToFinancing.set( totalToFinancingFinal );
+      this._amountToFinancing.set( totalToFinancing );
       this._amountToQuota.set( amountQuota );
 
       this._countQuotesPending.set( 1 - numberOfQuotesPaid );
       this._amountPaid.set( amountPaid );
-      this._amountPaidPending.set( totalToFinancingFinal - amountPaid );
+      this._amountPaidPending.set( totalToFinancing - amountPaid );
     }
 
   }
