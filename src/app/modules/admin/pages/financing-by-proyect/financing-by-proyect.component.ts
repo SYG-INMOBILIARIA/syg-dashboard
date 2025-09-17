@@ -343,7 +343,7 @@ export default class FinancingByProyectComponent implements OnInit, OnDestroy {
     this.financingForm.updateValueAndValidity();
 
     if( value == FinancingType.amount ) {
-      this.financingForm.get('initial')?.addValidators([ Validators.min(5000) ]);
+      this.financingForm.get('initial')?.addValidators([ Validators.min(1000) ]);
       this._initialLabel.set('Monto Inicial (S/)*');
     } else {
       this.financingForm.get('initial')?.addValidators([ Validators.min(5), Validators.max(100) ]);
