@@ -131,7 +131,12 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
   private _users = signal<User[]>( [] );
   private _proyects = signal<Proyect[]>( [] );
   private _lotes = signal<Lote[]>( [] );
-  private _lotesBusied = signal<Lote[]>( [] );
+
+  //TODO: ?Este campo tiene que borrarse, solo bastará validar el estado del lote
+  //private _lotesBusied = signal<Lote[]>( [] );
+  //public lotesBusied = computed( () => this._lotesBusied() );
+  //TODO: ?Este campo tiene que borrarse, solo bastará validar el estado del lote
+
   private _lotesSelected = signal<LoteSelectedInMap[]>( [] );
 
   private _financings = signal<Financing[]>( [] );
@@ -154,7 +159,6 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
   public users = computed( () => this._users() );
   public proyects = computed( () => this._proyects() );
   public lotes = computed( () => this._lotes() );
-  public lotesBusied = computed( () => this._lotesBusied() );
   public lotesSelected = computed( () => this._lotesSelected() );
   public financings = computed( () => this._financings() );
   public quotas = computed( () => this._quotas() );
@@ -204,13 +208,14 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
   get valueFormTwo(): ContractFormTwo { return this.contractFormTwo.value; }
   get valueFormThree(): ContractFormThree { return this.contractFormThree.value; }
 
-  get lotesIdsBusied(): string[] {
+  //TODO: ?Este getter tiene que borrarse, solo bastará validar el estado del lote
+  /**get lotesIdsBusied(): string[] {
     const lotesBusied = this._lotesBusied();
     return lotesBusied.reduce<string[]>( (acc, loteBusied) => {
       acc.push( loteBusied.id );
       return acc;
     }, []);
-  }
+  }*/
 
   get lotesIdsSelected(): string[] {
     const lotesSelected = this._lotesSelected();
@@ -314,13 +319,8 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
       id: this.FILL_ID, type: 'fill', source: this.SOURCE_ID,
       paint: {
         // 'fill-color': '#67e8f9',
-        // [
-        //   'match', ['get', 'loteStatus'],
-        //   'AVAILABLE', '#67e8f9',
-        //   'SELLED',    '#31c48d',
-        //   'IN_PROGRESS','#6b7280',
-        //   /* default */ '#fce96a'
-        // ],
+
+
         'fill-opacity': [
           'case',
             ['boolean', ['feature-state', 'selected'], false], 0.55,
@@ -329,9 +329,20 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
         ],
         'fill-color': [
           'case',
+            // Si está ocupado (busied)
             ['boolean', ['feature-state', 'busied'], false], '#E65757',
+
+            // Si está seleccionado para venta (selectedForSale)
             ['boolean', ['feature-state', 'selectedForSale'],  false], '#78E657',
-            '#67e8f9'
+
+            // Si no hay estados especiales, usamos el loteStatus
+            ['match', ['get', 'loteStatus'],
+            'AVAILABLE', '#67e8f9',
+            'SELLED',    '#31c48d',
+            'RESERVED',   '#FFDC42',
+            'IN_PROGRESS','#6b7280',
+            /* default */ '#67e8f9'
+            ]
         ],
       }
     });
@@ -370,15 +381,34 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
           Precio: <span class="font-extrabold text-md text-green-500">S/ ${Number(lote.price).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
         </p>`;
 
-      const lotesBusiedId = this.lotesIdsBusied;
-      const loteIsBusied = lotesBusiedId.includes( lote.id );
+      //const lotesBusiedId = this.lotesIdsBusied;
+      //const loteIsBusied = lotesBusiedId.includes( lote.id );
 
-      if( loteIsBusied ) {
+      let color = 'green';
+      let estado = 'Vendido';
+      switch (lote.loteStatus) {
+        case LoteStatus.Reserved:
+          color = 'yellow';
+          estado = 'Reservado';
+          break;
+
+          case LoteStatus.Selled:
+            color = 'green';
+            estado = 'Vendido';
+            break;
+
+        default:
+          color = 'slate';
+          estado = 'En progreso';
+          break;
+      }
+
+      if( lote.loteStatus != LoteStatus.Available ) {
         popupHtml += `
           <div class="flex justify-start items-center pt-1" >
-            <div class="w-4 h-4 bg-red-500 border-2 border-red-500 rounded-full dark:border-gray-900 mr-4"></div>
-            <span class="text-red-600 font-semibold">
-              Ocupado
+            <div class="w-4 h-4 bg-${color}-500 border-2 border-${color}-500 rounded-full dark:border-gray-900 mr-4"></div>
+            <span class="text-${color}-600 font-semibold">
+              ${ estado }
             </span>
           </div>
         `;
@@ -409,12 +439,16 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
 
       const lote = f.properties as Lote;
 
-      const lotesBusiedId = this.lotesIdsBusied;
+      //TODO: esto se trandrá que quitar después solo batará validar el estado del lote
+      //const lotesBusiedId = this.lotesIdsBusied;
+      //const loteIsBusied = lotesBusiedId.includes( lote.id );
+      //TODO: esto se trandrá que quitar después solo batará validar el estado del lote
+
       const lotesSelectedIds = this.lotesIdsSelected;
-      const loteIsBusied = lotesBusiedId.includes( lote.id );
       const loteIsSelected = lotesSelectedIds.includes( lote.id );
 
-      if( !loteIsBusied && !loteIsSelected ) {
+      // !loteIsBusied &&
+      if(  !loteIsSelected && lote.loteStatus == 'AVAILABLE' ) {
         this._map!.setFeatureState({ source: this.SOURCE_ID, id }, { selectedForSale: true });
         this._lotesSelected.update( (value) => [ lote, ...value ] );
       }
@@ -514,18 +548,25 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
     forkJoin({
       proyectByIdResponse: this._proyectService.getProyectById( proyectId ),
       lotesResponse: this._loteService.getLotesForMap( proyectId, 1, '', 1000 ),
+      //TODO: ?Esta llamada a api se tiene que quitar
       contractLotesBusied: this._contractService.getContractsByProyect( proyectId ),
+      //TODO: ?Esta llamada a api se tiene que quitar
     }).subscribe( ( { proyectByIdResponse, lotesResponse, contractLotesBusied } ) => {
 
 
-      this._lotesBusied.set([]);
+      //TODO: ?Esto se tiene que quitar
+      //this._lotesBusied.set([]);
+      //TODO: ?Esto se tiene que quitar
+
       this._lotesSelected.set([]);
 
-      contractLotesBusied.forEach(({ lotes }) => {
+      //TODO: ?Esto se tiene que quitar
+      /*contractLotesBusied.forEach(({ lotes }) => {
         this._lotesBusied.update( (lotesBusied) => {
           return [ ...lotes, ...lotesBusied];
         });
-      });
+      });*/
+      //TODO: ?Esto se tiene que quitar
 
       const { polygonCoords, centerCoords, flatImage } = proyectByIdResponse;
       const { lotes } = lotesResponse;

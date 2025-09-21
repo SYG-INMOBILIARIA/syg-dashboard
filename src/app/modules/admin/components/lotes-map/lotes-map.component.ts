@@ -170,14 +170,14 @@ export class LotesMapComponent {
     this._map.addLayer({
       id: this.FILL_ID, type: 'fill', source: this.SOURCE_ID,
       paint: {
-        'fill-color': '#67e8f9',
-        // [
-        //   'match', ['get', 'loteStatus'],
-        //   'AVAILABLE', '#67e8f9',
-        //   'SELLED',    '#31c48d',
-        //   'IN_PROGRESS','#6b7280',
-        //   /* default */ '#fce96a'
-        // ],
+        'fill-color': [
+          'match', ['get', 'loteStatus'],
+          'AVAILABLE', '#67e8f9',
+          'SELLED',    '#31c48d',
+          'RESERVED',   '#FFDC42',
+          'IN_PROGRESS','#6b7280',
+          /* default */ '#67e8f9'
+        ],
         'fill-opacity': [
           'case',
             ['boolean', ['feature-state', 'selected'], false], 0.55,
@@ -231,14 +231,45 @@ export class LotesMapComponent {
       this.selectedId = id;
       this._map!.setFeatureState({ source: this.SOURCE_ID, id }, { selected: true });
 
-      const p = f.properties as any;
-      const html = `
-        <span class="font-extrabold text-md text-blue-500">Lote: ${p.code}</span>
+      const lote = f.properties as Lote;
+      let popupHtml = `
+        <span class="font-extrabold text-md text-blue-500">Lote: ${lote.code}</span>
         <p class="text-md font-semibold">
-          Área: ${p.squareMeters} m²<br>
-          Precio: <span class="font-extrabold text-md text-green-500">S/ ${Number(p.price).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+          Área: ${lote.squareMeters} m²<br>
+          Precio: <span class="font-extrabold text-md text-green-500">S/ ${Number(lote.price).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
         </p>`;
-      this._popup.setLngLat(e.lngLat).setHTML(html).addTo(this._map!);
+
+        let color = 'green';
+        let estado = 'Vendido';
+        switch (lote.loteStatus) {
+          case LoteStatus.Reserved:
+            color = 'yellow';
+            estado = 'Reservado';
+            break;
+
+            case LoteStatus.Selled:
+              color = 'green';
+              estado = 'Vendido';
+              break;
+
+          default:
+            color = 'slate';
+            estado = 'En progreso';
+            break;
+        }
+
+        if( lote.loteStatus != LoteStatus.Available ) {
+          popupHtml += `
+            <div class="flex justify-start items-center pt-1" >
+              <div class="w-4 h-4 bg-${color}-500 border-2 border-${color}-500 rounded-full dark:border-gray-900 mr-4"></div>
+              <span class="text-${color}-600 font-semibold">
+                ${ estado }
+              </span>
+            </div>
+          `;
+        }
+
+      this._popup.setLngLat(e.lngLat).setHTML(popupHtml).addTo(this._map!);
     });
 
   }

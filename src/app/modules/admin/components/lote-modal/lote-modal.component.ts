@@ -270,7 +270,14 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
     this._map.addLayer({
       id: this.FILL_ID, type: 'fill', source: this.SOURCE_ID,
       paint: {
-        'fill-color': '#67e8f9',
+        'fill-color': [
+          'match', ['get', 'loteStatus'],
+          'AVAILABLE', '#67e8f9',
+          'SELLED',    '#31c48d',
+          'RESERVED',   '#FFDC42',
+          'IN_PROGRESS','#6b7280',
+          /* default */ '#67e8f9'
+        ],
         'fill-opacity': [
           'case',
             ['boolean', ['feature-state', 'selected'], false], 0.55,
@@ -539,15 +546,6 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
     if( loteToUpdate ) {
       lotes = lotes.filter( (lote) => lote.id != loteToUpdate.id );
     }
-
-    // for ( const key in lotes ) {
-    //   if (Object.prototype.hasOwnProperty.call(lotes, key)) {
-
-    //     const lote = lotes[key];
-    //     this._onBuilLotePolygon( lote );
-
-    //   }
-    // }
 
     const features = lotes.map( (lote) => ({
       type: 'Feature',
