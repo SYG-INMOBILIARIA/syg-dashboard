@@ -620,7 +620,6 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
 
     const { value } = paymentType;
     const totalLote = this._lotesAmount();
-    this._financingQuota = null;
     // const { numberOfQuotesPaid } = this.valueFormThree;
 
     this.contractFormThree.get('financingId')?.clearValidators();
@@ -630,6 +629,7 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
 
     // initialAmount
     if( value == PaymentType.cash ) {
+      // this._financingQuota = null;
       // this._interestPercent.set( 0 );
       // this._amountToFinancing.set( 0 );
       this.contractFormThree.get('financingId')?.setValue(null);
@@ -658,22 +658,35 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
   }
 
   onChangeFinancing( financing: Financing ) {
+
+    if( !financing ) return;
+
     const { quotas, initial, financingType } = financing;
     const totalLote = this._lotesAmount();
 
     this._quotas.set( quotas );
 
     let initialValueMin = initial;
+    let numberOfQuotesValidators = [
+      Validators.required
+      , Validators.pattern( numberPatt )
+      , Validators.min(0)
+      // , Validators.max( quotas.length )
+    ];
 
     if( financingType == FinancingType.percent ) {
       initialValueMin = totalLote * ( initial / 100 );
+    }
+
+    if( this._financingQuota ) {
+      numberOfQuotesValidators.push( Validators.max( this._financingQuota.numberOfQuotes )  );
     }
 
     this.contractFormThree.get('initialAmount')?.clearValidators();
     this.contractFormThree.get('numberOfQuotesPaid')?.clearValidators();
 
     this.contractFormThree.get('initialAmount')?.addValidators([ Validators.required, Validators.min(initialValueMin) ]);
-    this.contractFormThree.get('numberOfQuotesPaid')?.addValidators([ Validators.required, Validators.pattern( numberPatt ), Validators.min(0), Validators.max( quotas.length ) ]);
+    this.contractFormThree.get('numberOfQuotesPaid')?.addValidators( numberOfQuotesValidators );
 
     this.contractFormThree.get('initialAmount')?.updateValueAndValidity();
     this.contractFormThree.get('numberOfQuotesPaid')?.updateValueAndValidity();
@@ -682,6 +695,22 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
 
   onChangeQuota( quota: Quota ) {
     this._financingQuota = quota;
+
+    let numberOfQuotesValidators = [
+      Validators.required
+      , Validators.pattern( numberPatt )
+      , Validators.min(0)
+      // , Validators.max( quotas.length )
+    ];
+
+    if( quota ) {
+      numberOfQuotesValidators.push( Validators.max( quota.numberOfQuotes)  );
+    }
+
+    this.contractFormThree.get('numberOfQuotesPaid')?.clearValidators();
+    this.contractFormThree.get('numberOfQuotesPaid')?.addValidators( numberOfQuotesValidators );
+    this.contractFormThree.get('numberOfQuotesPaid')?.updateValueAndValidity();
+
     this.onCalculateAmountTotals();
   }
 
