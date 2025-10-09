@@ -28,6 +28,7 @@ import { ClientValidatorService } from '../../validators/client-validator.servic
 import { RoleService } from '@modules/security/services/role.service';
 import { oneLowercaseInPassword, oneUppercaseInPassword } from '@modules/admin/validators/password-valdiator.service';
 import { CredentialsBody } from '../../interfaces/credentials-body.interface';
+import { ExcelExportService } from '@shared/services/excel-export.service';
 
 @Component({
   standalone: true,
@@ -62,6 +63,7 @@ export default class ClientsComponent implements OnInit, OnDestroy {
 
   private _router = inject( Router );
   private _clientService = inject( ClientService );
+  private _excelExportService = inject( ExcelExportService );
   private _ubigeoService = inject( UbigeoService );
   private _clientValidatorService = inject( ClientValidatorService );
   private _identityDocService = inject( IdentityDocumentService );
@@ -73,6 +75,8 @@ export default class ClientsComponent implements OnInit, OnDestroy {
   private _isSaving = signal( false );
   private _isJuridicPerson = signal( false );
   private _isSavingCredentials = signal( false );
+  private _exportInProgress = signal( false );
+
   showPassword =  false;
   showConfirmPassword = false;
   private _allowList = signal( true );
@@ -134,6 +138,7 @@ export default class ClientsComponent implements OnInit, OnDestroy {
 
   public clients = computed( () => this._clients() );
 
+  public exportInProgress = computed( () => this._exportInProgress() );
   public identityDocuments = computed( () => this._identityDocuments() );
   public roles = computed( () => this._roles() );
   public selectedClient = computed( () => this._selectedClient() );
@@ -225,6 +230,58 @@ export default class ClientsComponent implements OnInit, OnDestroy {
 
       this._webUrlPermissionMethods = webUrlPermissionMethods;
     });
+  }
+
+  onExport() {
+
+    const allowExport = this._webUrlPermissionMethods.some(
+      (permission) => permission.webApi == apiClient && permission.methods.includes( 'GET' )
+    );
+
+    if( !allowExport ) {
+      this._alertService.showAlert( undefined, 'No tiene permiso para exportar clientes', 'warning');
+      return;
+    }
+
+
+    this._exportInProgress.set( true );
+
+    this._filter = this.searchInput.value ?? '';
+
+    const dptCode = this.departmentInput.value ?? null;
+    const provCode = this.provinceInput.value ?? null;
+    const distCode = this.districtInput.value ?? null;
+
+    this._clientService.getClients( 1, this._filter, 50000, false, dptCode, provCode, distCode )
+    .subscribe({
+      next: ({ clients }) => {
+
+        this._exportInProgress.set( false );
+
+        if( clients.length === 0 ) {
+          this._alertService.showAlert( undefined, 'No hay datos para exportar', 'info');
+          return;
+        }
+
+        const dataToExport = clients.map( client => ({
+          'Nombre completo': client.fullname ?? '',
+          'Documento': client.identityDocument?.shortDescription ?? '',
+          'N° Documento': client.identityNumber ?? '',
+          'Teléfono': client.phone ?? '',
+          'Correo electrónico': client.email ?? '',
+          'Dirección': client.address ?? '',
+          'Fecha de creación': client.createAt ? new Date( client.createAt ).toLocaleDateString() : '',
+        }) );
+
+        this._excelExportService.exportToExcel( dataToExport, 'clientes' );
+
+      }, error: (err) => {
+        this._exportInProgress.set( false );
+      }
+    });
+
+
+
   }
 
   onGetClients( page = 1 ) {

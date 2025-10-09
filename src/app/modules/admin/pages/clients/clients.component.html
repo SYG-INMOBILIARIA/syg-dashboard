@@ -92,6 +92,16 @@
             </button>
 
             <button
+              type="button"
+              class="inline-block px-6 py-2 mr-3 font-semibold text-center text-white align-middle transition-all rounded cursor-pointer bg-emerald-600 hover:bg-emerald-700 leading-normal ease-in tracking-tight-rem shadow-xs bg-150 bg-x-25 hover:-translate-y-px active:opacity-85 hover:shadow-md "
+              (click)="onExport()"
+            >
+              <i class="fa-solid fa-file-arrow-down" *ngIf="!exportInProgress(); else exportingSpinner" ></i>
+
+              &nbsp;Exportar
+            </button>
+
+            <button
               #btnShowCredentialsModal
               type="button"
               data-modal-target="credentials-modal"
@@ -753,7 +763,7 @@
                   '!bg-gray-400 text-black': isFormInvalid || isSaving()
                 }"
               >
-                <span *ngIf="!isSaving() else singinSpinner" >
+                <span *ngIf="!isSaving() else savingSpinner" >
                   Guardar
                 </span>
               </button>
@@ -1045,10 +1055,15 @@
 </div>
 
 
-<ng-template #singinSpinner>
+<ng-template #savingSpinner>
   <spinner></spinner>
 </ng-template>
 
 <ng-template #credentialsSpinner>
   <spinner></spinner>
+</ng-template>
+
+
+<ng-template #exportingSpinner>
+  <i class="fa-solid fa-spinner fa-spin"></i>
 </ng-template>
