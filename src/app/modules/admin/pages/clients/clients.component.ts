@@ -29,6 +29,8 @@ import { RoleService } from '@modules/security/services/role.service';
 import { oneLowercaseInPassword, oneUppercaseInPassword } from '@modules/admin/validators/password-valdiator.service';
 import { CredentialsBody } from '../../interfaces/credentials-body.interface';
 import { ExcelExportService } from '@shared/services/excel-export.service';
+import { CivilStatusPipe } from '@pipes/civil-status.pipe';
+import { GenderPipe } from '@pipes/gender.pipe';
 
 @Component({
   standalone: true,
@@ -42,6 +44,10 @@ import { ExcelExportService } from '@shared/services/excel-export.service';
     PipesModule,
     NgSelectModule,
     FlatpickrDirective,
+  ],
+  providers: [
+    CivilStatusPipe,
+    GenderPipe
   ],
   templateUrl: './clients.component.html',
   styles: ``
@@ -71,6 +77,9 @@ export default class ClientsComponent implements OnInit, OnDestroy {
   private _alertService = inject( AlertService );
   private _formBuilder = inject( UntypedFormBuilder );
   private _roleService = inject( RoleService );
+  private _civilStatusPipe = inject( CivilStatusPipe );
+  private _genderPipe = inject( GenderPipe );
+
   private _isLoading = signal( true );
   private _isSaving = signal( false );
   private _isJuridicPerson = signal( false );
@@ -202,7 +211,6 @@ export default class ClientsComponent implements OnInit, OnDestroy {
     return errors.includes('oneNumber');
   }
 
-
   get formErrors() { return this.clientForm.errors; }
 
   get credentialsFormErrors() { return this.credentialsForm.errors; }
@@ -270,6 +278,9 @@ export default class ClientsComponent implements OnInit, OnDestroy {
           'Teléfono': client.phone ?? '',
           'Correo electrónico': client.email ?? '',
           'Dirección': client.address ?? '',
+          'Unigeo': client.ubigeo?.ubigeoName ?? '',
+          'Estado civil': this._civilStatusPipe.transform( client.civilStatus ?? '' ),
+          'Género': this._genderPipe.transform( client.gender ?? '' ),
           'Fecha de creación': client.createAt ? new Date( client.createAt ).toLocaleDateString() : '',
         }) );
 

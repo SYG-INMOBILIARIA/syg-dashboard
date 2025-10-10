@@ -10,6 +10,8 @@ import { ClientStatusPipe } from './client-status.pipe';
 import { InputChannelPipe } from './input-channel.pipe';
 import { LeadStatusPipe } from './lead-status.pipe';
 import { MomentDiffPipe } from './moment-diff.pipe';
+import { CivilStatusPipe } from './civil-status.pipe';
+import { GenderPipe } from './gender.pipe';
 
 @NgModule({
   imports: [
@@ -23,7 +25,9 @@ import { MomentDiffPipe } from './moment-diff.pipe';
     ClientStatusPipe,
     InputChannelPipe,
     LeadStatusPipe,
-    MomentDiffPipe
+    MomentDiffPipe,
+    CivilStatusPipe,
+    GenderPipe
   ],
   exports: [
     MomentPipe,
@@ -36,7 +40,9 @@ import { MomentDiffPipe } from './moment-diff.pipe';
     ClientStatusPipe,
     InputChannelPipe,
     LeadStatusPipe,
-    MomentDiffPipe
+    MomentDiffPipe,
+    CivilStatusPipe,
+    GenderPipe
   ],
 })
 export class PipesModule {}
