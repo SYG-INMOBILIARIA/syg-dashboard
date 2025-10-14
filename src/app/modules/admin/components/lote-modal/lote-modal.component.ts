@@ -26,6 +26,7 @@ import { LoteStatus } from '../../enum';
 import { WebUrlPermissionMethods } from '../../../../auth/interfaces';
 import { apiLote } from '@shared/helpers/web-apis.helper';
 import { NgxPaginationModule } from "ngx-pagination";
+import { NgxMaskDirective, provideNgxMask } from "ngx-mask";
 
 interface PolygonCoord {
   lng: number;
@@ -46,8 +47,10 @@ interface PolygonCoord {
     ReactiveFormsModule,
     SpinnerComponent,
     NgSelectModule,
-    NgxPaginationModule
-],
+    NgxPaginationModule,
+    NgxMaskDirective
+  ],
+  providers: [ provideNgxMask() ],
   templateUrl: './lote-modal.component.html',
   styles: `
     #containerLoteModalMap {
@@ -72,10 +75,10 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
   private _map?: Map;
   private _draw?: MapboxDraw;
 
+  public priceLote = null;
+
   //#FIXME: nueva lógica para mostrar lotes
-  private _popup: Popup = new Popup({ closeButton: false, closeOnClick: false });
-  private hoveredId: string | number | null = null;
-  private selectedId: string | number | null = null;
+
 
   private readonly SOURCE_ID = 'lotesSource';
   private readonly FILL_ID   = 'lotes-fill';
@@ -103,7 +106,7 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
       block:         [ '', [ Validators.maxLength(3), Validators.pattern( alphaNumericPatt ) ] ],
       ubication:     [ '', [ Validators.pattern( fullTextPatt ) ] ],
       squareMeters:  [  0, [ Validators.required, Validators.min( 60 ), Validators.max( 5000 ) ] ],
-      price:         [ null, [ Validators.required, Validators.min( 2000 ), Validators.pattern( decimalPatt ) ] ],
+      price:         [ null, [ Validators.required ] ],
       // loteStatus:    [ null, [ Validators.required ] ],
       numberLote:   [ '', [ Validators.required, Validators.pattern( numberPatt) ], Validators.maxLength( 3 ) ],
       centerCoords:  [ [], [] ],
@@ -133,6 +136,13 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
   private _isBuildingMap = signal<boolean>( false );
   public isBuildingMap = computed( () => this._isBuildingMap() );
 
+  public toFixed = (value: unknown): string => {
+    const afterDotPart = String(value).split('.')[1];
+    if (afterDotPart && afterDotPart.length > 2 && typeof value === 'string') {
+        return String(Number(value).toFixed(2));
+    }
+    return String(value);
+  }
 
   public stages = computed( () => this._stages );
 

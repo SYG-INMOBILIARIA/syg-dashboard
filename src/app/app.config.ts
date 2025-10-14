@@ -7,6 +7,7 @@ import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { MatNativeDateModule } from '@angular/material/core';
 import { ActionReducerMap, StoreModule, provideStore } from '@ngrx/store';
 import { StoreDevtoolsModule } from '@ngrx/store-devtools';
+import { provideNgxMask, NgxMaskOptions  } from 'ngx-mask';
 
 import { routes } from './app.routes';
 import { HandleErrorInterceptor, TokenInterceptor } from '@shared/interceptors';
@@ -24,9 +25,10 @@ const appStore: ActionReducerMap<AppState> = {
   profile_client: profileClientreducer
 }
 
+
 export const appConfig: ApplicationConfig = {
   providers: [
-
+    provideNgxMask(),
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes, withHashLocation()),
     provideClientHydration(),

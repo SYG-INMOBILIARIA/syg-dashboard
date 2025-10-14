@@ -4,7 +4,7 @@ export interface LoteBody {
   block: string;
   ubication: string;
   squareMeters: number;
-  price: number;
+  price: string;
   loteStatus: string;
   centerCoords: number[];
   polygonCoords: number[][];

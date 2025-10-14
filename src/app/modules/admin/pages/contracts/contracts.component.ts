@@ -132,7 +132,30 @@ export default class ContractsComponent implements OnInit, OnDestroy {
 
   }
 
-  onRemoveConfirm( contract: Contract ) {
+  async onRemoveConfirm( contract: Contract ) {
+
+    const responseConfirm = await this._alertService.showConfirmAlert(
+      'Se eliminarán quotas y pagos de cuotas',
+      `¿Está seguro de eliminar contrato #"${ contract.code }"?`
+    );
+
+    if( responseConfirm.isConfirmed ) {
+      this._removeContract( contract.id );
+    }
+  }
+
+  private _removeContract( contractId: string ) {
+
+    this._alertService.showLoading();
+
+    this._contractService.deleteContract( contractId )
+    .subscribe( (contractDeleted) => {
+
+      this._alertService.showAlert(`Contrato ${ contractDeleted.code }, eliminado exitosamente.`, undefined, 'success');
+
+      this.onGetContracts();
+
+    });
 
   }
 

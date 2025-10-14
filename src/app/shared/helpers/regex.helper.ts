@@ -20,6 +20,7 @@ export const timePatt = new RegExp(/^\d{2,2}\:\d{2,2}$/);
 export const alphaNumericPatt = new RegExp(/^[a-z\-\s\d]{0,200}$/i);
 
 export const decimalPatt = new RegExp(/^\d+(?:\.\d{1,2})?$/);
+export const pricePatt = new RegExp(/^\d+(?:,\d{3})*\.\d{2}$/);
 
 export const urlPatt = /^(https?|ftp):\/\/(([a-z\d]([a-z\d-]*[a-z\d])?\.)+[a-z]{2,}|localhost)(\/[-a-z\d%_.~+]*)*(\?[;&a-z\d%_.~+=-]*)?(\#[-a-z\d_]*)?$/i;
 

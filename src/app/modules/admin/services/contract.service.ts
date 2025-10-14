@@ -73,6 +73,8 @@ export class ContractService {
 
   }
 
-
+  deleteContract( contractId: string ): Observable<Contract> {
+    return this._http.delete<Contract>(`${ this._baseUrl }/contract/${ contractId }` );
+  }
 
 }
