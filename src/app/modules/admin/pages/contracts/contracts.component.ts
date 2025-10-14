@@ -108,6 +108,8 @@ export default class ContractsComponent implements OnInit, OnDestroy {
 
     const filter = this.searchInput.value ?? '';
 
+    this._alertService.showLoading();
+
     this._isLoading.set( true );
     this._contractService.getContracts( page, filter )
     .subscribe({
@@ -120,6 +122,7 @@ export default class ContractsComponent implements OnInit, OnDestroy {
         setTimeout(() => {
           initFlowbite();
         }, 400);
+        this._alertService.close();
 
       }, error: (err) => {
         this._isLoading.set( false );
