@@ -13,7 +13,7 @@ export class QuotaForm {
   constructor( numberOfQuotes: number, interestPercent: number, id: string | null = null, ) {
 
     this._id = id ;
-    this.numberOfQuotes = new FormControl( numberOfQuotes, [ Validators.required, Validators.min(6), Validators.max(84) ] );
+    this.numberOfQuotes = new FormControl( numberOfQuotes, [ Validators.required, Validators.min(2), Validators.max(84) ] );
     this.interestPercent = new FormControl( interestPercent, [ Validators.required, Validators.min( 0 ), Validators.max(30) ] );
 
   }
