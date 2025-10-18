@@ -108,7 +108,7 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
       squareMeters:  [  0, [ Validators.required, Validators.min( 60 ), Validators.max( 5000 ) ] ],
       price:         [ null, [ Validators.required ] ],
       // loteStatus:    [ null, [ Validators.required ] ],
-      numberLote:   [ '', [ Validators.required, Validators.pattern( numberPatt) ], Validators.maxLength( 3 ) ],
+      numberLote:    [ '', [ Validators.required, Validators.pattern( numberPatt), Validators.maxLength( 3 ) ] ],
       centerCoords:  [ [], [] ],
       polygonCoords: [ [], [] ],
       proyectId:     [ null, [] ],
@@ -622,7 +622,9 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
       .subscribe( {
         next: (loteCreated) => {
 
-          this._alertService.showAlert(`Lote #${ loteCreated.code }, creado exitosamente`, undefined, 'success');
+          const { mz, numberLote } = loteCreated;
+
+          this._alertService.showAlert(`Lote #${ mz }-${ numberLote }, creado exitosamente`, undefined, 'success');
           this.onResetAfterSubmit();
 
           this._lotesRegistered.push( loteCreated );
@@ -655,7 +657,9 @@ export class LoteModalComponent implements OnInit, AfterViewInit, OnDestroy {
     this._loteService.updateLote( id, body )
       .subscribe( (loteUpdate) => {
 
-        this._alertService.showAlert(`Lote #${ loteUpdate.code }, actualizado exitosamente`, undefined, 'success');
+        const { mz, numberLote } = loteUpdate;
+
+        this._alertService.showAlert(`Lote #${ mz }-${ numberLote }, actualizado exitosamente`, undefined, 'success');
 
         this._lotesCreatedOrUpdated.push( loteUpdate );
         this._draw?.deleteAll()

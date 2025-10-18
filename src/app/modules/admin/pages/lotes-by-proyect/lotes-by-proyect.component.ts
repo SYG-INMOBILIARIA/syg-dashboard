@@ -20,7 +20,7 @@ import { Store } from '@ngrx/store';
 import { AppState } from '@app/app.config';
 import { WebUrlPermissionMethods } from '../../../../auth/interfaces';
 import { apiLote } from '@shared/helpers/web-apis.helper';
-import { LoteDialogResponse, LoteFilterBody } from './interfaces';
+import { LoteDialogResponse, LoteFilterBody, MzByProyect } from './interfaces';
 import { PaginationComponent } from "@shared/components/pagination/pagination.component";
 import { NgSelectModule } from '@ng-select/ng-select';
 
@@ -68,11 +68,9 @@ export default class LotesByProyectComponent implements OnInit, OnDestroy {
   private _totalLotes = signal<number>( 0 );
   private _loteToFly = signal<Lote | undefined>( undefined );
 
-  // private _loteToDeleted = signal<Lote | undefined>( undefined );
-  // private _loteToCreated = signal<Lote | undefined>( undefined );
-
   private _centerProyect = signal<number[]>( [] );
   private _polygonCoords = signal<Coordinate[]>( [] );
+  private _mzList = signal<MzByProyect[]>( [] );
 
   private _searchInProgress = signal( false );
   private _isSaving = signal( false );
@@ -83,17 +81,15 @@ export default class LotesByProyectComponent implements OnInit, OnDestroy {
   public isSaving = computed( () => this._isSaving() );
   public searchInProgress = computed( () => this._searchInProgress() );
   public loteToFly = computed( () => this._loteToFly() );
-
+  public mzList = computed( () => this._mzList() );
 
   loteModalTitle = 'Crear nuevo Lote';
 
   private readonly _formBuilder = inject( UntypedFormBuilder );
 
-  public stageFilter = new UntypedFormControl( null, [Validators.required] );
-
   public loteFilterForm = this._formBuilder.group({
-    code:  ['', [ Validators.pattern( fullTextNumberPatt ) ]],
-    mz:    ['', [ Validators.pattern( fullTextNumberPatt ) ]],
+    stage: [ null, [ ]],
+    mz:    [ null, [ ]],
   });
 
   public proyect = computed( () => this._proyect() );
@@ -123,11 +119,11 @@ export default class LotesByProyectComponent implements OnInit, OnDestroy {
     return this.loteFilterForm.get(field)?.errors ?? null;
   }
 
-  get stageFilterIsInvalid() { return this.stageFilter.invalid; }
-  get stageFilterIsTouched() { return this.stageFilter.touched; }
-  get stageFilterErrors() { return this.stageFilter.errors; }
+  // get stageFilterIsInvalid() { return this.stageFilter.invalid; }
+  // get stageFilterIsTouched() { return this.stageFilter.touched; }
+  // get stageFilterErrors() { return this.stageFilter.errors; }
 
-  get showLockMap() { return { show: this.stageFilterIsInvalid, text:'Seleccione primero Etapa' }; }
+  get showLockMap() { return { show: false, text:'Seleccione primero Etapa' }; }
 
   get formErrors() { return this.loteFilterForm.errors; }
 
@@ -146,9 +142,15 @@ export default class LotesByProyectComponent implements OnInit, OnDestroy {
     }
 
     this._proyectId = proyectId;
-
     this.onLoadData( proyectId );
 
+  }
+
+  ngAfterViewInit(): void {
+    setTimeout(() => {
+      this.onGetLotesForMap();
+      this.onGetLotesForList();
+    }, 500);
   }
 
   onListenAuthRx() {
@@ -179,9 +181,9 @@ export default class LotesByProyectComponent implements OnInit, OnDestroy {
 
     this._listLotesInProgress.set( true );
 
-    const stageQuery = this.stageFilter.value ?? '';
+    const { stage } = this._loteFilterBody;
 
-    this._loteService.getLotesForMap( this._proyectId, 1, `stage=${ stageQuery }`, 1000 )
+    this._loteService.getLotesForMap( this._proyectId, 1, `stage=${ stage ?? '' }`, 10000 )
     .subscribe( ({ lotes }) => {
 
       this._lotesForMap.set( lotes );
@@ -196,9 +198,8 @@ export default class LotesByProyectComponent implements OnInit, OnDestroy {
 
     this._searchInProgress.set( true );
 
-    const { code, mz } = this._loteFilterBody;
-    const stageQuery = this.stageFilter.value ?? '';
-    const filter = `code=${code};mz=${mz};stage=${ stageQuery }`;
+    const { mz, stage } = this._loteFilterBody;
+    const filter = `mz=${ mz ?? '' };stage=${ stage ?? '' }`;
 
     this._loteService.getLotes( this._proyectId, page, filter, 20 )
     .subscribe( ({ lotes, total }) => {
@@ -212,8 +213,9 @@ export default class LotesByProyectComponent implements OnInit, OnDestroy {
 
     forkJoin({
       proyect: this._proyectService.getProyectById( proyectId ),
-      loteStatusResponse: this._nomenclatureService.getLoteStatus()
-    }).subscribe( ( { proyect, loteStatusResponse } ) => {
+      loteStatusResponse: this._nomenclatureService.getLoteStatus(),
+      mzList: this._loteService.getLotesMz( proyectId )
+    }).subscribe( ( { proyect, loteStatusResponse, mzList } ) => {
 
       const { centerCoords, polygonCoords } = proyect;
       const { nomenclatures } = loteStatusResponse;
@@ -222,6 +224,7 @@ export default class LotesByProyectComponent implements OnInit, OnDestroy {
       this._centerProyect.set( centerCoords );
       this._polygonCoords.set( polygonCoords );
       this._loteStatus.set( nomenclatures );
+      this._mzList.set( mzList );
 
     });
 

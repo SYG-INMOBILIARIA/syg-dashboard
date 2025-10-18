@@ -232,11 +232,13 @@ export class LotesMapComponent {
       this._map!.setFeatureState({ source: this.SOURCE_ID, id }, { selected: true });
 
       const lote = f.properties as Lote;
+      const { price, squareMeters, mz, numberLote } = lote;
+
       let popupHtml = `
-        <span class="font-extrabold text-md text-blue-500">Lote: ${lote.code}</span>
+        <span class="font-extrabold text-md text-blue-500">Lote: ${mz}-${ numberLote }</span>
         <p class="text-md font-semibold">
-          Área: ${lote.squareMeters} m²<br>
-          Precio: <span class="font-extrabold text-md text-green-500">S/ ${Number(lote.price).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+          Área: ${squareMeters} m²<br>
+          Precio: <span class="font-extrabold text-md text-green-500">S/ ${Number(price).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
         </p>`;
 
         let color = 'green';
@@ -351,10 +353,10 @@ export class LotesMapComponent {
 
   private _onShowLotePopup( lote: Lote, coords: LngLatLike) {
 
-    const { code, price, squareMeters } = lote;
+    const { price, squareMeters, mz, numberLote } = lote;
 
     const html = `
-        <span class="font-extrabold text-md text-blue-500">Lote: ${code}</span>
+        <span class="font-extrabold text-md text-blue-500">Lote: ${mz}-${numberLote}</span>
         <p class="text-md font-semibold">
           Área: ${squareMeters} m²<br>
           Precio: <span class="font-extrabold text-md text-green-500">S/ ${Number(price).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>

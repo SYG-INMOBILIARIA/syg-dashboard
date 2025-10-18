@@ -231,7 +231,7 @@
 
             <div class="grid gap-4 grid-cols-6 ">
 
-              <div class="col-span-6 xs:col-span-6 mb-4">
+              <div class="col-span-5 xs:col-span-6 mb-4">
                 <label for="cbxProyect" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
                   Proyecto inmobiliario *
                 </label>
@@ -245,6 +245,33 @@
                   placeholder="Seleccione proyecto"
                   formControlName="proyectId"
                   [class.border-red-400]=" inputErrors('proyectId') && isTouched('proyectId') "
+                >
+
+                </ng-select>
+
+                @if (isTouched('proyectId')) {
+                  <span
+                    class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                    inputErrors
+                    [errors]="inputErrors('proyectId')"
+                    inputLabel="Cliente" >
+                  </span>
+                }
+              </div>
+
+              <div class="col-span-1 xs:col-span-6 mb-4">
+                <label for="cbxProyect" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                  Mz
+                </label>
+                <ng-select
+                  id="cbxProyect"
+                  class="bg-gray-50 border text-gray-900 text-sm rounded-lg block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                  [items]="mzList()"
+                  (change)="onChangeMz( $event )"
+                  bindLabel="mz"
+                  bindValue="mz"
+                  placeholder="Seleccione Mz"
+                  [formControl]="searchMzInput"
                 >
 
                 </ng-select>
@@ -277,7 +304,7 @@
                 @for (lote of lotesSelected(); track $index) {
                   <li class="w-full px-4 py-2 mb-1 bg-white border border-gray-200 rounded-lg dark:bg-gray-700 dark:border-gray-600  shadow ">
                     <div class="flex justify-between">
-                      {{ lote.code }}
+                      {{ lote.mz }}-{{ lote.numberLote }}
 
                       <span>
                         <i (click)="onRemoveLoteSelected( lote )"

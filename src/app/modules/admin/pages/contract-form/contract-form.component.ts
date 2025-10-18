@@ -10,15 +10,13 @@ import { AfterViewInit
   , signal
 } from '@angular/core';
 import { Router } from '@angular/router';
-import { formatNumber } from '@angular/common';
 import { ContractFormModule } from './contract-form.module';
 import { CustomStepper } from '@shared/components/custom-stepper/custom-stepper.component';
 import { CdkStepper, CdkStepperModule } from '@angular/cdk/stepper';
 import { Nomenclature, Photo } from '@shared/interfaces';
-import { Map, PointLike, Popup } from 'mapbox-gl';
+import { Map, Popup } from 'mapbox-gl';
 import { initFlowbite } from 'flowbite';
 import { forkJoin } from 'rxjs';
-import { v4 as uuid } from 'uuid';
 
 import { FormControl, UntypedFormBuilder, Validators } from '@angular/forms';
 import { ClientService } from '../../services/client.service';
@@ -45,6 +43,7 @@ import { descriptionPatt, fullTextPatt, numberPatt } from '@shared/helpers/regex
 import { User } from '../../../security/interfaces';
 import { FinancingType, LoteStatus, PaymentType } from '../../enum';
 import { NomenclatureService } from '@shared/services/nomenclature.service';
+import { MzByProyect } from '../lotes-by-proyect/interfaces';
 
 @Component({
   selector: 'app-contract-form',
@@ -98,6 +97,7 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
 
   public searchClientInput = new FormControl('', [ Validators.pattern( fullTextPatt ) ]);
   public searchUserInput = new FormControl('', [ Validators.pattern( fullTextPatt ) ]);
+  public searchMzInput = new FormControl( null, [ ]);
 
   public contractFormOne = this._formBuilder.group({
     clientIds:     [ null, [ Validators.required, Validators.minLength(1), Validators.maxLength(5) ] ],
@@ -131,13 +131,9 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
   private _users = signal<User[]>( [] );
   private _proyects = signal<Proyect[]>( [] );
   private _lotes = signal<Lote[]>( [] );
+  private _mzList = signal<MzByProyect[]>( [] );
 
-  //TODO: ?Este campo tiene que borrarse, solo bastará validar el estado del lote
-  //private _lotesBusied = signal<Lote[]>( [] );
-  //public lotesBusied = computed( () => this._lotesBusied() );
-  //TODO: ?Este campo tiene que borrarse, solo bastará validar el estado del lote
-
-  private _lotesSelected = signal<LoteSelectedInMap[]>( [] );
+  private _lotesSelected = signal<Lote[]>( [] );
 
   private _financings = signal<Financing[]>( [] );
   private _quotas = signal<Quota[]>( [] );
@@ -152,6 +148,7 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
   private _countQuotesPending = signal<number>( 0 );
 
   public paymentTypes = computed( () => this._paymentTypes() );
+  public mzList = computed( () => this._mzList() );
   public initialAmoutDisabled = computed( () => this._initialAmoutDisabled() );
   public isSaving = computed( () => this._isSaving() );
   public buildMapInProgress = computed( () => this._buildMapInProgress() );
@@ -207,15 +204,6 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
   get valueFormOne(): ContractFormOne { return this.contractFormOne.value; }
   get valueFormTwo(): ContractFormTwo { return this.contractFormTwo.value; }
   get valueFormThree(): ContractFormThree { return this.contractFormThree.value; }
-
-  //TODO: ?Este getter tiene que borrarse, solo bastará validar el estado del lote
-  /**get lotesIdsBusied(): string[] {
-    const lotesBusied = this._lotesBusied();
-    return lotesBusied.reduce<string[]>( (acc, loteBusied) => {
-      acc.push( loteBusied.id );
-      return acc;
-    }, []);
-  }*/
 
   get lotesIdsSelected(): string[] {
     const lotesSelected = this._lotesSelected();
@@ -374,19 +362,18 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
       this._map!.getCanvas().style.cursor = 'pointer';
 
       const lote = f.properties as Lote;
+      const { mz, numberLote, squareMeters, price, loteStatus } = lote;
       let popupHtml = `
-        <span class="font-extrabold text-md text-blue-500">Lote: ${lote.code}</span>
+        <span class="font-extrabold text-md text-blue-500">Lote: ${mz}-${numberLote}</span>
         <p class="text-md font-semibold">
-          Área: ${lote.squareMeters} m²<br>
-          Precio: <span class="font-extrabold text-md text-green-500">S/ ${Number(lote.price).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+          Área: ${squareMeters} m²<br>
+          Precio: <span class="font-extrabold text-md text-green-500">S/ ${Number(price).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
         </p>`;
-
-      //const lotesBusiedId = this.lotesIdsBusied;
-      //const loteIsBusied = lotesBusiedId.includes( lote.id );
 
       let color = 'green';
       let estado = 'Vendido';
-      switch (lote.loteStatus) {
+
+      switch (loteStatus) {
         case LoteStatus.Reserved:
           color = 'yellow';
           estado = 'Reservado';
@@ -439,15 +426,9 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
 
       const lote = f.properties as Lote;
 
-      //TODO: esto se trandrá que quitar después solo batará validar el estado del lote
-      //const lotesBusiedId = this.lotesIdsBusied;
-      //const loteIsBusied = lotesBusiedId.includes( lote.id );
-      //TODO: esto se trandrá que quitar después solo batará validar el estado del lote
-
       const lotesSelectedIds = this.lotesIdsSelected;
       const loteIsSelected = lotesSelectedIds.includes( lote.id );
 
-      // !loteIsBusied &&
       if(  !loteIsSelected && lote.loteStatus == 'AVAILABLE' ) {
         this._map!.setFeatureState({ source: this.SOURCE_ID, id }, { selectedForSale: true });
         this._lotesSelected.update( (value) => [ lote, ...value ] );
@@ -547,31 +528,17 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
 
     forkJoin({
       proyectByIdResponse: this._proyectService.getProyectById( proyectId ),
-      lotesResponse: this._loteService.getLotesForMap( proyectId, 1, '', 1000 ),
-      //TODO: ?Esta llamada a api se tiene que quitar
-      contractLotesBusied: this._contractService.getContractsByProyect( proyectId ),
-      //TODO: ?Esta llamada a api se tiene que quitar
-    }).subscribe( ( { proyectByIdResponse, lotesResponse, contractLotesBusied } ) => {
-
-
-      //TODO: ?Esto se tiene que quitar
-      //this._lotesBusied.set([]);
-      //TODO: ?Esto se tiene que quitar
+      lotesResponse: this._loteService.getLotesForMap( proyectId, 1, '', 5000 ),
+      mzList: this._loteService.getLotesMz( proyectId ),
+    }).subscribe( ( { proyectByIdResponse, lotesResponse, mzList } ) => {
 
       this._lotesSelected.set([]);
-
-      //TODO: ?Esto se tiene que quitar
-      /*contractLotesBusied.forEach(({ lotes }) => {
-        this._lotesBusied.update( (lotesBusied) => {
-          return [ ...lotes, ...lotesBusied];
-        });
-      });*/
-      //TODO: ?Esto se tiene que quitar
 
       const { polygonCoords, centerCoords, flatImage } = proyectByIdResponse;
       const { lotes } = lotesResponse;
 
       this._lotes.set( lotes );
+      this._mzList.set( mzList );
       this._polygonCoords = polygonCoords;
 
       this._map?.flyTo({ zoom: 17, center: centerCoords });
@@ -587,6 +554,24 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
       this._buildMapInProgress.set( false );
 
     });
+  }
+
+  onChangeMz( mzByProject: MzByProyect ) {
+
+    const { proyectId } = this.valueFormTwo;
+
+    this._buildMapInProgress.set( true );
+
+    this._loteService.getLotesForMap( proyectId, 1, `mz=${mzByProject?.mz ?? ''}`, 5000 )
+    .subscribe( ( { lotes } ) => {
+
+      this._lotes.set( lotes );
+      this._onBuildLotes();
+
+      this._buildMapInProgress.set( false );
+
+    });
+
   }
 
   private _buildFlatProyect(  flatImage: Photo ) {
@@ -714,8 +699,7 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
     this.onCalculateAmountTotals();
   }
 
-  // TODO: crear una funcion qye realize los cálculos
-  //cada vez que hay cambios en los campos, tipo de pago, monto inicial, nro cuotas pagadas, cuotas de pago
+
   onCalculateAmountTotals() {
 
     const totalLotes = this._lotesAmount();

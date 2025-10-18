@@ -20,4 +20,5 @@ export interface Lote {
   photos:          any[];
   polygonCoords:   Coordinate[];
   stage:           string;
+  numberLote:      string;
 }

@@ -3,6 +3,7 @@ import { Injectable, inject } from '@angular/core';
 import { environments } from '@envs/environments';
 import { ListLotesResponse, Lote } from '../interfaces';
 import { Observable } from 'rxjs';
+import { MzByProyect } from '../pages/lotes-by-proyect/interfaces';
 
 @Injectable({
   providedIn: 'root'
@@ -20,6 +21,10 @@ export class LoteService {
     queryParams += `&isActive=${ !showInactive }`;
 
     return this._http.get<ListLotesResponse>(`${ this._baseUrl }/lote/by-proyect/${proyectId}?${ queryParams }`);
+  }
+
+  getLotesMz( proyectId: string ) {
+    return this._http.get<MzByProyect[]>(`${ this._baseUrl }/lote/mz/by-proyect/${proyectId}`);
   }
 
   getLotesForMap( proyectId: string, page: number, filter: string, limit = 10, showInactive = false ): Observable<ListLotesResponse> {
