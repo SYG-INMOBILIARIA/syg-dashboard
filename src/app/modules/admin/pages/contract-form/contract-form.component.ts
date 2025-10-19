@@ -14,7 +14,7 @@ import { ContractFormModule } from './contract-form.module';
 import { CustomStepper } from '@shared/components/custom-stepper/custom-stepper.component';
 import { CdkStepper, CdkStepperModule } from '@angular/cdk/stepper';
 import { Nomenclature, Photo } from '@shared/interfaces';
-import { Map, Popup } from 'mapbox-gl';
+import { LngLatLike, Map, Popup } from 'mapbox-gl';
 import { initFlowbite } from 'flowbite';
 import { forkJoin } from 'rxjs';
 
@@ -568,8 +568,25 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
       this._lotes.set( lotes );
       this._onBuildLotes();
 
+      if( lotes.length > 0 ) {
+        this._flyToLote( lotes[0] );
+      }
+
       this._buildMapInProgress.set( false );
 
+    });
+
+  }
+
+  private _flyToLote( lote: Lote ) {
+
+    const { centerCoords, zoomMap, bearingMap, pitchMap } = lote;
+
+    this._map?.flyTo({
+      zoom: zoomMap,
+      bearing: bearingMap,
+      pitch: pitchMap,
+      center: ( centerCoords as LngLatLike )
     });
 
   }
@@ -698,7 +715,6 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
 
     this.onCalculateAmountTotals();
   }
-
 
   onCalculateAmountTotals() {
 
