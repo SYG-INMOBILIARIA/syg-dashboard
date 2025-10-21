@@ -50,11 +50,11 @@ export class LotesMapComponent {
       this._polygonCoords = polygonCoords;
       this._flatImage = flatImage;
 
-      if( this._flatImage ) {
-        this._buildFlatProyect( this._flatImage );
-      } else {
-        this._onBuildBorderPolygon( this._polygonCoords );
-      }
+      // if( this._flatImage ) {
+      //   this._buildFlatProyect( this._flatImage );
+      // } else {
+      //   this._onBuildBorderPolygon( this._polygonCoords );
+      // }
     }
 
   }
@@ -109,6 +109,12 @@ export class LotesMapComponent {
 
       this._onAddMapxboxElements();
       this._onAddMapboxEvents();
+
+      if( this._flatImage ) {
+        this._buildFlatProyect( this._flatImage );
+      } else {
+        this._onBuildBorderPolygon( this._polygonCoords );
+      }
     });
   }
 
