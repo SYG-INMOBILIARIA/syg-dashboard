@@ -329,6 +329,14 @@ export class LotesMapComponent {
   private async _buildFlatProyect( flatImage: Photo ) {
 
     if( !this._map ) throw new Error(`Div map container not found!!!`);
+
+    const source = this._map.getSource(this.FLAT_SOURCE_ID) as mapboxgl.ImageSource;
+
+    if (!source) {
+      console.warn(`⚠️ Source ${this.FLAT_SOURCE_ID} no existe todavía ⚠️`);
+      return;
+    }
+
     const { urlImg } = flatImage;
 
     const points = this._polygonCoords.reduce<any>( (acc: number[][], current) => {
