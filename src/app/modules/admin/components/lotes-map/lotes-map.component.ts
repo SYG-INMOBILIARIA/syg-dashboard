@@ -50,11 +50,11 @@ export class LotesMapComponent {
       this._polygonCoords = polygonCoords;
       this._flatImage = flatImage;
 
-      // if( this._flatImage ) {
-      //   this._buildFlatProyect( this._flatImage );
-      // } else {
-      //   this._onBuildBorderPolygon( this._polygonCoords );
-      // }
+      if( this._flatImage ) {
+        this._buildFlatProyect( this._flatImage );
+      } else {
+        this._onBuildBorderPolygon( this._polygonCoords );
+      }
     }
 
   }
@@ -109,12 +109,6 @@ export class LotesMapComponent {
 
       this._onAddMapxboxElements();
       this._onAddMapboxEvents();
-
-      if( this._flatImage ) {
-        this._buildFlatProyect( this._flatImage );
-      } else {
-        this._onBuildBorderPolygon( this._polygonCoords );
-      }
     });
   }
 
@@ -288,24 +282,30 @@ export class LotesMapComponent {
 
     const source = this._map.getSource(this.SOURCE_ID) as mapboxgl.GeoJSONSource;
 
+    let miliseconds = 500;
     if (!source) {
-      console.warn(`⚠️ Source ${this.SOURCE_ID} no existe todavía ⚠️`);
-      return;
+      miliseconds = 2000;
+
+      // console.warn(`⚠️ Source ${this.SOURCE_ID} no existe todavía ⚠️`);
+      // return;
     }
 
+
     const features = lotes.map( (lote) => ({
-        type: 'Feature',
-        id: lote.id, // <- clave para feature-state
-        properties: { ...lote },
-        geometry: {
-          type: 'Polygon',
-          coordinates: [ lote.polygonCoords.map(p => [Number(p.lng.toFixed(6)), Number(p.lat.toFixed(6))]) ],
-          // coordinates: points,
-        }
+      type: 'Feature',
+      id: lote.id, // <- clave para feature-state
+      properties: { ...lote },
+      geometry: {
+        type: 'Polygon',
+        coordinates: [ lote.polygonCoords.map(p => [Number(p.lng.toFixed(6)), Number(p.lat.toFixed(6))]) ],
+        // coordinates: points,
+      }
     }));
 
-    const fc = { type: 'FeatureCollection', features } as GeoJSON.FeatureCollection;
-    (this._map.getSource(this.SOURCE_ID) as mapboxgl.GeoJSONSource).setData(fc);
+    setTimeout(() => {
+      const fc = { type: 'FeatureCollection', features } as GeoJSON.FeatureCollection;
+      (this._map!.getSource(this.SOURCE_ID) as mapboxgl.GeoJSONSource).setData(fc);
+    }, miliseconds);
 
   }
 
@@ -338,9 +338,11 @@ export class LotesMapComponent {
 
     const source = this._map.getSource(this.FLAT_SOURCE_ID) as mapboxgl.ImageSource;
 
+    let miliseconds = 500;
     if (!source) {
-      console.warn(`⚠️ Source ${this.FLAT_SOURCE_ID} no existe todavía ⚠️`);
-      return;
+      miliseconds = 2000;
+      // console.warn(`⚠️ Source ${this.FLAT_SOURCE_ID} no existe todavía ⚠️`);
+      // return;
     }
 
     const { urlImg } = flatImage;
@@ -350,10 +352,14 @@ export class LotesMapComponent {
       return acc;
     }, []);
 
-    (this._map.getSource( this.FLAT_SOURCE_ID) as mapboxgl.ImageSource).updateImage({
-      url: urlImg,
-      coordinates: points
-    });
+    setTimeout(() => {
+
+      (this._map!.getSource( this.FLAT_SOURCE_ID) as mapboxgl.ImageSource).updateImage({
+        url: urlImg,
+        coordinates: points
+      });
+
+    }, miliseconds);
 
   }
 
