@@ -280,6 +280,14 @@ export class LotesMapComponent {
 
     if( !this._map ) throw new Error(`Div map container not found!!!`);
 
+    const source = this._map.getSource(this.SOURCE_ID) as mapboxgl.GeoJSONSource;
+
+    if (!source) {
+      console.warn(`⚠️ Source ${this.SOURCE_ID} no existe todavía`);
+      return;
+    }
+
+
     const features = lotes.map( (lote) => ({
         type: 'Feature',
         id: lote.id, // <- clave para feature-state

@@ -14,8 +14,7 @@ import { LoteModalComponent } from '../../components/lote-modal/lote-modal.compo
 import { NomenclatureService } from '@shared/services/nomenclature.service';
 import { Nomenclature } from '@shared/interfaces';
 import { PipesModule } from '@pipes/pipes.module';
-import { UntypedFormBuilder, UntypedFormControl, Validators } from '@angular/forms';
-import { fullTextNumberPatt } from '@shared/helpers/regex.helper';
+import { UntypedFormBuilder} from '@angular/forms';
 import { Store } from '@ngrx/store';
 import { AppState } from '@app/app.config';
 import { WebUrlPermissionMethods } from '../../../../auth/interfaces';
@@ -119,9 +118,6 @@ export default class LotesByProyectComponent implements OnInit, OnDestroy {
     return this.loteFilterForm.get(field)?.errors ?? null;
   }
 
-  // get stageFilterIsInvalid() { return this.stageFilter.invalid; }
-  // get stageFilterIsTouched() { return this.stageFilter.touched; }
-  // get stageFilterErrors() { return this.stageFilter.errors; }
 
   get showLockMap() { return { show: false, text:'Seleccione primero Etapa' }; }
 
@@ -146,12 +142,6 @@ export default class LotesByProyectComponent implements OnInit, OnDestroy {
 
   }
 
-  ngAfterViewInit(): void {
-    setTimeout(() => {
-      this.onGetLotesForMap();
-      this.onGetLotesForList();
-    }, 500);
-  }
 
   onListenAuthRx() {
     this._authrx$ = this._store.select('auth')
@@ -206,6 +196,8 @@ export default class LotesByProyectComponent implements OnInit, OnDestroy {
       this._lotes.set( lotes );
       this._totalLotes.set( total );
       this._searchInProgress.set( false );
+
+      if( lotes.length > 0 ) this.onLoteToFly(lotes[0]);
     } );
   }
 
@@ -225,6 +217,9 @@ export default class LotesByProyectComponent implements OnInit, OnDestroy {
       this._polygonCoords.set( polygonCoords );
       this._loteStatus.set( nomenclatures );
       this._mzList.set( mzList );
+
+      this.onGetLotesForMap();
+      this.onGetLotesForList();
 
     });
 

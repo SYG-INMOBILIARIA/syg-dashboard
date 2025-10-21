@@ -126,6 +126,7 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
 
   private _isSaving = signal( false );
   private _buildMapInProgress = signal( false );
+  private _loadingLotes = signal<boolean>( false );
 
   private _clients = signal<Client[]>( [] );
   private _users = signal<User[]>( [] );
@@ -147,6 +148,8 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
   private _amountPaidPending = signal<number>( 0 );
   private _countQuotesPending = signal<number>( 0 );
 
+  private _loadingClients = signal<boolean>( false );
+
   public paymentTypes = computed( () => this._paymentTypes() );
   public mzList = computed( () => this._mzList() );
   public initialAmoutDisabled = computed( () => this._initialAmoutDisabled() );
@@ -166,6 +169,9 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
   public amountPaid = computed( () => this._amountPaid() );
   public amountPaidPending = computed( () => this._amountPaidPending() );
   public countQuotesPending = computed( () => this._countQuotesPending() );
+  public loadingLotes = computed( () => this._loadingLotes() );
+
+  public loadingClients = computed( () => this._loadingClients() );
 
   private _financingQuota: Quota | null = null;
 
@@ -244,6 +250,8 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
     this._map.on('load', () => {
       this._onAddMapxboxElements();
       this._onAddMapboxEvents();
+
+      this._buildMapInProgress.set( false );
     });
 
   }
@@ -439,11 +447,15 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
   }
 
   onSearchClients() {
+
+    this._loadingClients.set( true );
+
     const pattern = this.searchClientInput.value ?? '';
     this._clientService.getClients( 1, pattern, 10, false , null, null, null )
     .subscribe( ({ clients }) => {
       this._clients.set( clients );
       this.searchClientInput.reset();
+      this._loadingClients.set( false );
     });
   }
 
@@ -451,6 +463,8 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
 
     const pattern = this.searchUserInput.value ?? '';
     const patternClient = this.searchClientInput.value ?? '';
+
+    this._loadingClients.set( true );
 
     forkJoin({
       paymentTypesResponse: this._nomenclatureService.getPaymentType(),
@@ -464,6 +478,7 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
       this._clients.set( clientsResponse.clients );
       this._proyects.set( proyectsResponse.proyects );
 
+      this._loadingClients.set( false );
     });
   }
 
@@ -524,7 +539,7 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
 
     if( !proyectId ) return;
 
-    this._buildMapInProgress.set( true );
+    this._loadingLotes.set( true );
 
     forkJoin({
       proyectByIdResponse: this._proyectService.getProyectById( proyectId ),
@@ -551,7 +566,7 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
 
       this._onBuildLotes();
 
-      this._buildMapInProgress.set( false );
+      this._loadingLotes.set( false );
 
     });
   }
@@ -560,7 +575,7 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
 
     const { proyectId } = this.valueFormTwo;
 
-    this._buildMapInProgress.set( true );
+    this._loadingLotes.set( true );
 
     this._loteService.getLotesForMap( proyectId, 1, `mz=${mzByProject?.mz ?? ''}`, 5000 )
     .subscribe( ( { lotes } ) => {
@@ -572,7 +587,7 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
         this._flyToLote( lotes[0] );
       }
 
-      this._buildMapInProgress.set( false );
+      this._loadingLotes.set( false );
 
     });
 
