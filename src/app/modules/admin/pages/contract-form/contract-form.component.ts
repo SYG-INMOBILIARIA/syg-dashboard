@@ -335,7 +335,7 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
             ['match', ['get', 'loteStatus'],
             'AVAILABLE', '#67e8f9',
             'SELLED',    '#31c48d',
-            'RESERVED',   '#FFDC42',
+            'RESERVED',   '#FA2D2D', //#FA2D2D -> FFDC42
             'IN_PROGRESS','#6b7280',
             /* default */ '#67e8f9'
             ]
