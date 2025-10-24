@@ -118,10 +118,10 @@
                 <section class=" ">
                   <div class="py-2 px-2 mx-auto ">
                       <h1 class="text-left mb-2 text-md font-semibold tracking-tight leading-none text-gray-900 dark:text-white">
-                        Vendedor
+                        Asesor comercial
                       </h1>
                       <p class="text-left font-normal text-gray-500 dark:text-gray-400">
-                        Fulanito de tal
+                        {{ contractById()?.seller?.fullname }}
                       </p>
                   </div>
                 </section>
@@ -160,11 +160,11 @@
                       <div class="flex justify-between">
 
                         <span class="text-xs font-semibold text-blue-600">
-                          {{ lote.code }}
+                          {{ lote.mz }}-{{ lote.numberLote }}
                         </span>
 
                         <span class="text-xs">
-                          {{ lote.squareMeters }} m2
+                          {{ lote.squareMeters | number:'.2-2' }} m<sup class="text-[10px] text-sm">2</sup>
                         </span>
                       </div>
                       <p class="text-xs">
@@ -263,10 +263,10 @@
 
                             <div class="">
                               <div class="text-base font-semibold">
-                                {{ lote.code }}
+                                {{ lote.mz }}-{{ lote.numberLote }}
                               </div>
                               <div class="font-normal text-gray-500">
-                                {{  lote.ubication }} ( {{ lote.squareMeters }} m2 )
+                                {{  lote.ubication }} ( {{ lote.squareMeters | number:'.2-2' }} m<sup class="text-[10px] text-sm">2</sup> )
                               </div>
                             </div>
 

@@ -291,44 +291,6 @@ export class ContractDetailModalComponent implements AfterViewInit, OnDestroy {
       this._isBuildingMap.set( false );
     }, 1600);
 
-    // const polygonId = uuid();
-
-    // this._map.addSource( polygonId, {
-    //   'type': 'geojson',
-    //   'data': {
-    //       'type': 'Feature',
-    //       'properties': {},
-    //       'geometry': {
-    //           'type': 'Polygon',
-    //           'coordinates': [
-    //             points
-    //           ]
-    //       }
-    //   }
-    // });
-
-    // this._map.loadImage( urlImg, (err, image) => {
-    //   // Throw an error if something goes wrong.
-    //   if (err) throw err;
-
-    //   const imageId = uuid();
-    //   // Add the image to the map style.
-    //   this._map!.addImage(imageId, image!, {
-    //     pixelRatio: 3,
-    //   });
-
-
-    //   // Create a new layer and style it using `fill-pattern`.
-    //   this._map!.addLayer({
-    //     'id': uuid(),
-    //     'type': 'fill',
-    //     'source': polygonId,
-    //     'paint': { 'fill-pattern': imageId }
-    //   });
-
-    //   this.onBuildLotes( this.lotes() ?? [] );
-
-    // });
 
   }
 
@@ -342,21 +304,18 @@ export class ContractDetailModalComponent implements AfterViewInit, OnDestroy {
       if (Object.prototype.hasOwnProperty.call(lotes, key)) {
         const lote = lotes[key];
 
-        const { code, squareMeters, price } = lote;
+        const { code, squareMeters, price, mz, numberLote } = lote;
         const priceFormater = formatNumber( price, 'en-US', '.2-2' );
 
         // When the user moves their mouse over the state-fill layer, we'll update the
         // feature state for the feature under the mouse.
 
         let popupHtml = `
-          <span class="font-extrabold text-md" >
-            Lote: ${ code }
-          </span>
-          <p class="text-md font-semibold">
-            Área: ${ squareMeters } m2"<br>
-            Precio: S/ ${ priceFormater }
-          </p>
-        `;
+        <span class="font-extrabold text-md text-blue-500">Lote: ${mz}-${ numberLote }</span>
+        <p class="text-md font-semibold">
+          Área: ${squareMeters} m²<br>
+          Precio: <span class="font-extrabold text-md text-green-500">S/ ${Number(price).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+        </p>`;
 
         this._map.on('mousemove', lote.id, (e) => {
 

@@ -1,3 +1,4 @@
+import { User } from "@modules/security/interfaces";
 import { Client, Financing, Lote, Proyect } from ".";
 import { PaymentType } from "../enum";
 
@@ -27,4 +28,5 @@ export interface ContractByID {
   clients:            Client[];
   proyect:            Proyect;
   financing:          Financing;
+  seller:             User;
 }

@@ -84,10 +84,10 @@
 
                           <div class="">
                             <div class="text-base font-semibold">
-                              {{ lote.code }}
+                              {{ lote.mz }}-{{ lote.numberLote }}
                             </div>
                             <div class="font-normal text-gray-500">
-                              {{  lote.ubication }} ( {{ lote.squareMeters }} m2 )
+                              {{  lote.ubication }} ( {{ lote.squareMeters }} m² )
                             </div>
                           </div>
 
@@ -135,29 +135,25 @@
             </div>
 
             <!-- max-h-[390px] overflow-y-auto -->
-            <div class="grid gap-3 grid-cols-4 pb-3  ">
+            <div class="flex flex-wrap justify-start items-center gap-5 pb-3  ">
 
               @for ( schedule of contractSchedule(); track $index) {
 
                 <div class="col-span-1 xs:col-span-2 "
                 >
-                  <!-- [ngClass]="{
-                    'col-span-2 xs:col-span-6': numberOfQuotes > 18,
-                    'col-span-3 xs:col-span-6': numberOfQuotes < 18,
-                  }" -->
 
-                  <div class="flex gap-3">
+                  <div class="flex gap-2">
 
                     <span
                       class="flex items-center text-xs justify-center shrink-0 border-gray-500 dark:border-gray-400">
                       {{ schedule.order }}.
                     </span>
 
-                    <div class="py-1 font-semibold text-md dark:text-white text-left">
-                      <h1 class=" mb-1 text-sm font-semibold tracking-tight leading-none text-gray-900 dark:text-white">
+                    <div class="py-1 dark:text-white text-left">
+                      <h1 class=" mb-1 text-xs font-semibold tracking-tight leading-none text-gray-900 dark:text-white">
                         {{ schedule.paymentDate | moment:'shortDate' }}
                       </h1>
-                      <div class="font-normal text-sm text-gray-500 dark:text-gray-400">
+                      <div class="text-xs text-gray-500 dark:text-gray-400">
                         S/ {{ schedule.amountToPay| number:'.2-2' }}
                       </div>
                     </div>

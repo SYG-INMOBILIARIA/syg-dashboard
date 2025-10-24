@@ -10,7 +10,7 @@
 
         <div class="flex items-center ">
 
-          <div class="pr-4 w-52">
+          <div class="pr-3 w-52">
             <ng-select
               id="cbxDepartment"
               class="white text-gray-900 text-sm rounded-md block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
@@ -24,7 +24,7 @@
             </ng-select>
           </div>
 
-          <div class="pr-4 w-52">
+          <div class="pr-3 w-52">
             <ng-select
               id="cbxDepartment"
               class="white text-gray-900 text-sm rounded-md block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
@@ -38,7 +38,7 @@
             </ng-select>
           </div>
 
-          <div class="pr-4 w-52">
+          <div class="pr-3 w-52">
             <ng-select
               id="cbxDepartment"
               class="white text-gray-900 text-sm rounded-md block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
@@ -51,7 +51,7 @@
             </ng-select>
           </div>
 
-          <div class="pr-4">
+          <div class="pr-3">
             <div class="relative flex flex-wrap items-stretch w-full transition-all rounded-lg ease">
               <span class="text-sm ease leading-5.6 absolute z-50 -ml-px flex h-full items-center whitespace-nowrap rounded-lg rounded-tr-none rounded-br-none border border-r-0 border-transparent bg-transparent py-2 px-2.5 text-center font-normal text-slate-500 transition-all">
                 <svg
@@ -85,7 +85,7 @@
               type="button"
               data-modal-target="client-modal"
               data-modal-toggle="client-modal"
-              class="inline-block px-6 py-2 mr-3 font-semibold text-center text-white align-middle transition-all rounded cursor-pointer bg-emerald-600 hover:bg-emerald-700 leading-normal ease-in tracking-tight-rem shadow-xs bg-150 bg-x-25 hover:-translate-y-px active:opacity-85 hover:shadow-md "
+              class=" px-4 py-2 mr-2 font-semibold text-center text-white align-middle transition-all rounded cursor-pointer bg-emerald-600 hover:bg-emerald-700 leading-normal ease-in tracking-tight-rem shadow-xs bg-150 bg-x-25 hover:-translate-y-px active:opacity-85 hover:shadow-md "
               >
               <i class="fa fa-plus" aria-hidden="true"></i>
               &nbsp;Nuevo
@@ -93,7 +93,7 @@
 
             <button
               type="button"
-              class="inline-block px-6 py-2 mr-3 font-semibold text-center text-white align-middle transition-all rounded cursor-pointer bg-emerald-600 hover:bg-emerald-700 leading-normal ease-in tracking-tight-rem shadow-xs bg-150 bg-x-25 hover:-translate-y-px active:opacity-85 hover:shadow-md "
+              class=" px-4 py-2 font-semibold text-center text-white align-middle transition-all rounded cursor-pointer bg-emerald-600 hover:bg-emerald-700 leading-normal ease-in tracking-tight-rem shadow-xs bg-150 bg-x-25 hover:-translate-y-px active:opacity-85 hover:shadow-md "
               (click)="onExport()"
             >
               <i class="fa-solid fa-file-arrow-down" *ngIf="!exportInProgress(); else exportingSpinner" ></i>
@@ -121,13 +121,13 @@
           <table class="items-center w-full mb-0 align-top border-collapse dark:border-white/40 text-slate-500">
             <thead class="align-bottom">
               <tr>
-                <th class="px-6 py-3 font-bold text-left uppercase align-middle bg-transparent border-b border-collapse shadow-none dark:border-white/40 text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-800 dark:text-slate-100 opacity-70">Apellidos y Nombre / Razon social</th>
-                <th class="px-6 py-3 pl-2 font-bold text-left uppercase align-middle bg-transparent border-b border-collapse shadow-none dark:border-white/40 text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-800 dark:text-slate-100 opacity-70">Documento</th>
-                <th class="px-6 py-3 pl-2 font-bold text-left uppercase align-middle bg-transparent border-b border-collapse shadow-none dark:border-white/40 text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-800 dark:text-slate-100 opacity-70">Email</th>
-                <th class="px-6 py-3 pl-2 font-bold text-left uppercase align-middle bg-transparent border-b border-collapse shadow-none dark:border-white/40 text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-800 dark:text-slate-100 opacity-70">Ubigeo</th>
-                <th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-collapse shadow-none dark:border-white/40 text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-800 dark:text-slate-100 opacity-70">Estado</th>
-                <th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-collapse shadow-none dark:border-white/40 text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-800 dark:text-slate-100 opacity-70">F. creación</th>
-                <th class="px-6 py-3 font-semibold capitalize align-middle bg-transparent border-b border-collapse border-solid shadow-none dark:border-white/40 tracking-none whitespace-nowrap text-slate-800 dark:text-slate-100 opacity-70"></th>
+                <th class="px-4 py-3 font-bold text-left uppercase align-middle bg-transparent border-b border-collapse shadow-none dark:border-white/40 text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-800 dark:text-slate-100 opacity-70">Apellidos y Nombre / Razon social</th>
+                <th class="py-3 pl-2 font-bold text-left uppercase align-middle bg-transparent border-b border-collapse shadow-none dark:border-white/40 text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-800 dark:text-slate-100 opacity-70">Documento</th>
+                <th class="py-3 pl-2 font-bold text-left uppercase align-middle bg-transparent border-b border-collapse shadow-none dark:border-white/40 text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-800 dark:text-slate-100 opacity-70">Email</th>
+                <th class="py-3 pl-2 font-bold text-left uppercase align-middle bg-transparent border-b border-collapse shadow-none dark:border-white/40 text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-800 dark:text-slate-100 opacity-70">Ubigeo</th>
+                <th class="py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-collapse shadow-none dark:border-white/40 text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-800 dark:text-slate-100 opacity-70">Estado</th>
+                <th class="py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-collapse shadow-none dark:border-white/40 text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-800 dark:text-slate-100 opacity-70">F. creación</th>
+                <th class="py-3 font-semibold capitalize align-middle bg-transparent border-b border-collapse border-solid shadow-none dark:border-white/40 tracking-none whitespace-nowrap text-slate-800 dark:text-slate-100 opacity-70"></th>
               </tr>
             </thead>
             <tbody>
@@ -211,12 +211,10 @@
 
                         <a href="javascript:;" class="flex gap-1 text-xs font-semibold leading-tight uppercase dark:opacity-80 text-slate-400 dark:text-gray-300" (click)="onLoadToUpdate( client )">
                           <i class="fa fa-pencil" aria-hidden="true"></i>
-                          Editar
                         </a>
 
                         <a href="javascript:;" class="flex gap-2 text-xs font-semibold leading-tight uppercase dark:opacity-80 text-red-500" (click)="onRemoveConfirm( client )" >
                           <i class="fa fa-trash" aria-hidden="true"></i>
-                          Eliminar
                         </a>
                       </div>
 
