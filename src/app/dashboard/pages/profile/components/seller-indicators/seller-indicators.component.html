@@ -10,11 +10,23 @@
         <span class="text-gray-600 font-medium dark:text-slate-200">Total Clientes</span>
       </div>
       <div class="mt-4">
-        <div class="text-2xl font-bold text-gray-900 dark:text-slate-400">26</div>
+        <div class="text-2xl font-bold text-gray-900 dark:text-slate-400">
+          {{ totalClients() }}
+        </div>
         <div class="flex items-center mt-1">
-          <span class="text-green-500 text-sm flex items-center">
-            <span class="iconify mr-1" data-icon="ph:trend-up"></span>
-            +12.5%
+          <span class=" text-sm flex items-center"
+            [ngClass]="{
+              'text-green-500': totalClients() > 0,
+              'text-red-500': totalClients() < 0,
+              }"
+          >
+            <span
+              class="iconify mr-1"
+              [attr.data-icon]="totalClients() > 0 ? 'ph:trend-up' : 'ph:trend-down'"
+            ></span>
+            <section *ngIf="totalClients() > 0" > + </section>
+            <section *ngIf="totalClients() < 0" > - </section>
+            {{ percentPreviusMonthClients()  }}%
           </span>
           <span class="text-gray-400 text-sm ml-2">vs mes anterior</span>
         </div>
@@ -28,16 +40,29 @@
           <!-- <span class="iconify text-green-500" data-icon="ph:currency-circle-dollar"></span> -->
           <i class="fa-solid fa-dollar-sign text-green-400"></i>
         </div>
-        <span class="text-gray-600 font-medium dark:text-slate-200">Total Ingresos</span>
+        <span class="text-gray-600 font-medium dark:text-slate-200">
+          Total Ingresos
+        </span>
       </div>
       <div class="mt-4">
         <div class="text-2xl font-bold text-gray-900 dark:text-slate-400">
           S/. {{ totalIncome() | number:'.2-2' }}
         </div>
         <div class="flex items-center mt-1">
-          <span class="text-green-500 text-sm flex items-center">
-            <span class="iconify mr-1" data-icon="ph:trend-up"></span>
-            +{{ percentLastMonthIncome() | number:'.0-0' }}%
+          <span
+            class=" text-sm flex items-center"
+            [ngClass]="{
+              'text-green-500': totalClients() > 0,
+              'text-red-500': totalClients() < 0,
+              }"
+          >
+            <span
+              class="iconify mr-1"
+              [attr.data-icon]="totalClients() > 0 ? 'ph:trend-up' : 'ph:trend-down'"
+            ></span>
+            <section *ngIf="totalClients() > 0" > + </section>
+            <section *ngIf="totalClients() < 0" > - </section>
+            {{ percentLastMonthIncome() | number:'.0-0' }}%
           </span>
           <span class="text-gray-400 text-sm ml-2">vs mes anterior</span>
         </div>
