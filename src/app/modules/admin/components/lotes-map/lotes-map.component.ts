@@ -245,7 +245,7 @@ export class LotesMapComponent {
         let estado = 'Vendido';
         switch (lote.loteStatus) {
           case LoteStatus.Reserved:
-            color = 'yellow';
+            color = 'red';
             estado = 'Reservado';
             break;
 
