@@ -31,3 +31,12 @@ export interface PreviousMonth {
   previusEndMonth:   Date;
   totalClients:      number;
 }
+
+
+export interface ComissionsIndicators {
+  totalComissions:       number;
+  totalComissionsPaid:   number;
+  lastPayment:           null;
+  restComissionsForPaid: number;
+}
+

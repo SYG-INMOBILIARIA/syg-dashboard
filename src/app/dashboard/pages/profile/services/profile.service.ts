@@ -3,8 +3,15 @@ import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { environments } from '@envs/environments';
-import { ClientIndicators, MyCommissionsResponse, SellerIndicatorsResponse, SellerPaymentIndicatorsResponse } from '../interfaces';
 import { ListClientResponse } from '@modules/admin/interfaces';
+
+import {
+  ClientIndicators
+  , ComissionsIndicators
+  , MyCommissionsResponse
+  , SellerIndicatorsResponse
+  , SellerPaymentIndicatorsResponse
+} from '../interfaces';
 
 @Injectable({providedIn: 'root'})
 export class ProfileService {
@@ -18,6 +25,10 @@ export class ProfileService {
 
   getClientIndicators( sellerUserId: string ): Observable<ClientIndicators> {
     return this._http.get<ClientIndicators>(`${ this._baseUrl }/profile/indicators/client/${ sellerUserId }`);
+  }
+
+  getCommissionsIndicators( sellerUserId: string ): Observable<ComissionsIndicators> {
+    return this._http.get<ComissionsIndicators>(`${ this._baseUrl }/profile/indicators/comissions/${sellerUserId}`);
   }
 
   getSellerPaymentsIndicators( sellerUserId: string ): Observable<SellerPaymentIndicatorsResponse> {
