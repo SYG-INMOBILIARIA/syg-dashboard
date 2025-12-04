@@ -114,25 +114,8 @@ export default class ProfileLayoutComponent implements OnInit {
   get sellerPaymentBody(): SellerPaymentBody { return  this.sellerPaymentLayoutForm.value as SellerPaymentBody; }
 
   ngOnInit(): void {
-
     initFlowbite();
-
     this.onListenAuthRx();
-
-    /**this._userProfileName.set( localStorage.getItem('userProfileName') );
-
-    this._sellerUserId = localStorage.getItem('userProfileId') ?? '';
-
-    if( !ISUUID( this._sellerUserId ) ) {
-      this._router.navigateByUrl('/dashboard');
-      return;
-    }
-
-    this.sellerPaymentLayoutForm.get('sellerUserId')?.setValue( this._sellerUserId );
-
-    this.onGetUserProfile();
-    this.onGetPaymentsMethod();*/
-
   }
 
   onListenAuthRx() {

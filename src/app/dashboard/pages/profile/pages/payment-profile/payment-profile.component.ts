@@ -62,10 +62,10 @@ export default class PaymentProfileComponent implements OnInit, OnDestroy {
   private _formBuilder = inject( UntypedFormBuilder );
 
   public sellerPaymentForm = this._formBuilder.group({
-    id:                [ 'xD',   [] ],
-    sellerUserId:      [ null,   [ Validators.required ] ],
+    id:                [ 'xD', [] ],
+    sellerUserId:      [ null, [ Validators.required ] ],
     paymentDate:       [ null, [ Validators.required ] ],
-    operationCode:     [ null, [ Validators.required, Validators.pattern( operationCodePatt ) ] ],
+    operationCode:     [ null, [ Validators.pattern( operationCodePatt ) ] ],
     amount:            [ null, [ Validators.required, Validators.min(1) ] ],
     observation:       [ '',   [ Validators.pattern( descriptionPatt ) ] ],
     paymentMethodId:   [ null, [ Validators.required ] ],
@@ -119,8 +119,6 @@ export default class PaymentProfileComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
 
-
-
     this._userSellerId = localStorage.getItem('userProfileId') ?? '';
 
     if( !ISUUID( this._userSellerId ) )
@@ -140,7 +138,6 @@ export default class PaymentProfileComponent implements OnInit, OnDestroy {
       this._totalCommissions.set( totalCommissions );
       this._totalPayments.set( totalPayments );
 
-      // this.sellerPaymentForm.get('amount');
       this.sellerPaymentForm.get('amount')?.clearValidators();
       this.sellerPaymentForm.get('amount')?.addValidators([ Validators.required, Validators.min(1), Validators.max( profits ) ]);
       this.sellerPaymentForm.updateValueAndValidity();
