@@ -44,6 +44,7 @@ import { User } from '../../../security/interfaces';
 import { FinancingType, LoteStatus, PaymentType } from '../../enum';
 import { NomenclatureService } from '@shared/services/nomenclature.service';
 import { MzByProyect } from '../lotes-by-proyect/interfaces';
+import { FlatpickrDefaultsInterface } from 'angularx-flatpickr';
 
 @Component({
   selector: 'app-contract-form',
@@ -112,6 +113,11 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
     loteIds:    [ [],   [ Validators.required, Validators.minLength(1), Validators.maxLength(20) ] ],
   });
 
+  flatpOptions :FlatpickrDefaultsInterface = {
+    altInput: true,
+    locale: 'es',
+  }
+
   public contractFormThree = this._formBuilder.group({
     paymentType:        [ null, [ Validators.required ] ],
     financingId:        [ null, [ ] ],
@@ -120,6 +126,7 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
 
     numberOfQuotesPaid: [ 0, [ Validators.required, Validators.min(0), Validators.pattern( numberPatt ) ] ],
     contractDate:       [ null, [ ] ],
+    firstPayDate:       [ null, [ ] ],
   });
 
   private _initialAmoutDisabled = signal( false );
