@@ -217,7 +217,8 @@ export default class ExpensesComponent implements OnInit, OnDestroy {
       }, error: (err) => {
         this._alertService.close();
       }
-    })
+    });
+
   }
 
   async onRemoveConfirm( expense: Expense ) {

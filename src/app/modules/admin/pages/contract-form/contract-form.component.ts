@@ -477,7 +477,7 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
       paymentTypesResponse: this._nomenclatureService.getPaymentType(),
       usersResponse: this._userService.getUsers( 1, pattern, 10 ),
       clientsResponse: this._clientService.getClients( 1, patternClient, 10, false, null, null, null ),
-      proyectsResponse: this._proyectService.getProyects( 1, '', 10 ),
+      proyectsResponse: this._proyectService.getProyects( 1, '', 900 ),
     }).subscribe( ({ paymentTypesResponse, usersResponse, clientsResponse, proyectsResponse }) => {
 
       this._paymentTypes.set( paymentTypesResponse.nomenclatures );

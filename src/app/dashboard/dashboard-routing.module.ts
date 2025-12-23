@@ -139,6 +139,11 @@ const routes: Routes = [
         loadChildren: () => import('./pages/overview-client/overview-client.module'),
         data: { title: 'Panel administrativo' }
       },
+      {
+        path: 'reservations',
+        loadComponent: () => import('../modules/admin/pages/reservation/reservation.component'),
+        data: { title: 'Reservaciones' }
+      },
 
       // {
       //   path: 'profile/:nombre-usuario',

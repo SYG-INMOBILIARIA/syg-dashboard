@@ -12,5 +12,6 @@ export const apiFinancing = '/v1/financing';
 export const apiPaymentQuote = '/v1/payment-quote';
 export const apiAreaCompany = '/v1/area-company';
 export const apiExpense = '/v1/expense';
+export const apiReservation = '/v1/reservation';
 export const apiExpenseType = '/v1/expense-type';
 export const apiLead = '/v1/lead';
