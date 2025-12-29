@@ -110,7 +110,7 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
 
   public contractFormTwo = this._formBuilder.group({
     proyectId:  [ null, [ Validators.required ] ],
-    loteIds:    [ [],   [ Validators.required, Validators.minLength(1), Validators.maxLength(20) ] ],
+    loteIds:    [ [],   [ Validators.required, Validators.minLength(1), Validators.maxLength(100) ] ],
   });
 
   flatpOptions :FlatpickrDefaultsInterface = {
