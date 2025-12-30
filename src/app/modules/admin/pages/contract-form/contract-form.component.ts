@@ -812,6 +812,9 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
     const body2 = this.valueFormTwo;
     const body3 = this.valueFormThree;
 
+    console.log(body3);
+    debugger;
+
     this._alertService.showLoading();
 
     this._contractService.createContract( { ...body1, ...body2, ...body3 } )
