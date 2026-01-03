@@ -29,9 +29,9 @@ export const verifyRoleMenuAllowedGuard: CanActivateFn = (route, state) : Observ
 
             const overviewClientPattern = new RegExp("\/dashboard\/overview-client\/*", "i");
 
-            const isHaveProfileClientMenu = webUrlPermissionMethods.some( (allow) => allow.webUrl == '/dashboard/client-profile' );
+            // const isHaveProfileClientMenu = webUrlPermissionMethods.some( (allow) => allow.webUrl == '/dashboard/client-profile' );
 
-            const isHaveOverviewClientMenu = webUrlPermissionMethods.some( (allow) => allow.webUrl == '/dashboard/overview-client' );
+            // const isHaveOverviewClientMenu = webUrlPermissionMethods.some( (allow) => allow.webUrl == '/dashboard/overview-client' );
 
             const appMenuFefault = ["/", "/#", "/dashboard", "/dashboard/home"];
 
@@ -51,7 +51,6 @@ export const verifyRoleMenuAllowedGuard: CanActivateFn = (route, state) : Observ
 
             // isHaveOverviewClientMenu &&
             if(  overviewClientPattern.test( webUrlsegments ) ) {
-              console.log('Entró al overview client ::: 👈 ');
               return true;
             }
 
