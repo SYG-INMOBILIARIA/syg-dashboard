@@ -44,12 +44,13 @@ export const verifyRoleMenuAllowedGuard: CanActivateFn = (route, state) : Observ
                               return segment;
                             }).join('/');
 
-
-            if( isHaveProfileClientMenu && profileClientPattern.test( webUrlsegments ) ) {
+            // isHaveProfileClientMenu &&
+            if(  profileClientPattern.test( webUrlsegments ) ) {
               return true;
             }
 
-            if( isHaveOverviewClientMenu && overviewClientPattern.test( webUrlsegments ) ) {
+            // isHaveOverviewClientMenu &&
+            if(  overviewClientPattern.test( webUrlsegments ) ) {
               return true;
             }
 

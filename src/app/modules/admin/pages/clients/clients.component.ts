@@ -640,8 +640,6 @@ export default class ClientsComponent implements OnInit, OnDestroy {
 
   onSubmitCredentials() {
 
-    console.log( this.errorsCredentials );
-
     this.credentialsForm.markAllAsTouched();
 
     if( this.isCredentialsFormInvalid || this._isSavingCredentials() ) return;
