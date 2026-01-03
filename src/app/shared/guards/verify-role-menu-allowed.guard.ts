@@ -51,6 +51,7 @@ export const verifyRoleMenuAllowedGuard: CanActivateFn = (route, state) : Observ
 
             // isHaveOverviewClientMenu &&
             if(  overviewClientPattern.test( webUrlsegments ) ) {
+              console.log('Entró al overview client ::: 👈 ');
               return true;
             }
 
