@@ -4,6 +4,8 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { OverviewClientIndicatorsResponse } from '../interfaces/dashboard-client.interface';
 import { DebtsByStatus, ListPaymentQuoteByClientResponse, PaymentGroupByMonth } from '../interfaces';
+import { ListContractResponse } from '@modules/admin/interfaces';
+import { ListReservationsResponse } from '@modules/admin/pages/reservation/interfaces';
 
 @Injectable({
   providedIn: 'root'
@@ -26,6 +28,22 @@ export class DashboardClientService {
     queryParams += `&clientId=${clientId}`;
 
     return this._http.get<ListPaymentQuoteByClientResponse>(`${this._baseUrl}/dashboard-client/payments${queryParams}`);
+  }
+
+  getContractsByClient( page: number, limit: number, filter: string, clientId: string ): Observable<ListContractResponse> {
+    let queryParams = `?page=${page}`;
+    queryParams += `&limit=${limit}`;
+    queryParams += `&filter=${filter}`;
+
+    return this._http.get<ListContractResponse>(`${this._baseUrl}/contract/by-client/${clientId}${queryParams}`);
+  }
+
+  getReservationsByClient( page: number, limit: number, filter: string, clientId: string ): Observable<ListReservationsResponse> {
+    let queryParams = `?page=${page}`;
+    queryParams += `&limit=${limit}`;
+    queryParams += `&filter=${filter}`;
+
+    return this._http.get<ListReservationsResponse>(`${this._baseUrl}/reservation/by-client/${clientId}${queryParams}`);
   }
 
   getPaymentsGroupedByMonth( clientId: string ): Observable<PaymentGroupByMonth[]> {

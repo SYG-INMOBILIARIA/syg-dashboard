@@ -88,7 +88,7 @@ export class OverviewClientLayoutComponent implements OnInit, OnDestroy {
   // Filter states
   searchTerm: string = '';
   statusFilter: string = 'all';
-  tabs: string[] = ['payments', 'debts', 'charts', 'timeline'];
+  tabs: string[] = ['payments', 'debts', 'charts', 'timeline', 'contracts', 'reservations'];
 
   // Pagination
   currentPage: number = 1;

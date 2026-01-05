@@ -1,0 +1,96 @@
+<!-- Payments Tab -->
+
+<div class="space-y-4">
+  <div class="overflow-x-auto">
+    <table class="min-w-full divide-y divide-gray-200">
+      <thead class="bg-gray-50 dark:bg-gray-700">
+        <tr>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reserva</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Lotes</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Clientes</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contrato</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha de registro</th>
+        </tr>
+      </thead>
+      <tbody class="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
+
+        @if (isLoading()) {
+          <tr>
+            <td colspan="5" class="px-6 py-4 whitespace-nowrap text-center text-xl italic text-gray-400">
+              Cargando...
+            </td>
+          </tr>
+        }
+
+        @for (reservation of reservations(); track reservation.id) {
+
+          <tr class="hover:bg-gray-50 hover:dark:bg-gray-700">
+            <td class="px-6 py-4 whitespace-nowrap font-bold">
+              {{ reservation.code }}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+
+              <div class="flex justify-between gap-2 pt-1">
+
+                <div *ngFor="let lote of reservation.lotes" class="text-sm text-gray-500">
+                  <div class="">
+                    <div class="flex justify-start items-center gap-2">
+                      <i class="fa-solid fa-house text-indigo-700 text-sm dark:text-indigo-400"></i>
+                      <span class="text-indigo-700 text-xs font-semibold dark:text-indigo-400">{{ lote.mz }}-{{ lote.numberLote }}</span>
+                    </div>
+                    <div>
+                      {{ lote.squareMeters | number:'.2-2' }} m²
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
+            </td>
+
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+
+              <div class="flex flex-col gap-2 pt-1">
+
+                <div *ngFor="let client of reservation.clients" class="text-sm text-gray-500">
+                  <div class="">
+                    <div class="flex justify-start items-center gap-2">
+                      <i class="fa-solid fa-user text-indigo-700 text-sm dark:text-indigo-400"></i>
+                      <span class="text-indigo-700 text-xs font-semibold dark:text-indigo-400">{{ client.fullname }}</span>
+                    </div>
+                    <div>
+                      {{ client.email }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </td>
+            <td>
+              <span
+                *ngIf="reservation.contract"
+                class=" text-xs font-medium me-2 px-2.5 py-0.5 rounded 0 bg-indigo-100 text-indigo-800 dark:bg-indigo-70 dark:text-indigo-30 "
+              >
+                {{ reservation.contract.code }}
+              </span>
+            </td>
+
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              {{ reservation.createAt | moment:'dateTime' }}
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="5" class="px-6 py-4 whitespace-nowrap text-center text-xl italic text-gray-400">
+              No hay pagos para mostrar
+            </td>
+          </tr>
+        }
+
+      </tbody>
+    </table>
+  </div>
+  <div>
+    <app-pagination [totalItems]="total()" (onChangePage)="onGetReservations( $event )"  ></app-pagination>
+  </div>
+</div>
+

@@ -2,7 +2,7 @@
 <div class="space-y-4">
   <div class="overflow-x-auto">
     <table class="min-w-full divide-y divide-gray-200">
-      <thead class="bg-gray-50">
+      <thead class="bg-gray-50 dark:bg-gray-700">
         <tr>
           <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contrato</th>
           <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Monto</th>
@@ -12,7 +12,7 @@
           <!--th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th-->
         </tr>
       </thead>
-      <tbody class="bg-white divide-y divide-gray-200">
+      <tbody class="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700 ">
 
         @if (isLoading()) {
           <tr>
@@ -24,20 +24,20 @@
 
         @for (contractQuote of contractQuotesPayment(); track contractQuote.id) {
 
-          <tr class="hover:bg-gray-50">
+          <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
             <td class="px-6 py-4 whitespace-nowrap">
               <div>
-                <div class="text-sm font-medium text-gray-900">
+                <div class="text-sm font-medium text-gray-900 dark:text-white">
                   {{ contractQuote.code }}
                 </div>
 
                 <div class="flex justify-between gap-2 pt-1">
 
-                  <div *ngFor="let lote of contractQuote.contract.lotes" class="text-sm text-gray-500">
+                  <div *ngFor="let lote of contractQuote.contract.lotes" class="text-sm text-gray-500 dark:text-gray-400">
                     <div class="">
                       <div class="flex justify-start items-center gap-2">
-                        <i class="fa-solid fa-house text-blue-700 text-sm"></i>
-                        <span class="text-blue-700 text-xs font-semibold">{{ lote.code }}</span>
+                        <i class="fa-solid fa-house text-indigo-700 text-sm dark:text-indigo-400"></i>
+                        <span class="text-indigo-700 text-xs font-semibold dark:text-indigo-400">{{ lote.code }}</span>
                       </div>
                       <div>
                         {{ lote.squareMeters | number:'.2-2' }} m²
@@ -48,14 +48,14 @@
                 </div>
               </div>
             </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-              {{ contractQuote.amountToPay | number:'.2-2'  | currency:'PEN':'S/ '}}
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-200">
+             S/ {{ contractQuote.amountToPay | number:'.2-2'}}
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
               {{ contractQuote.paymentDate | moment:'createAt' }}
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-              {{ contractQuote.paidAt | moment:'dateTime' }}
+              {{ contractQuote?.paidAt | moment:'dateTime' }}
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
               {{ contractQuote.createAt | moment:'dateTime' }}

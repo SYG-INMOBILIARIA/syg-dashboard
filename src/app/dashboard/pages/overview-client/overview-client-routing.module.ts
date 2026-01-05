@@ -31,6 +31,16 @@ const routes: Routes = [
         data: { title: 'Estadísticas' }
       },
       {
+        path: 'contracts',
+        loadComponent: () => import('./pages/overview-client-contracts/overview-client-contracts.component'),
+        data: { title: 'Contratos' }
+      },
+      {
+        path: 'reservations',
+        loadComponent: () => import('./pages/overview-client-reservations/overview-client-reservations.component'),
+        data: { title: 'Reservaciones' }
+      },
+      {
         path: 'timeline',
         loadComponent: () => import('./pages/overview-client-timeline/overview-client-timeline.component'),
         data: { title: 'Línea de tiempo' }

@@ -53,8 +53,12 @@
             routerLinkActive="border-blue-500 text-blue-500 bg-blue-50 active"
             class="whitespace-nowrap pt-4 pb-2 px-1 border-b-2 font-medium text-sm transition-colors border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300">
             {{ tab === 'payments' ? 'Pagos' :
-               tab === 'debts' ? 'Deudas' :
-               tab === 'charts' ? 'Estadísticas' : 'Línea de Tiempo' }}
+                tab === 'debts' ? 'Deudas' :
+                 tab === 'charts' ? 'Estadísticas' :
+                  tab === 'contracts' ? 'Contratos' :
+                   tab === 'timeline' ? 'Línea de Tiempo' :
+                    tab === 'reservations' ? 'Reservas' : tab
+            }}
           </button>
         </nav>
       </div>

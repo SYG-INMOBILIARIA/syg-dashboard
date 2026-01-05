@@ -1,6 +1,5 @@
 import { Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { AppState } from '@app/app.config';
-import { DashboardClientService } from '@app/dashboard/services/dashboard-client.service';
 import { ContractQuote } from '@modules/admin/interfaces';
 import { ContractQuoteService } from '@modules/admin/services/contract-quote.service';
 import { Store } from '@ngrx/store';
