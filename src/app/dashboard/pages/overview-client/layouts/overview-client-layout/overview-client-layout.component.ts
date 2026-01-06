@@ -39,6 +39,7 @@ interface Statistic {
   changeType: 'increase' | 'decrease' | 'now-datetime';
   icon: string;
   nowDate?: Date;
+  showPercentage: boolean;
 }
 
 interface TimelineEvent {
@@ -67,17 +68,6 @@ export class OverviewClientLayoutComponent implements OnInit, OnDestroy {
   private _dashboardClientService = inject( DashboardClientService );
   private _clientId = signal<string | null>( null );
 
-   /*private _contractQuoteService = inject( ContractQuoteService );
-
-  private _contractQuotes = signal<ContractQuote[]>( [] );
-
-  public contractQuotes = computed( () => this._contractQuotes() );
-
-  private _contractQuoteToPay = signal<ContractQuote | null>(  null  );
-
-  public contractQuoteToPay = computed( () => this._contractQuoteToPay() );
-
-  public webUrlPermissionMethods = computed( () => this._webUrlPermissionMethods() );*/
 
   // Data arrays
   payments: Payment[] = [];
@@ -88,7 +78,7 @@ export class OverviewClientLayoutComponent implements OnInit, OnDestroy {
   // Filter states
   searchTerm: string = '';
   statusFilter: string = 'all';
-  tabs: string[] = ['payments', 'debts', 'charts', 'timeline', 'contracts', 'reservations'];
+  tabs: string[] = ['payments', 'debts', 'charts', 'contracts', 'reservations']; //, 'timeline'
 
   // Pagination
   currentPage: number = 1;
@@ -136,25 +126,28 @@ export class OverviewClientLayoutComponent implements OnInit, OnDestroy {
 
       this.statistics = [
         {
-          title: 'Total Recaudado',
+          title: 'Total Pagado',
           value: formatCurrency(paymentIndicators.totalAmount, 'en-US', 'S/', 'PEN') ,
           change: paymentIndicators.percentageDifference,
           changeType:  paymentIndicators.percentageDifference > 0 ? 'increase' : 'decrease',
-          icon: '💰'
+          icon: '💰',
+          showPercentage: false
         },
         {
-          title: 'Pagos Pendientes',
+          title: 'Cuotas pendientes de pago',
           value: '' + quotesIndicators.totalUnpaidQuotes ,
           change: quotesIndicators.percentageDifference,
           changeType: quotesIndicators.percentageDifference > 0 ? 'increase' : 'decrease',
-          icon: '⏳'
+          icon: '⏳',
+          showPercentage: true
         },
         {
-          title: 'Deudas Activas',
+          title: 'Deuda total',
           value: formatCurrency(debtIndicators.totalUnpaidAmount, 'en-US', 'S/', 'PEN'),
           change: debtIndicators.percentageDifference,
           changeType: debtIndicators.percentageDifference > 0 ? 'increase' : 'decrease',
-          icon: '⚠️'
+          icon: '⚠️',
+          showPercentage: true
         },
         {
           title: 'Próximo Pago',
@@ -162,7 +155,8 @@ export class OverviewClientLayoutComponent implements OnInit, OnDestroy {
           change: 0,
           changeType: 'now-datetime',
           icon: '👥',
-          nowDate: nextQuoteToPaid.lastPaidQuote?.paymentDate
+          nowDate: nextQuoteToPaid.lastPaidQuote?.paymentDate,
+          showPercentage: true
         }
       ];
 

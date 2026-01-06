@@ -20,5 +20,6 @@ export default class CardIndicatorComponent {
   @Input() percentDifference: number = 0;
   @Input() icon: string = '';
   @Input() nowDate?: Date;
+  @Input() showPercentage: boolean = false;
 
 }

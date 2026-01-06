@@ -8,8 +8,14 @@
         {{ value }}
       </p>
       <div class="flex items-center mt-2">
-        <span *ngIf="changeType !== 'now-datetime'" class="text-sm" [ngClass]="changeType === 'increase' ? 'text-green-600' : changeType === 'decrease' ? 'text-red-600' : 'text-gray-500'">
-
+        <span *ngIf="changeType !== 'now-datetime' && showPercentage"
+          class="text-sm"
+          [ngClass]="
+          changeType === 'increase'
+            ? 'text-green-600'
+            : changeType === 'decrease'
+              ? 'text-red-600'
+              : 'text-gray-500'">
           {{ changeType === 'increase' ? '+' : changeType === 'decrease' ? '-' : '' }}{{ percentDifference }}%
         </span>
 
@@ -17,9 +23,8 @@
           {{ nowDate | moment:'createAt' }}
         </span>
 
-        <span *ngIf="changeType !== 'now-datetime'" class="text-sm text-gray-500 ml-1 dark:text-gray-400">vs mes anterior</span>
-
-        <span *ngIf="changeType == 'now-datetime'" class="text-sm text-gray-500 ml-1 dark:text-gray-400">útimo pago realizado</span>
+        <span *ngIf="changeType !== 'now-datetime' && showPercentage " class="text-sm text-gray-500 ml-1 dark:text-gray-400">vs mes anterior</span>
+        <span *ngIf="changeType == 'now-datetime' && showPercentage" class="text-sm text-gray-500 ml-1 dark:text-gray-400">útimo pago realizado</span>
       </div>
     </div>
     <div class="text-3xl">{{ icon }}</div>

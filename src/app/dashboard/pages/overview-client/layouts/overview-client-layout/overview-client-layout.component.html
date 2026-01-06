@@ -39,6 +39,7 @@
         [percentDifference]="stat.change"
         [nowDate]="stat.nowDate"
         [icon]="stat.icon"
+        [showPercentage]="stat.showPercentage"
       ></card-indicator>
 
     </div>
@@ -57,7 +58,7 @@
                  tab === 'charts' ? 'Estadísticas' :
                   tab === 'contracts' ? 'Contratos' :
                    tab === 'timeline' ? 'Línea de Tiempo' :
-                    tab === 'reservations' ? 'Reservas' : tab
+                    tab === 'reservations' ? 'Separaciones' : tab
             }}
           </button>
         </nav>

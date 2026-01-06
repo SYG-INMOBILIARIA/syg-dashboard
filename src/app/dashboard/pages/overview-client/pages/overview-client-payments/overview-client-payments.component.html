@@ -4,11 +4,11 @@
     <table class="min-w-full divide-y divide-gray-200">
       <thead class="bg-gray-50 dark:bg-gray-700">
         <tr>
-          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contrato</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cuota</th>
           <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Monto</th>
           <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha de pago</th>
           <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha de pago realizado</th>
-          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha de registro</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contrato</th>
           <!--th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th-->
         </tr>
       </thead>
@@ -58,7 +58,7 @@
               {{ contractQuote?.paidAt | moment:'dateTime' }}
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-              {{ contractQuote.createAt | moment:'dateTime' }}
+              {{ contractQuote.contract.code }}
             </td>
             <!--td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
               <button class="text-blue-600 hover:text-blue-900 mr-3">Editar</button>
