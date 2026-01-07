@@ -20,6 +20,20 @@ const _authReducer = createReducer(
     actions.onLoadUserAuthenticated,
     (state, { userAuthenticated }) => ({...state, userAuthenticated}),
   ),
+
+  on(
+    actions.onRefreshClientInfo,
+    (state, { clientInfo }) => {
+
+      const { userAuthenticated } = state;
+
+      if( !userAuthenticated ) throw new Error('User not authenticated');
+
+      const { client, ...restUser } = userAuthenticated;
+
+      return {...state, userAuthenticated: {...restUser, client: clientInfo} };
+    },
+  ),
   on(
     actions.onLoadMenu,
     (state, { menu, webUrlPermissionMethods }) => ({...state, menu, webUrlPermissionMethods}),

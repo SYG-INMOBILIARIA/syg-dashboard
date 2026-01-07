@@ -16,12 +16,12 @@ const routes: Routes = [
 
       { path: '', component: ClientInfoComponent },
       {
-        path: 'info/:nombre-usuario',
+        path: 'info',
         component: ClientInfoComponent,
         data: { title: 'Overview' }
       },
       {
-        path: 'payments/:nombre-usuario',
+        path: 'payments',
         component: ClientPaymentsComponent,
         data: { title: 'Pagos' }
       },

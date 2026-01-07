@@ -76,7 +76,6 @@ export class BreadCrumbsComponent implements OnInit, OnDestroy  {
   private _buildBreadcrumbs( route: ActivatedRoute, url: string = '', breadcrumbs: Breadcrumb[] = []): Breadcrumb[] {
     const children: ActivatedRoute[] = route.children;
 
-    console.log( 'Children:', children );
     for (const child of children) {
 
 
@@ -84,8 +83,6 @@ export class BreadCrumbsComponent implements OnInit, OnDestroy  {
       if (routeURL !== '') {
         url += `/${routeURL}`;
       }
-
-      console.log('Route URL:', routeURL);
 
       const label = child.snapshot.data['title'];
       if (label && !breadcrumbs.some( b => b.label == label )) {

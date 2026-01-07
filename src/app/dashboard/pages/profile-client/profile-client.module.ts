@@ -14,6 +14,7 @@ import { PaidQuotesModalComponent } from '@modules/admin/components/paid-quotes-
 import { ContractDetailModalComponent } from '@modules/admin/components/contract-detail-modal/contract-detail-modal.component';
 import { PaymentScheduleModalComponent } from "../../../modules/admin/components/payment-schedule-modal/payment-schedule-modal.component";
 import { NgSelectModule } from '@ng-select/ng-select';
+import { FlatpickrDirective } from 'angularx-flatpickr';
 
 @NgModule({
   declarations: [
@@ -33,7 +34,8 @@ import { NgSelectModule } from '@ng-select/ng-select';
     PaidQuotesModalComponent,
     ContractDetailModalComponent,
     PaymentScheduleModalComponent,
-    NgSelectModule
+    NgSelectModule,
+    FlatpickrDirective
 ],
 
 })

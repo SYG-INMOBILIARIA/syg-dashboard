@@ -1,27 +1,5 @@
 <div class="py-2 px-6 max-w-full mx-auto">
 
-  <!-- Breadcrumb -->
-  <nav class="flex pb-4 " aria-label="Breadcrumb">
-    <ol class="inline-flex items-center space-x-1 md:space-x-2 rtl:space-x-reverse">
-      <li class="inline-flex items-center">
-        <a href="#" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white">
-          <svg class="w-3 h-3 me-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-            <path d="m19.707 9.293-2-2-7-7a1 1 0 0 0-1.414 0l-7 7-2 2a1 1 0 0 0 1.414 1.414L2 10.414V18a2 2 0 0 0 2 2h3a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h3a2 2 0 0 0 2-2v-7.586l.293.293a1 1 0 0 0 1.414-1.414Z"/>
-          </svg>
-          Dashboard
-        </a>
-      </li>
-      <li>
-        <div class="flex items-center">
-          <svg class="rtl:rotate-180 w-3 h-3 text-gray-400 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
-            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
-          </svg>
-          <a href="#" class="ms-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ms-2 dark:text-gray-400 dark:hover:text-white">Perfil del cliente</a>
-        </div>
-      </li>
-    </ol>
-  </nav>
-
   <!-- Título -->
   <h1 class="text-2xl font-bold text-gray-800 mb-6 dark:text-slate-200">
     Perfil de Cliente
@@ -66,14 +44,24 @@
           Fuente: Web
         </div>
         <div class="flex flex-wrap gap-2">
-          <button class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-1 rounded border text-sm font-medium transition">Asignar vendedor</button>
-          <button class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-1 rounded border text-sm font-medium transition">Registrar actividad</button>
+          <button class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-1 rounded border text-sm font-medium transition">
+            Asignar vendedor
+          </button>
+          <button class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-1 rounded border text-sm font-medium transition">
+            Cambiar contraseña
+          </button>
         </div>
       </div>
     </div>
     <!-- Editar Perfil Botón -->
     <div class="flex md:block items-start">
-      <button class="mt-2 md:mt-0 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-md flex items-center text-sm transition font-medium">
+      <button
+        type="button"
+        data-modal-target="client-modal"
+        data-modal-toggle="client-modal"
+        (click)="onLoadToUpdate()"
+        class="mt-2 md:mt-0 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-md flex items-center text-sm transition font-medium"
+      >
         <span class="iconify w-4 h-4 mr-2" data-icon="ph:pencil-simple"></span>
         Editar perfil
       </button>
@@ -84,7 +72,7 @@
   <div class="border-b border-gray-200 mb-8 dark:border-gray-500">
     <nav class="flex space-x-8" aria-label="Tabs">
       <a
-        routerLink="/dashboard/client-profile/info/lorem"
+        routerLink="/dashboard/client-profile/info"
         routerLinkActive="text-esmerald-700 border-b-2 border-emerald-700"
         class=" font-semibold pb-3 px-1"
 
@@ -92,7 +80,7 @@
         Información
       </a>
       <a
-        routerLink="/dashboard/client-profile/payments/lorem"
+        routerLink="/dashboard/client-profile/payments"
         routerLinkActive="text-esmerald-700 border-b-2 border-emerald-700"
         class=" hover:text-gray-700 pb-3 px-1">
         Pagos
@@ -103,3 +91,527 @@
   <router-outlet></router-outlet>
 
 </div>
+
+
+<!-- Main modal -->
+<div id="client-modal" data-modal-backdrop="true" tabindex="-1" aria-hidden="false" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+  <div class="relative p-4 w-full max-w-2xl max-h-full">
+
+      <!-- Modal content -->
+      <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+          <!-- Modal header -->
+          <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+                  Editar perfil
+              </h3>
+              <button
+                #btnCloseClientModal
+                type="button"
+                data-modal-toggle="client-modal"
+                class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+                (click)="onResetAfterSubmit()"
+              >
+                  <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                      <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                  </svg>
+                  <span class="sr-only">Close modal</span>
+              </button>
+          </div>
+          <!-- Modal body -->
+          <form [formGroup]="clientForm" (ngSubmit)="onSubmit()" class="p-4">
+
+              <div class="grid gap-4 mb-4 grid-cols-1 md:grid-cols-6">
+
+                <div class="col-span-6 md:col-span-3">
+                  <label for="cbxPersonType" class="block mb-1 text-sm font-medium text-gray-900 dark:text-white">
+                    Tipo <span class="text-red-600">*</span>
+                  </label>
+                  <ng-select
+                    id="cbxPersonType"
+                    class="bg-gray-50 text-gray-900 text-sm rounded-md block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                    [items]="personTypes()"
+                    (change)="onChangePersonType( $event )"
+                    bindLabel="label"
+                    bindValue="value"
+                    placeholder="Seleccione tipo de persona"
+                    formControlName="personType"
+                    [class.border-red-400]=" inputErrors('personType') && isTouched('personType') "
+                  >
+                  </ng-select>
+
+                  @if (isTouched('personType')) {
+                    <span
+                      class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                      inputErrors
+                      [errors]="inputErrors('personType')"
+                      [class.hidden]="!inputErrors('personType')"
+                      inputLabel="Tipo" >
+                    </span>
+                  }
+                </div>
+
+                <div class="col-span-6 md:col-span-3">
+                  <label for="cbxIdentityDocument" class="block mb-1 text-sm font-medium text-gray-900 dark:text-white">
+                    Documento de identidad <span class="text-red-600">*</span>
+                  </label>
+                  <ng-select
+                    id="cbxIdentityDocument"
+                    class="bg-gray-50 text-gray-900 text-sm rounded-md block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                    [items]="identityDocuments()"
+                    (change)="onChangeIdentityDocument( $event )"
+                    bindLabel="shortDescription"
+                    bindValue="id"
+                    placeholder="Seleccione documento de identidad"
+                    formControlName="identityDocumentId"
+                    [class.border-red-400]=" inputErrors('identityDocumentId') && isTouched('identityDocumentId') "
+                  >
+                  </ng-select>
+
+                  @if (isTouched('identityDocumentId')) {
+                    <span
+                      class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                      inputErrors
+                      [errors]="inputErrors('identityDocumentId')"
+                      [class.hidden]="!inputErrors('identityDocumentId')"
+                      inputLabel="Documento de identidad" >
+                    </span>
+                  }
+                </div>
+
+                @if ( !isJuridicPerson() ) {
+
+                  <div class="col-span-6 md:col-span-3">
+                      <label for="txtNames" class="block mb-1 text-sm font-medium text-gray-900 dark:text-white">
+                        Nombres <span class="text-red-600">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        id="txtNames"
+                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-md focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                        placeholder="Enter Name"
+                        formControlName="name"
+                        [class.border-red-400]=" inputErrors('name') && isTouched('name') "
+                      >
+
+                      @if (isTouched('name')) {
+                        <span
+                          class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                          inputErrors
+                          [errors]="inputErrors('name')"
+                          [class.hidden]="!inputErrors('name')"
+                          inputLabel="Nombres" >
+                        </span>
+                      }
+                  </div>
+
+                  <div class="col-span-6 md:col-span-3">
+                      <label for="txtSurname" class="block mb-1 text-sm font-medium text-gray-900 dark:text-white">
+                        Apellidos <span class="text-red-600">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        id="txtSurname"
+                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-md focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                        placeholder="Enter Surname"
+                        formControlName="surname"
+                        [class.border-red-400]=" inputErrors('surname') && isTouched('surname') "
+                      >
+
+                      @if (isTouched('surname')) {
+                        <span
+                          class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                          inputErrors
+                          [errors]="inputErrors('surname')"
+                          [class.hidden]="!inputErrors('surname')"
+                          inputLabel="Apellidos" >
+                        </span>
+                      }
+                  </div>
+
+                } @else {
+
+                  <div class="col-span-6 xs:col-span-6">
+                      <label for="txtBussinessName" class="block mb-1 text-sm font-medium text-gray-900 dark:text-white">
+                        Razón social <span class="text-red-600">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        id="txtBussinessName"
+                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-md focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                        placeholder="Enter Bussiness Name"
+                        formControlName="bussinessName"
+                        [class.border-red-400]=" inputErrors('bussinessName') && isTouched('bussinessName') "
+                      >
+
+                      @if (isTouched('bussinessName')) {
+                        <span
+                          class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                          inputErrors
+                          [errors]="inputErrors('bussinessName')"
+                          [class.hidden]="!inputErrors('bussinessName')"
+                          inputLabel="Razón social" >
+                        </span>
+                      }
+                  </div>
+
+                  <div class="col-span-6 xs:col-span-6">
+                    <label for="txtLegalRepresentative" class="block mb-1 text-sm font-medium text-gray-900 dark:text-white">
+                      Representante legal <span class="text-red-600">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      id="txtLegalRepresentative"
+                      class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-md focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                      placeholder="Enter Legal Representative"
+                      formControlName="legalRepresentative"
+                      [class.border-red-400]=" inputErrors('legalRepresentative') && isTouched('legalRepresentative') "
+                    >
+
+                    @if (isTouched('legalRepresentative')) {
+                      <span
+                        class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                        inputErrors
+                        [errors]="inputErrors('legalRepresentative')"
+                        [class.hidden]="!inputErrors('legalRepresentative')"
+                        inputLabel="Representante legal" >
+                      </span>
+                    }
+                  </div>
+
+                }
+
+                <div class="col-span-6 xs:col-span-6">
+                  <label for="txtAddress" class="block mb-1 text-sm font-medium text-gray-900 dark:text-white">
+                    Dirección <span class="text-red-600">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    id="txtAddress"
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-md focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                    placeholder="Enter Address"
+                    formControlName="address"
+                    [class.border-red-400]=" inputErrors('address') && isTouched('address') "
+                  >
+
+                  @if (isTouched('address')) {
+                    <span
+                      class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                      inputErrors
+                      [errors]="inputErrors('address')"
+                      [class.hidden]="!inputErrors('address')"
+                      inputLabel="Dirección" >
+                    </span>
+                  }
+                </div>
+
+                <div class="col-span-6 md:col-span-2">
+                  <label for="cbxDepartment" class="block mb-1 text-sm font-medium text-gray-900 dark:text-white">
+                    Departamento <span class="text-red-600">*</span>
+                  </label>
+                  <ng-select
+                    id="cbxDepartment"
+                    class="bg-gray-50 text-gray-900 text-sm rounded-md block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                    [items]="departments()"
+                    (change)="onGetProvinces( $event )"
+                    bindLabel="department"
+                    bindValue="code"
+                    placeholder="Seleccione departamento"
+                    formControlName="departmentCode"
+                    [class.border-red-400]=" inputErrors('departmentCode') && isTouched('departmentCode') "
+                  >
+                  </ng-select>
+
+                  @if (isTouched('departmentCode')) {
+                    <span
+                      class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                      inputErrors
+                      [errors]="inputErrors('departmentCode')"
+                      [class.hidden]="!inputErrors('departmentCode')"
+                      inputLabel="Departamento" >
+                    </span>
+                  }
+                </div>
+
+                <div class="col-span-3 md:col-span-2">
+                  <label for="txtBirthDate" class="block mb-1 text-sm font-medium text-gray-900 dark:text-white">
+                    Provincia <span class="text-red-600">*</span>
+                  </label>
+
+                  <ng-select
+                    id="cbxDepartment"
+                    class="bg-gray-50 text-gray-900 text-sm rounded-md block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                    [items]="provinces()"
+                    (change)="onGetDistricts( $event )"
+                    bindLabel="province"
+                    bindValue="code"
+                    placeholder="Seleccione provincia"
+                    formControlName="provinceCode"
+                    [class.border-red-400]=" inputErrors('provinceCode') && isTouched('provinceCode') "
+                  >
+                  </ng-select>
+
+                  @if (isTouched('provinceCode')) {
+                    <span
+                      class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                      inputErrors
+                      [errors]="inputErrors('provinceCode')"
+                      [class.hidden]="!inputErrors('provinceCode')"
+                      inputLabel="provincia" >
+                    </span>
+                  }
+                </div>
+
+                <div class="col-span-3 md:col-span-2">
+                  <label for="cbxDistrito" class="block mb-1 text-sm font-medium text-gray-900 dark:text-white">
+                    Distrito <span class="text-red-600">*</span>
+                  </label>
+                  <ng-select
+                    id="cbxDistrito"
+                    class="bg-gray-50 text-gray-900 text-sm rounded-md block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                    [items]="districts()"
+                    bindLabel="district"
+                    bindValue="id"
+                    placeholder="Seleccione distrito"
+                    formControlName="districtId"
+                    [class.border-red-400]=" inputErrors('districtId') && isTouched('districtId') "
+                  >
+                  </ng-select>
+
+                  @if (isTouched('districtId')) {
+                    <span
+                      class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                      inputErrors
+                      [errors]="inputErrors('districtId')"
+                      [class.hidden]="!inputErrors('districtId')"
+                      inputLabel="Distrito" >
+                    </span>
+                  }
+                </div>
+
+                <div class="col-span-6 md:col-span-2">
+                    <label for="txtDocumentNumber" class="block mb-1 text-sm font-medium text-gray-900 dark:text-white">
+                      Nro Documento <span class="text-red-600">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      id="txtDocumentNumber"
+                      class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-md focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                      placeholder="#######"
+                      formControlName="identityNumber"
+                      [class.border-red-400]=" inputErrors('identityNumber') && isTouched('identityNumber') "
+                    >
+
+                    @if (isTouched('identityNumber')) {
+                      <span
+                        class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                        inputErrors
+                        [errors]="inputErrors('identityNumber')"
+                        [class.hidden]="!inputErrors('identityNumber')"
+                        inputLabel="Nro documento" >
+                      </span>
+                    }
+                </div>
+
+                <div class="col-span-3 md:col-span-2">
+                  <label for="txtBirthDate" class="block mb-1 text-sm font-medium text-gray-900 dark:text-white">
+                    Fecha de nacimiento
+                  </label>
+
+                  <div class="relative">
+                    <div class="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none">
+                      <i class="fa-regular fa-calendar text-gray-500 dark:text-gray-400"></i>
+                    </div>
+
+                    <input
+                      #birthDateInput
+                      type="text"
+                      id="txtBirthDate"
+                      mwlFlatpickr
+                      locale="Spanish"
+                      [altInput]="true"
+                      [maxDate]="maxBirthDate"
+                      class="bg-gray-50 ps-6 text-center border border-gray-300 text-gray-900 text-sm rounded-md focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                      placeholder="YYYY-MM-DD"
+                      formControlName="birthDate"
+                      [class.border-red-400]=" inputErrors('birthDate') && isTouched('birthDate') "
+                    >
+                  </div>
+
+
+                  @if (isTouched('birthDate')) {
+                    <span
+                      class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                      inputErrors
+                      [errors]="inputErrors('birthDate')"
+                      [class.hidden]="!inputErrors('birthDate')"
+                      inputLabel="fecha de nacimiento" >
+                    </span>
+                  }
+                </div>
+
+                <div class="col-span-3 md:col-span-2">
+                  <label for="txtPhone" class="block mb-1 text-sm font-medium text-gray-900 dark:text-white">
+                    Teléfono
+                  </label>
+                  <input
+                    type="text"
+                    id="txtPhone"
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-md focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                    placeholder="+00 000 000 000"
+                    formControlName="phone"
+                    [class.border-red-400]=" inputErrors('phone') && isTouched('phone') "
+                  >
+
+                  @if (isTouched('phone')) {
+                    <span
+                      class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                      inputErrors
+                      [errors]="inputErrors('phone')"
+                      [class.hidden]="!inputErrors('phone')"
+                      inputLabel="Teléfono" >
+                    </span>
+                  }
+                </div>
+
+                <div class="col-span-6 md:col-span-4">
+                    <label for="txtEmail" class="block mb-1 text-sm font-medium text-gray-900 dark:text-white">
+                      Email
+                    </label>
+                    <input
+                      type="text"
+                      id="txtEmail"
+                      class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-md focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                      placeholder="example@domain.com"
+                      formControlName="email"
+                      [class.border-red-400]=" inputErrors('email') && isTouched('email') "
+                    >
+
+                    @if (isTouched('email')) {
+                      <span
+                        class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                        inputErrors
+                        [errors]="inputErrors('email')"
+                        [class.hidden]="!inputErrors('email')"
+                        inputLabel="Email" >
+                      </span>
+                    }
+                </div>
+
+                <div class="col-span-3 md:col-span-2">
+                  <label for="txtPhone" class="block mb-1 text-sm font-medium text-gray-900 dark:text-white">
+                    Teléfono 2
+                  </label>
+                  <input
+                    type="text"
+                    id="txtPhone"
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-md focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                    placeholder="+00 000 000 000"
+                    formControlName="secondaryPhone"
+                    [class.border-red-400]=" inputErrors('secondaryPhone') && isTouched('secondaryPhone') "
+                  >
+
+                  @if (isTouched('secondaryPhone')) {
+                    <span
+                      class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                      inputErrors
+                      [errors]="inputErrors('secondaryPhone')"
+                      [class.hidden]="!inputErrors('secondaryPhone')"
+                      inputLabel="Teléfono 2" >
+                    </span>
+                  }
+                </div>
+
+                @if ( !isJuridicPerson() ) {
+
+                  <div class="col-span-3 md:col-span-3 ">
+                    <label for="cbxPersonType" class="block mb-1 text-sm font-medium text-gray-900 dark:text-white">
+                      Estado civil <span class="text-red-600">*</span>
+                    </label>
+                    <ng-select
+                      id="cbxPersonType"
+                      class="bg-gray-50 border text-gray-900 text-sm rounded-md block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                      [items]="civilStatus()"
+                      bindLabel="label"
+                      bindValue="value"
+                      placeholder="Seleccione estado civil"
+                      formControlName="civilStatus"
+                      [class.border-red-400]=" inputErrors('civilStatus') && isTouched('civilStatus') "
+                    >
+                    </ng-select>
+
+                    @if (isTouched('civilStatus')) {
+                      <span
+                        class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                        inputErrors
+                        [errors]="inputErrors('civilStatus')"
+                        [class.hidden]="!inputErrors('civilStatus')"
+                        inputLabel="Estado civil" >
+                      </span>
+                    }
+                  </div>
+
+                  <div class="col-span-3 md:col-span-3 ">
+                    <label for="cbxPersonType" class="block mb-1 text-sm font-medium text-gray-900 dark:text-white">
+                      Género <span class="text-red-600">*</span>
+                    </label>
+                    <ng-select
+                      id="cbxPersonType"
+                      class="bg-gray-50 border text-gray-900 text-sm rounded-md block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                      [items]="genders()"
+                      bindLabel="label"
+                      bindValue="value"
+                      placeholder="Seleccione genero"
+                      formControlName="gender"
+                      [class.border-red-400]=" inputErrors('gender') && isTouched('gender') "
+                    >
+                    </ng-select>
+
+                    @if (isTouched('gender')) {
+                      <span
+                        class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                        inputErrors
+                        [errors]="inputErrors('gender')"
+                        [class.hidden]="!inputErrors('gender')"
+                        inputLabel="Genero" >
+                      </span>
+                    }
+                  </div>
+                }
+
+              </div>
+
+              <div class="flex justify-end gap-1">
+
+                <button
+                  type="button"
+                  data-modal-toggle="client-modal"
+                  class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg border border-gray-300 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600 me-3"
+                  (click)="onResetAfterSubmit()"
+                >
+                  Cancelar
+                </button>
+
+                <button
+                  type="submit"
+                  class="text-white cursor-pointer inline-flex justify-center items-center w-[250px] bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                  [disabled]="isFormInvalid || isSaving()"
+                  [ngClass]="{
+                    '!bg-gray-400 text-black': isFormInvalid || isSaving()
+                  }"
+                >
+                  <span *ngIf="!isSaving() else savingSpinner" >
+                    Guardar cambios
+                  </span>
+                </button>
+
+
+              </div>
+
+          </form>
+      </div>
+  </div>
+</div>
+
+<ng-template #savingSpinner>
+  <spinner></spinner>
+</ng-template>

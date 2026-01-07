@@ -13,7 +13,7 @@ export interface UserAuthenticated {
   roles:            Role[];
   photo?:            Photo | null;
   identityDocument: IdentityDocument;
-  client?:           Client;
+  client?:           Client | null;
 }
 
 export interface Role {

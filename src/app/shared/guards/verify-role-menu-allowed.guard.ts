@@ -17,6 +17,8 @@ export const verifyRoleMenuAllowedGuard: CanActivateFn = (route, state) : Observ
   const store = inject( Store<AppState> );
   const router = inject( Router );
 
+  console.log('Verifying menu access for route:', routeUrl );
+
   return store.select('auth')
         .pipe(
           map( ( state: AuthState ) => {
@@ -38,14 +40,19 @@ export const verifyRoleMenuAllowedGuard: CanActivateFn = (route, state) : Observ
             if( appMenuFefault.includes( routeUrl ) || profilePattern.test(routeUrl) ) {
               return true;
             }
+
+
             const webUrlsegments = routeUrl.split('/')
                             .map( (segment) => {
                               if( ISUUID(segment) ) return ':id';
                               return segment;
                             }).join('/');
 
+            console.log({webUrlsegments});
+
             // isHaveProfileClientMenu &&
             if(  profileClientPattern.test( webUrlsegments ) ) {
+              console.log('Access granted to profile client menu');
               return true;
             }
 

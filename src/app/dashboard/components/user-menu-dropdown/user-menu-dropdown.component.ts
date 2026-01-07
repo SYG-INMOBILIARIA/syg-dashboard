@@ -30,6 +30,12 @@ export class UserMenuDropdownComponent implements OnInit, OnDestroy {
 
   public defaultFileUrl = signal( environments.defaultImgUrl );
 
+  private _profileUrl = signal<string>( '/dashboard/profile' );
+
+  get profileUrl() {
+    return this._profileUrl();
+  }
+
   ngOnInit(): void {
     this.onListenAuthRx();
   }
@@ -39,8 +45,25 @@ export class UserMenuDropdownComponent implements OnInit, OnDestroy {
     .subscribe( (state: AuthState) => {
 
       const { userAuthenticated } = state;
-
       this._userAutenticated.set( userAuthenticated );
+
+      if ( userAuthenticated ) {
+
+        const { client } = userAuthenticated;
+
+        if ( client ) {
+
+          this._profileUrl.set( '/dashboard/client-profile' );
+          // this.onGetContractQuotes();
+        } else {
+          this._authRx$?.unsubscribe();
+          throw new Error('Client not found!!!');
+        }
+
+      } else {
+        this._authRx$?.unsubscribe();
+      }
+
     });
   }
 
@@ -48,10 +71,10 @@ export class UserMenuDropdownComponent implements OnInit, OnDestroy {
     this._authService.onSingOut();
   }
 
-  onClearUserProfileID() {
-    localStorage.removeItem('userProfileId');
-    localStorage.removeItem('userProfileName');
-  }
+  // onClearUserProfileID() {
+  //   localStorage.removeItem('userProfileId');
+  //   localStorage.removeItem('userProfileName');
+  // }
 
   ngOnDestroy(): void {
     this._authRx$?.unsubscribe();
