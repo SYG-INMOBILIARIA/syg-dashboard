@@ -45,6 +45,9 @@ import { AppState } from '@app/app.config';
 })
 export default class PaymentProfileComponent implements OnInit, OnDestroy {
 
+  private _authRx$?: Subscription;
+  private _store = inject<Store<AppState>>( Store<AppState> );
+
   private _profileRx$?: Subscription;
 
   @ViewChild('btnCloseSellerPaymentModal') btnCloseSellerPaymentModal!: ElementRef<HTMLButtonElement>;
@@ -55,7 +58,6 @@ export default class PaymentProfileComponent implements OnInit, OnDestroy {
   private _sellerPaymentService = inject( SellerPaymentService );
   private _uploadService = inject( UploadFileService );
   private _paymentMethodService = inject( PaymentMethodService );
-  private _store = inject<Store<AppState>>( Store<AppState> );
   private _userSellerId = '';
   currentDate: Date = new Date();
 
@@ -118,17 +120,29 @@ export default class PaymentProfileComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    initFlowbite();
+    this.onListenAuthRx();
+  }
 
-    this._userSellerId = localStorage.getItem('userProfileId') ?? '';
+  onListenAuthRx() {
 
-    if( !ISUUID( this._userSellerId ) )
-      throw new Error('userProfileId not found !!!');
+    this._authRx$ = this._store.select('auth')
+    .subscribe( (state) => {
+      const { userAuthenticated } = state;
 
-    this.sellerPaymentForm.get('sellerUserId')?.setValue( this._userSellerId );
-    this.onGetSellerPayments();
-    this.onGetPaymentsMethod();
-    this.onListenProfileRx();
+      this._userSellerId = localStorage.getItem('userProfileId') ?? '';
 
+      if( !ISUUID( this._userSellerId ) && userAuthenticated ) {
+        this._userSellerId = userAuthenticated.id;
+      }
+
+      this.sellerPaymentForm.get('sellerUserId')?.setValue( this._userSellerId );
+      this.onGetSellerPayments();
+      this.onGetPaymentsMethod();
+      this.onListenProfileRx();
+      this._authRx$?.unsubscribe();
+
+    });
   }
 
   onListenProfileRx() {
@@ -157,9 +171,6 @@ export default class PaymentProfileComponent implements OnInit, OnDestroy {
         this._sellerPayments.set( sellerPayments );
         this._isLoading.set( false );
 
-        setTimeout(() => {
-          initFlowbite();
-        }, 400);
 
       }, error: (err) => {
         this._isLoading.set( false );
@@ -294,6 +305,8 @@ export default class PaymentProfileComponent implements OnInit, OnDestroy {
 
     this._sellerPaymentService.getSellerPaymentById( sellerPayment.id )
     .subscribe( ( sellerPayment ) => {
+
+      this.btnShowVoucherModal.nativeElement.click();
       this.voucherUrl.set( sellerPayment.photo?.urlImg ?? environments.defaultImgUrl );
 
     } );
@@ -306,6 +319,7 @@ export default class PaymentProfileComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this._profileRx$?.unsubscribe();
+    this._authRx$?.unsubscribe();
   }
 
 }

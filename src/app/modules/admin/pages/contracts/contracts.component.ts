@@ -19,6 +19,10 @@ import { RouterModule } from '@angular/router';
 import { initFlowbite } from 'flowbite';
 import { PaymentScheduleModalComponent } from '@modules/admin/components/payment-schedule-modal/payment-schedule-modal.component';
 import { SpinnerComponent } from '@shared/components/spinner/spinner.component';
+import { ExcelExportService } from '@shared/services/excel-export.service';
+import { MomentPipe } from '@pipes/moment.pipe';
+import { PaymentTypePipe } from '@pipes/payment-type.pipe';
+import { LoteJoinCodesPipe } from '@pipes/lote-join-code.pipe';
 
 @Component({
   selector: 'app-contracts',
@@ -28,11 +32,15 @@ import { SpinnerComponent } from '@shared/components/spinner/spinner.component';
     ReactiveFormsModule,
     FormsModule,
     PaginationComponent,
-    PipesModule,
     ContractDetailModalComponent,
     PaymentScheduleModalComponent,
     RouterModule,
-    SpinnerComponent
+    SpinnerComponent,
+    PipesModule,
+  ],
+  providers: [
+    MomentPipe,
+    PaymentTypePipe
   ],
   templateUrl: './contracts.component.html',
   styles: ``
@@ -50,6 +58,9 @@ export default class ContractsComponent implements OnInit, OnDestroy {
 
   private _alertService = inject( AlertService );
   private _contractService = inject( ContractService );
+  private _excelExportService = inject( ExcelExportService );
+  private _momentPipe = inject( MomentPipe );
+  private _paymentPipe = inject( PaymentTypePipe );
   readonly dialog = inject( MatDialog );
 
   public searchInput = new FormControl('', [ Validators.pattern( fullTextPatt ) ]);
@@ -57,14 +68,14 @@ export default class ContractsComponent implements OnInit, OnDestroy {
   private _isLoading = signal( true );
   private _isSaving = signal( false );
   private _allowList = signal( true );
-  private _downloadInProgress = signal( false );
+  private _reportInProgress = signal( false );
   private _totalContracts = signal<number>( 0 );
   private _contracts = signal<Contract[]>( [] );
   private _contractIdByModal = signal< string | null >( null );
   private _contractById = signal< Contract | null >( null );
   private _contractSchedule = signal<ContractQuote[]>( [] );
 
-  public downloadInProgress = computed( () => this._downloadInProgress() );
+  public reportInProgress = computed( () => this._reportInProgress() );
   public isLoading = computed( () => this._isLoading() );
   public isSaving = computed( () => this._isSaving() );
   public allowList = computed( () => this._allowList() );
@@ -82,6 +93,10 @@ export default class ContractsComponent implements OnInit, OnDestroy {
 
     this.onListenAuthRx();
     this.onGetContracts();
+  }
+
+  ngAfterViewInit() {
+    initFlowbite();
   }
 
   onListenAuthRx() {
@@ -183,6 +198,39 @@ export default class ContractsComponent implements OnInit, OnDestroy {
       this.btnShowScheduleContractModal.nativeElement.click();
       this._alertService.close();
     });
+
+  }
+
+  onExportContracts() {
+    if( this._reportInProgress() ) return;
+
+    this._reportInProgress.set( true );
+
+    const filter = this.searchInput.value ?? '';
+    this._contractService.getContracts( 1, filter, 1000 )
+    .subscribe({
+      next: ({ contracts }) => {
+
+        const dataToExport = contracts.map( (contract) => ({
+        'Cliente/Customer': contract.clients.map( (client) => client.fullname ).join(' - '),
+        'Código': contract.code,
+        'Proyecto': contract.proyect.name,
+        'Lotes': contract.lotes.map( ( lote ) => `${ lote.mz }${ lote.numberLote }` ).join( ' - ' ),
+        'Tipo de pago': this._paymentPipe.transform( contract.paymentType ),
+        'F. creación': this._momentPipe.transform( contract.createAt ),
+        'F. primer pago': contract.firstPayDate ? this._momentPipe.transform( contract.firstPayDate ) : '',
+      }));
+
+      this._excelExportService.exportToExcel( dataToExport, 'Contratos' );
+
+      this._reportInProgress.set( false );
+
+      }, error: (err) => {
+        this._reportInProgress.set( false );
+      }
+    });
+
+
 
   }
 

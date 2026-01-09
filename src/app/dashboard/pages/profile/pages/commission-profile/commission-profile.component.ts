@@ -1,5 +1,5 @@
 import { CommonModule, formatNumber } from '@angular/common';
-import { Component, LOCALE_ID, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, LOCALE_ID, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { validate as ISUUID } from 'uuid';
 
@@ -13,6 +13,9 @@ import { PaymentMethodService } from '@modules/admin/services/payment-method.ser
 import { PaymentMethod } from '@modules/admin/interfaces';
 import { ExcelExportService } from '@shared/services/excel-export.service';
 import { MomentPipe } from '@pipes/moment.pipe';
+import { Subscription } from 'rxjs';
+import { Store } from '@ngrx/store';
+import { AppState } from '@app/app.config';
 
 @Component({
   selector: 'app-commission-profile',
@@ -29,7 +32,10 @@ import { MomentPipe } from '@pipes/moment.pipe';
   templateUrl: './commission-profile.component.html',
   styles: ``
 })
-export default class CommissionProfileComponent implements OnInit {
+export default class CommissionProfileComponent implements OnInit, OnDestroy {
+
+  private _authRx$?: Subscription;
+  private _store = inject<Store<AppState>>( Store<AppState> );
 
   private _profileService = inject( ProfileService );
   private _excelExportService = inject( ExcelExportService );
@@ -51,16 +57,31 @@ export default class CommissionProfileComponent implements OnInit {
   public commissionsTotal = computed( () => this._commissionsTotal() );
   public exportInProgress = computed( () => this._exportInProgress() );
 
+  get sellerUserId() { return this._userSellerId; }
+
   private _userSellerId = '';
 
   ngOnInit(): void {
-    this._userSellerId = localStorage.getItem('userProfileId') ?? '';
+    this.onListenAuthRx();
+  }
 
-    if( !ISUUID( this._userSellerId ) )
-      throw new Error('userProfileId not found !!!');
+  onListenAuthRx() {
 
-    this.onGetPaymentTypes();
-    this.onGetComissions();
+    this._authRx$ = this._store.select('auth')
+    .subscribe( (state) => {
+      const { userAuthenticated } = state;
+
+      this._userSellerId = localStorage.getItem('userProfileId') ?? '';
+
+      if( !ISUUID( this._userSellerId ) && userAuthenticated ) {
+        this._userSellerId = userAuthenticated.id;
+      }
+
+      this.onGetPaymentTypes();
+      this.onGetComissions();
+      this._authRx$?.unsubscribe();
+
+    });
   }
 
   onGetComissions( page = 1 ) {
@@ -126,6 +147,10 @@ export default class CommissionProfileComponent implements OnInit {
     });
 
 
+  }
+
+  ngOnDestroy(): void {
+    this._authRx$?.unsubscribe();
   }
 
 }

@@ -17,8 +17,8 @@ export class LoginComponent implements OnInit {
   private _router = inject( Router );
 
   public singinForm = this._formBuilder.group({
-    username: ['fulanito@gmail.com', [ Validators.required, Validators.pattern( emailPatt ) ] ],
-    password: ['123456', [ Validators.required, Validators.minLength(6) ]],
+    username: [ null, [ Validators.required, Validators.pattern( emailPatt ) ] ], //fulanito@gmail.com
+    password: [ null, [ Validators.required, Validators.minLength(6) ]], //123456
   });
 
   private _isLoading = signal( false );

@@ -32,6 +32,18 @@
         Registrar Pago
       </button>
 
+      <button
+        #btnShowVoucherModal
+        type="button"
+        data-modal-target="voucher-modal"
+        data-modal-toggle="voucher-modal"
+        class="hidden items-center text-blue-600 hover:text-blue-800 "
+      >
+        <span class="iconify w-5 h-5 mr-1" data-icon="ph:image"></span>
+        <!-- <i class="fa-solid fa-image mr-1"></i> -->
+        Ver comprobante
+      </button>
+
     </div>
   </div>
 
@@ -89,8 +101,6 @@
               @if ( sellerPayment.photo ) {
                 <button
                   type="button"
-                  data-modal-target="voucher-modal"
-                  data-modal-toggle="voucher-modal"
                   class=" items-center text-blue-600 hover:text-blue-800 flex justify-center"
                   (click)="onViewVoucher( sellerPayment )"
                 >

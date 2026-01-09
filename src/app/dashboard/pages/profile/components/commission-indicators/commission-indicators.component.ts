@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, Input, OnInit, signal } from '@angular/core';
 import { validate as ISUUID } from 'uuid';
 
 import { ProfileService } from '../../services/profile.service';
@@ -31,13 +31,21 @@ export default class CommissionIndicatorsComponent implements OnInit {
   get totalCommissionsPaid() { return this._totalPaid; }
   get totalCommissionsRest() { return this._rest; }
 
+  @Input() public set sellerUserId( value: string ) {
+
+    if( !ISUUID( value ) ) throw new Error('sellerUserId is not valid UUID !!!');
+
+    this._sellerUserId = value;
+    this.onGetCommisionsIndicators();
+  }
+
   ngOnInit(): void {
 
-    this._sellerUserId = localStorage.getItem('userProfileId') ?? '';
+    // this._sellerUserId = localStorage.getItem('userProfileId') ?? '';
 
-    if( !ISUUID( this._sellerUserId ) ) throw new Error('userProfileId not found !!!');
+    // if( !ISUUID( this._sellerUserId ) ) throw new Error('userProfileId not found !!!');
 
-    this.onGetCommisionsIndicators();
+    // this.onGetCommisionsIndicators();
 
   }
 

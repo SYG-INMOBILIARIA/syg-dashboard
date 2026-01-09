@@ -39,9 +39,9 @@ export default class PaymentIndicatorsComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
 
-    this._sellerUserId = localStorage.getItem('userProfileId') ?? '';
+    // this._sellerUserId = localStorage.getItem('userProfileId') ?? '';
 
-    if( !ISUUID( this._sellerUserId ) ) throw new Error('userProfileId not found !!!');
+    // if( !ISUUID( this._sellerUserId ) ) throw new Error('userProfileId not found !!!');
 
     this.onListenProfileRx();
   }

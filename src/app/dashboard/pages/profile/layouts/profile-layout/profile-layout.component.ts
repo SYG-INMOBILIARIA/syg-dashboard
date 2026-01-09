@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, ViewChild, computed, inject, signal } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild, computed, inject, signal } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { validate as ISUUID } from 'uuid';
@@ -10,14 +10,14 @@ import { forkJoin, Subscription } from 'rxjs';
 import { initFlowbite } from 'flowbite';
 
 import { UserService } from '@modules/security/services/user.service';
-import { User } from '@modules/security/interfaces';
+import { User, UserBody } from '@modules/security/interfaces';
 import { SellerPaymentService } from '@modules/admin/services/seller-payment.service';
 import { PaymentMethodService } from '@modules/admin/services/payment-method.service';
-import { PaymentMethod } from '@modules/admin/interfaces';
+import { IdentityDocument, PaymentMethod } from '@modules/admin/interfaces';
 import { AppState } from '@app/app.config';
 import * as profileActions from '@redux/actions/profile.actions';
 import { environments } from '@envs/environments';
-import { descriptionPatt, operationCodePatt } from '@shared/helpers/regex.helper';
+import { datePatt, descriptionPatt, emailPatt, fullTextPatt, numberDocumentPatt, numberPatt, operationCodePatt } from '@shared/helpers/regex.helper';
 import { AlertService } from '@shared/services/alert.service';
 import { UploadFileService } from '@shared/services/upload-file.service';
 import { SpinnerComponent } from '@shared/components/spinner/spinner.component';
@@ -25,6 +25,8 @@ import { onValidImg } from '@shared/helpers/files.helper';
 import { InputErrorsDirective } from '@shared/directives/input-errors.directive';
 import { ProfileService } from '../../services/profile.service';
 import { SellerPaymentBody } from '../../interfaces';
+import { UserValidatorService } from '@modules/security/validators/user-validator.service';
+import { IdentityDocumentService } from '@modules/admin/services/identity-document.service';
 
 @Component({
   selector: 'profile-layout',
@@ -42,9 +44,10 @@ import { SellerPaymentBody } from '../../interfaces';
     InputErrorsDirective
   ]
 })
-export default class ProfileLayoutComponent implements OnInit {
+export default class ProfileLayoutComponent implements OnInit, OnDestroy {
 
   @ViewChild('btnCloseSellerPaymentModal') btnCloseSellerPaymentModal!: ElementRef<HTMLButtonElement>;
+  @ViewChild('btnCloseUserModal') btnCloseUserModal!: ElementRef<HTMLButtonElement>;
 
   private _authRx$?: Subscription;
   private _router = inject( Router );
@@ -56,7 +59,11 @@ export default class ProfileLayoutComponent implements OnInit {
   private _alertService = inject( AlertService );
   private _sellerPaymentService = inject( SellerPaymentService );
   private _uploadService = inject( UploadFileService );
+  private _userValidatorService = inject( UserValidatorService );
+  private _identityDocService = inject( IdentityDocumentService );
+  private _uploadFileService = inject( UploadFileService );
 
+  maxBirthDate: Date = new Date(2005, 12, 31 );
   currentDate: Date = new Date();
 
   private _formBuilder = inject( UntypedFormBuilder );
@@ -71,6 +78,22 @@ export default class ProfileLayoutComponent implements OnInit {
     paymentMethodId:   [ null, [ Validators.required ] ],
   });
 
+  public userForm = this._formBuilder.group({
+    id:                 [ '', [] ],
+    name:               [ '', [ Validators.required, Validators.minLength(3), Validators.pattern( fullTextPatt ) ] ],
+    surname:            [ '', [ Validators.required, Validators.minLength(3), Validators.pattern( fullTextPatt ) ] ],
+    email:              [ '', [ Validators.required, Validators.pattern( emailPatt ) ] ],
+    rolesId:            [ [], [ Validators.required, Validators.minLength(1) ] ],
+    identityDocumentId: [ null, [ Validators.required ] ],
+    identityNumber:     [ '', [ Validators.required ] ],
+    address:            [ '', [ Validators.pattern( fullTextPatt ) ] ],
+    birthDate:          [ null, [ Validators.pattern( datePatt ) ] ],
+    admissionDate:      [ null, [ Validators.pattern( datePatt ) ] ],
+  }, {
+    updateOn: 'change',
+    asyncValidators: [ this._userValidatorService ],
+  });
+
   private _userProfileName = signal<string | null>(null);
   private _userProfile = signal<User | null>(null);
   public defaultImg = environments.defaultImgUrl;
@@ -82,6 +105,7 @@ export default class ProfileLayoutComponent implements OnInit {
   private _totalCommissions = signal<number>( 0 );
   private _totalPending = signal<number>( 0 );
   private _paymentsMethod = signal<PaymentMethod[]>( [] );
+  private _identityDocuments = signal<IdentityDocument[]>( [] );
 
   public totalPayments = computed( () => this._totalPayments() );
   public totalCommissions = computed( () => this._totalCommissions() );
@@ -91,11 +115,15 @@ export default class ProfileLayoutComponent implements OnInit {
   public userProfileName = computed( () => this._userProfileName() );
   public userProfile = computed( () => this._userProfile() );
   public isLoading = computed( () => this._isLoading() );
+  public readonly identityDocuments = computed( () => this._identityDocuments() );
 
   private _sellerUserId = '';
 
   public fileUrl = signal( environments.defaultImgUrl );
   private _file?: File;
+
+  public fileAvatarUrl = signal( environments.defaultImgUrl );
+  private _fileAvatar?: File;
 
   private _isSaving = signal<boolean>( false );
   public isSaving = computed( () => this._isSaving() );
@@ -107,10 +135,13 @@ export default class ProfileLayoutComponent implements OnInit {
     return this.sellerPaymentLayoutForm.get(field)?.touched ?? false;
   }
 
+  get userBody(): UserBody{ return  this.userForm.value as UserBody; }
+
   get isHavePhotoUpdated() { return this._isHavePhotoUpdated; }
   get formErrors() { return this.sellerPaymentLayoutForm.errors; }
   get file() { return this._file; }
   get isFormInvalid() { return this.sellerPaymentLayoutForm.invalid; }
+  get isFormInvalidProfile() { return this.userForm.invalid; }
   get sellerPaymentBody(): SellerPaymentBody { return  this.sellerPaymentLayoutForm.value as SellerPaymentBody; }
 
   ngOnInit(): void {
@@ -124,35 +155,44 @@ export default class ProfileLayoutComponent implements OnInit {
     .subscribe( (state) => {
       const { userAuthenticated } = state;
 
-      this._userProfileName.set( localStorage.getItem('userProfileName') );
+      // this._userProfileName.set( localStorage.getItem('userProfileName') );
       this._sellerUserId = localStorage.getItem('userProfileId') ?? '';
 
 
       if( !ISUUID( this._sellerUserId ) ) {
 
         this._userProfileName.set( userAuthenticated?.fullname ?? null );
-
         this._sellerUserId = userAuthenticated?.id ?? '';
 
-        if( !ISUUID( this._sellerUserId ) ) {
-          this._router.navigateByUrl('/dashboard');
-          return;
-        }
+      } else {
+        this._userProfileName.set( localStorage.getItem('userProfileName') );
       }
+
+      // if( !userAuthenticated ){
+      //   this._authRx$?.unsubscribe();
+      //   throw new Error('User authenticated is null !!!');
+      // }
 
       this.sellerPaymentLayoutForm.get('sellerUserId')?.setValue( this._sellerUserId );
 
       this.onGetUserProfile();
-      this.onGetPaymentsMethod();
+      this.onLoadSelectsData();
+      this._authRx$?.unsubscribe();
 
     });
   }
 
-  onGetPaymentsMethod() {
+  onLoadSelectsData() {
 
-    this._paymentMethodService.getPaymentsMethod( 1, '', 100 )
-    .subscribe(({ paymentsMethod, total }) => {
-      this._paymentsMethod.set( paymentsMethod );
+    forkJoin({
+      identityDocumentsResponse: this._identityDocService.getIdentityDocuments(),
+      paymentMethodsResponse: this._paymentMethodService.getPaymentsMethod( 1, '', 100 )
+    })
+    .subscribe(({ identityDocumentsResponse, paymentMethodsResponse }) => {
+
+      this._identityDocuments.set( identityDocumentsResponse.identityDocuments );
+      this._paymentsMethod.set( paymentMethodsResponse.paymentsMethod  );
+
     });
 
   }
@@ -269,5 +309,92 @@ export default class ProfileLayoutComponent implements OnInit {
     this.fileUrl.set( environments.defaultImgUrl );
   }
 
+  // functions para editar perfil
+
+  onLoadEditProfile() {
+
+    this._alertService.showLoading();
+
+    this._userService.getUserById( this._sellerUserId )
+    .subscribe({
+      next: (role) => {
+
+        const { createAt, isActive, userCreate, photo, roles, identityDocument, ...rest } = role;
+
+        this.fileAvatarUrl.set( photo?.urlImg ?? environments.defaultImgUrl );
+        this.userForm.reset( {
+          ...rest,
+          identityDocumentId: identityDocument.id,
+          rolesId: roles.map( (role) => role.id )
+        } );
+        this._alertService.close();
+
+      }, error: (err) => {
+        this._alertService.close();
+      }
+    });
+
+  }
+
+  onChangeIdentityDocument( identityDocument: IdentityDocument ) {
+
+    const { longitude, isAlphaNumeric, isLongitudeExact } = identityDocument;
+
+    this.userForm.get('identityNumber')?.clearValidators();
+    this.userForm.get('identityNumber')?.addValidators( [
+      Validators.required,
+      Validators.pattern( isAlphaNumeric ? numberDocumentPatt : numberPatt ),
+      Validators.minLength( isLongitudeExact ? longitude : 6 ),
+      Validators.maxLength( longitude ),
+    ] );
+
+    this.userForm.updateValueAndValidity();
+  }
+
+  onResetUserForm() {
+    this.userForm.reset();
+    this.btnCloseUserModal.nativeElement.click();
+    this.fileAvatarUrl.set( environments.defaultImgUrl );
+    this._fileAvatar = undefined;
+  }
+
+  onSubmitProfile() {
+
+    if( this.isFormInvalidProfile || this._isLoading() ){
+      this.userForm.markAllAsTouched();
+      return;
+    }
+
+    const { id = 'xD', ...body } = this.userBody;
+
+    if( !ISUUID( id ) ) throw new Error('User ID is invalid');
+
+    this._isLoading.set( true );
+
+    this._userService.updateUser( id, body )
+      .subscribe({
+        next: async ( userUpdated ) => {
+
+          if( this._fileAvatar ) {
+            await this._uploadFileService.uploadFile( this._fileAvatar, userUpdated.id, 'users' );
+          }
+
+          this.onResetAfterSubmit();
+          this.onGetUserProfile();
+          this.btnCloseUserModal.nativeElement.click();
+          this._isLoading.set( false );
+
+          this._alertService.showAlert('Perfil actualizado exitosamente', undefined, 'success');
+
+        }, error: (err) => {
+
+          this._isLoading.set( false );
+        }
+      });
+  }
+
+  ngOnDestroy(): void {
+    this._authRx$?.unsubscribe();
+  }
 
 }

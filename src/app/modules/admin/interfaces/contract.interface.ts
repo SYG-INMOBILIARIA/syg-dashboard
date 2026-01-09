@@ -7,6 +7,7 @@ export interface Contract {
   createAt:           Date;
   id:                 string;
   contractDate:       Date;
+  firstPayDate:       Date | null;
   code:               string;
   year:               number;
   paymentType:        PaymentType;

@@ -127,7 +127,7 @@ const routes: Routes = [
       {
         path: 'profile',
         loadChildren: () => import('./pages/profile/profile.module'),
-        data: { title: 'Perfil' }
+        data: { title: 'Perfil de asesor comercial' }
       },
       {
         path: 'client-profile',

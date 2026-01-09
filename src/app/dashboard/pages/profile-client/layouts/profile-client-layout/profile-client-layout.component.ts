@@ -121,23 +121,33 @@ export class ProfileClientLayoutComponent implements OnInit, OnDestroy {
 
       const { userAuthenticated } = state;
 
-      if ( userAuthenticated ) {
+      this._clientProfileId = localStorage.getItem('clientProfileId') || 'xD';
 
-        const { client } = userAuthenticated;
+      if( !ISUUID( this._clientProfileId ) ) {
 
-        if ( client ) {
+        if ( userAuthenticated ) {
 
-          this._clientProfileId = client.id;
-          this.onGetClientProfile();
+          const { client } = userAuthenticated;
+
+          if ( client ) {
+
+            this._clientProfileId = client.id;
+
+          } else {
+            this._authRx$?.unsubscribe();
+            throw new Error('Client not found!!!');
+          }
 
         } else {
           this._authRx$?.unsubscribe();
-          throw new Error('Client not found!!!');
+          throw new Error('User not authenticated!!!');
         }
 
-      } else {
-        this._authRx$?.unsubscribe();
       }
+
+      this.onGetClientProfile();
+
+      this._authRx$?.unsubscribe();
 
     });
   }

@@ -12,7 +12,7 @@ const routes: Routes = [
     canActivateChild: [ saveCurrentPageGuard,  ], //verifyRoleMenuAllowedGuard
     children: [
 
-      { path: '', component: HomeProfileComponent },
+      { path: '', component: HomeProfileComponent, data: { title: 'Overview' } },
       {
         path: 'home/:nombre-usuario',
         component: HomeProfileComponent,

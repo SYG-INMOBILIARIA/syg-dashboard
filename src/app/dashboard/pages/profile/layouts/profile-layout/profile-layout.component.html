@@ -1,16 +1,5 @@
 <div class="py-2 px-8 max-w-full mx-auto">
-  <!-- Breadcrumb -->
-  <nav class="text-sm text-gray-500 flex items-center mb-6 space-x-2">
-    <a
-      routerLink="/dashboard"
-      class="hover:underline flex items-center"
-    >
-      <span class="iconify w-4 h-4 mr-1" data-icon="ph:house-simple"></span>
-      Dashboard
-    </a>
-    <span>/</span>
-    <a href="#" class="hover:underline ">Perfil del asesor comercial</a>
-  </nav>
+
 
   <!-- Título -->
   <h1 class="text-2xl font-bold text-gray-800 mb-6 dark:text-slate-200">Perfil de asesor comercial</h1>
@@ -68,7 +57,13 @@
     </div>
     <!-- Editar Perfil Botón -->
     <div class="flex md:block items-start">
-      <button class="mt-2 md:mt-0 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-md flex items-center text-sm transition font-medium">
+      <button
+        type="button"
+        data-modal-target="user-modal"
+        data-modal-toggle="user-modal"
+        class="mt-2 md:mt-0 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-md flex items-center text-sm transition font-medium"
+        (click)="onLoadEditProfile()"
+      >
         <!-- <span class="iconify w-4 h-4 mr-2" data-icon="ph:pencil-simple"></span> -->
         <i class="fa-solid fa-pen-to-square mr-2"></i>
         Editar perfil
@@ -406,6 +401,275 @@
 
   </div>
 
+</div>
+
+<!-- Main modal -->
+<div id="user-modal" data-modal-backdrop="true" tabindex="-1" aria-hidden="false" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 mt-5 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+    <div class="relative p-4 w-full max-w-xl max-h-full">
+
+        <!-- Modal content -->
+        <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+            <!-- Modal header -->
+            <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white" >
+                    Editar perfíl
+                </h3>
+                <button
+                  #btnCloseUserModal
+                  type="button"
+                  data-modal-toggle="user-modal"
+                  class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+                  (click)="onResetUserForm()"
+                >
+                    <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                    </svg>
+                    <span class="sr-only">Close modal</span>
+                </button>
+            </div>
+            <!-- Modal body -->
+            <form [formGroup]="userForm" (ngSubmit)="onSubmitProfile()" class="py-6 px-8">
+              <div class="grid gap-3 mb-2 grid-cols-4">
+
+                <div class="col-span-4 pb-1.5 grid-cols-1 flex justify-center">
+                  <label for="countryFile" >
+                    <img class="w-20 h-20 rounded-full cursor-pointer" [src]="fileUrl()" alt="Rounded avatar">
+                  </label>
+
+                  <input type="file" id="countryFile" class="hidden" (change)="onChangeFile( $event.target )" />
+                </div>
+
+                <div class="col-span-2 xs:col-span-4">
+                  <label for="cbxIdentityDocument" class="block mb-1.5 text-sm font-medium text-gray-900 dark:text-white">
+                    Tipo documento <span class="text-red-500">*</span>
+                  </label>
+                  <ng-select
+                    id="cbxIdentityDocument"
+                    class="bg-gray-50 border text-gray-900 text-sm rounded-md block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                    [items]="identityDocuments()"
+                    (change)="onChangeIdentityDocument( $event )"
+                    bindLabel="shortDescription"
+                    bindValue="id"
+                    placeholder="Seleccione documento de identidad"
+                    formControlName="identityDocumentId"
+                    [class.border-red-400]=" inputErrors('identityDocumentId') && isTouched('identityDocumentId') "
+                  >
+                  </ng-select>
+
+                  @if (isTouched('identityDocumentId')) {
+                    <span
+                      class="flex items-center ms-1 mt-1.5 text-xs text-red-500"
+                      inputErrors
+                      [errors]="inputErrors('identityDocumentId')"
+                      [class.hidden]="!inputErrors('identityDocumentId')"
+                      inputLabel="Nombre" >
+                    </span>
+                  }
+                </div>
+
+                <div class="col-span-2 xs:col-span-4">
+                  <label for="txtIdentityNumber" class="block mb-1.5 text-sm font-medium text-gray-900 dark:text-white">
+                    Nro Documento <span class="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    id="txtIdentityNumber"
+                    class="bg-gray-50 border text-center border-gray-300 text-gray-900 text-sm rounded-md block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                    placeholder="########"
+                    formControlName="identityNumber"
+                    [class.border-red-400]=" inputErrors('identityNumber') && isTouched('identityNumber') "
+                  >
+                  @if (isTouched('identityNumber')) {
+                    <span
+                      class="flex items-center ms-1 mt-1.5 text-xs text-red-500"
+                      inputErrors
+                      [errors]="inputErrors('identityNumber')"
+                      [class.hidden]="!inputErrors('identityNumber')"
+                      inputLabel="Nro identidad" >
+                    </span>
+                  }
+                </div>
+
+                <div class="col-span-2 xs:col-span-4">
+                    <label for="txtRoleName" class="block mb-1.5 text-sm font-medium text-gray-900 dark:text-white">
+                      Nombres <span class="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      id="txtRoleName"
+                      class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-md block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                      placeholder="Enter Name"
+                      formControlName="name"
+                      [class.border-red-400]=" inputErrors('name') && isTouched('name') "
+                    >
+
+                    @if (isTouched('name')) {
+                      <span
+                        class="flex items-center ms-1 mt-1.5 text-xs text-red-500"
+                        inputErrors
+                        [errors]="inputErrors('name')"
+                        [class.hidden]="!inputErrors('name')"
+                        inputLabel="Nombre" >
+                      </span>
+                    }
+                </div>
+
+                <div class="col-span-2 xs:col-span-4">
+                  <label for="txtIsoAlphaThwo" class="block mb-1.5 text-sm font-medium text-gray-900 dark:text-white">
+                    Apellidos
+                  </label>
+                  <input
+                    type="text"
+                    id="txtIsoAlphaThwo"
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-md block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                    placeholder="Enter Surname"
+                    formControlName="surname"
+                    [class.border-red-400]=" inputErrors('surname') && isTouched('surname') "
+                  >
+                  @if (isTouched('surname')) {
+                    <span
+                      class="flex items-center ms-1 mt-1.5 text-xs text-red-500"
+                      inputErrors
+                      [errors]="inputErrors('surname')"
+                      [class.hidden]="!inputErrors('surname')"
+                      inputLabel="Apellido" >
+                    </span>
+                  }
+                </div>
+
+                <div class="col-span-4">
+                  <label for="txtMoneyCode" class="block mb-1.5 text-sm font-medium text-gray-900 dark:text-white">
+                    Email
+                  </label>
+                  <input
+                    type="text"
+                    id="txtMoneyCode"
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-md block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                    placeholder="example@domain.com"
+                    formControlName="email"
+                    [class.border-red-400]=" inputErrors('email') && isTouched('email') "
+                  >
+                  @if (isTouched('email')) {
+                    <span
+                      class="flex items-center ms-1 mt-1.5 text-xs text-red-500"
+                      inputErrors
+                      [errors]="inputErrors('email')"
+                      [class.hidden]="!inputErrors('email')"
+                      inputLabel="Email" >
+                    </span>
+                  }
+                </div>
+
+                <div class="col-span-2 xs:col-span-4">
+                  <label for="txtBirthDate" class="block mb-1.5 text-sm font-medium text-gray-900 dark:text-white">
+                    Fecha de nacimiento
+                  </label>
+                  <div class="relative">
+                    <div class="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none">
+                      <i class="fa-solid fa-calendar-days text-gray-500 dark:text-gray-400"></i>
+                    </div>
+                    <input
+                      #birthDateInput
+                      type="text"
+                      id="txtBirthDate"
+                      mwlFlatpickr
+                      locale="Spanish"
+                      [altInput]="true"
+                      [maxDate]="maxBirthDate"
+                      class="bg-gray-50 border text-center border-gray-300 text-gray-900 text-sm rounded-md focus:ring-primary-600 focus:border-primary-600 block w-full p-2 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                      placeholder="YYYY-MM-DD"
+                      formControlName="birthDate"
+                      [class.border-red-400]=" inputErrors('birthDate') && isTouched('birthDate') "
+                    >
+                  </div>
+
+                  @if (isTouched('birthDate')) {
+                    <span
+                      class="flex items-center ms-1 mt-1.5 text-xs text-red-500"
+                      inputErrors
+                      [errors]="inputErrors('birthDate')"
+                      [class.hidden]="!inputErrors('birthDate')"
+                      inputLabel="fecha de nacimiento" >
+                    </span>
+                  }
+                </div>
+
+                <div class="col-span-2 xs:col-span-4">
+                  <label for="txtAdmissionDate" class="block mb-1.5 text-sm font-medium text-gray-900 dark:text-white">
+                    Fecha de ingreso
+                  </label>
+                  <div class="relative">
+                    <div class="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none">
+                      <i class="fa-solid fa-calendar-days text-gray-500 dark:text-gray-400"></i>
+                    </div>
+                    <input
+                      #birthDateInput
+                      type="text"
+                      id="txtAdmissionDate"
+                      mwlFlatpickr
+                      locale="Spanish"
+                      [altInput]="true"
+                      [maxDate]="currentDate"
+                      class="bg-gray-50 border text-center border-gray-300 text-gray-900 text-sm rounded-md focus:ring-primary-600 focus:border-primary-600 block w-full p-2 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                      placeholder="YYYY-MM-DD"
+                      formControlName="admissionDate"
+                      [class.border-red-400]=" inputErrors('admissionDate') && isTouched('admissionDate') "
+                    >
+                  </div>
+
+                  @if (isTouched('admissionDate')) {
+                    <span
+                      class="flex items-center ms-1 mt-1.5 text-xs text-red-500"
+                      inputErrors
+                      [errors]="inputErrors('admissionDate')"
+                      inputLabel="fecha de ingreso" >
+                    </span>
+                  }
+                </div>
+
+                <div class="col-span-4">
+                  <label for="txtAdress" class="block mb-1.5 text-sm font-medium text-gray-900 dark:text-white">
+                    Dirección
+                  </label>
+                  <input
+                    type="text"
+                    id="txtAdress"
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-md block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                    placeholder="Enter Address"
+                    formControlName="address"
+                    [class.border-red-400]=" inputErrors('address') && isTouched('address') "
+                  >
+                  @if (isTouched('address')) {
+                    <span
+                      class="flex items-center ms-1 mt-1.5 text-xs text-red-500"
+                      inputErrors
+                      [errors]="inputErrors('address')"
+                      [errors]="inputErrors('address')"
+                      inputLabel="Dirección" >
+                    </span>
+                  }
+                </div>
+
+              </div>
+
+              <div class="flex justify-end gap-3 pt-3">
+                <button
+                  type="button"
+                  data-modal-toggle="payment-modal"
+                  class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                  (click)="onResetUserForm()"
+                >
+                  Cancelar
+                </button>
+                <button type="submit" class="px-4 py-2 w-44 bg-emerald-600 hover:bg-emerald-700 text-white rounded-md">
+                  <span *ngIf="!isLoading() else sellerPaymentSpinner" >
+                    Guardar
+                  </span>
+                </button>
+              </div>
+            </form>
+        </div>
+    </div>
 </div>
 
 <ng-template #sellerPaymentSpinner>

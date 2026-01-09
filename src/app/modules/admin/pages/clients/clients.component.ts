@@ -696,7 +696,7 @@ export default class ClientsComponent implements OnInit, OnDestroy {
                                 .replaceAll(',', '-')
                                 .toUpperCase();
 
-    this._router.navigateByUrl(`/dashboard/client-profile/info/${ fullnameSanitize }`)
+    this._router.navigateByUrl('/dashboard/client-profile/info')
   }
 
   ngOnDestroy(): void {

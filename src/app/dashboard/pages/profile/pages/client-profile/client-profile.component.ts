@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, ViewChild, computed, inject, signal } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { FlatpickrDirective } from 'angularx-flatpickr';
@@ -14,7 +14,7 @@ import { PipesModule } from '@pipes/pipes.module';
 import { PaginationComponent } from '@shared/components/pagination/pagination.component';
 import { IdentityDocument } from '../../../../../auth/interfaces';
 import { Nomenclature } from '@shared/interfaces';
-import { forkJoin } from 'rxjs';
+import { forkJoin, Subscription } from 'rxjs';
 import { IdentityDocumentService } from '@modules/admin/services/identity-document.service';
 import { NomenclatureService } from '@shared/services/nomenclature.service';
 import { ClientService } from '@modules/admin/services/client.service';
@@ -22,6 +22,8 @@ import { AlertService } from '@shared/services/alert.service';
 import { SpinnerComponent } from '@shared/components/spinner/spinner.component';
 import { InputErrorsDirective } from '@shared/directives/input-errors.directive';
 import { ClientValidatorService } from '@modules/admin/validators/client-validator.service';
+import { Store } from '@ngrx/store';
+import { AppState } from '@app/app.config';
 
 @Component({
   selector: 'app-client-profile',
@@ -41,7 +43,10 @@ import { ClientValidatorService } from '@modules/admin/validators/client-validat
   templateUrl: './client-profile.component.html',
   styles: ``
 })
-export default class ClientProfileComponent implements OnInit {
+export default class ClientProfileComponent implements OnInit, OnDestroy {
+
+  private _authRx$?: Subscription;
+  private _store = inject<Store<AppState>>( Store<AppState> );
 
   private _alertService = inject( AlertService );
   private _clientValidatorService = inject( ClientValidatorService );
@@ -113,6 +118,7 @@ export default class ClientProfileComponent implements OnInit {
   get isFormInvalid() { return this.clientForm.invalid; }
   get clientBody(): ClientBody { return  this.clientForm.value as ClientBody; }
   get isInvalidSearchInput() { return this.searchInput.invalid; }
+  get sellerUserId() { return this._userSellerId; }
 
   inputErrors( field: string ) {
     return this.clientForm.get(field)?.errors ?? null;
@@ -126,14 +132,28 @@ export default class ClientProfileComponent implements OnInit {
 
   ngOnInit(): void {
 
-    this._userSellerId = localStorage.getItem('userProfileId') ?? '';
+    this.onListenAuthRx();
 
-    if( !ISUUID( this._userSellerId ) )
-      throw new Error('userProfileId not found !!!');
+  }
 
-    this.onGetMyClients();
-    this.onGetSelectsData();
+  onListenAuthRx() {
 
+    this._authRx$ = this._store.select('auth')
+    .subscribe( (state) => {
+      const { userAuthenticated } = state;
+
+      this._userSellerId = localStorage.getItem('userProfileId') ?? '';
+
+      if( !ISUUID( this._userSellerId ) && userAuthenticated ) {
+        this._userSellerId = userAuthenticated.id;
+      }
+
+
+      this.onGetMyClients();
+      this.onGetSelectsData();
+      this._authRx$?.unsubscribe();
+
+    });
   }
 
   onGetMyClients( page = 1 ) {
@@ -338,6 +358,10 @@ export default class ClientProfileComponent implements OnInit {
       }
     });
 
+  }
+
+  ngOnDestroy(): void {
+    this._authRx$?.unsubscribe();
   }
 
 }

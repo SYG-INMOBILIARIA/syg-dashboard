@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, Input, OnInit, computed, inject, input, signal } from '@angular/core';
 import { validate as ISUUID } from 'uuid';
 
 import { ProfileService } from '../../services/profile.service';
@@ -41,13 +41,15 @@ export default class ClientIndicatorsComponent implements OnInit {
   public percentRatio = computed( () => this._percentRatio() );
   public percentRatioLast = computed( () => this._percentRatioLast() );
 
-  ngOnInit(): void {
+  @Input() public set sellerUserId( value: string ) {
 
-    this._sellerUserId = localStorage.getItem('userProfileId') ?? '';
+    if( !ISUUID( value ) ) throw new Error('sellerUserId is not valid UUID !!!');
 
-    if( !ISUUID( this._sellerUserId ) ) throw new Error('userProfileId not found !!!');
-
+    this._sellerUserId = value;
     this.onGetClientIndicators();
+  }
+
+  ngOnInit(): void {
 
   }
 

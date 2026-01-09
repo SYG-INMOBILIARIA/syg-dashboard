@@ -122,6 +122,8 @@ export class ClientPaymentsComponent implements OnInit, OnDestroy {
     this._contractQuoteService.getContractQuoteByClient( 1, 100, clientId, undefined, undefined, contractId )
     .subscribe( ({ contractQuotes, resumen }) => {
 
+      console.log( {contractQuotes} );
+
       this._contractQuotesAll.set( contractQuotes.filter( (c) => !c.isPaid ) );
 
       const countDebt = contractQuotes.filter( (c) => !c.isPaid ).length;
@@ -144,9 +146,11 @@ export class ClientPaymentsComponent implements OnInit, OnDestroy {
 
     const clientId = this._client()!.id;
 
+    const contractId = this.contractInput.value;
+
     this._isLoading.set( true );
 
-    this._contractQuoteService.getContractQuoteByClient( page, 10, clientId )
+    this._contractQuoteService.getContractQuoteByClient( page, 10, clientId, undefined, undefined, contractId )
     .subscribe( ({ contractQuotes, total } ) => {
 
       this._isLoading.set( false );
@@ -182,6 +186,10 @@ export class ClientPaymentsComponent implements OnInit, OnDestroy {
 
   onSetContractQuoteToPay( quote?: ContractQuote ) {
     this._contractQuoteToPay.set( quote ?? null );
+  }
+
+  onShowBoucherView( contractQuote: ContractQuote ) {
+
   }
 
   async onExonerateTardinessConfirm( contractQuote: ContractQuote ) {
