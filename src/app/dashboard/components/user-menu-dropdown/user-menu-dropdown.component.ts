@@ -55,9 +55,6 @@ export class UserMenuDropdownComponent implements OnInit, OnDestroy {
 
           this._profileUrl.set( '/dashboard/client-profile' );
           // this.onGetContractQuotes();
-        } else {
-          this._authRx$?.unsubscribe();
-          throw new Error('Client not found!!!');
         }
 
       } else {

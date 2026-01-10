@@ -353,9 +353,33 @@ export default class ProfileLayoutComponent implements OnInit, OnDestroy {
 
   onResetUserForm() {
     this.userForm.reset();
-    this.btnCloseUserModal.nativeElement.click();
+    // this.btnCloseUserModal.nativeElement.click();
     this.fileAvatarUrl.set( environments.defaultImgUrl );
     this._fileAvatar = undefined;
+  }
+
+  onChangeFileAvatar( event?: any ) {
+
+    if( !event ) return;
+
+    const nombre = event.files.item(0).name.toUpperCase();
+    const size = event.files.item(0).size;
+    const extension = nombre.split('.').pop();
+
+    this._fileAvatar = event.files.item(0);
+
+    if ( !onValidImg(extension, size) ) {
+      event.target.value = '';
+      this._fileAvatar = undefined;
+      return
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event: any) => {
+      this.fileAvatarUrl.set( event.target.result );
+    };
+    reader.readAsDataURL( event.files.item(0) );
+
   }
 
   onSubmitProfile() {

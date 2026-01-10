@@ -48,11 +48,9 @@ export const verifyRoleMenuAllowedGuard: CanActivateFn = (route, state) : Observ
                               return segment;
                             }).join('/');
 
-            console.log({webUrlsegments});
 
             // isHaveProfileClientMenu &&
             if(  profileClientPattern.test( webUrlsegments ) ) {
-              console.log('Access granted to profile client menu');
               return true;
             }
 

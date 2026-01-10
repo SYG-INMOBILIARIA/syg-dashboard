@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild, computed, inject, signal } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Subscription, forkJoin } from 'rxjs';
 
@@ -7,16 +7,20 @@ import { AppState } from '@app/app.config';
 import { Client, Contract, ContractQuote } from '@modules/admin/interfaces';
 import { initFlowbite } from 'flowbite';
 import { AlertService } from '@shared/services/alert.service';
-import { ProfileClientService } from '@app/dashboard/services/profile-client.service';
 import { WebUrlPermissionMethods } from '@app/auth/interfaces';
 import { ContractService } from '@modules/admin/services/contract.service';
 import { UntypedFormControl, Validators } from '@angular/forms';
+import { PaymentQuoteService } from '@modules/admin/services/payment-quote.service';
+import { PaymentsByCuote } from '@modules/admin/pages/paid-quotes/interfaces';
 
 @Component({
   templateUrl: './client-payments.component.html',
   styles: ``
 })
 export class ClientPaymentsComponent implements OnInit, OnDestroy {
+
+  @ViewChild('btnShowPaymentQuoteInfoModal') btnShowPaymentQuoteInfoModal!: ElementRef<HTMLButtonElement>;
+  @ViewChild('btnShowPaymentModal') btnShowPaymentModal!: ElementRef<HTMLButtonElement>;
 
   private _authrx$?: Subscription;
   private _clientProfileRx$?: Subscription;
@@ -26,6 +30,7 @@ export class ClientPaymentsComponent implements OnInit, OnDestroy {
   private _contractQuoteService = inject( ContractQuoteService );
   private _contractService = inject( ContractService );
   private _alertService = inject( AlertService );
+  private _contractPaymentService = inject( PaymentQuoteService );
 
   public contractInput = new UntypedFormControl( null, [ Validators.required ] )
 
@@ -36,6 +41,7 @@ export class ClientPaymentsComponent implements OnInit, OnDestroy {
   private _contractQuotesAll = signal<ContractQuote[]>( [] );
   private _contractQuotes = signal<ContractQuote[]>( [] );
   private _contractQuoteToPay = signal<ContractQuote | null>( null );
+  private _paymentsByCuote = signal<PaymentsByCuote[]>( [] );
   private _contractQuotesTotal = signal<number>( 0 );
   private _totalDebt = signal<number>( 0 );
   private _countDebt = signal<number>( 0 );
@@ -47,6 +53,7 @@ export class ClientPaymentsComponent implements OnInit, OnDestroy {
   public isRemoving = computed( () => this._isRemoving() );
   public contracts = computed( () => this._contracts() );
   public contractQuotesAll = computed( () => this._contractQuotesAll() );
+  public paymentsByCuote = computed( () => this._paymentsByCuote() );
   public contractQuotes = computed( () => this._contractQuotes() );
   public contractQuoteToPay = computed( () => this._contractQuoteToPay() );
   public contractQuotesTotal = computed( () => this._contractQuotesTotal() );
@@ -64,8 +71,13 @@ export class ClientPaymentsComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+
     this.onClientProfileListen();
     this.onListenAuthRx();
+  }
+
+  ngAfterViewInit(): void {
+    initFlowbite();
   }
 
   onListenAuthRx() {
@@ -122,8 +134,6 @@ export class ClientPaymentsComponent implements OnInit, OnDestroy {
     this._contractQuoteService.getContractQuoteByClient( 1, 100, clientId, undefined, undefined, contractId )
     .subscribe( ({ contractQuotes, resumen }) => {
 
-      console.log( {contractQuotes} );
-
       this._contractQuotesAll.set( contractQuotes.filter( (c) => !c.isPaid ) );
 
       const countDebt = contractQuotes.filter( (c) => !c.isPaid ).length;
@@ -157,10 +167,6 @@ export class ClientPaymentsComponent implements OnInit, OnDestroy {
       this._contractQuotes.set( contractQuotes );
       this._contractQuotesTotal.set( total );
 
-      setTimeout(() => {
-        initFlowbite();
-      }, 400);
-
     });
 
   }
@@ -169,16 +175,13 @@ export class ClientPaymentsComponent implements OnInit, OnDestroy {
 
     this._isLoading.set( true );
 
-    listContractQuotesByClient: this._contractQuoteService.getContractQuoteByClient( page, 10, this._client()!.id )
+    this._contractQuoteService.getContractQuoteByClient( page, 10, this._client()!.id )
     .subscribe( ( { contractQuotes, total, resumen } ) => {
 
       this._isLoading.set( false );
       this._contractQuotes.set( contractQuotes );
       this._contractQuotesTotal.set( total );
 
-      setTimeout(() => {
-        initFlowbite();
-      }, 400);
 
     });
 
@@ -186,9 +189,24 @@ export class ClientPaymentsComponent implements OnInit, OnDestroy {
 
   onSetContractQuoteToPay( quote?: ContractQuote ) {
     this._contractQuoteToPay.set( quote ?? null );
+
+    if( quote ) this._contractQuotesAll.set( [quote] );
+    this.btnShowPaymentModal.nativeElement.click();
   }
 
   onShowBoucherView( contractQuote: ContractQuote ) {
+
+  }
+
+   onGetPaymentQuoteInfo( contractQuoteId: string ) {
+
+    this._contractPaymentService.getPaymentQuoteByContractQuote( contractQuoteId )
+    .subscribe( ( { paymentsByCuote } ) => {
+
+      this._paymentsByCuote.set( paymentsByCuote );
+
+      this.btnShowPaymentQuoteInfoModal.nativeElement.click();
+    });
 
   }
 

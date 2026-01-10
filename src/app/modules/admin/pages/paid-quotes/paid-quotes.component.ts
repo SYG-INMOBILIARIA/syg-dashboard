@@ -20,6 +20,8 @@ import { Store } from '@ngrx/store';
 import { AppState } from '@app/app.config';
 import { WebUrlPermissionMethods } from '@app/auth/interfaces';
 import { apiPaymentQuote } from '@shared/helpers/web-apis.helper';
+import { PaymentQuoteService } from '@modules/admin/services/payment-quote.service';
+import { PaymentsByCuote } from './interfaces';
 
 @Component({
   selector: 'app-paid-quotes',
@@ -45,9 +47,12 @@ export default class PaidQuotesComponent implements OnInit, OnDestroy {
 
   @ViewChild('btnShowPaymentQuoteModal') btnShowPaymentQuoteModal!: ElementRef<HTMLButtonElement>;
   @ViewChild('btnClosePaymentQuoteModal') btnClosePaymentQuoteModal!: ElementRef<HTMLButtonElement>;
+  @ViewChild('btnShowPaymentQuoteInfoModal') btnShowPaymentQuoteInfoModal!: ElementRef<HTMLButtonElement>;
+
 
   private _contractService = inject( ContractService );
   private _contractQuoteService = inject( ContractQuoteService );
+  private _contractPaymentService = inject( PaymentQuoteService );
   private _alertService = inject( AlertService );
 
   public contractInput = new UntypedFormControl( null, [ Validators.required ]);
@@ -61,6 +66,7 @@ export default class PaidQuotesComponent implements OnInit, OnDestroy {
   private _webUrlPermissionMethods = signal<WebUrlPermissionMethods[]>( [] );
   private _contractQuotesSelected = signal<ContractQuote[]>( [] );
   private _contractQuotesAll = signal<ContractQuote[]>( [] );
+  private _paymentsByCuote = signal<PaymentsByCuote[]>( [] );
   private _contractQuoteToPay = signal<ContractQuote | null>( null );
   private _contractQuotesTotal = signal<number>( 0 );
   private _totalDebt = signal<number>( 0 );
@@ -76,6 +82,7 @@ export default class PaidQuotesComponent implements OnInit, OnDestroy {
   public quoteResumen = computed( () => this._quoteResumen() );
   public contractQuotesSelected = computed( () => this._contractQuotesSelected() );
   public contractQuotesAll = computed( () => this._contractQuotesAll() );
+  public paymentsByCuote = computed( () => this._paymentsByCuote() );
   public contractQuoteToPay = computed( () => this._contractQuoteToPay() );
   public contractQuotesTotal = computed( () => this._contractQuotesTotal() );
   public totalDebt = computed( () => this._totalDebt() );
@@ -168,6 +175,21 @@ export default class PaidQuotesComponent implements OnInit, OnDestroy {
 
   onSetContractQuoteToPay( quote?: ContractQuote ) {
     this._contractQuoteToPay.set( quote ?? null );
+
+    if( quote )
+      this._contractQuotesAll.set( [quote] );
+  }
+
+  onGetPaymentQuoteInfo( contractQuoteId: string ) {
+
+    this._contractPaymentService.getPaymentQuoteByContractQuote( contractQuoteId )
+    .subscribe( ( { paymentsByCuote } ) => {
+
+      this._paymentsByCuote.set( paymentsByCuote );
+
+      this.btnShowPaymentQuoteInfoModal.nativeElement.click();
+    });
+
   }
 
   async onExonerateTardinessConfirm( contractQuote: ContractQuote ) {

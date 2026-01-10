@@ -433,10 +433,10 @@
 
                 <div class="col-span-4 pb-1.5 grid-cols-1 flex justify-center">
                   <label for="countryFile" >
-                    <img class="w-20 h-20 rounded-full cursor-pointer" [src]="fileUrl()" alt="Rounded avatar">
+                    <img class="w-20 h-20 rounded-full cursor-pointer" [src]="fileAvatarUrl()" alt="Rounded avatar">
                   </label>
 
-                  <input type="file" id="countryFile" class="hidden" (change)="onChangeFile( $event.target )" />
+                  <input type="file" id="countryFile" class="hidden" (change)="onChangeFileAvatar( $event.target )" />
                 </div>
 
                 <div class="col-span-2 xs:col-span-4">
@@ -655,7 +655,7 @@
               <div class="flex justify-end gap-3 pt-3">
                 <button
                   type="button"
-                  data-modal-toggle="payment-modal"
+                  data-modal-toggle="user-modal"
                   class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
                   (click)="onResetUserForm()"
                 >

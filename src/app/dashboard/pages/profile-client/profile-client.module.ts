@@ -36,7 +36,7 @@ import { FlatpickrDirective } from 'angularx-flatpickr';
     PaymentScheduleModalComponent,
     NgSelectModule,
     FlatpickrDirective
-],
+  ],
 
 })
 export default class ProfileClientModule { }
