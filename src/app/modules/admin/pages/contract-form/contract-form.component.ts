@@ -323,12 +323,11 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
       paint: {
         // 'fill-color': '#67e8f9',
 
-
         'fill-opacity': [
           'case',
-            ['boolean', ['feature-state', 'selected'], false], 0.55,
-            ['boolean', ['feature-state', 'hovered'],  false], 0.45,
-            0.3
+            ['boolean', ['feature-state', 'selected'], false], 0.9,
+            ['boolean', ['feature-state', 'hovered'],  false], 0.6,
+            0.45
         ],
         'fill-color': [
           'case',

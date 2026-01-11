@@ -50,11 +50,13 @@ export class LotesMapComponent {
       this._polygonCoords = polygonCoords;
       this._flatImage = flatImage;
 
-      if( this._flatImage ) {
-        this._buildFlatProyect( this._flatImage );
-      } else {
-        this._onBuildBorderPolygon( this._polygonCoords );
-      }
+      setTimeout(() => {
+        if( this._flatImage ) {
+          this._buildFlatProyect( this._flatImage );
+        } else {
+          this._onBuildBorderPolygon( this._polygonCoords );
+        }
+      }, 1000);
     }
 
   }
@@ -180,9 +182,9 @@ export class LotesMapComponent {
         ],
         'fill-opacity': [
           'case',
-            ['boolean', ['feature-state', 'selected'], false], 0.55,
-            ['boolean', ['feature-state', 'hovered'],  false], 0.45,
-            0.3
+            ['boolean', ['feature-state', 'selected'], false], 0.9,
+            ['boolean', ['feature-state', 'hovered'],  false], 0.6,
+            0.45
         ],
 
       }
@@ -322,7 +324,7 @@ export class LotesMapComponent {
       'type': 'Feature',
       'properties': {},
       'geometry': {
-          'coordinates': [ ...points ],
+          'coordinates': [ points ],
           'type': 'Polygon'
       }
     }];
