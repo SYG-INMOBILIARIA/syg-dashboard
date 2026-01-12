@@ -28,4 +28,5 @@ export interface Contract {
   lotes:              Lote[];
   proyect:            Proyect;
   clients:            Client[];
+  writingStatus:   string | null;
 }

@@ -73,6 +73,10 @@ export class ContractService {
 
   }
 
+  updateWritingStatus( contractId: string, body: any ): Observable<Contract> {
+    return this._http.patch<Contract>(`${ this._baseUrl }/contract/writing-status/${ contractId }`, body );
+  }
+
   deleteContract( contractId: string ): Observable<Contract> {
     return this._http.delete<Contract>(`${ this._baseUrl }/contract/${ contractId }` );
   }

@@ -52,4 +52,8 @@ export class NomenclatureService {
     return this._http.get<ListNomenclatureResponse>(`${ this._baseUrl }/nomenclature/lead-status`);
   }
 
+  getWritingStatus() {
+    return this._http.get<ListNomenclatureResponse>(`${ this._baseUrl }/nomenclature/writing-status`);
+  }
+
 }

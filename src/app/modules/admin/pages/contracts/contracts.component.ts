@@ -9,7 +9,7 @@ import { Contract, ContractQuote } from '../../interfaces';
 import { PipesModule } from '@pipes/pipes.module';
 import { MatDialog } from '@angular/material/dialog';
 import { Subscription } from 'rxjs';
-import { Store } from '@ngrx/store';
+import { Store, on } from '@ngrx/store';
 
 import { ContractDetailModalComponent } from '../../components/contract-detail-modal/contract-detail-modal.component';
 import { AppState } from '@app/app.config';
@@ -23,6 +23,11 @@ import { ExcelExportService } from '@shared/services/excel-export.service';
 import { MomentPipe } from '@pipes/moment.pipe';
 import { PaymentTypePipe } from '@pipes/payment-type.pipe';
 import { LoteJoinCodesPipe } from '@pipes/lote-join-code.pipe';
+import { NomenclatureService } from '@shared/services/nomenclature.service';
+import { Nomenclature } from '@shared/interfaces';
+import { NgSelectModule } from '@ng-select/ng-select';
+import { InputErrorsDirective } from '@shared/directives/input-errors.directive';
+import { WritingStatusBody } from './interfaces';
 
 @Component({
   selector: 'app-contracts',
@@ -37,6 +42,8 @@ import { LoteJoinCodesPipe } from '@pipes/lote-join-code.pipe';
     RouterModule,
     SpinnerComponent,
     PipesModule,
+    NgSelectModule,
+    InputErrorsDirective
   ],
   providers: [
     MomentPipe,
@@ -55,12 +62,15 @@ export default class ContractsComponent implements OnInit, OnDestroy {
   @ViewChild('btnShowContractModal') btnShowContractModal!: ElementRef<HTMLButtonElement>;
   @ViewChild('btnShowDetailContractModal') btnShowDetailContractModal!: ElementRef<HTMLButtonElement>;
   @ViewChild('btnShowScheduleContractModal') btnShowScheduleContractModal!: ElementRef<HTMLButtonElement>;
+  @ViewChild('btnShowWritingStatusModal') btnShowWritingStatusModal!: ElementRef<HTMLButtonElement>;
+  @ViewChild('btnCloseWritingStatusMethodModal') btnCloseWritingStatusMethodModal!: ElementRef<HTMLButtonElement>;
 
   private _alertService = inject( AlertService );
   private _contractService = inject( ContractService );
   private _excelExportService = inject( ExcelExportService );
   private _momentPipe = inject( MomentPipe );
   private _paymentPipe = inject( PaymentTypePipe );
+  private _nomenclatureService = inject( NomenclatureService );
   readonly dialog = inject( MatDialog );
 
   public searchInput = new FormControl('', [ Validators.pattern( fullTextPatt ) ]);
@@ -74,6 +84,7 @@ export default class ContractsComponent implements OnInit, OnDestroy {
   private _contractIdByModal = signal< string | null >( null );
   private _contractById = signal< Contract | null >( null );
   private _contractSchedule = signal<ContractQuote[]>( [] );
+  private _writingStatuses = signal<Nomenclature[]>( [] );
 
   public reportInProgress = computed( () => this._reportInProgress() );
   public isLoading = computed( () => this._isLoading() );
@@ -86,13 +97,32 @@ export default class ContractsComponent implements OnInit, OnDestroy {
   public lotes = computed( () => this._contractById()?.lotes ?? [] );
   public contractSchedule = computed( () => this._contractSchedule() );
   public webUrlPermissionMethods = computed( () => this._webUrlPermissionMethods() );
+  public writingStatuses = computed( () => this._writingStatuses() );
+
+  private _fb = inject( UntypedFormBuilder );
+  public writingForm = this._fb.group({
+    contractId:       [ null, [ Validators.required ] ],
+    writingStatus:    [ null, [ Validators.required ] ],
+  });
 
   get isInvalidSearchInput() { return this.searchInput.invalid; }
 
-  ngOnInit(): void {
+  inputErrors( field: string ) {
+    return this.writingForm.get(field)?.errors ?? null;
+  }
 
+  isTouched( field: string ) {
+    return this.writingForm.get(field)?.touched ?? false;
+  }
+
+  get isFormInvalid() { return this.writingForm.invalid; }
+  get writingStatusBody(): WritingStatusBody { return  this.writingForm.value as WritingStatusBody; }
+
+
+  ngOnInit(): void {
     this.onListenAuthRx();
     this.onGetContracts();
+    this.onGetWritingStatus();
   }
 
   ngAfterViewInit() {
@@ -144,6 +174,13 @@ export default class ContractsComponent implements OnInit, OnDestroy {
       }
     });
 
+  }
+
+  onGetWritingStatus() {
+    this._nomenclatureService.getWritingStatus()
+    .subscribe( ( { nomenclatures } ) => {
+      this._writingStatuses.set( nomenclatures );
+    });
   }
 
   onLoadToUpdate( contract: Contract ) {
@@ -233,6 +270,41 @@ export default class ContractsComponent implements OnInit, OnDestroy {
 
 
   }
+
+  onResetWritingStatusForm() {
+    this.writingForm.reset();
+    this._contractById.set( null );
+  }
+
+  onSubmitWritingStatusSubmit() {
+
+    if( this.isFormInvalid ) {
+      this.writingForm.markAllAsTouched();
+      return;
+    }
+
+    this._isSaving.set( true );
+    const { contractId, writingStatus } = this.writingStatusBody;
+
+    this._contractService.updateWritingStatus( contractId!, { writingStatus: writingStatus! } )
+    .subscribe(( contractUpdated ) => {
+      this._isSaving.set( false );
+      this._alertService.showAlert(`Estado de escritura actualizado en contrato #${ contractUpdated.code }`, undefined, 'success');
+      this.btnCloseWritingStatusMethodModal.nativeElement.click();
+      this.onGetContracts();
+    });
+
+  }
+
+  onShowWritingStatusModal( contract: Contract ) {
+    this.writingForm.reset({
+      contractId: contract.id,
+      writingStatus: contract.writingStatus ?? null,
+    });
+    this._contractById.set( contract );
+    this.btnShowWritingStatusModal.nativeElement.click();
+  }
+
 
   ngOnDestroy(): void {
     this._authrx$?.unsubscribe();
