@@ -295,11 +295,11 @@
                           </button>
                         }
 
+                        <!-- data-modal-target="payment-modal"
+                        data-modal-toggle="payment-modal" -->
                         <button
                           [id]="'btnShowQuoteModal-' + contractQuote.id"
                           type="button"
-                          data-modal-target="payment-modal"
-                          data-modal-toggle="payment-modal"
                           class=" bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1 rounded-md"
                           (click)="onSetContractQuoteToPay( contractQuote )"
                         >
@@ -371,6 +371,12 @@
   </div>
 </div>
 
+<paid-quotes-modal
+  [contractQuotesData]="contractQuotesAll()"
+  [contractQuotesToPaid]="contractQuoteToPay()"
+  [webUrlPermissionMethods]="webUrlPermissionMethods()"
+  (paidQuoteSuccess)="onGetContractQuotes()" >
+</paid-quotes-modal>
 
 <!-- Main modal -->
 <div id="payment-quote-detail-modal" data-modal-backdrop="true" tabindex="-1" aria-hidden="false" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 mt-5 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
@@ -454,9 +460,4 @@
   </div>
 </div>
 
-<paid-quotes-modal
-  [contractQuotesData]="contractQuotesAll()"
-  [contractQuotesToPaid]="contractQuoteToPay()"
-  [webUrlPermissionMethods]="webUrlPermissionMethods()"
-  (paidQuoteSuccess)="onGetContractQuotes()" >
-</paid-quotes-modal>
+

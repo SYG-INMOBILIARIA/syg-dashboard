@@ -16,7 +16,7 @@ import { PipesModule } from '@pipes/pipes.module';
 import { PaginationComponent } from '@shared/components/pagination/pagination.component';
 import { SpinnerComponent } from '@shared/components/spinner/spinner.component';
 import { InputErrorsDirective } from '@shared/directives/input-errors.directive';
-import { datePatt, emailPatt, fullTextPatt, numberDocumentPatt, numberPatt } from '@shared/helpers/regex.helper';
+import { datePatt, emailPatt, fullTextPatt, numberDocumentPatt, numberPatt, passwordPatt } from '@shared/helpers/regex.helper';
 import { AlertService } from '@shared/services/alert.service';
 import { Role, User, UserBody } from '../../interfaces';
 import { environments } from '@envs/environments';
@@ -28,6 +28,7 @@ import { WebUrlPermissionMethods } from '../../../../auth/interfaces';
 import { IdentityDocumentService } from '../../../admin/services/identity-document.service';
 import { IdentityDocument } from '../../../admin/interfaces';
 import { UserValidatorService } from '../../validators/user-validator.service';
+import { oneLowercaseInPassword, oneUppercaseInPassword } from '@modules/admin/validators/password-valdiator.service';
 
 @Component({
   selector: 'app-users',
@@ -73,6 +74,7 @@ export default class UsersComponent implements OnInit, OnDestroy {
 
   private _isLoading = signal( true );
   private _isSaving = signal( false );
+  showPassword =  false;
 
   public searchInput = new FormControl('', [ Validators.pattern( fullTextPatt ) ]);
   public userForm = this._formBuilder.group({
@@ -80,6 +82,7 @@ export default class UsersComponent implements OnInit, OnDestroy {
     name:               [ '', [ Validators.required, Validators.minLength(3), Validators.pattern( fullTextPatt ) ] ],
     surname:            [ '', [ Validators.required, Validators.minLength(3), Validators.pattern( fullTextPatt ) ] ],
     email:              [ '', [ Validators.required, Validators.pattern( emailPatt ) ] ],
+    password:           [ '', [ Validators.required, Validators.pattern( passwordPatt ), Validators.minLength( 8 ), oneUppercaseInPassword(), oneLowercaseInPassword() ] ],
     rolesId:            [ [], [ Validators.required, Validators.minLength(1) ] ],
     identityDocumentId: [ null, [ Validators.required ] ],
     identityNumber:     [ '', [ Validators.required ] ],
@@ -120,6 +123,34 @@ export default class UsersComponent implements OnInit, OnDestroy {
   get formErrors() { return this.userForm.errors; }
   get isFormInvalid() { return this.userForm.invalid; }
   get userBody(): UserBody{ return  this.userForm.value as UserBody; }
+
+  get errorLengthPassword() {
+    const errorsPassword = this.userForm.get('password')?.errors ?? [];
+    const errors = Object.keys( errorsPassword );
+
+    return errors.includes('minlength');
+  }
+
+  get errorUppercasePassword() {
+    const errorsPassword = this.userForm.get('password')?.errors ?? [];
+    const errors = Object.keys( errorsPassword );
+
+    return errors.includes('oneUpperCase');
+  }
+
+  get errorLowercasePassword() {
+    const errorsPassword = this.userForm.get('password')?.errors ?? [];
+    const errors = Object.keys( errorsPassword );
+
+    return errors.includes('oneLowercase');
+  }
+
+  get errorNumberPassword() {
+    const errorsPassword = this.userForm.get('password')?.errors ?? [];
+    const errors = Object.keys( errorsPassword );
+
+    return errors.includes('oneNumber');
+  }
 
   isTouched( field: string ) {
     return this.userForm.get(field)?.touched ?? false;

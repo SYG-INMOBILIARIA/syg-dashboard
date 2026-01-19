@@ -642,7 +642,7 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
     if( !paymentType ) return;
 
     const { value } = paymentType;
-    const totalLote = this._lotesAmount();
+    // const totalLote = this._lotesAmount();
     // const { numberOfQuotesPaid } = this.valueFormThree;
 
     this.contractFormThree.get('financingId')?.clearValidators();
@@ -652,14 +652,14 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
 
     // initialAmount
     if( value == PaymentType.cash ) {
-      // this._financingQuota = null;
+      this._financingQuota = null;
       // this._interestPercent.set( 0 );
       // this._amountToFinancing.set( 0 );
       this.contractFormThree.get('financingId')?.setValue(null);
       this.contractFormThree.get('quotaId')?.setValue(null);
-      this.contractFormThree.get('initialAmount')?.addValidators([ Validators.required, Validators.min(totalLote) ]);
+      this.contractFormThree.get('initialAmount')?.addValidators([ Validators.required ]); //Validators.min(totalLote)
       this.contractFormThree.get('numberOfQuotesPaid')?.addValidators([ Validators.required, Validators.pattern( numberPatt ), Validators.min(0), Validators.max(1) ]);
-      this.contractFormThree.get('initialAmount')?.setValue( totalLote );
+      this.contractFormThree.get('initialAmount')?.setValue( 0 );
       this._initialAmoutDisabled.set( true );
 
 

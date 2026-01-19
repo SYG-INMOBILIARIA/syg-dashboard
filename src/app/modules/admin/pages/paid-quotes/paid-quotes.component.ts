@@ -1,5 +1,5 @@
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild, computed, inject, signal } from '@angular/core';
-import { FormControl, FormsModule, ReactiveFormsModule, UntypedFormControl, Validators } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, UntypedFormControl, Validators } from '@angular/forms';
 import { initFlowbite } from 'flowbite';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { CommonModule } from '@angular/common';
@@ -10,12 +10,11 @@ import { fullTextPatt } from '@shared/helpers/regex.helper';
 import { ContractService } from '../../services/contract.service';
 import { Contract, ContractQuote, QuotesResumen } from '../../interfaces';
 import { ContractQuoteService } from '../../services/contract-quote.service';
-import { PaymentMethodService } from '../../services/payment-method.service';
 import { PipesModule } from '@pipes/pipes.module';
 import { SpinnerComponent } from '@shared/components/spinner/spinner.component';
 import { AlertService } from '@shared/services/alert.service';
 import { PaidQuotesModalComponent } from '@modules/admin/components/paid-quotes-modal/paid-quotes-modal.component';
-import { Subscription, forkJoin } from 'rxjs';
+import { Subscription } from 'rxjs';
 import { Store } from '@ngrx/store';
 import { AppState } from '@app/app.config';
 import { WebUrlPermissionMethods } from '@app/auth/interfaces';
@@ -24,7 +23,6 @@ import { PaymentQuoteService } from '@modules/admin/services/payment-quote.servi
 import { PaymentsByCuote } from './interfaces';
 
 @Component({
-  selector: 'app-paid-quotes',
   standalone: true,
   imports: [
     CommonModule,
@@ -37,6 +35,9 @@ import { PaymentsByCuote } from './interfaces';
     SpinnerComponent,
     PaidQuotesModalComponent
   ],
+  // providers: [
+  //   PaidQuotesModalComponent
+  // ],
   templateUrl: './paid-quotes.component.html',
   styles: ``
 })
@@ -97,7 +98,7 @@ export default class PaidQuotesComponent implements OnInit, OnDestroy {
   get contractInputErrors() { return this.contractInput.errors; }
 
   ngOnInit(): void {
-    initFlowbite();
+    // initFlowbite();
     this.onListenAuthRx();
     this.onGetContract();
     this.onGetContractQuotes();
@@ -107,7 +108,6 @@ export default class PaidQuotesComponent implements OnInit, OnDestroy {
     setTimeout(() => {
       initFlowbite();
     }, 400);
-
   }
 
   onListenAuthRx() {
@@ -147,9 +147,9 @@ export default class PaidQuotesComponent implements OnInit, OnDestroy {
       this._alertService.close();
       this._isLoading.set( false );
 
-      setTimeout(() => {
-        initFlowbite();
-      }, 400);
+      // setTimeout(() => {
+      //   initFlowbite();
+      // }, 400);
 
     });
 
@@ -178,6 +178,7 @@ export default class PaidQuotesComponent implements OnInit, OnDestroy {
 
     if( quote )
       this._contractQuotesAll.set( [quote] );
+    this.btnShowPaymentQuoteModal.nativeElement.click();
   }
 
   onGetPaymentQuoteInfo( contractQuoteId: string ) {
