@@ -198,7 +198,7 @@ export class ClientPaymentsComponent implements OnInit, OnDestroy {
 
   }
 
-   onGetPaymentQuoteInfo( contractQuoteId: string ) {
+  onGetPaymentQuoteInfo( contractQuoteId: string ) {
 
     this._contractPaymentService.getPaymentQuoteByContractQuote( contractQuoteId )
     .subscribe( ( { paymentsByCuote } ) => {

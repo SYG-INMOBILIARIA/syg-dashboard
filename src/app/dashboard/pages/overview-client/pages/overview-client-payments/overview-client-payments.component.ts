@@ -1,7 +1,9 @@
-import { Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { Component, computed, ElementRef, inject, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
 import { AppState } from '@app/app.config';
 import { ContractQuote } from '@modules/admin/interfaces';
+import { PaymentsByCuote } from '@modules/admin/pages/paid-quotes/interfaces';
 import { ContractQuoteService } from '@modules/admin/services/contract-quote.service';
+import { PaymentQuoteService } from '@modules/admin/services/payment-quote.service';
 import { Store } from '@ngrx/store';
 import { Subscription } from 'rxjs';
 
@@ -11,8 +13,11 @@ import { Subscription } from 'rxjs';
 })
 export default class OverviewClientPaymentsComponent implements OnInit, OnDestroy {
 
+  @ViewChild('btnShowPaymentQuoteInfoModal') btnShowPaymentQuoteInfoModal!: ElementRef<HTMLButtonElement>;
+
   private _authRx$?: Subscription;
   private _store = inject<Store<AppState>>( Store );
+  private _contractPaymentService = inject( PaymentQuoteService );
 
   private _contractQuoteService = inject( ContractQuoteService );
 
@@ -20,12 +25,14 @@ export default class OverviewClientPaymentsComponent implements OnInit, OnDestro
 
   private _contractQuotesPayment = signal<ContractQuote[]>( [] );
   private _total = signal<number>( 0 );
+  private _paymentsByCuote = signal<PaymentsByCuote[]>( [] );
 
   private _isLoading = signal<boolean>( false );
 
   public contractQuotesPayment = computed(() => this._contractQuotesPayment());
   public total = computed(() => this._total());
   public isLoading = computed(() => this._isLoading());
+  public paymentsByCuote = computed( () => this._paymentsByCuote() );
 
   ngOnInit(): void {
     this._listenAuthRx();
@@ -75,6 +82,18 @@ export default class OverviewClientPaymentsComponent implements OnInit, OnDestro
       complete: () => {
         this._isLoading.set( false );
       }
+    });
+
+  }
+
+  onGetPaymentQuoteInfo( contractQuoteId: string ) {
+
+    this._contractPaymentService.getPaymentQuoteByContractQuote( contractQuoteId )
+    .subscribe( ( { paymentsByCuote } ) => {
+
+      this._paymentsByCuote.set( paymentsByCuote );
+
+      this.btnShowPaymentQuoteInfoModal.nativeElement.click();
     });
 
   }
