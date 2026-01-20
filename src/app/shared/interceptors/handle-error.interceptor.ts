@@ -21,13 +21,13 @@ export function HandleErrorInterceptor(req: HttpRequest<unknown>, next: HttpHand
             router.navigateByUrl( '/500', navigationExtras );
             break;
 
-            case 404:
-              router.navigateByUrl( '/404', navigationExtras );
-              break;
+            // case 404:
+            //   router.navigateByUrl( '/404', navigationExtras );
+            //   break;
 
-              case 401:
-                router.navigateByUrl( '/auth', navigationExtras );
-                break;
+            //   case 401:
+            //     router.navigateByUrl( '/auth', navigationExtras );
+            //     break;
 
 
           default:
