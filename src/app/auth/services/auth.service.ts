@@ -39,7 +39,13 @@ export class AuthService {
 
   constructor() {
     console.log('onAuthToken :::');
-    this.onAuthToken().subscribe();
+    this.onAuthToken().subscribe({
+      next: () => {
+
+      }, error: (err) => {
+        localStorage.removeItem('token');
+      }
+    });
 
     // FIXME: Load menu by roles user
     // this.loadMenuAloweedByRoles().subscribe();

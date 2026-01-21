@@ -172,10 +172,7 @@
         </div>
         <div class="flex items-center gap-3">
           <button
-            #btnShowPaymentQuoteModal
             type="button"
-            data-modal-target="payment-modal"
-            data-modal-toggle="payment-modal"
             class="inline-block px-6 py-2 mr-3 font-semibold text-center text-white align-middle transition-all rounded cursor-pointer bg-emerald-600 hover:bg-emerald-700 leading-normal ease-in tracking-tight-rem shadow-xs bg-150 bg-x-25 hover:-translate-y-px active:opacity-85 hover:shadow-md"
             (click)="onSetContractQuoteToPay()"
           >
@@ -196,6 +193,16 @@
             class="hidden px-6 py-2 mr-3 font-semibold text-center text-white align-middle transition-all rounded cursor-pointer bg-emerald-600 hover:bg-emerald-700 leading-normal ease-in tracking-tight-rem shadow-xs bg-150 bg-x-25 hover:-translate-y-px active:opacity-85 hover:shadow-md"
           >
             Mostrar pago
+          </button>
+
+          <button
+            #btnShowPaymentQuoteModal
+            type="button"
+            data-modal-target="payment-modal"
+            data-modal-toggle="payment-modal"
+            class="hidden px-6 py-2 mr-3 font-semibold text-center text-white align-middle transition-all rounded cursor-pointer bg-emerald-600 hover:bg-emerald-700 leading-normal ease-in tracking-tight-rem shadow-xs bg-150 bg-x-25 hover:-translate-y-px active:opacity-85 hover:shadow-md"
+          >
+            Modal pagar cuota
           </button>
 
         </div>
