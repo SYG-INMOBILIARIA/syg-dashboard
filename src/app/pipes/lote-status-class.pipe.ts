@@ -11,8 +11,8 @@ export class LoteStatusClassPipe implements PipeTransform {
     switch (value) {
       case LoteStatus.Available:
           return 'bg-cyan-200 text-cyan-800 dark:bg-cyan-900 dark:text-cyan-300';
-      case LoteStatus.InProgress:
-          return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
+      // case LoteStatus.InProgress:
+      //     return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
       case LoteStatus.Reserved:
           return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300';
       default:
