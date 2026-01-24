@@ -364,7 +364,7 @@ export default class ReservationComponent implements OnInit {
             'AVAILABLE', '#67e8f9',
             'SELLED',    '#31c48d',
             'RESERVED',   '#FA2D2D', //#FA2D2D -> FFDC42
-            'IN_PROGRESS','#6b7280',
+            // 'IN_PROGRESS','#6b7280', //! Borrar después
             /* default */ '#67e8f9'
             ]
         ],
