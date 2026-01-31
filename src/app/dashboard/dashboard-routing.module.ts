@@ -144,6 +144,11 @@ const routes: Routes = [
         loadComponent: () => import('../modules/admin/pages/reservation/reservation.component'),
         data: { title: 'Reservaciones' }
       },
+      {
+        path: 'visitors',
+        loadComponent: () => import('../modules/admin/pages/visitors/visitors.component'),
+        data: { title: 'Visitantes' }
+      },
 
       // {
       //   path: 'profile/:nombre-usuario',
