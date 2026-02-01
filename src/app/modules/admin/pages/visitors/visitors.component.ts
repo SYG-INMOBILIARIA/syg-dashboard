@@ -66,8 +66,6 @@ export default class VisitorsComponent implements OnInit, OnDestroy {
 
   visitorModalTitle = 'Crear visitante';
 
-  private _formBuilder = inject( UntypedFormBuilder );
-
   public searchInput = new FormControl('', [ Validators.pattern( fullTextPatt ) ]);
 
   get isInvalidSearchInput() { return this.searchInput.invalid; }
