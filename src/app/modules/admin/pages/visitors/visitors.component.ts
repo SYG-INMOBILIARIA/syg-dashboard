@@ -1,23 +1,22 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, ElementRef, inject, OnInit, signal, ViewChild } from '@angular/core';
+import { Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
-import { forkJoin } from 'rxjs';
+import { forkJoin, Subscription } from 'rxjs';
 import { NgSelectModule } from '@ng-select/ng-select';
-import { validate as ISUUID } from 'uuid';
 
 import { VisitorService } from './services/visitor.service';
-import { Visitor, VisitorBody } from './interfaces';
-import { emailPatt, fullTextPatt, numberDocumentPatt, numberPatt, phonePatt } from '@shared/helpers/regex.helper';
-import { VisitorValidatorService } from './services/visitor-validator.service';
-import { InputErrorsDirective } from '@shared/directives/input-errors.directive';
+import { Visitor } from './interfaces';
+import { fullTextPatt } from '@shared/helpers/regex.helper';
 import { PipesModule } from '@pipes/pipes.module';
 import { AlertService } from '@shared/services/alert.service';
-import { IdentityDocument, PersonType } from '@modules/admin/interfaces';
+import { IdentityDocument } from '@modules/admin/interfaces';
 import { PaginationComponent } from '@shared/components/pagination/pagination.component';
 import { NomenclatureService } from '@shared/services/nomenclature.service';
 import { IdentityDocumentService } from '@modules/admin/services/identity-document.service';
 import { Nomenclature } from '@shared/interfaces';
-import { SpinnerComponent } from '@shared/components/spinner/spinner.component';
+import { initFlowbite } from 'flowbite';
+import { MatDialog } from '@angular/material/dialog';
+import { VisitorModalComponent } from '@modules/admin/components/visitor-modal/visitor-modal.component';
 
 @Component({
   standalone: true,
@@ -25,30 +24,27 @@ import { SpinnerComponent } from '@shared/components/spinner/spinner.component';
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
-    InputErrorsDirective,
     PipesModule,
     PaginationComponent,
     NgSelectModule,
-    SpinnerComponent
   ],
   templateUrl: './visitors.component.html',
   styles: ``
 })
-export default class VisitorsComponent implements OnInit {
+export default class VisitorsComponent implements OnInit, OnDestroy {
 
-  @ViewChild('btnShowVisitorModal') btnShowVisitorModal!: ElementRef<HTMLButtonElement>;
-  @ViewChild('btnCloseVisitorModal') btnCloseVisitorModal!: ElementRef<HTMLButtonElement>;
+  private _dialog$?: Subscription;
 
   private _visitorService = inject( VisitorService );
   private _alertService = inject( AlertService );
   private _nomenclatureService = inject( NomenclatureService );
   private _identityDocService = inject( IdentityDocumentService );
-
-  private _visitortValidatorService = inject( VisitorValidatorService );
+  private readonly _dialog = inject(MatDialog);
 
   private _listInProgress = signal<boolean>( false );
   private _saveInProgress = signal<boolean>( false );
   private _visitors = signal<Visitor[]>( [] );
+  private _visitorToUpdate = signal<Visitor | null>( null );
   private _totalVisitors = signal<number>( 0 );
   private _allowList = signal( true );
   private _isJuridicPerson = signal( false );
@@ -73,35 +69,12 @@ export default class VisitorsComponent implements OnInit {
   private _formBuilder = inject( UntypedFormBuilder );
 
   public searchInput = new FormControl('', [ Validators.pattern( fullTextPatt ) ]);
-  public visitorForm = this._formBuilder.group({
-    id:                   [ '', [] ],
-    name:                 [ '', [ Validators.required, Validators.pattern( fullTextPatt ) ] ],
-    surname:              [ '', [ Validators.required, Validators.pattern( fullTextPatt ) ] ],
-    bussinessName:        [ '', [ Validators.pattern( fullTextPatt ) ] ],
-    legalRepresentative:  [ '', [ Validators.pattern( fullTextPatt ) ] ],
-    personType:           [ null, [ Validators.required ] ],
-    identityDocumentId:   [ null, [ Validators.required ] ],
-    identityNumber:       [ '', [ Validators.required, Validators.pattern( numberDocumentPatt ) ] ],
-    email:                [ null, [ Validators.pattern( emailPatt ) ] ],
-    phone:                [ null, [ Validators.pattern( phonePatt ) ] ],
-    gender:               [ null, [ Validators.required ] ],
-  }, {
-    updateOn: 'change',
-    asyncValidators: [ this._visitortValidatorService ],
-  });
 
-  get isFormInvalid() { return this.visitorForm.invalid; }
   get isInvalidSearchInput() { return this.searchInput.invalid; }
-  get visitorBody() { return this.visitorForm.value as VisitorBody }
 
-  inputErrors( field: string ) {
-    return this.visitorForm.get(field)?.errors ?? null;
-  }
-  isTouched( field: string ) {
-    return this.visitorForm.get(field)?.touched ?? false;
-  }
 
   ngOnInit(): void {
+    initFlowbite();
     this.onGetVisitors();
     this.onGetSelectsData();
   }
@@ -137,7 +110,6 @@ export default class VisitorsComponent implements OnInit {
       const { nomenclatures: civilStatus } = civilStatusResponse;
       const { nomenclatures: genders } = gendersResponse;
 
-      // this._identityDocumentsAll.set( identityDocuments );
       this._identityDocuments.set( identityDocuments );
       this._civilStatus.set( civilStatus );
       this._genders.set( genders );
@@ -154,113 +126,21 @@ export default class VisitorsComponent implements OnInit {
     this._alertService.showLoading();
 
     this._visitorService.getVisitorById( id )
-    .subscribe( async (client) => {
+    .subscribe( ( visitor ) => {
 
-      const { identityDocument, personType, userCreate, isActive, createAt, ...rest } = client;
-
-      this.onChangePersonType( personType );
-
-      if( identityDocument ) {
-        this.onChangeIdentityDocument( identityDocument );
-      }
-
-      this.visitorForm.reset({
-        ...rest,
-        personType,
-        identityDocumentId: identityDocument?.id,
-      });
-
-      this.visitorForm.markAllAsTouched();
-
-      this.btnShowVisitorModal.nativeElement.click();
+      this._visitorToUpdate.set( visitor );
       this._alertService.close();
+      this.onShowVisitorModal();
 
     } );
 
   }
 
-  onChangePersonType( personType: PersonType ) {
-
-    this._isJuridicPerson.set( personType == PersonType.JuridicPerson );
-
-    this.visitorForm.get('name')?.clearValidators();
-    this.visitorForm.get('surname')?.clearValidators();
-    this.visitorForm.get('bussinessName')?.clearValidators();
-    this.visitorForm.get('legalRepresentative')?.clearValidators();
-    this.visitorForm.get('gender')?.clearValidators();
-    this.visitorForm.get('civilStatus')?.clearValidators();
-
-    if( personType == PersonType.JuridicPerson ) {
-
-      this.visitorForm.get('name')?.setValue('');
-      this.visitorForm.get('surname')?.setValue('');
-      this.visitorForm.get('gender')?.setValue(null);
-      this.visitorForm.get('civilStatus')?.setValue(null);
-
-      this.visitorForm.get('bussinessName')?.addValidators( [
-        Validators.required,
-        Validators.pattern( fullTextPatt ),
-        Validators.minLength( 6 ),
-      ] );
-
-      this.visitorForm.get('legalRepresentative')?.addValidators( [
-        Validators.required,
-        Validators.pattern( fullTextPatt ),
-        Validators.minLength( 6 ),
-      ] );
-
-      this.visitorForm.get('gender')?.clearValidators();
-      this.visitorForm.get('civilStatus')?.clearValidators();
-
-    } else {
-
-      this.visitorForm.get('bussinessName')?.setValue('');
-      this.visitorForm.get('legalRepresentative')?.setValue('');
-
-      this.visitorForm.get('name')?.addValidators( [
-        Validators.required,
-        Validators.pattern( fullTextPatt ),
-        Validators.minLength( 3 ),
-      ] );
-
-      this.visitorForm.get('surname')?.addValidators( [
-        Validators.required,
-        Validators.pattern( fullTextPatt ),
-        Validators.minLength( 3 ),
-      ] );
-
-      this.visitorForm.get('gender')?.addValidators( [ Validators.required ] );
-      this.visitorForm.get('civilStatus')?.addValidators( [ Validators.required ] );
-    }
-
-    this.visitorForm.get('name')?.updateValueAndValidity();
-    this.visitorForm.get('surname')?.updateValueAndValidity();
-    this.visitorForm.get('bussinessName')?.updateValueAndValidity();
-    this.visitorForm.get('legalRepresentative')?.updateValueAndValidity();
-    this.visitorForm.get('gender')?.updateValueAndValidity();
-    this.visitorForm.get('civilStatus')?.updateValueAndValidity();
-
-  }
-
-  onChangeIdentityDocument( identityDocument: IdentityDocument ) {
-
-    const { longitude, isAlphaNumeric, isLongitudeExact } = identityDocument;
-
-    this.visitorForm.get('identityNumber')?.clearValidators();
-    this.visitorForm.get('identityNumber')?.addValidators( [
-      Validators.required,
-      Validators.pattern( isAlphaNumeric ? numberDocumentPatt : numberPatt ),
-      Validators.minLength( isLongitudeExact ? longitude : 6 ),
-      Validators.maxLength( longitude ),
-      ] );
-
-    this.visitorForm.get('identityNumber')?.updateValueAndValidity();
-  }
 
   async onRemoveConfirm( visitor: Visitor ) {
 
     const responseConfirm = await this._alertService.showConfirmAlert(
-      'Confirmación',
+      undefined,
       `¿Está seguro de eliminar visitante: "${ visitor.fullname }"?`
     );
 
@@ -271,86 +151,60 @@ export default class VisitorsComponent implements OnInit {
   }
 
   private _onRemoveVisitor( visitorId: string ) {
+
+    this._alertService.showLoading();
     this._visitorService.removeVisitor( visitorId )
     .subscribe( (visitorDeleted) => {
+      this._alertService.close();
       this._alertService.showAlert(`Visitante eliminado exitosamente`, undefined, 'success');
 
       this.onGetVisitors();
     });
   }
 
-  onResetAfterSubmit() {
-    this.visitorModalTitle = 'Crear nuevo visitante';
-    this.visitorForm.reset();
-    this._saveInProgress.set( false );
-  }
+  onShowVisitorModal() {
 
-  onSubmit() {
-
-    this.visitorForm.markAllAsTouched();
-
-    if( this.isFormInvalid || this.saveInProgress() ) return;
-
-    const { id = 'xD', ...body } = this.visitorBody;
-
-    if( !ISUUID( id ) ) {
-
-      // const allowCreate = this._webUrlPermissionMethods.some(
-      //   (permission) => permission.webApi == apiClient && permission.methods.includes( 'POST' )
-      // );
-
-      // if( !allowCreate ) {
-      //   this._alertService.showAlert( undefined, 'No tiene permiso para crear un cliente', 'warning');
-      //   return;
-      // }
-
-      this._saveInProgress.set( true );
-
-      this._visitorService.createVisitor( body )
-      .subscribe({
-        next: async ( clientCreated ) => {
-
-          this.onResetAfterSubmit();
-          this.btnCloseVisitorModal.nativeElement.click();
-          this.onGetVisitors();
-
-          this._alertService.showAlert('Visitante creado exitosamente', undefined, 'success');
-
-        }, error: (err) => {
-
-          this._saveInProgress.set( false );
-        }
-      });
-      return;
-    }
-
-    // const allowUpdate = this._webUrlPermissionMethods.some(
-    //   (permission) => permission.webApi == apiClient && permission.methods.includes( 'PATCH' )
+    // const allowCreate = this._webUrlPermissionMethods.some(
+    //   (permission) => permission.webApi == apiClient && permission.methods.includes( 'POST' )
     // );
 
-    // if( !allowUpdate ) {
-    //   this._alertService.showAlert( undefined, 'No tiene permiso para actualizar un Visitante', 'warning');
+    // if( !allowCreate ) {
+    //   this._alertService.showAlert( undefined, 'No tiene permiso para crear un cliente', 'warning');
     //   return;
     // }
 
-    this._saveInProgress.set( true );
+    const dialogRef = this._dialog.open( VisitorModalComponent , {
+      width: '30vw',
+      height: '100vh',
+      maxWidth: '30vw',
+      // maxHeight: '100vh',
+      enterAnimationDuration: '0ms',
+      exitAnimationDuration: '0ms',
+      closeOnNavigation: true,
 
-    this._visitorService.updateVisitor( id, body )
-    .subscribe({
-      next: async ( clientUpdated ) => {
-
-        this.onResetAfterSubmit();
-        this.btnCloseVisitorModal.nativeElement.click();
-        this.onGetVisitors();
-
-        this._alertService.showAlert('Visitante actualizado exitosamente', undefined, 'success');
-
-      }, error: (err) => {
-
-        this._saveInProgress.set( false );
+      data: {
+        visitorToUpdate: this._visitorToUpdate(),
+        identityDocuments: this._identityDocuments(),
+        civilStatus: this._civilStatus(),
+        genders: this._genders(),
+        personTypes: this._personTypes(),
       }
     });
 
+    this._dialog$ = dialogRef.afterClosed().subscribe( (visitCreatedOrUpdated: any | null) => {
+
+      if (visitCreatedOrUpdated) {
+        this.onGetVisitors();
+      }
+
+      this._visitorToUpdate.set( null );
+      this._dialog$?.unsubscribe();
+    });
+
+  }
+
+  ngOnDestroy(): void {
+    this._dialog$?.unsubscribe();
   }
 
 }

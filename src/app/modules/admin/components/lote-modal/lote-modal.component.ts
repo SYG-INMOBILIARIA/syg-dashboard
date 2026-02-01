@@ -3,11 +3,10 @@ import {MatButtonModule} from '@angular/material/button';
 import {
   MAT_DIALOG_DATA,
   MatDialogActions,
-  MatDialogClose,
   MatDialogContent,
   MatDialogRef,
 } from '@angular/material/dialog';
-import { LngLatLike, Map, Marker, Popup } from 'mapbox-gl';
+import { Map } from 'mapbox-gl';
 import MapboxDraw from '@mapbox/mapbox-gl-draw';
 
 import { v4 as uuid, validate as ISUUID } from 'uuid';
@@ -18,21 +17,14 @@ import { alphaNumericPatt, decimalPatt, fullTextPatt, numberPatt } from '@shared
 import { InputErrorsDirective } from '@shared/directives/input-errors.directive';
 import { CommonModule } from '@angular/common';
 import { SpinnerComponent } from '@shared/components/spinner/spinner.component';
-import { Nomenclature, Photo } from '@shared/interfaces';
+import { Photo } from '@shared/interfaces';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { LoteService } from '../../services/lote.service';
 import { AlertService } from '@shared/services/alert.service';
-import { LoteStatus } from '../../enum';
 import { WebUrlPermissionMethods } from '../../../../auth/interfaces';
 import { apiLote } from '@shared/helpers/web-apis.helper';
 import { NgxPaginationModule } from "ngx-pagination";
 import { NgxMaskDirective, provideNgxMask } from "ngx-mask";
-
-interface PolygonCoord {
-  lng: number;
-  lat: number;
-  id: string | null;
-}
 
 @Component({
   selector: 'app-lote-modal',

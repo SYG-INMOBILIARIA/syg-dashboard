@@ -1,0 +1,280 @@
+
+<div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600 bg-white shadow dark:bg-gray-700">
+  <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+      {{ visitTitleModal }}
+  </h3>
+  <!-- [mat-dialog-close]="undefined" -->
+  <button
+    type="button"
+    class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+    (click)="onClose()"
+  >
+      <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+      </svg>
+      <span class="sr-only">Close modal</span>
+  </button>
+</div>
+
+<mat-dialog-content class="bg-white shadow dark:bg-gray-700">
+
+  <form [formGroup]="visitForm"  >
+
+    <div class="grid gap-4 mb-2 grid-cols-12">
+
+      <div class="col-span-11 mb-2 ">
+        <label for="cbxVisitor" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+          Visitantes <span class="text-red-500">*</span>
+        </label>
+        <ng-select
+          id="cbxVisitor"
+          class="bg-gray-50 border text-gray-900 text-sm rounded-lg block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+          [items]="visitors()"
+          [searchable]="false"
+          [hideSelected]="true"
+          [multiple]="true"
+          [closeOnSelect]="false"
+          [loading]="loadingVisitors()"
+          bindLabel="fullname"
+          bindValue="id"
+          placeholder="Seleccione cliente"
+          formControlName="visitorsIds"
+          [class.border-red-400]=" inputErrors('visitorsIds') && isTouched('visitorsIds') "
+        >
+
+          <ng-template ng-header-tmp >
+
+            <div class="flex justify-between gap-3">
+
+              <input
+                    type="text"
+                    id="txtSearchClient"
+                    class="block w-full p-2 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 text-xs focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                    placeholder="Buscar cliente..."
+                    [formControl]="searchVisitorInput"
+                >
+
+                <button type="button" class=" w-36 px-3 py-2 text-xs font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                  (click)="onGetVisitors()"
+                >
+                  Buscar
+                </button>
+            </div>
+          </ng-template>
+
+          <ng-template ng-option-tmp let-item="item" class="text-gray-900 whitespace-nowrap dark:text-white">
+
+            <div class="ps-3 flex justify-between">
+              <div class="text-normal font-semibold">
+                {{ item.fullname }}
+              </div>
+              <div class="font-normal text-sm text-gray-500 pe-5">
+                {{ item?.identityDocument?.shortDescription ?? '...' }} : {{ item?.identityNumber ?? '---' }}
+              </div>
+            </div>
+
+          </ng-template>
+
+        </ng-select>
+
+        @if (isTouched('visitorsIds')) {
+          <span
+            class="flex items-center ms-1 mt-2 text-xs text-red-500"
+            inputErrors
+            [errors]="inputErrors('visitorsIds')"
+            inputLabel="Visitante(s)" >
+          </span>
+        }
+      </div>
+
+      <div class="col-span-1 flex justify-center items-center pt-3.5">
+        <button
+          type="button"
+          class="inline-flex items-center justify-center text-green-400 bg-neutral-primary border border-green-400 hover:bg-brand hover:text-green-500 focus:ring-4 focus:ring-brand-subtle rounded-full w-16 h-9 focus:outline-none"
+          (click)="onShowVisitorModal()"
+        >
+
+          <svg class="w-8 h-5 font-bold" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14m-7 7V5"/>
+          </svg>
+
+          <span class="sr-only">Icon description</span>
+        </button>
+      </div>
+
+      <div class="col-span-12 mb-2 ">
+        <label for="cbxUserSeller" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+          Asesor comercial <span class="text-red-500">*</span>
+        </label>
+        <ng-select
+          id="cbxUserSeller"
+          class="bg-gray-50 border text-gray-900 text-sm rounded-lg block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+          [items]="sellers()"
+          [searchable]="false"
+          [loading]="loadingSellers()"
+          bindLabel="fullname"
+          bindValue="id"
+          placeholder="Seleccione vendedor"
+          formControlName="sellerUserId"
+          [class.border-red-400]=" inputErrors('sellerUserId') && isTouched('sellerUserId') "
+        >
+
+          <ng-template ng-header-tmp>
+
+            <div class="flex justify-between gap-3">
+
+              <input
+                    type="text"
+                    id="txtSearchSeller"
+                    class="block w-full p-2 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 text-xs focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                    placeholder="Buscar vendedor..."
+                    [formControl]="searchSellerInput"
+                >
+
+                <button type="button" class=" w-36 px-3 py-2 text-xs font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                  (click)="onGetSellers()"
+                >
+                  Buscar
+                </button>
+            </div>
+          </ng-template>
+
+        </ng-select>
+
+        @if (isTouched('selledUserId')) {
+          <span
+            class="flex items-center ms-1 mt-2 text-xs text-red-500"
+            inputErrors
+            [errors]="inputErrors('selledUserId')"
+            inputLabel="Vendedor" >
+          </span>
+        }
+      </div>
+
+      <div class="col-span-6 mb-2">
+        <label for="cbxVisitatus" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+          Estado <span class="text-red-500">*</span>
+        </label>
+        <ng-select
+          id="cbxVisitatus"
+          class="bg-gray-50 border text-gray-900 text-sm rounded-lg block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+          [items]="visitStatus()"
+          bindLabel="label"
+          bindValue="value"
+          placeholder="Seleccione estado de visita"
+          formControlName="visitStatus"
+          [class.border-red-400]=" inputErrors('visitStatus') && isTouched('visitStatus') "
+        >
+        </ng-select>
+
+        @if (isTouched('visitStatus ')) {
+          <span
+            class="flex items-center ms-1 mt-2 text-xs text-red-500"
+            inputErrors
+            [errors]="inputErrors('visitStatus')"
+            [class.hidden]="!inputErrors('visitStatus')"
+            inputLabel="Estado de visita" >
+          </span>
+        }
+      </div>
+
+      <div class="col-span-6 mb-2" >
+        <label for="txtVisitDate" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+          Fecha de visita <span class="text-red-500">*</span>
+        </label>
+
+        <div class="relative">
+
+          <div class="absolute left-4 bottom-2.5 pointer-events-none">
+
+            <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 10h16m-8-3V4M7 7V4m10 3V4M5 20h14a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1Zm3-7h.01v.01H8V13Zm4 0h.01v.01H12V13Zm4 0h.01v.01H16V13Zm-8 4h.01v.01H8V17Zm4 0h.01v.01H12V17Zm4 0h.01v.01H16V17Z"/>
+            </svg>
+          </div>
+
+
+          <input
+            #visitDateInput
+            type="text"
+            id="txtVisitDate"
+            mwlFlatpickr
+            locale="Spanish"
+            [altInput]="true"
+            class="bg-gray-50 border text-center border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+            placeholder="YYYY-MM-DD"
+            formControlName="visitDate"
+            [class.border-red-400]=" inputErrors('visitDate') && isTouched('visitDate') "
+          >
+        </div>
+
+        @if (isTouched('visitDate')) {
+          <span
+            class="flex items-center ms-1 mt-2 text-xs text-red-500"
+            inputErrors
+            [errors]="inputErrors('visitDate')"
+            [class.hidden]="!inputErrors('visitDate')"
+            inputLabel="fecha de visita" >
+          </span>
+        }
+      </div>
+
+      <div class="col-span-12">
+
+        <label for="txtObservation" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+          Observación
+        </label>
+        <textarea
+          id="txtObservation"
+          rows="7"
+          class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border-2 border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-400 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+          placeholder="Write proyect description here..."
+          formControlName="observation"
+          [class.border-red-400]=" inputErrors('observation') && isTouched('observation') "
+          ></textarea>
+
+          @if (isTouched('observation')) {
+            <span
+              class="flex items-center ms-1 mt-2 text-xs text-red-500"
+              inputErrors
+              [errors]="inputErrors('observation')"
+              inputLabel="Observación" >
+            </span>
+          }
+
+      </div>
+
+    </div>
+
+  </form>
+
+</mat-dialog-content>
+
+<mat-dialog-actions class="bg-white shadow dark:bg-gray-700">
+  <div class="px-3 pb-3 w-full flex justify-end items-center gap-3 ">
+
+    <button
+      (click)="onClose()"
+      type="button"
+      class="w-[130px] text-black inline-flex justify-center items-center bg-slate-100 hover:bg-slate-200 focus:ring-3 focus:outline-none focus:ring-slate-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-slate-200 dark:hover:bg-slate-300 dark:focus:ring-slate-400"
+    >
+      <span >
+        Cancelar
+      </span>
+    </button>
+
+    <button
+      (click)="onSubmit()"
+      type="button"
+      class="w-[230px] text-white inline-flex justify-center items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+    >
+      <span *ngIf="!savingInProgress() else submitSpinner" >
+        {{ btnTextModal }}
+      </span>
+    </button>
+  </div>
+</mat-dialog-actions>
+
+
+<ng-template #submitSpinner>
+  <spinner></spinner>
+</ng-template>

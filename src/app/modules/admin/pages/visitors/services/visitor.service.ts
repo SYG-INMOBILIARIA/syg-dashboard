@@ -24,7 +24,7 @@ export class VisitorService {
     return this._http.get<ListVisitorResponse>(`${ this._baseUrl }/visitor?${ queryParams }`);
   }
 
-  createVisitor( body: any ): Observable<any> {
+  createVisitor( body: any ): Observable<Visitor> {
     return this._http.post<Visitor>(`${ this._baseUrl }/visitor`, body );
   }
 

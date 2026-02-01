@@ -56,4 +56,8 @@ export class NomenclatureService {
     return this._http.get<ListNomenclatureResponse>(`${ this._baseUrl }/nomenclature/writing-status`);
   }
 
+  getVisitStatus() {
+    return this._http.get<ListNomenclatureResponse>(`${ this._baseUrl }/nomenclature/visit-status`);
+  }
+
 }

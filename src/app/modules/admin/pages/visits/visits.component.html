@@ -27,15 +27,16 @@
 
                             </span>
                             <input type="text" class="pl-9 text-sm focus:shadow-primary-outline ease w-1/100 leading-5.6 relative -ml-px block min-w-0 flex-auto rounded-lg border border-solid dark:bg-gray-800 dark:text-white bg-white bg-clip-padding py-2 pr-3 text-gray-700 transition-all placeholder:text-gray-500 "
-                                placeholder="Buscar..." [formControl]="searchInput" [class.border-gray-300]="isInvalidSearchInput == false" [class.border-red-400]="isInvalidSearchInput == true" (keyup.enter)="onGetVisitors()" />
+                                placeholder="Buscar..." [formControl]="searchInput" [class.border-gray-300]="isInvalidSearchInput == false" [class.border-red-400]="isInvalidSearchInput == true" (keyup.enter)="onGetVisits()" />
                         </div>
                     </div>
 
                     <div class="">
                         <button
+                          #btnShowVisitorModal
                           type="button"
                           class="inline-block px-6 py-2 mr-3 font-semibold text-center text-white align-middle transition-all rounded cursor-pointer bg-emerald-600 hover:bg-emerald-700 leading-normal ease-in tracking-tight-rem shadow-xs bg-150 bg-x-25 hover:-translate-y-px active:opacity-85 hover:shadow-md "
-                          (click)="onShowVisitorModal()"
+                          (click)="onOpenVisitModal()"
                         >
                           <i class="fa fa-plus" aria-hidden="true"></i>
                           &nbsp;Nuevo
@@ -50,8 +51,10 @@
                     <table class="items-center w-full mb-0 align-top border-collapse dark:border-white/40 text-slate-500">
                         <thead class="align-bottom">
                             <tr>
-                                <th class="px-6 py-3 font-bold text-left uppercase align-middle bg-transparent border-b border-collapse shadow-none dark:border-white/40 text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-800 dark:text-slate-100 opacity-70">Nombres y Apellidos</th>
-                                <th class="px-6 py-3 pl-2 font-bold text-left uppercase align-middle bg-transparent border-b border-collapse shadow-none dark:border-white/40 text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-800 dark:text-slate-100 opacity-70">Email</th>
+                                <th class="px-6 py-3 font-bold text-left uppercase align-middle bg-transparent border-b border-collapse shadow-none dark:border-white/40 text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-800 dark:text-slate-100 opacity-70">
+                                  Visitantes
+                                </th>
+                                <th class="px-6 py-3 pl-2 font-bold text-left uppercase align-middle bg-transparent border-b border-collapse shadow-none dark:border-white/40 text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-800 dark:text-slate-100 opacity-70">Fecha visita</th>
                                 <th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-collapse shadow-none dark:border-white/40 text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-800 dark:text-slate-100 opacity-70">Estado</th>
                                 <th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-collapse shadow-none dark:border-white/40 text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-800 dark:text-slate-100 opacity-70">Fecha creación</th>
                                 <th class="px-6 py-3 font-semibold capitalize align-middle bg-transparent border-b border-collapse border-solid shadow-none dark:border-white/40 tracking-none whitespace-nowrap text-slate-800 dark:text-slate-100 opacity-70"></th>
@@ -60,39 +63,41 @@
                         <tbody>
 
                           @if ( allowList() ) {
-                            @for ( visitor of visitors(); track visitor.id) {
+                            @for ( visit of visits(); track $index) {
                                 <tr>
 
                                     <td class="p-2 align-middle bg-transparent border-b dark:border-white/40 whitespace-nowrap shadow-transparent dark:text-slate-200">
-                                        <div class="flex flex-col justify-start items-center">
 
-                                            <div class="mb-0 text-md leading-normal dark:text-slate-200 ">
-                                                {{ visitor.fullname }}
+                                      <div  class="flex flex-wrap justify-center gap-2">
+
+                                            <div *ngFor="let visitor of visit.visitors" class="mb-0 text-indigo-500 font-semibold text-sm leading-normal dark:text-slate-200 border border-indigo-400 rounded  px-2 py-0.5">
+                                                {{visitor.fullname}}
                                             </div>
 
-                                            <div class=" flex justify-start items-center dark:text-slate-400">
+                                            <!-- <div class=" flex justify-start items-center dark:text-slate-400">
                                                 <span class="text-xs font-semibold me-1.5">
-                                                  {{ visitor.identityDocument.shortDescription }}:
+                                                   {{visitor.identityDocument.shortDescription}}
                                                 </span>
                                                 <span>
-                                                  {{ visitor.identityNumber }}
+                                                   {{visitor.identityNumber}}
                                                 </span>
-                                            </div>
+                                            </div> -->
 
                                         </div>
                                     </td>
 
                                     <td class="p-2 align-middle bg-transparent border-b dark:border-white/40 whitespace-nowrap shadow-transparent dark:text-gray-300">
-                                        <span class="dark:text-slate-400">
-                                            {{ visitor.email }}
+
+                                        <span class="text-xs uppercase font-semibold leading-tight dark:text-gray-200 dark:opacity-80 text-slate-600">
+                                          {{ visit.visitDate | moment:'createAt'  }}
                                         </span>
                                     </td>
 
                                     <td class="p-2 text-sm leading-normal text-center align-middle bg-transparent border-b dark:border-white/40 whitespace-nowrap shadow-transparent">
 
                                         <span class=" text-xs font-medium me-2 px-2.5 py-0.5 rounded 0 dark:text-gray-300" [ngClass]="{
-                                            'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-30': !visitor.isActive,
-                                            'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300': visitor.isActive,
+                                            'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-30': !visit.isActive,
+                                            'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300': visit.isActive,
                                           }">
                                           Activo
                                         </span>
@@ -101,17 +106,17 @@
 
                                     <td class=" text-center align-middle bg-transparent border-b dark:border-white/40 whitespace-nowrap shadow-transparent">
                                         <span class="text-xs uppercase font-semibold leading-tight dark:text-gray-300 dark:opacity-80 text-slate-400">
-                                          {{ visitor.createAt | moment:'createAt'  }}
+                                          {{ visit.createAt | moment:'createAt'  }}
                                         </span>
                                     </td>
 
                                     <td class=" bg-transparent border-b dark:border-white/40 whitespace-nowrap shadow-transparent">
                                         <div class="flex  gap-3 justify-end pr-6">
-                                            <a href="javascript:;" class="flex gap-1 text-xs font-semibold leading-tight uppercase dark:opacity-80 text-slate-400 dark:text-gray-300" (click)="onLoadToUpdate( visitor )">
+                                            <a href="javascript:;" class="flex gap-1 text-xs font-semibold leading-tight uppercase dark:opacity-80 text-slate-400 dark:text-gray-300" (click)="onLoadToUpdate( visit )">
                                                 <i class="fa fa-pencil" aria-hidden="true"></i> Editar
                                             </a>
 
-                                            <a href="javascript:;" class="flex gap-2 text-xs font-semibold leading-tight uppercase dark:opacity-80 text-red-500" (click)="onRemoveConfirm( visitor )">
+                                            <a href="javascript:;" class="flex gap-2 text-xs font-semibold leading-tight uppercase dark:opacity-80 text-red-500" (click)="onRemoveConfirm( visit )">
                                                 <i class="fa fa-trash" aria-hidden="true"></i> Eliminar
                                             </a>
                                         </div>
@@ -159,7 +164,7 @@
                 </div>
                 <div class="">
 
-                    <app-pagination [totalItems]="totalVisitors()" (onChangePage)="onGetVisitors( $event )">
+                    <app-pagination [totalItems]="0" (onChangePage)="onGetVisits( $event )">
                     </app-pagination>
 
                 </div>
@@ -167,5 +172,3 @@
         </div>
     </div>
 </div>
-
-
