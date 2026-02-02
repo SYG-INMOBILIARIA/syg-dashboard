@@ -7,7 +7,9 @@ import { ClientStatus } from '../interfaces/dahsboard.interface';
 import { inject, Injectable } from '@angular/core';
 import { environments } from '@envs/environments';
 import { DashboardStats, MonthlyCommissions, SellerPerformance } from '../interfaces';
-import { Observable } from 'rxjs';
+import { firstValueFrom, Observable } from 'rxjs';
+import { VisitGrouped } from '../components/visit-percent-status-card/interfaces';
+import { VisitorsByYear } from '../components/visitor-counter-card/interfaces';
 
 @Injectable({providedIn: 'root'})
 export class DashboardService {
@@ -33,6 +35,26 @@ export class DashboardService {
 
   getRecentActivity(): Observable<RecentActivity[]> {
     return this._http.get<RecentActivity[]>(`${this._baseUrl}/dashboard/recent-activity`);
+  }
+
+  getVisitsYears(): Promise<number[]> {
+    return firstValueFrom(
+      this._http.get<number[]>(`${this._baseUrl}/dashboard/visit-years`)
+    );
+  }
+
+  getVisitsStatus( year: number ): Observable<VisitGrouped> {
+    return this._http.get<VisitGrouped>(`${this._baseUrl}/dashboard/visit-status?year=${year}`);
+  }
+
+  getVisitorYears(): Promise<number[]> {
+    return firstValueFrom(
+      this._http.get<number[]>(`${this._baseUrl}/dashboard/visitor-years`)
+    );
+  }
+
+  getCountVisitorByYear( year: number ): Observable<VisitorsByYear> {
+    return this._http.get<VisitorsByYear>(`${this._baseUrl}/dashboard/count-visitors-by-year?year=${year}`);
   }
 
 }

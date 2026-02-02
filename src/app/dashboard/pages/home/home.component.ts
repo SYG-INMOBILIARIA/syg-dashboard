@@ -7,6 +7,8 @@ import { forkJoin, Subscription } from 'rxjs';
 import { DashboardStats, SellerPerformance, MonthlyCommissions, ClientStatus, RecentActivity } from '../../interfaces';
 import { DashboardService } from '../../services/dashboard.service';
 import { PipesModule } from '@pipes/pipes.module';
+import { VisitPercentStatusCardComponent } from '@app/dashboard/components/visit-percent-status-card/visit-percent-status-card.component';
+import { VisitorCounterCardComponent } from '@app/dashboard/components/visitor-counter-card/visitor-counter-card.component';
 
 @Component({
   selector: 'app-home',
@@ -15,9 +17,11 @@ import { PipesModule } from '@pipes/pipes.module';
   imports: [
     CommonModule,
     RouterModule,
-    PipesModule
+    PipesModule,
+    VisitPercentStatusCardComponent,
+    VisitorCounterCardComponent
   ],
-  styles: ``
+  styles: ``,
 })
 export class HomeComponent implements OnInit, OnDestroy {
 
@@ -190,7 +194,6 @@ export class HomeComponent implements OnInit, OnDestroy {
   private loadDashboardData(): void {
 
     forkJoin({
-
       stats: this._dashboardService.getDashboardStats(),
       topSellers: this._dashboardService.getTopSellers(),
       recentActivvity: this._dashboardService.getRecentActivity(),
@@ -199,7 +202,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     }).subscribe({
       next: ({ stats, topSellers, recentActivvity, monthlyCommissions, clientStatus }) => {
 
-
         this.dashboardStats = stats;
         this.topSellers = topSellers;
         this.recentActivity = recentActivvity;
@@ -207,7 +209,6 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.updatePieChart(clientStatus);
 
       }
-
     })
     // Load Dashboard Stats
 
