@@ -8,6 +8,9 @@ import CardIndicatorComponent from '@app/dashboard/components/card-indicator/car
 import { PipesModule } from '@pipes/pipes.module';
 import { PaidQuotesModalComponent } from '@modules/admin/components/paid-quotes-modal/paid-quotes-modal.component';
 import { PaginationComponent } from '@shared/components/pagination/pagination.component';
+import { SellerMoreVisitCardComponent } from '@app/dashboard/components/seller-more-visit-card/seller-more-visit-card.component';
+import { VisitorCounterCardComponent } from '@app/dashboard/components/visitor-counter-card/visitor-counter-card.component';
+import { VisitPercentStatusCardComponent } from '@app/dashboard/components/visit-percent-status-card/visit-percent-status-card.component';
 
 
 @NgModule({
@@ -22,7 +25,10 @@ import { PaginationComponent } from '@shared/components/pagination/pagination.co
     PaidQuotesModalComponent,
     CardIndicatorComponent,
     FormsModule,
-    OverviewClientRoutingModule
+    OverviewClientRoutingModule,
+    SellerMoreVisitCardComponent,
+    VisitorCounterCardComponent,
+    VisitPercentStatusCardComponent
   ]
 })
 export default class OverviewClientModule { }

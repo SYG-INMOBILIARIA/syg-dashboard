@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, OnDestroy, OnInit, signal, PipeTransform } from '@angular/core';
+import { Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { forkJoin, Subscription } from 'rxjs';
@@ -78,7 +78,7 @@ export default class VisitsComponent implements OnInit, OnDestroy {
 
     forkJoin({
       visitStatusResponse: this._nomenclatureService.getVisitStatus(),
-      visitorsResponse: this._visitorService.getVisitors( 1, '', 5 ),
+      visitorsResponse: this._visitorService.getVisitors( 1, '', 10 ),
       sellersResponse: this._sellerService.getSellers( 1, '', 5 ),
 
       gendersResponse: this._nomenclatureService.getGender(),
@@ -104,7 +104,6 @@ export default class VisitsComponent implements OnInit, OnDestroy {
     } );
 
   }
-
 
   onOpenVisitModal() {
 

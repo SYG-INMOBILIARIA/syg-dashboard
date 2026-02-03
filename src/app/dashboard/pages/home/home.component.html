@@ -104,7 +104,7 @@
     <!-- Monthly Commissions Chart -->
     <div class="p-4 bg-white rounded-lg shadow-sm dark:bg-gray-800">
       <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Evolución de Comisiones Mensuales</h3>
-      <div id="line-chart" class="w-full h-80"></div>
+      <div id="line-chart" class="w-full"></div>
     </div>
 
     <!-- Client Status Distribution -->
@@ -115,19 +115,13 @@
   </div>
 
   <!-- Charts Visits -->
+  <div class="grid grid-cols-3 gap-4 mb-8">
 
-  <div class="grid grid-cols-2 gap-4 mb-8">
+    <visit-percent-status-card></visit-percent-status-card>
 
-    <div class=" p-4 bg-white rounded-lg shadow-sm dark:bg-gray-800">
-      <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Visitas por Año</h3>
-      <visit-percent-status-card></visit-percent-status-card>
-    </div>
+    <visitor-counter-card></visitor-counter-card>
 
-    <div class=" p-4 bg-white rounded-lg shadow-sm dark:bg-gray-800">
-      <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Visitantes registrados</h3>
-      <visitor-counter-card></visitor-counter-card>
-    </div>
-
+    <seller-more-visit-card></seller-more-visit-card>
   </div>
 
   <!-- Top Sellers Table -->

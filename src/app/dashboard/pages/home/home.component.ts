@@ -9,6 +9,7 @@ import { DashboardService } from '../../services/dashboard.service';
 import { PipesModule } from '@pipes/pipes.module';
 import { VisitPercentStatusCardComponent } from '@app/dashboard/components/visit-percent-status-card/visit-percent-status-card.component';
 import { VisitorCounterCardComponent } from '@app/dashboard/components/visitor-counter-card/visitor-counter-card.component';
+import { SellerMoreVisitCardComponent } from '@app/dashboard/components/seller-more-visit-card/seller-more-visit-card.component';
 
 @Component({
   selector: 'app-home',
@@ -19,7 +20,8 @@ import { VisitorCounterCardComponent } from '@app/dashboard/components/visitor-c
     RouterModule,
     PipesModule,
     VisitPercentStatusCardComponent,
-    VisitorCounterCardComponent
+    VisitorCounterCardComponent,
+    SellerMoreVisitCardComponent
   ],
   styles: ``,
 })

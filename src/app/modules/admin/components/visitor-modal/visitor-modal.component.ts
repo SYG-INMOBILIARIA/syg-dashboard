@@ -48,8 +48,6 @@ interface VisitorDialogPayload {
 })
 export class VisitorModalComponent implements OnInit {
 
-  private _nomenclatureService = inject( NomenclatureService );
-  private _identityDocService = inject( IdentityDocumentService );
   private _visitorService = inject( VisitorService );
   private _alertService = inject( AlertService );
 
@@ -69,7 +67,7 @@ export class VisitorModalComponent implements OnInit {
     identityDocumentId:   [ null, [ Validators.required ] ],
     identityNumber:       [ '', [ Validators.required, Validators.pattern( numberDocumentPatt ) ] ],
     email:                [ null, [ Validators.pattern( emailPatt ) ] ],
-    phone:                [ null, [ Validators.pattern( phonePatt ) ] ],
+    phone:                [ null, [ Validators.required, Validators.pattern( phonePatt ) ] ],
     gender:               [ null, [ Validators.required ] ],
   }, {
     updateOn: 'change',
@@ -127,12 +125,16 @@ export class VisitorModalComponent implements OnInit {
 
   }
 
-
   onClose() {
     this._dialogRef.close(null);
   }
 
   onSubmit() {
+
+    if( this.isFormInvalid || this.saveInProgress() ) {
+      this.visitorForm.markAllAsTouched();
+      return;
+    }
 
     const { id = 'xD', ...body } = this.visitorBody;
 

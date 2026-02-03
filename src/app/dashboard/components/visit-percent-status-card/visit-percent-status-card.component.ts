@@ -5,13 +5,16 @@ import ApexCharts from 'apexcharts';
 
 import { DashboardService } from '@app/dashboard/services/dashboard.service';
 import { VisitStatusPipe } from '@pipes/visit-status.pipe';
+import { ContractDetailModalModule } from "@modules/admin/components/contract-detail-modal/contract-detail-modal.module";
+import { FormControl, Validators } from '@angular/forms';
 
 @Component({
   selector: 'visit-percent-status-card',
   standalone: true,
   imports: [
-    CommonModule
-  ],
+    CommonModule,
+    ContractDetailModalModule
+],
   providers: [
     VisitStatusPipe
   ],
@@ -26,8 +29,10 @@ export class VisitPercentStatusCardComponent implements OnInit {
   private _visitorYears = signal<number[]>( [] );
   private _dataInProgress = signal<boolean>( false );
 
-  public visitorYear = computed( () => this._visitorYears() );
+  public visitorYears = computed( () => this._visitorYears() );
   public dataInProgress = computed( () => this._dataInProgress() );
+
+  public yearInput = new FormControl( 0, [ Validators.required ]);
 
   private chartOptions = {
     series: [{
@@ -114,9 +119,16 @@ export class VisitPercentStatusCardComponent implements OnInit {
     this._dasboardService.getVisitsYears()
     .then( (years) => {
 
-      this._visitorYears.set( years );
+      if( !years || years.length === 0 ) {
+        this._visitorYears.set( [ new Date().getFullYear() ] );
+        this._getVisitsStatusByYear( new Date().getFullYear() );
+        this.yearInput.setValue( new Date().getFullYear() );
+        return;
+      }
 
+      this._visitorYears.set( years );
       this._getVisitsStatusByYear( years[0] );
+      this.yearInput.setValue( years[0] );
 
     }).catch( (error) => {
       console.error('Error fetching visitor years:', error);
@@ -132,6 +144,8 @@ export class VisitPercentStatusCardComponent implements OnInit {
 
       if (document.getElementById("visit-status-chart") && typeof ApexCharts !== 'undefined') {
 
+        document.getElementById("visit-status-chart")!.innerHTML = '';
+
         const chart = new ApexCharts(document.getElementById("visit-status-chart"), {
           ...this.chartOptions,
           series: data.series.map(d => ({ name: this._visitStatusPipe.transform(d.status), data: d.series })),
@@ -144,6 +158,13 @@ export class VisitPercentStatusCardComponent implements OnInit {
       }
 
     });
+
+  }
+
+  getVisitsStatusByYear( arguement: any ) {
+
+    this._dataInProgress.set( true );
+    this._getVisitsStatusByYear( Number( arguement.value ) );
 
   }
 

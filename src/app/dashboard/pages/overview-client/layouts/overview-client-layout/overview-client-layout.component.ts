@@ -1,13 +1,8 @@
-import { CommonModule, formatCurrency } from '@angular/common';
-import { Component, computed, ElementRef, inject, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { formatCurrency } from '@angular/common';
+import { Component, ElementRef, inject, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
 import { AppState } from '@app/app.config';
-import { WebUrlPermissionMethods } from '@app/auth/interfaces';
 import { DashboardClientService } from '@app/dashboard/services/dashboard-client.service';
-import { ContractQuote } from '@modules/admin/interfaces';
-import { ContractQuoteService } from '@modules/admin/services/contract-quote.service';
 import { Store } from '@ngrx/store';
-import { initFlowbite } from 'flowbite';
 import moment from 'moment';
 import { Subscription } from 'rxjs';
 
