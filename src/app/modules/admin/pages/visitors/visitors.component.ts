@@ -83,7 +83,9 @@ export default class VisitorsComponent implements OnInit, OnDestroy {
 
     this._listInProgress.set( true );
 
-    this._visitorService.getVisitors( page, '' )
+    const filterValue = this.searchInput.value?.trim() || '';
+
+    this._visitorService.getVisitors( page, filterValue, 10 )
     .subscribe( ({ visitors, total }) => {
 
       this._visitors.set( visitors );
