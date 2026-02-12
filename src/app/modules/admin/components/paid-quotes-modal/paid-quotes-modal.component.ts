@@ -77,7 +77,7 @@ export class PaidQuotesModalComponent implements OnInit {
   public paymentQuoteForm = this._formBuilder.group({
     contractQuotes:    [ [],   [ Validators.required, Validators.minLength(1) ] ],
     paymentDate:       [ null, [ Validators.required ] ],
-    operationCode:     [ null, [ Validators.required, Validators.pattern( operationCodePatt ) ] ],
+    operationCode:     [ null, [ Validators.pattern( operationCodePatt ) ] ],
     amount:            [ null, [ Validators.required, Validators.min(1) ] ],
     observation:       [ '',   [ Validators.pattern( descriptionPatt ) ] ],
     paymentMethodId:   [ null, [ Validators.required ] ],
@@ -85,6 +85,9 @@ export class PaidQuotesModalComponent implements OnInit {
 
   public fileUrl = signal( environments.defaultImgUrl );
   private _file?: File;
+
+  public fileDocumentUrl = signal( environments.defaultImgUrl );
+  private _fileDocument?: File;
 
   private _contractQuotes = signal<ContractQuote[]>( [] );
   private _webUrlPermissionMethods: WebUrlPermissionMethods[] = [] ;
@@ -110,6 +113,7 @@ export class PaidQuotesModalComponent implements OnInit {
 
   get formErrors() { return this.paymentQuoteForm.errors; }
   get file() { return this._file; }
+  get fileDocument() { return this._fileDocument; }
   get isFormInvalid() { return this.paymentQuoteForm.invalid; }
   get paymentQuoteBody(): PaymentQuoteBody { return  this.paymentQuoteForm.value as PaymentQuoteBody; }
 
@@ -165,6 +169,30 @@ export class PaidQuotesModalComponent implements OnInit {
 
   }
 
+  onChangeFileDocument( event?: any ) {
+
+    if( !event ) return;
+
+    const nombre = event.files.item(0).name.toUpperCase();
+    const size = event.files.item(0).size;
+    const extension = nombre.split('.').pop();
+
+    this._fileDocument = event.files.item(0);
+
+    if ( !onValidImg(extension, size) ) {
+      event.target.value = '';
+      this._fileDocument = undefined;
+      return
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event: any) => {
+      this.fileDocumentUrl.set( event.target.result );
+    };
+    reader.readAsDataURL( event.files.item(0) );
+
+  }
+
   onUpdateSelectQuotes( contractQuotesId: string[] ) {
 
     const quotesSelected = this._contractQuotes()?.filter( (e) => contractQuotesId.includes( e.id ) );
@@ -183,6 +211,11 @@ export class PaidQuotesModalComponent implements OnInit {
   onRemoveFile() {
     this._file = undefined;
     this.fileUrl.set( environments.defaultImgUrl );
+  }
+
+  onRemoveFileDocument() {
+    this._fileDocument = undefined;
+    this.fileDocumentUrl.set( environments.defaultImgUrl );
   }
 
   onSubmit() {
@@ -211,6 +244,10 @@ export class PaidQuotesModalComponent implements OnInit {
 
         if( this._file ) {
           await this._uploadService.uploadFile( this._file, paymentQuoteCreated.id, 'payment-quote' );
+        }
+
+        if( this._fileDocument ) {
+          await this._uploadService.uploadFile( this._fileDocument, paymentQuoteCreated.id, 'payment-quote-document' );
         }
 
         this.onResetAfterSubmit();

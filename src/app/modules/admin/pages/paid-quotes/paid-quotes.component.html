@@ -416,7 +416,7 @@
             </span>
 
 
-            <div class="grid gap-3 mb-1 grid-cols-12  ">
+            <div class="grid gap-3 mb-1 grid-cols-12 ">
 
               <div class="col-span-12" *ngFor="let payment of paymentsByCuote()" >
 
@@ -442,24 +442,47 @@
                     </div>
                   </div>
 
-                  <div class="flex gap-2 justify-start" *ngIf="payment.photo" >
-                    <span class="italic w-32">Descargar comprobante: </span>
-                    <div class="flex justify-center items-center">
-                      <a
-                        class="text-blue-600 underline"
-                        [href]=" payment.photo.urlImg "
-                        target="_blank"
-                        download
-                      >
-                      <i class="fa-solid fa-download"></i>
-                      </a>
+                </div>
+
+                <div class="grid gap-3 mb-1 grid-cols-2">
+
+                  <div>
+                    <span class="italic w-32 pb-2">Voucher: </span>
+                    <div class="flex flex-col justify-center items-center" *ngIf="payment.photo" >
+                      <img class="w-40 h-60 border-2 border-gray-300 border-dashed" [src]="payment.photo.urlImg" alt="Rounded avatar">
+                      <div class="flex justify-center items-center pt-2">
+                        <a
+                          class="text-blue-600 underline"
+                          [href]=" payment.photo.urlImg "
+                          target="_blank"
+                          download
+                        >
+                        <i class="fa-solid fa-download"></i>
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <span class="italic w-32 pb-2">Comprobante: </span>
+                    <div class="flex flex-col justify-center items-center" *ngIf="payment.documentFile" >
+                      <img class="w-40 h-60 border-2 border-gray-300 border-dashed" [src]="payment.documentFile.urlImg" alt="Rounded avatar">
+                      <div class="flex justify-center items-center pt-2">
+                        <a
+                          class="text-blue-600 underline"
+                          [href]=" payment.documentFile.urlImg "
+                          target="_blank"
+                          download
+                        >
+                        <i class="fa-solid fa-download"></i>
+                        </a>
+                      </div>
+                    </div>
                   </div>
 
                 </div>
 
               </div>
-
-            </div>
 
           </div>
 

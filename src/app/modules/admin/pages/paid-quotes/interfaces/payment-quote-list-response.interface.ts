@@ -16,6 +16,7 @@ export interface PaymentsByCuote {
   amount:        number;
   observation:   null;
   photo:         Photo;
+  documentFile:  Photo;
   paymentMethod: PaymentMethod;
   quotes:        Quote[];
 }

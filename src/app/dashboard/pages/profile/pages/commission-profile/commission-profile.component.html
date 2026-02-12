@@ -52,7 +52,8 @@
       <thead class="bg-gray-50 dark:bg-slate-700 dark:border-slate-500 dark:shadow-slate-600">
         <tr>
           <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-slate-400">Cliente/Empresa</th>
-          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-slate-400">Contrato/Lote</th>
+          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-slate-400">Contrato</th>
+          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-slate-400">Lotes</th>
           <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-slate-400">Fecha de cierre</th>
           <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-slate-400">Monto venta</th>
           <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-slate-400">% Comisión</th>
@@ -72,17 +73,42 @@
                 }
               </div>
             </td>
+            <td>
+              {{ commission.contract.code }}
+              <div class="text-sm text-gray-500 dark:text-slate-400">
+                {{ commission.contract.proyect.name }}
+              </div>
+            </td>
             <td class="px-6 py-4 whitespace-nowrap">
-              <div class="text-sm text-gray-900 dark:text-slate-300">
+
+              <div class="flex justify-between gap-2 pt-1">
+
+                <div *ngFor="let lote of commission.contract.lotes" class="text-sm text-gray-500">
+                  <div class="">
+                    <div class="flex justify-start items-center gap-2">
+                      <i class="fa-solid fa-house text-indigo-700 text-sm dark:text-indigo-400"></i>
+                      <span class="text-indigo-700 text-xs font-semibold dark:text-indigo-400">{{ lote.mz }}-{{ lote.numberLote }}</span>
+                    </div>
+                    <div>
+                      {{ lote.squareMeters | number:'.2-2' }} m²
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- <div class="text-sm text-gray-900 dark:text-slate-300">
                 Lote(s):
 
                 @for ( lote of commission.contract.lotes; track lote.id) {
                   {{ lote.code }}
                 }
+
               </div>
               <div class="text-sm text-gray-500 dark:text-slate-400">
                 {{ commission.contract.proyect.name }}
-              </div>
+              </div> -->
+
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-slate-300">
               {{ commission.contract.createAt | moment:'createAt' }}
@@ -105,7 +131,7 @@
           </tr>
         } @empty {
           <tr>
-            <td colspan="6" class="">
+            <td colspan="7" class="">
               <div class="flex justify-center p-3 text-2xl dark:text-slate-400 italic border-b border-gray-400">
                 Sin registros
               </div>
