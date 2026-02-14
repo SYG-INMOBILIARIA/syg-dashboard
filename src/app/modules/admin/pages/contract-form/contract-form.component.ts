@@ -332,18 +332,18 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
         'fill-color': [
           'case',
             // Si está ocupado (busied)
-            ['boolean', ['feature-state', 'busied'], false], '#E65757',
+            ['boolean', ['feature-state', 'busied'], false], '#76CC5C',
 
             // Si está seleccionado para venta (selectedForSale)
-            ['boolean', ['feature-state', 'selectedForSale'],  false], '#78E657',
+            ['boolean', ['feature-state', 'selectedForSale'],  false], '#5B27F5',
 
             // Si no hay estados especiales, usamos el loteStatus
             ['match', ['get', 'loteStatus'],
-            'AVAILABLE', '#67e8f9',
-            'SELLED',    '#31c48d',
-            'RESERVED',   '#FA2D2D', //#FA2D2D -> FFDC42
-            // 'IN_PROGRESS','#6b7280', //! Borrar después
-            /* default */ '#67e8f9'
+            'SELLED',    '#FFD630',
+            'CREDIT',    '#FF6C1F',
+            'RESERVED',   '#76CC5C', //#FA2D2D -> FFDC42
+            'AVAILABLE', '#4DCDFF',
+            /* default */ '#4DCDFF'
             ]
         ],
       }

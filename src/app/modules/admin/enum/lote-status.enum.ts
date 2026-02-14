@@ -3,5 +3,6 @@ export enum LoteStatus {
   Available = 'AVAILABLE',
   Selled = 'SELLED',
   Reserved = 'RESERVED',
+  Credit = 'CREDIT',
 }
 

@@ -174,11 +174,11 @@ export class LotesMapComponent {
       paint: {
         'fill-color': [
           'match', ['get', 'loteStatus'],
-          'AVAILABLE', '#67e8f9',
-          'SELLED',    '#31c48d',
-          'RESERVED',   '#FA2D2D', //#FA2D2D -> FFDC42
-          // 'IN_PROGRESS','#6b7280', //! Borrar después
-          /* default */ '#67e8f9'
+          'SELLED',    '#FFD630',
+          'CREDIT',    '#FF6C1F',
+          'RESERVED',   '#76CC5C', //#FA2D2D -> FFDC42
+          'AVAILABLE', '#4DCDFF',
+          /* default */ '#4DCDFF'
         ],
         'fill-opacity': [
           'case',
@@ -243,22 +243,28 @@ export class LotesMapComponent {
           Precio: <span class="font-extrabold text-md text-green-500">S/ ${Number(price).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
         </p>`;
 
-        let color = 'green';
+        let color = 'yellow';
         let estado = 'Vendido';
+
         switch (lote.loteStatus) {
           case LoteStatus.Reserved:
-            color = 'red';
-            estado = 'Reservado';
+            color = 'green';
+            estado = 'Separado';
             break;
 
             case LoteStatus.Selled:
-              color = 'green';
+              color = 'yellow';
               estado = 'Vendido';
               break;
 
+            case LoteStatus.Credit:
+              color = 'orange';
+              estado = 'Al crédito';
+              break;
+
           default:
-            color = 'slate';
-            estado = 'En progreso';
+            color = 'blue';
+            estado = 'Libre';
             break;
         }
 
