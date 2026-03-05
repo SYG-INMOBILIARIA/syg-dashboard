@@ -3,6 +3,7 @@ import { ProfileService } from '../../services/profile.service';
 import { validate as ISUUID } from 'uuid';
 import { Income, PendingReceivable } from '../../interfaces';
 import { CommonModule } from '@angular/common';
+import { AuthService } from '@app/auth/services/auth.service';
 
 @Component({
   selector: 'seller-indicators',
@@ -15,6 +16,7 @@ import { CommonModule } from '@angular/common';
 })
 export default class SellerIndicatorsComponent implements OnInit {
 
+  private readonly _authService = inject( AuthService );
   private readonly _profileService = inject( ProfileService );
 
   private _totalIncome = signal<number>( 0 );
@@ -39,7 +41,9 @@ export default class SellerIndicatorsComponent implements OnInit {
   ngOnInit(): void {
 
     this._sellerUserId = localStorage.getItem('userProfileId') ?? '';
-    if( !ISUUID( this._sellerUserId ) ) throw new Error('userProfileId not found !!!');
+    if( !ISUUID( this._sellerUserId ) )  {
+      this._sellerUserId = this._authService.personSession()?.id ?? '';
+    }
     this.onGetIndicators();
 
   }

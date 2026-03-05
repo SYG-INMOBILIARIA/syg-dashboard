@@ -204,7 +204,7 @@
                     <td class=" bg-transparent border-b dark:border-white/40 whitespace-nowrap shadow-transparent">
                       <div class="flex  gap-3 justify-end pr-6">
 
-                        <a *ngIf="!client.user" href="javascript:;" class="flex gap-1 text-xs font-semibold leading-tight uppercase dark:opacity-80 text-slate-400 dark:text-gray-300" (click)="onAddCredentials( client )" >
+                        <a *ngIf="!client.user && isAdmin " href="javascript:;" class="flex gap-1 text-xs font-semibold leading-tight uppercase dark:opacity-80 text-slate-400 dark:text-gray-300" (click)="onAddCredentials( client )" >
                           <i class="fa fa-user-plus" aria-hidden="true"></i>
                           Usuario
                         </a>
@@ -303,7 +303,7 @@
                     id="cbxPersonType"
                     class="bg-gray-50 text-gray-900 text-sm rounded-md block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                     [items]="personTypes()"
-                    (change)="onChangePersonType( $event )"
+                    (change)="onChangePersonType( $event.value )"
                     bindLabel="label"
                     bindValue="value"
                     placeholder="Seleccione tipo de persona"

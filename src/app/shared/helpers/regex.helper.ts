@@ -8,6 +8,7 @@ export const includeNumberPatt = new RegExp(/[0-9]/);
 
 export const textUbigeoName = new RegExp(/^[a-zñ\s]{0,200}$/i);
 export const fullTextPatt = new RegExp(/^[a-záéíóúüñ\-\'\.\,\#\s\d\:]{0,400}$/i);
+export const textPatt = new RegExp(/^[a-záéíóúüñ\-\'\.\,\#\s\:]{0,400}$/i);
 export const descriptionPatt = new RegExp(/^[a-záéíóúüñ\-\'\.\,\s\d\/\<\>\:]{0,650}$/i);
 
 export const fullTextWithoutSpacePatt = new RegExp(/^[a-záéíóúüñ]{0,200}$/i);

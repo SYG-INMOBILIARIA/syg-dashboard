@@ -27,6 +27,7 @@ import { ProfileService } from '../../services/profile.service';
 import { SellerPaymentBody } from '../../interfaces';
 import { UserValidatorService } from '@modules/security/validators/user-validator.service';
 import { IdentityDocumentService } from '@modules/admin/services/identity-document.service';
+import { AuthService } from '@app/auth/services/auth.service';
 
 @Component({
   selector: 'profile-layout',
@@ -55,6 +56,7 @@ export default class ProfileLayoutComponent implements OnInit, OnDestroy {
   private _profileService = inject( ProfileService );
   private _store = inject<Store<AppState>>( Store<AppState> );
 
+  private _authService = inject( AuthService );
   private _paymentMethodService = inject( PaymentMethodService );
   private _alertService = inject( AlertService );
   private _sellerPaymentService = inject( SellerPaymentService );
@@ -145,41 +147,36 @@ export default class ProfileLayoutComponent implements OnInit, OnDestroy {
   get sellerPaymentBody(): SellerPaymentBody { return  this.sellerPaymentLayoutForm.value as SellerPaymentBody; }
 
   ngOnInit(): void {
-    initFlowbite();
-    this.onListenAuthRx();
+
+    this._sellerUserId = localStorage.getItem('userProfileId') ?? '';
+
+
+    if( !ISUUID( this._sellerUserId ) ) {
+
+      this._userProfileName.set( this._authService.personSession()?.fullname ?? null );
+      this._sellerUserId = this._authService.personSession()?.id ?? '';
+
+    } else {
+      this._userProfileName.set( localStorage.getItem('userProfileName') );
+    }
+
+    // if( !userAuthenticated ){
+    //   this._authRx$?.unsubscribe();
+    //   throw new Error('User authenticated is null !!!');
+    // }
+
+    this.sellerPaymentLayoutForm.get('sellerUserId')?.setValue( this._sellerUserId );
+
+    this.onGetUserProfile();
+    this.onLoadSelectsData();
+
   }
 
-  onListenAuthRx() {
-
-    this._authRx$ = this._store.select('auth')
-    .subscribe( (state) => {
-      const { userAuthenticated } = state;
-
-      // this._userProfileName.set( localStorage.getItem('userProfileName') );
-      this._sellerUserId = localStorage.getItem('userProfileId') ?? '';
-
-
-      if( !ISUUID( this._sellerUserId ) ) {
-
-        this._userProfileName.set( userAuthenticated?.fullname ?? null );
-        this._sellerUserId = userAuthenticated?.id ?? '';
-
-      } else {
-        this._userProfileName.set( localStorage.getItem('userProfileName') );
-      }
-
-      // if( !userAuthenticated ){
-      //   this._authRx$?.unsubscribe();
-      //   throw new Error('User authenticated is null !!!');
-      // }
-
-      this.sellerPaymentLayoutForm.get('sellerUserId')?.setValue( this._sellerUserId );
-
-      this.onGetUserProfile();
-      this.onLoadSelectsData();
-      this._authRx$?.unsubscribe();
-
-    });
+  ngAfterViewInit(): void {
+    setTimeout(() => {
+      initFlowbite();
+      // document.getElementById('btnShowAreaModal')?.click();
+    }, 500);
   }
 
   onLoadSelectsData() {
@@ -228,7 +225,7 @@ export default class ProfileLayoutComponent implements OnInit, OnDestroy {
 
   onResetAfterSubmit() {
     this.sellerPaymentLayoutForm.reset({
-      sellerUserId: this._userProfile()?.id
+      sellerUserId: this._sellerUserId
     });
     this._isSaving.set( false );
     this._file = undefined;

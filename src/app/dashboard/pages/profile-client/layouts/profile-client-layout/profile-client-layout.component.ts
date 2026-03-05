@@ -28,10 +28,11 @@ export class ProfileClientLayoutComponent implements OnInit, OnDestroy {
 
   @ViewChild('btnCloseClientModal') btnCloseClientModal!: ElementRef<HTMLButtonElement>;
 
-  private _authRx$?: Subscription;
+  // private _authRx$?: Subscription;
 
   private _clientProfileId = '';
   maxBirthDate: Date = new Date(2005, 12, 31 );
+  private _authService = inject( AuthService );
   private _alertService = inject( AlertService );
   private _clientService = inject( ClientService );
   private _store = inject( Store<AppState> );
@@ -111,46 +112,33 @@ export class ProfileClientLayoutComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.onListenAuthRx();
-    this.onGetSelectsData();
-  }
 
-  onListenAuthRx() {
-    this._authRx$ = this._store.select('auth')
-    .subscribe( (state: AuthState) => {
+    const userAuthenticated = this._authService.personSession();
 
-      const { userAuthenticated } = state;
+    this._clientProfileId = localStorage.getItem('clientProfileId') || 'xD';
 
-      this._clientProfileId = localStorage.getItem('clientProfileId') || 'xD';
+    if( !ISUUID( this._clientProfileId ) ) {
 
-      if( !ISUUID( this._clientProfileId ) ) {
+      if ( userAuthenticated ) {
 
-        if ( userAuthenticated ) {
+        const { client } = userAuthenticated;
 
-          const { client } = userAuthenticated;
-
-          if ( client ) {
-
-            this._clientProfileId = client.id;
-
-          } else {
-            this._authRx$?.unsubscribe();
-            throw new Error('Client not found!!!');
-          }
-
+        if ( client ) {
+          this._clientProfileId = client.id;
         } else {
-          this._authRx$?.unsubscribe();
-          throw new Error('User not authenticated!!!');
+          throw new Error('Client not found!!!');
         }
 
       }
 
-      this.onGetClientProfile();
+    }
 
-      this._authRx$?.unsubscribe();
+    this.onGetClientProfile();
 
-    });
+    this.onGetSelectsData();
   }
+
+
 
   onGetClientProfile() {
 
@@ -380,7 +368,7 @@ export class ProfileClientLayoutComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this._store.dispatch( clientProfileactions.onResetClientProfile() );
-    this._authRx$?.unsubscribe();
+    // this._authRx$?.unsubscribe();
   }
 
 }

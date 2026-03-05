@@ -13,9 +13,10 @@ export class VisitService {
   private readonly _baseUrl = environments.baseUrl;
   private _http = inject( HttpClient );
 
-  getVisits( page: number, filter: string, limit = 10, showInactive = false ): Observable<ListVisitResponse> {
+  getVisits( page: number, filter: string, limit = 10, order = 'createAt=DESC', showInactive = false ): Observable<ListVisitResponse> {
 
     let queryParams = `filter=${ filter }`;
+    queryParams += `&order=${ order }`;
     queryParams += `&page=${ page }`;
     queryParams += `&limit=${ limit }`;
     queryParams += `&isActive=${ !showInactive }`;

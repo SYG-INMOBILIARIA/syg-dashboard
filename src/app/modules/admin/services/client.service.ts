@@ -14,11 +14,20 @@ export class ClientService {
   private readonly _baseUrl = environments.baseUrl;
   private _http = inject( HttpClient );
 
-  getClients( page: number, filter: string, limit = 10, showInactive = false, dptCode: string | null, provCode: string | null, distCode: string | null ): Observable<ListClientResponse> {
+  getClients(
+      page: number
+      , filter: string
+      , limit = 10
+      , showInactive = false
+      , dptCode: string | null = ''
+      , provCode: string | null = null
+      , distCode: string | null = null
+      , order = 'createAt=DESC' ): Observable<ListClientResponse> {
 
     let queryParams = `filter=${ filter }`;
     queryParams += `&page=${ page }`;
     queryParams += `&limit=${ limit }`;
+    queryParams += `&order=${ order }`;
     queryParams += `&dptCode=${ dptCode }`;
     queryParams += `&provCode=${ provCode }`;
     queryParams += `&distCode=${ distCode }`;

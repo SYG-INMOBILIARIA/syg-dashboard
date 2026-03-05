@@ -12,7 +12,7 @@ import { SellerService } from '@modules/admin/services/seller.service';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { SpinnerComponent } from '@shared/components/spinner/spinner.component';
 import { InputErrorsDirective } from '@shared/directives/input-errors.directive';
-import { descriptionPatt, fullTextPatt } from '@shared/helpers/regex.helper';
+import { descriptionPatt, fullTextPatt, numberPatt, textPatt } from '@shared/helpers/regex.helper';
 import { Nomenclature } from '@shared/interfaces';
 import { FlatpickrDirective } from 'angularx-flatpickr';
 import { VisitorModalComponent } from '../visitor-modal/visitor-modal.component';
@@ -21,6 +21,7 @@ import { Visit, VisitBody } from '@modules/admin/pages/visits/interfaces';
 import { VisitService } from '@modules/admin/pages/visits/services/visit.service';
 import { VisitorService } from '@modules/admin/pages/visitors/services/visitor.service';
 import { AlertService } from '@shared/services/alert.service';
+import { AuthService } from '@app/auth/services/auth.service';
 
 interface VisitDialogPayload {
   visitors: Visitor[];
@@ -58,6 +59,7 @@ export class VisitModalComponent implements OnInit {
 
   private _dialog$?: Subscription;
 
+  private readonly _authService = inject( AuthService );
   private readonly _alertService = inject( AlertService );
   private readonly _visitService = inject( VisitService );
   private readonly _visitorService = inject( VisitorService );
@@ -113,7 +115,18 @@ export class VisitModalComponent implements OnInit {
   get visitBody() { return this.visitForm.value as VisitBody; }
   get isFormInvalid() { return this.visitForm.invalid; }
 
+  private _isAdmin = false;
+
+  get hiddeSellerInput() {
+    return this._isAdmin == false;
+  }
+
   ngOnInit(): void {
+
+    const isAdmin = this._authService.personSession()?.roles.some( role => role.code == 'ADMIN' ) ?? false;
+    this._isAdmin = isAdmin;
+
+    this.visitForm.get('sellerUserId')?.setValue( !isAdmin ? this._authService.personSession()!.id : null );
 
     const { visitors, visitStatus, sellers, visitToUpdate, identityDocuments, civilStatus, genders, personTypes } = this._data;
 
@@ -149,7 +162,18 @@ export class VisitModalComponent implements OnInit {
 
     this._loadingVisitors.set( true );
 
-    const filter = this.searchVisitorInput.value ?? '';
+    const filterValue = this.searchVisitorInput.value?.trim() || '';
+
+    let filter = `email=${ filterValue }`;
+
+    if( numberPatt.test( filterValue ) )
+      filter = `identityNumber=${ filterValue }`;
+    else if( textPatt.test( filterValue ) )
+      filter = `name=${ filterValue }`;
+
+    if( this._isAdmin ) {
+      filter += `;sellerUserId=${ this._authService.personSession()!.id }`;
+    }
 
     this._visitorService.getVisitors( 1, filter, 100 )
       .subscribe( ({ visitors }) => {

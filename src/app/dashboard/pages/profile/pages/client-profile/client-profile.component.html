@@ -1,4 +1,5 @@
-<!-- Header principal -->
+
+
 <div class="mb-8">
   <h1 class="text-2xl font-bold text-gray-800 dark:text-slate-200 ">Gestión de Clientes</h1>
 </div>
@@ -140,7 +141,7 @@
   </div>
 </div>
 
-
+<!-- Header principal -->
 <!-- Main modal -->
 <div id="client-modal" data-modal-backdrop="true" tabindex="-1" aria-hidden="false" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
   <div class="relative p-4 w-full max-w-2xl max-h-full">
@@ -178,7 +179,7 @@
                     id="cbxPersonType"
                     class="bg-gray-50 border text-gray-900 text-sm rounded-lg block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                     [items]="personTypes()"
-                    (ngModelChange)="onChangePersonType( $event )"
+                    (change)="onChangePersonType( $event.value )"
                     bindLabel="label"
                     bindValue="value"
                     placeholder="Seleccione tipo de persona"
@@ -522,6 +523,7 @@
       </div>
   </div>
 </div>
+
 
 <ng-template #singinSpinner>
   <spinner></spinner>

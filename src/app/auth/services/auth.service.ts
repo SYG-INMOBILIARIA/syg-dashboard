@@ -33,7 +33,7 @@ export class AuthService {
     () => this._authStatus() == AuthStatus.authenticated
   );
 
-  public readonly personSession = computed<any | null>(
+  public readonly personSession = computed<UserAuthenticated | null>(
     () => this._personSession()
   );
 

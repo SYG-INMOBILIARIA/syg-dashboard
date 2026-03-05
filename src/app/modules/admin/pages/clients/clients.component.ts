@@ -10,7 +10,7 @@ import { NgSelectModule } from '@ng-select/ng-select';
 import { FlatpickrDirective } from 'angularx-flatpickr';
 
 import { AlertService } from '@shared/services/alert.service';
-import { emailPatt, fullTextPatt, numberDocumentPatt, numberPatt, passwordPatt, phonePatt } from '@shared/helpers/regex.helper';
+import { emailPatt, fullTextPatt, numberDocumentPatt, numberPatt, passwordPatt, phonePatt, textPatt } from '@shared/helpers/regex.helper';
 import { SpinnerComponent } from '@shared/components/spinner/spinner.component';
 import { PaginationComponent } from '@shared/components/pagination/pagination.component';
 import { PipesModule } from '@pipes/pipes.module';
@@ -31,6 +31,7 @@ import { CredentialsBody } from '../../interfaces/credentials-body.interface';
 import { ExcelExportService } from '@shared/services/excel-export.service';
 import { CivilStatusPipe } from '@pipes/civil-status.pipe';
 import { GenderPipe } from '@pipes/gender.pipe';
+import { AuthService } from '@app/auth/services/auth.service';
 
 @Component({
   standalone: true,
@@ -68,7 +69,9 @@ export default class ClientsComponent implements OnInit, OnDestroy {
   maxBirthDate: Date = new Date(2005, 12, 31 );
 
   private _router = inject( Router );
+  private _authService = inject( AuthService );
   private _clientService = inject( ClientService );
+
   private _excelExportService = inject( ExcelExportService );
   private _ubigeoService = inject( UbigeoService );
   private _clientValidatorService = inject( ClientValidatorService );
@@ -128,7 +131,6 @@ export default class ClientsComponent implements OnInit, OnDestroy {
 
   private _totalClients = signal<number>( 0 );
 
-  private _filter = '';
   private _isRemoving = false;
   private _clients = signal<Client[]>( [] );
   private _roles = signal<Role[]>( [] );
@@ -223,8 +225,15 @@ export default class ClientsComponent implements OnInit, OnDestroy {
     return this.credentialsForm.get(field)?.touched ?? false;
   }
 
+  private _isAdmin = false;
+
+  get isAdmin() { return this._isAdmin; }
+
   ngOnInit(): void {
     initFlowbite();
+
+    const isAdmin = this._authService.personSession()?.roles.some( role => role.code == 'ADMIN' ) ?? false;
+    this._isAdmin = isAdmin;
 
     this.onListenAuthRx();
     this.onGetSelectsData();
@@ -254,13 +263,25 @@ export default class ClientsComponent implements OnInit, OnDestroy {
 
     this._exportInProgress.set( true );
 
-    this._filter = this.searchInput.value ?? '';
+    let filterValue = this.searchInput.value ?? '';
+
+    let filter = `email=${ filterValue }`;
+
+    if( numberPatt.test( filterValue ) )
+      filter = `identityNumber=${ filterValue }`;
+    else if( fullTextPatt.test( filterValue ) )
+      filter = `name=${ filterValue }`;
+
+    if( !this._isAdmin ) {
+      const personSession = this._authService.personSession();
+      filter += `;sellerUserId=${ personSession?.id ?? '' }`;
+    }
 
     const dptCode = this.departmentInput.value ?? null;
     const provCode = this.provinceInput.value ?? null;
     const distCode = this.districtInput.value ?? null;
 
-    this._clientService.getClients( 1, this._filter, 50000, false, dptCode, provCode, distCode )
+    this._clientService.getClients( 1, filter, 50000, false, dptCode, provCode, distCode )
     .subscribe({
       next: ({ clients }) => {
 
@@ -306,7 +327,18 @@ export default class ClientsComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this._filter = this.searchInput.value ?? '';
+    let filterValue = this.searchInput.value ?? '';
+    let filter = `email=${ filterValue }`;
+
+    if( numberPatt.test( filterValue ) )
+      filter = `identityNumber=${ filterValue }`;
+    else if( textPatt.test( filterValue ) )
+      filter = `name=${ filterValue }`;
+
+    if( !this._isAdmin ) {
+      const personSession = this._authService.personSession();
+      filter += `;sellerUserId=${ personSession?.id ?? '' }`;
+    }
 
     const dptCode = this.departmentInput.value ?? null;
     const provCode = this.provinceInput.value ?? null;
@@ -314,7 +346,7 @@ export default class ClientsComponent implements OnInit, OnDestroy {
 
     this._isLoading.set( true );
     this._alertService.showLoading();
-    this._clientService.getClients( page, this._filter, 10, false, dptCode, provCode, distCode )
+    this._clientService.getClients( page, filter, 10, false, dptCode, provCode, distCode )
     .subscribe({
       next: ({ clients, total }) => {
 
@@ -642,7 +674,7 @@ export default class ClientsComponent implements OnInit, OnDestroy {
 
     this.credentialsForm.markAllAsTouched();
 
-    if( this.isCredentialsFormInvalid || this._isSavingCredentials() ) return;
+    if( this.isCredentialsFormInvalid || this._isSavingCredentials() || !this.isAdmin ) return;
 
     const allowCreate = this._webUrlPermissionMethods.some(
       (permission) => permission.webApi == apiClient && permission.methods.includes( 'POST' )

@@ -14,10 +14,11 @@ export class VisitorService {
   private readonly _baseUrl = environments.baseUrl;
   private _http = inject( HttpClient );
 
-  getVisitors( page: number, filter: string, limit = 10, showInactive = false ): Observable<ListVisitorResponse> {
+  getVisitors( page: number, filter: string, limit = 10, order = 'createAt=DESC', showInactive = false ): Observable<ListVisitorResponse> {
 
     let queryParams = `filter=${ filter }`;
     queryParams += `&page=${ page }`;
+    queryParams += `&order=${ order }`;
     queryParams += `&limit=${ limit }`;
     queryParams += `&isActive=${ !showInactive }`;
 

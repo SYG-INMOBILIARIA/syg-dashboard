@@ -6,7 +6,7 @@ import { AuthState, } from '@redux/reducers/auth.reducer';
 import { AuthService } from '../../../auth/services/auth.service';
 import { UserAuthenticated } from '../../../auth/interfaces';
 import { AppState } from '@app/app.config';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { environments } from '@envs/environments';
 
 @Component({
@@ -20,10 +20,11 @@ import { environments } from '@envs/environments';
 })
 export class UserMenuDropdownComponent implements OnInit, OnDestroy {
 
-  private _authRx$?: Subscription;
+  // private _authRx$?: Subscription;
+  // private _store = inject( Store<AppState> );
 
+  private _router = inject( Router );
   private _authService = inject( AuthService );
-  private _store = inject( Store<AppState> );
 
   private _userAutenticated = signal<UserAuthenticated | null>( null );
   public userAutenticated = computed( () => this._userAutenticated() );
@@ -37,32 +38,30 @@ export class UserMenuDropdownComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.onListenAuthRx();
-  }
 
-  onListenAuthRx() {
-    this._authRx$ = this._store.select('auth')
-    .subscribe( (state: AuthState) => {
+    const userAuthenticated = this._authService.personSession();
 
-      const { userAuthenticated } = state;
-      this._userAutenticated.set( userAuthenticated );
+    this._userAutenticated.set( userAuthenticated );
 
-      if ( userAuthenticated ) {
+    if ( userAuthenticated ) {
 
-        const { client } = userAuthenticated;
+      const { client } = userAuthenticated;
 
-        if ( client ) {
+      if ( client ) {
 
-          this._profileUrl.set( '/dashboard/client-profile' );
-          // this.onGetContractQuotes();
-        }
-
-      } else {
-        this._authRx$?.unsubscribe();
+        this._profileUrl.set( '/dashboard/client-profile' );
+        // this.onGetContractQuotes();
       }
 
-    });
+    }
+
+      // else {
+      //   this._authRx$?.unsubscribe();
+      // }
+
   }
+
+
 
   onSingOut() {
     this._authService.onSingOut();
@@ -71,10 +70,14 @@ export class UserMenuDropdownComponent implements OnInit, OnDestroy {
   onClearUserProfileID() {
     localStorage.removeItem('userProfileId');
     localStorage.removeItem('userProfileName');
+    localStorage.removeItem('clientProfileId');
+
+
+    this._router.navigateByUrl( this._profileUrl() );
   }
 
   ngOnDestroy(): void {
-    this._authRx$?.unsubscribe();
+    // this._authRx$?.unsubscribe();
   }
 
 }

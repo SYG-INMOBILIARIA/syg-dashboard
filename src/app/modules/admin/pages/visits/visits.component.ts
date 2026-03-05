@@ -8,7 +8,7 @@ import { VisitorService } from '../visitors/services/visitor.service';
 import { Visitor } from '../visitors/interfaces';
 import { VisitModalComponent } from '@modules/admin/components/visit-modal/visit-modal.component';
 import { PaginationComponent } from '@shared/components/pagination/pagination.component';
-import { fullTextPatt } from '@shared/helpers/regex.helper';
+import { fullTextPatt, numberPatt, textPatt } from '@shared/helpers/regex.helper';
 import { NomenclatureService } from '@shared/services/nomenclature.service';
 import { SellerService } from '@modules/admin/services/seller.service';
 import { Nomenclature } from '@shared/interfaces';
@@ -18,6 +18,7 @@ import { Visit } from './interfaces';
 import { MomentPipe } from '@pipes/moment.pipe';
 import { AlertService } from '@shared/services/alert.service';
 import { IdentityDocumentService } from '@modules/admin/services/identity-document.service';
+import { AuthService } from '@app/auth/services/auth.service';
 
 @Component({
   standalone: true,
@@ -36,8 +37,10 @@ import { IdentityDocumentService } from '@modules/admin/services/identity-docume
 })
 export default class VisitsComponent implements OnInit, OnDestroy {
 
+
   private _dialog$?: Subscription;
   private readonly _dialog = inject(MatDialog);
+  private _authService = inject( AuthService );
   private readonly _visitService = inject( VisitService );
   private readonly _visitorService = inject( VisitorService );
   private readonly _sellerService = inject( SellerService );
@@ -67,18 +70,30 @@ export default class VisitsComponent implements OnInit, OnDestroy {
   private _sellers: Seller[] = [];
   private _visitStatus: Nomenclature[] = [];
 
+  private _isAdmin = false;
+
   get isInvalidSearchInput() { return this.searchInput.invalid; }
 
   ngOnInit(): void {
+
+    const isAdmin = this._authService.personSession()?.roles.some( role => role.code == 'ADMIN' ) ?? false;
+
+    this._isAdmin = isAdmin;
+
     this._onGetSelectsData();
     this.onGetVisits();
   }
 
   private _onGetSelectsData() {
 
+    let filter = ''
+    if( !this._isAdmin ) {
+      filter = `sellerUserId=${ this._authService.personSession()!.id }`;
+    }
+
     forkJoin({
       visitStatusResponse: this._nomenclatureService.getVisitStatus(),
-      visitorsResponse: this._visitorService.getVisitors( 1, '', 10 ),
+      visitorsResponse: this._visitorService.getVisitors( 1, filter, 10 ),
       sellersResponse: this._sellerService.getSellers( 1, '', 5 ),
 
       gendersResponse: this._nomenclatureService.getGender(),
@@ -145,7 +160,20 @@ export default class VisitsComponent implements OnInit, OnDestroy {
 
     this._listInProgress.set( true );
 
-    this._visitService.getVisits( page, this.searchInput.value || '', 5 )
+    const filterValue = this.searchInput.value?.trim() || '';
+
+    let filter = `email=${ filterValue }`;
+
+    if( numberPatt.test( filterValue ) )
+      filter = `identityNumber=${ filterValue }`;
+    else if( textPatt.test( filterValue ) )
+      filter = `name=${ filterValue }`;
+
+    if( !this._isAdmin ) {
+      filter += `;sellerUserId=${ this._authService.personSession()!.id }`;
+    }
+
+    this._visitService.getVisits( page, filter , 5 )
       .subscribe( ({ visits, total }) => {
 
         this._visits.set( visits );

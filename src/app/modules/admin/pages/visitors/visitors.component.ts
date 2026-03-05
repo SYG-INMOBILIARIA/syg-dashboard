@@ -1,12 +1,13 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core';
-import { FormControl, FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
+import { FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { forkJoin, Subscription } from 'rxjs';
 import { NgSelectModule } from '@ng-select/ng-select';
+import { initFlowbite } from 'flowbite';
 
 import { VisitorService } from './services/visitor.service';
 import { Visitor } from './interfaces';
-import { fullTextPatt } from '@shared/helpers/regex.helper';
+import { fullTextPatt, numberPatt, textPatt } from '@shared/helpers/regex.helper';
 import { PipesModule } from '@pipes/pipes.module';
 import { AlertService } from '@shared/services/alert.service';
 import { IdentityDocument } from '@modules/admin/interfaces';
@@ -14,9 +15,9 @@ import { PaginationComponent } from '@shared/components/pagination/pagination.co
 import { NomenclatureService } from '@shared/services/nomenclature.service';
 import { IdentityDocumentService } from '@modules/admin/services/identity-document.service';
 import { Nomenclature } from '@shared/interfaces';
-import { initFlowbite } from 'flowbite';
 import { MatDialog } from '@angular/material/dialog';
 import { VisitorModalComponent } from '@modules/admin/components/visitor-modal/visitor-modal.component';
+import { AuthService } from '@app/auth/services/auth.service';
 
 @Component({
   standalone: true,
@@ -35,6 +36,7 @@ export default class VisitorsComponent implements OnInit, OnDestroy {
 
   private _dialog$?: Subscription;
 
+  private _authService = inject( AuthService );
   private _visitorService = inject( VisitorService );
   private _alertService = inject( AlertService );
   private _nomenclatureService = inject( NomenclatureService );
@@ -70,11 +72,18 @@ export default class VisitorsComponent implements OnInit, OnDestroy {
 
   get isInvalidSearchInput() { return this.searchInput.invalid; }
 
+  private _isAdmin = false;
 
   ngOnInit(): void {
     initFlowbite();
+
+    const isAdmin = this._authService.personSession()?.roles.some( role => role.code == 'ADMIN' ) ?? false;
+
+    this._isAdmin = isAdmin;
+
     this.onGetVisitors();
     this.onGetSelectsData();
+
   }
 
   onGetVisitors( page = 1 ) {
@@ -85,7 +94,19 @@ export default class VisitorsComponent implements OnInit, OnDestroy {
 
     const filterValue = this.searchInput.value?.trim() || '';
 
-    this._visitorService.getVisitors( page, filterValue, 10 )
+    let filter = `email=${ filterValue }`;
+
+    if( numberPatt.test( filterValue ) )
+      filter = `identityNumber=${ filterValue }`;
+    else if( textPatt.test( filterValue ) )
+      filter = `name=${ filterValue }`;
+
+    if( !this._isAdmin ) {
+      filter += `;sellerUserId=${ this._authService.personSession()!.id }`;
+    }
+
+
+    this._visitorService.getVisitors( page, filter, 10 )
     .subscribe( ({ visitors, total }) => {
 
       this._visitors.set( visitors );
@@ -135,7 +156,6 @@ export default class VisitorsComponent implements OnInit, OnDestroy {
     } );
 
   }
-
 
   async onRemoveConfirm( visitor: Visitor ) {
 

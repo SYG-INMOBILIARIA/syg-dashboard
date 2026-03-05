@@ -8,7 +8,7 @@ import { validate as ISUUID } from 'uuid';
 import ClientIndicatorsComponent from '../../components/client-indicators/client-indicators.component';
 import { ProfileService } from '../../services/profile.service';
 import { Client, ClientBody, ClientStatus, PersonType } from '@modules/admin/interfaces';
-import { emailPatt, fullTextPatt, numberDocumentPatt, numberPatt, phonePatt } from '@shared/helpers/regex.helper';
+import { emailPatt, fullTextPatt, numberDocumentPatt, numberPatt, phonePatt, textPatt } from '@shared/helpers/regex.helper';
 import { environments } from '@envs/environments';
 import { PipesModule } from '@pipes/pipes.module';
 import { PaginationComponent } from '@shared/components/pagination/pagination.component';
@@ -24,6 +24,8 @@ import { InputErrorsDirective } from '@shared/directives/input-errors.directive'
 import { ClientValidatorService } from '@modules/admin/validators/client-validator.service';
 import { Store } from '@ngrx/store';
 import { AppState } from '@app/app.config';
+import { AuthService } from '@app/auth/services/auth.service';
+import { initFlowbite } from 'flowbite';
 
 @Component({
   selector: 'app-client-profile',
@@ -45,9 +47,10 @@ import { AppState } from '@app/app.config';
 })
 export default class ClientProfileComponent implements OnInit, OnDestroy {
 
-  private _authRx$?: Subscription;
-  private _store = inject<Store<AppState>>( Store<AppState> );
+  // private _authRx$?: Subscription;
+  // private _store = inject<Store<AppState>>( Store<AppState> );
 
+  private _authService = inject( AuthService );
   private _alertService = inject( AlertService );
   private _clientValidatorService = inject( ClientValidatorService );
   private _profileService = inject( ProfileService );
@@ -132,36 +135,43 @@ export default class ClientProfileComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
 
-    this.onListenAuthRx();
+    this._userSellerId = localStorage.getItem('userProfileId') ?? '';
+
+    if( !ISUUID( this._userSellerId )  ) {
+      this._userSellerId = this._authService.personSession()!.id;
+    }
+
+    this.onGetMyClients();
+    this.onGetSelectsData();
 
   }
 
-  onListenAuthRx() {
 
-    this._authRx$ = this._store.select('auth')
-    .subscribe( (state) => {
-      const { userAuthenticated } = state;
-
-      this._userSellerId = localStorage.getItem('userProfileId') ?? '';
-
-      if( !ISUUID( this._userSellerId ) && userAuthenticated ) {
-        this._userSellerId = userAuthenticated.id;
-      }
-
-
-      this.onGetMyClients();
-      this.onGetSelectsData();
-      this._authRx$?.unsubscribe();
-
-    });
+  ngAfterViewInit(): void {
+    setTimeout(() => {
+      initFlowbite();
+      // document.getElementById('btnShowAreaModal')?.click();
+    }, 500);
   }
+
 
   onGetMyClients( page = 1 ) {
 
-    const filter = this.searchInput.value ?? '';
+    const filterValue = this.searchInput.value ?? '';
+
+    let filter = `email=${ filterValue }`;
+
+    if( numberPatt.test( filterValue ) )
+      filter = `identityNumber=${ filterValue }`;
+    else if( textPatt.test( filterValue ) )
+      filter = `name=${ filterValue }`;
+
+    if( ISUUID( this._userSellerId )  ) {
+      filter += `;sellerUserId=${ this._userSellerId }`;
+    }
 
     this._isLoading.set( true );
-    this._profileService.getMyClients( page, filter, 5, this._userSellerId )
+    this._clientService.getClients( page, filter, 5,  )
     .subscribe({
       next: ({ clients, total }) => {
 
@@ -361,7 +371,7 @@ export default class ClientProfileComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this._authRx$?.unsubscribe();
+    // this._authRx$?.unsubscribe();
   }
 
 }
