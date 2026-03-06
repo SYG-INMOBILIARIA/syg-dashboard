@@ -72,7 +72,8 @@ export class PaymentScheduleModalComponent implements OnInit {
     if( this.downloadInProgress() ) return;
 
     this._downloadInProgress.set( true );
-    await this._contractService.getDowlandPaymentSchedule('scheduleContractdiv');
+    // await this._contractService.getDowlandPaymentSchedule('scheduleContractdiv');
+    await this._contractService.downloadPaymentSchedule( this.contract()!, this.contractSchedule() );
     this._downloadInProgress.set( false);
   }
 

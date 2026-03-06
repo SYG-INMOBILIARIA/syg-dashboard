@@ -135,7 +135,7 @@
             </div>
 
             <!-- max-h-[390px] overflow-y-auto -->
-            <div class="flex flex-wrap justify-start items-center gap-5 pb-3  ">
+            <!-- <div class="flex flex-wrap justify-start items-center gap-5 pb-3  ">
 
               @for ( schedule of contractSchedule(); track $index) {
 
@@ -163,12 +163,64 @@
                 </div>
               }
 
+            </div> -->
+
+            <div class="w-full overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-900">
+              <div class="max-h-[300px] overflow-y-auto overflow-x-auto">
+
+                <table class="min-w-full text-sm">
+                  <thead class="bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200">
+                    <tr>
+                      <th class="px-4 py-3 text-left font-semibold">N°</th>
+                      <th class="px-4 py-3 text-left font-semibold">Fecha de pago</th>
+                      <th class="px-4 py-3 text-right font-semibold">Monto</th>
+                      <th class="px-4 py-3 text-center font-semibold">Estado</th>
+                    </tr>
+                  </thead>
+
+                  <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
+                    @for (schedule of contractSchedule(); track schedule.order) {
+                      <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/60">
+                        <td class="px-4 py-3 text-slate-700 dark:text-slate-200">
+                          {{ schedule.order }}
+                        </td>
+
+                        <td class="px-4 py-3 text-slate-700 dark:text-slate-200">
+                          {{ schedule.paymentDate | moment:'shortDate' }}
+                        </td>
+
+                        <td class="px-4 py-3 text-right font-medium text-slate-800 dark:text-slate-100">
+                          S/ {{ schedule.amountToPay | number:'1.2-2' }}
+                        </td>
+
+                        <td class="px-4 py-3 text-center">
+                          <span
+                            class="inline-flex rounded-full px-2.5 py-1 text-xs font-semibold"
+                            [ngClass]="schedule.isPaid
+                              ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300'
+                              : 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300'"
+                          >
+                            {{ schedule.isPaid ? 'PAGADA' : 'PENDIENTE' }}
+                          </span>
+                        </td>
+                      </tr>
+                    } @empty {
+                      <tr>
+                        <td colspan="4" class="px-4 py-6 text-center text-slate-500 dark:text-slate-400">
+                          No hay cuotas registradas.
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
             </div>
+
 
           </div>
         </div>
 
-        <div class="w-full ">
+        <div class="w-full pt-2">
           <div class="flex justify-end ">
             <div (click)="onDonwloadSchedule()" class="flex items-center gap-2 cursor-pointer">
 

@@ -12,6 +12,8 @@ import { provideNgxMask, NgxMaskOptions  } from 'ngx-mask';
 import { routes } from './app.routes';
 import { HandleErrorInterceptor, TokenInterceptor } from '@shared/interceptors';
 import { AuthState, ProfileState, ProfileClientState, authReducer, profileReducer, profileClientreducer } from '@redux/reducers';
+import { MomentPipe } from '@pipes/moment.pipe';
+import { DecimalPipe } from '@angular/common';
 
 export interface AppState {
   auth: AuthState,
@@ -28,6 +30,8 @@ const appStore: ActionReducerMap<AppState> = {
 
 export const appConfig: ApplicationConfig = {
   providers: [
+    DecimalPipe,
+    MomentPipe,
     provideNgxMask(),
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes, withHashLocation()),
