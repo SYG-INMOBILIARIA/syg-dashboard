@@ -39,16 +39,16 @@
             <td class="px-6 py-4 whitespace-nowrap">
               <div>
                 <div class="text-sm font-medium text-gray-900 dark:text-white">
-                  {{ contractQuote.code }}
+                  Cuota: {{ contractQuote.order }}
                 </div>
 
-                <div class="flex justify-between gap-2 pt-1">
+                <div class="flex flex-wrap gap-2 pt-1">
 
                   <div *ngFor="let lote of contractQuote.contract.lotes" class="text-sm text-gray-500 dark:text-gray-400">
                     <div class="">
                       <div class="flex justify-start items-center gap-2">
                         <i class="fa-solid fa-house text-indigo-700 text-sm dark:text-indigo-400"></i>
-                        <span class="text-indigo-700 text-xs font-semibold dark:text-indigo-400">{{ lote.code }}</span>
+                        <span class="text-indigo-700 text-xs font-semibold dark:text-indigo-400">{{ lote.mz }}-{{ lote.numberLote }}</span>
                       </div>
                       <div>
                         {{ lote.squareMeters | number:'.2-2' }} m²

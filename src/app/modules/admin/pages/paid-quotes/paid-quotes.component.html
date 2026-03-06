@@ -54,16 +54,52 @@
             </div>
           </ng-template>
 
-          <ng-template ng-option-tmp let-item="item" class="text-gray-900 whitespace-nowrap dark:text-white text-left ">
+          <ng-template ng-label-tmp let-item="item">
+            <div class="truncate text-sm text-slate-800">
+              <!-- <span class="font-semibold">{{ item.code }}</span>
+              <span class="text-slate-400"> · </span> -->
+
+              @for (lot of (item.lotes || []).slice(0, 5); track lot.id; let i = $index) {
+                <span class="me-2 text-sm font-semibold px-1.5 border border-indigo-600 text-indigo-500" >{{ lot.mz }}-{{ lot.numberLote }}</span>
+              }
+              @if ((item.lotes?.length || 0) > 5) {
+                <span class="text-slate-500"> +{{ (item.lotes?.length || 0) - 5 }} lotes</span>
+              }
+
+              <span class="text-slate-400"> · </span>
+
+              <span class="font-medium uppercase">{{ item.clients?.[0]?.fullname || 'Sin cliente' }}</span>
+              @if ((item.clients?.length || 0) > 1) {
+                <span class="text-slate-500"> +{{ (item.clients?.length || 0) - 1 }} clientes</span>
+              }
+            </div>
+          </ng-template>
+
+          <!-- <ng-template ng-option-tmp let-item="item" class="text-gray-900 whitespace-nowrap dark:text-white text-left ">
 
             <div class=" flex justify-between">
-              <div class="text-normal flex justify-center items-center gap-1.5 ">
-                <span class="italic text-slate-500 c">
-                  Código:
-                </span>
-                <span class="font-semibold text-md">
-                  {{ item.code }}
-                </span>
+              <div class="text-normal ">
+                <div>
+                  <span class="italic text-slate-500 text-sm">
+                    Código:
+                  </span>
+                  <span class="font-bold text-sm">
+                    {{ item.code }}
+                  </span>
+                </div>
+
+                <div class="!max-w[200px]">
+                  <span class="italic text-slate-500 text-sm">
+                    Lotes:
+                  </span>
+                  <div class=" flex flex-wrap justify-start items-center gap-2 ">
+                    @for (lot of item.lotes; track lot.id;) {
+                      <span class="font-semibold text-sm px-2 py-1 border border-indigo-500 rounded-md text-indigo-600">
+                        {{ lot.mz }}-{{ lot.numberLote }}
+                      </span>
+                    }
+                  </div>
+                </div>
               </div>
 
               <div class=" flex justify-center items-center gap-2.5">
@@ -88,7 +124,64 @@
               </div>
             </div>
 
+          </ng-template> -->
+
+          <!-- Variante ultra compacta -->
+          <ng-template ng-option-tmp let-item="item" class="text-gray-800 text-left">
+            <div class="border-b border-slate-200 px-2 py-2.5">
+              <!-- fila principal -->
+              <div class="flex items-start justify-between gap-3">
+                <div class="min-w-0">
+                  <div >
+                    <label for="">Contrato: </label>
+                    <span class="truncate text-sm font-semibold text-slate-900">
+                      {{ item.code }}
+                    </span>
+                  </div>
+
+                  <!-- lotes compactos -->
+
+                  <div>
+                    <label for="">Lotes</label>
+                    <div class="mt-1 flex flex-wrap gap-1">
+                      @for (lot of (item.lotes || []).slice(0, 5); track lot.id) {
+                        <span class="rounded border border-slate-300 bg-slate-50 px-1.5 py-0.5 text-[11px] font-medium text-slate-700">
+                          {{ lot.mz }}-{{ lot.numberLote }}
+                        </span>
+                      }
+                      @if ((item.lotes?.length || 0) > 5) {
+                        <span class="rounded border border-slate-200 bg-slate-100 px-1.5 py-0.5 text-[11px] font-medium text-slate-500">
+                          +{{ (item.lotes?.length || 0) - 5 }} lotes
+                        </span>
+                      }
+                    </div>
+                  </div>
+                </div>
+
+                <!-- clientes -->
+                <div class="w-64 shrink-0">
+
+                  <div class="shrink-0 text-xs text-slate-500">
+                    {{ item.clients?.length || 0 }} cliente{{ (item.clients?.length || 0) !== 1 ? 's' : '' }}:
+                  </div>
+
+                  @for (client of item.clients; track client.id; let i = $index) {
+                    <div class="truncate text-xs font-semibold uppercase text-slate-800">
+                      {{ client.fullname }}
+                    </div>
+                    <div class="truncate text-[11px] text-slate-500">
+                      {{ client.identityDocument?.shortDescription ?? '---' }}: {{ client.identityNumber ?? '---' }}
+                    </div>
+                    @if (i < (item.clients?.length || 0) - 1) {
+                      <div class="my-1 h-px bg-slate-100"></div>
+                    }
+                  }
+                </div>
+              </div>
+            </div>
           </ng-template>
+
+
 
         </ng-select>
 
@@ -214,7 +307,7 @@
             <tr class="bg-gray-50/50">
 
               <th class="px-6 py-3 font-semibold text-gray-600 ">CUOTA</th>
-              <th class="px-6 py-3 font-semibold text-gray-600 ">CONTRATO</th>
+              <th class="px-6 py-3 font-semibold text-gray-600 ">LOTES</th>
               <th class="px-6 py-3 font-semibold text-gray-600 ">CLIENTE</th>
               <th class="px-6 py-3 font-semibold text-gray-600 ">
                 <div class="flex items-center">
@@ -244,18 +337,34 @@
                 <tr class="border-b dark:border-white/40 border-gray-200 dark:text-slate-400 ">
 
                   <td class="font-medium p-4">
-                    {{ contractQuote.code }}
+                    {{ contractQuote.order }}
                   </td>
                   <td class="font-medium ">
-                    {{ contractQuote.contract.code }}
+                    <div class="mt-1 flex flex-wrap gap-1">
+                      @for (lot of (contractQuote.contract.lotes).slice(0, 4); track lot.id) {
+                        <span class="rounded border border-indigo-600 text-indigo-700 px-1.5 py-0.5 text-[11px] font-semibold">
+                          {{ lot.mz }}-{{ lot.numberLote }}
+                        </span>
+                      }
+                      @if ((contractQuote.contract.lotes.length) > 4) {
+                        <span class="rounded border border-slate-200 bg-slate-100 px-1.5 py-0.5 text-[11px] font-medium text-slate-500">
+                          +{{ (contractQuote.contract.lotes.length || 0) - 4 }} lotes
+                        </span>
+                      }
+                    </div>
                   </td>
-                  <td class="block justify-start ">
-                    @for (client of contractQuote.contract.clients; track client.id; let i = $index) {
-                      <div >
-                        {{ client.fullname }}
-                      </div>
+                  <!-- Si clients SIEMPRE existe (array no nullable) -->
+                  <td>
+                    <span class="font-medium uppercase">
+                      {{ contractQuote.contract.clients[0].fullname || 'Sin cliente' }}
+                    </span>
+                    @if (contractQuote.contract.clients.length > 1) {
+                      <span class="text-slate-500">
+                        +{{ contractQuote.contract.clients.length - 1 }} clientes
+                      </span>
                     }
                   </td>
+
                   <td class="">
                     {{ contractQuote.paymentDate | moment:'createAt' }}
                   </td>

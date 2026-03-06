@@ -13,12 +13,13 @@ export class UserService {
   private readonly _baseUrl = environments.baseUrl;
   private _http = inject( HttpClient );
 
-  getUsers( page: number, filter: string, limit = 10, showInactive = false ): Observable<ListUserResponse> {
+  getUsers( page: number, filter: string, limit = 10, showInactive = false, orderBy = 'createAt=DESC' ): Observable<ListUserResponse> {
 
     let queryParams = `filter=${ filter }`;
     queryParams += `&page=${ page }`;
     queryParams += `&limit=${ limit }`;
     queryParams += `&isActive=${ !showInactive }`;
+    queryParams += `&order=${ orderBy }`;
 
     return this._http.get<ListUserResponse>(`${ this._baseUrl }/user?${ queryParams }`);
   }

@@ -4,7 +4,7 @@ import { FormControl, ReactiveFormsModule, UntypedFormBuilder, Validators } from
 import { initFlowbite } from 'flowbite';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { validate as ISUUID } from 'uuid';
-import { Subscription, forkJoin } from 'rxjs';
+import { Subscription, forkJoin, filter } from 'rxjs';
 import { FlatpickrDirective } from 'angularx-flatpickr';
 import { Router, RouterModule } from '@angular/router';
 
@@ -16,7 +16,7 @@ import { PipesModule } from '@pipes/pipes.module';
 import { PaginationComponent } from '@shared/components/pagination/pagination.component';
 import { SpinnerComponent } from '@shared/components/spinner/spinner.component';
 import { InputErrorsDirective } from '@shared/directives/input-errors.directive';
-import { datePatt, emailPatt, fullTextPatt, numberDocumentPatt, numberPatt, passwordPatt } from '@shared/helpers/regex.helper';
+import { datePatt, emailPatt, fullTextPatt, numberDocumentPatt, numberPatt, passwordPatt, textPatt } from '@shared/helpers/regex.helper';
 import { AlertService } from '@shared/services/alert.service';
 import { Role, User, UserBody } from '../../interfaces';
 import { environments } from '@envs/environments';
@@ -94,7 +94,6 @@ export default class UsersComponent implements OnInit, OnDestroy {
     asyncValidators: [ this._userValidatorService ],
   });
 
-  private _filter = '';
   private _isRemoving = false;
 
   private _totalUsers = signal<number>( 0 );
@@ -174,11 +173,6 @@ export default class UsersComponent implements OnInit, OnDestroy {
     });
   }
 
-  onSearch() {
-    this._filter = this.searchInput.value ?? '';
-    this.onGetUsers( 1 );
-  }
-
   onGetSelectsData() {
 
     forkJoin({
@@ -202,8 +196,18 @@ export default class UsersComponent implements OnInit, OnDestroy {
       return;
     }
 
+    const filterValue = this.searchInput.value?.trim() ?? '';
+
+    let filter = 'email=' + filterValue;
+
+    if( numberPatt.test( filterValue ) ) {
+      filter = `identityNumber=${ filterValue }`;
+    } else if( textPatt.test( filterValue ) ) {
+      filter = `name=${ filterValue }`;
+    }
+
     this._isLoading.set( true );
-    this._userService.getUsers( page, this._filter )
+    this._userService.getUsers( page, filter )
     .subscribe({
       next: ({ users, total }) => {
         // this._currentPage.set( page );

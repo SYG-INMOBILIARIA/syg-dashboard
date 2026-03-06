@@ -39,7 +39,7 @@ import { ContractService } from '../../services/contract.service';
 import { FinancingService } from '../../services/financing.service';
 import { UserService } from '../../../security/services/user.service';
 import { AlertService } from '@shared/services/alert.service';
-import { descriptionPatt, fullTextPatt, numberPatt } from '@shared/helpers/regex.helper';
+import { descriptionPatt, fullTextPatt, numberPatt, textPatt } from '@shared/helpers/regex.helper';
 import { User } from '../../../security/interfaces';
 import { FinancingType, LoteStatus, PaymentType } from '../../enum';
 import { NomenclatureService } from '@shared/services/nomenclature.service';
@@ -456,8 +456,16 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
 
     this._loadingClients.set( true );
 
-    const pattern = this.searchClientInput.value ?? '';
-    this._clientService.getClients( 1, pattern, 10, false , null, null, null )
+    const filterValue = this.searchClientInput.value ?? '';
+
+    let filter = `email=${ filterValue }`;
+
+    if( numberPatt.test( filterValue ) )
+      filter = `identityNumber=${ filterValue }`;
+    else if( textPatt.test( filterValue ) )
+      filter = `name=${ filterValue }`;
+
+    this._clientService.getClients( 1, filter, 10, false , null, null, null )
     .subscribe( ({ clients }) => {
       this._clients.set( clients );
       this.searchClientInput.reset();
