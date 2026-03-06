@@ -497,8 +497,16 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
   }
 
   onGetUsers() {
-    const pattern = this.searchUserInput.value ?? '';
-    this._userService.getUsers( 1, pattern, 10 )
+    const filterValue = this.searchUserInput.value ?? '';
+
+    let filter = `email=${ filterValue }`;
+
+    if( numberPatt.test( filterValue ) )
+      filter = `identityNumber=${ filterValue }`;
+    else if( textPatt.test( filterValue ) )
+      filter = `name=${ filterValue }`;
+
+    this._userService.getUsers( 1, filter, 10 )
     .subscribe( ( { users } ) => {
       this._users.set( users );
       this.searchUserInput.reset();
