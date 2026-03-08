@@ -70,7 +70,7 @@
 
               <span class="font-medium uppercase">{{ item.clients?.[0]?.fullname || 'Sin cliente' }}</span>
               @if ((item.clients?.length || 0) > 1) {
-                <span class="text-slate-500"> +{{ (item.clients?.length || 0) - 1 }} clientes</span>
+                <span class="text-slate-500 dark:text-slate-200"> +{{ (item.clients?.length || 0) - 1 }} clientes</span>
               }
             </div>
           </ng-template>
@@ -134,7 +134,7 @@
                 <div class="min-w-0">
                   <div >
                     <label for="">Contrato: </label>
-                    <span class="truncate text-sm font-semibold text-slate-900">
+                    <span class="truncate text-sm font-semibold text-slate-900 dark:text-slate-100">
                       {{ item.code }}
                     </span>
                   </div>
@@ -161,15 +161,15 @@
                 <!-- clientes -->
                 <div class="w-64 shrink-0">
 
-                  <div class="shrink-0 text-xs text-slate-500">
+                  <div class="shrink-0 text-xs text-slate-500 dark:text-slate-400">
                     {{ item.clients?.length || 0 }} cliente{{ (item.clients?.length || 0) !== 1 ? 's' : '' }}:
                   </div>
 
                   @for (client of item.clients; track client.id; let i = $index) {
-                    <div class="truncate text-xs font-semibold uppercase text-slate-800">
+                    <div class="truncate text-xs font-semibold uppercase text-slate-800 dark:text-slate-100">
                       {{ client.fullname }}
                     </div>
-                    <div class="truncate text-[11px] text-slate-500">
+                    <div class="truncate text-[11px] text-slate-500 dark:text-slate-400">
                       {{ client.identityDocument?.shortDescription ?? '---' }}: {{ client.identityNumber ?? '---' }}
                     </div>
                     @if (i < (item.clients?.length || 0) - 1) {
