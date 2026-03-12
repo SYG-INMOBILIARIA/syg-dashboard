@@ -1,69 +1,53 @@
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild, computed, inject, signal } from '@angular/core';
+import { Component, computed, EventEmitter, inject, OnInit, Output, signal } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
-import { NgSelectModule } from '@ng-select/ng-select';
-import { FlatpickrDirective } from 'angularx-flatpickr';
-import { initFlowbite } from 'flowbite';
-
-import { InputErrorsDirective } from '@shared/directives/input-errors.directive';
-import { SpinnerComponent } from '@shared/components/spinner/spinner.component';
-import { descriptionPatt, operationCodePatt } from '@shared/helpers/regex.helper';
-import { environments } from '@envs/environments';
+import { MatButtonModule } from '@angular/material/button';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogActions, MatDialogContent, MatDialogRef } from '@angular/material/dialog';
+import { WebUrlPermissionMethods } from '@app/auth/interfaces';
+import { environments } from '@envs/environments.prod';
 import { ContractQuote, PaymentMethod, PaymentQuoteBody } from '@modules/admin/interfaces';
-import { onValidImg } from '@shared/helpers/files.helper';
 import { PaymentMethodService } from '@modules/admin/services/payment-method.service';
+import { PaymentQuoteService } from '@modules/admin/services/payment-quote.service';
+import { NgSelectModule } from '@ng-select/ng-select';
+import { PipesModule } from '@pipes/pipes.module';
+import { SpinnerComponent } from '@shared/components/spinner/spinner.component';
+import { InputErrorsDirective } from '@shared/directives/input-errors.directive';
+import { onValidImg } from '@shared/helpers/files.helper';
+import { descriptionPatt, operationCodePatt } from '@shared/helpers/regex.helper';
+import { apiPaymentQuote } from '@shared/helpers/web-apis.helper';
 import { AlertService } from '@shared/services/alert.service';
 import { UploadFileService } from '@shared/services/upload-file.service';
-import { PaymentQuoteService } from '@modules/admin/services/payment-quote.service';
-import { PipesModule } from '@pipes/pipes.module';
-import { WebUrlPermissionMethods } from '@app/auth/interfaces';
-import { apiPaymentQuote } from '@shared/helpers/web-apis.helper';
+import { FlatpickrDirective } from 'angularx-flatpickr';
+
+export interface PaymentQuotesModalData {
+  contractQuotes: ContractQuote[];
+  webUrlPermissionMethods: WebUrlPermissionMethods[];
+  contractQuoteSelected: ContractQuote | null;
+}
 
 @Component({
-  selector: 'paid-quotes-modal',
   standalone: true,
   imports: [
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
-    NgSelectModule,
+    MatButtonModule,
+    MatDialogActions,
+    MatDialogContent,
     InputErrorsDirective,
     SpinnerComponent,
-    FlatpickrDirective,
     PipesModule,
+    NgSelectModule,
+    FlatpickrDirective,
   ],
-  templateUrl: './paid-quotes-modal.component.html',
+  templateUrl: './payment-quotes-modal.component.html',
   styles: ``
 })
-export class PaidQuotesModalComponent implements OnInit {
+export class PaymentQuotesModalComponent implements OnInit {
 
-  @ViewChild('btnShowPaymentQuoteModal') btnShowPaymentQuoteModal!: ElementRef<HTMLButtonElement>;
-  @ViewChild('btnClosePaymentQuoteModal') btnClosePaymentQuoteModal!: ElementRef<HTMLButtonElement>;
-
-  @Input({ required: true }) set webUrlPermissionMethods( value: WebUrlPermissionMethods[] ) {
-    this._webUrlPermissionMethods = value ;
-  }
-
-  @Input({ required: true }) set contractQuotesData( value: ContractQuote[] ) {
-    this._contractQuotes.set( value );
-  }
-
-  @Input({ required: true }) set contractQuotesToPaid( value: ContractQuote | null ) {
-
-    if( value ) {
-      this._isReadOnly.set( true );
-
-      this.paymentQuoteForm.reset({
-        contractQuotes: [ value.id ]
-      });
-    } else {
-      this._isReadOnly.set( false );
-      this.paymentQuoteForm.reset();
-    }
-
-  }
-
-  @Output() paidQuoteSuccess = new EventEmitter<any>();
+  private readonly _dialogRef = inject(MatDialogRef< PaymentQuotesModalComponent>);
+  private readonly _data = inject<PaymentQuotesModalData>(MAT_DIALOG_DATA);
+  private readonly _dialog = inject(MatDialog);
 
   currentDate: Date = new Date();
 
@@ -81,7 +65,11 @@ export class PaidQuotesModalComponent implements OnInit {
     amount:            [ null, [ Validators.required, Validators.min(1) ] ],
     observation:       [ '',   [ Validators.pattern( descriptionPatt ) ] ],
     paymentMethodId:   [ null, [ Validators.required ] ],
+
+    file: [null, []],
+    fileDocument: [null, []],
   });
+
 
   public fileUrl = signal( environments.defaultImgUrl );
   private _file?: File;
@@ -122,9 +110,29 @@ export class PaidQuotesModalComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    initFlowbite();
-    this.onGetPaymentsMethod();
 
+    const { contractQuotes, webUrlPermissionMethods, contractQuoteSelected } = this._data;
+
+    this._contractQuotes.set( contractQuotes );
+    this._webUrlPermissionMethods = webUrlPermissionMethods;
+    this._contractQuotesSelected.set( contractQuoteSelected ? [ contractQuoteSelected ] : [] );
+
+    if( contractQuoteSelected ) {
+      this.paymentQuoteForm.get('contractQuotes')?.setValue( [contractQuoteSelected.id] );
+      this._totalDebt.set( contractQuoteSelected.totalDebt );
+      this._isReadOnly.set( true );
+
+      this._contractQuotes.set( [contractQuoteSelected] );
+
+      this.paymentQuoteForm.get('amount')?.setValue(0);
+      this.paymentQuoteForm.get('amount')?.clearValidators();
+      this.paymentQuoteForm.get('amount')?.addValidators( [ Validators.required, Validators.min(1), Validators.max( contractQuoteSelected.totalDebt ) ] );
+      this.paymentQuoteForm.updateValueAndValidity();
+
+
+    }
+
+    this.onGetPaymentsMethod();
   }
 
   onGetPaymentsMethod( ) {
@@ -134,6 +142,10 @@ export class PaidQuotesModalComponent implements OnInit {
       this._paymentsMethod.set( paymentsMethod );
     });
 
+  }
+
+  onClose() {
+    this._dialogRef.close(null);
   }
 
   onResetAfterSubmit() {
@@ -156,9 +168,11 @@ export class PaidQuotesModalComponent implements OnInit {
     this._file = event.files.item(0);
 
     if ( !onValidImg(extension, size) ) {
+
+      this._alertService.showAlert(undefined, 'Suba una archivo de tipo ' + ['PNG', 'JPG', 'JPEG'].join(', '));
       event.target.value = '';
       this._file = undefined;
-      return
+      return;
     }
 
     const reader = new FileReader();
@@ -180,6 +194,8 @@ export class PaidQuotesModalComponent implements OnInit {
     this._fileDocument = event.files.item(0);
 
     if ( !onValidImg(extension, size) ) {
+
+      this._alertService.showAlert(undefined, 'Suba una archivo de tipo ' + ['PNG', 'JPG', 'JPEG'].join(', '));
       event.target.value = '';
       this._fileDocument = undefined;
       return
@@ -193,17 +209,13 @@ export class PaidQuotesModalComponent implements OnInit {
 
   }
 
-  onUpdateSelectQuotes(  ) {
-
-    console.log( 'onUpdateSelectQuotes' );
+  onUpdateSelectQuotes() {
 
     const contractQuotesId: string[] = this.paymentQuoteForm.get('contractQuotes')?.value ?? [];
 
     if( !contractQuotesId ) return;
 
-    console.log( 'contractQuotesId', contractQuotesId );
-
-    const quotesSelected = this._contractQuotes()?.filter( (e) => contractQuotesId.includes( e.id ) );
+    const quotesSelected = this._contractQuotes().filter( (e) => contractQuotesId.includes( e.id ) );
     const totalDebt = quotesSelected.reduce( (acc, current) => acc + current.totalDebt , 0 );
     this._totalDebt.set( totalDebt );
 
@@ -233,7 +245,7 @@ export class PaidQuotesModalComponent implements OnInit {
       return;
     };
 
-    const body = this.paymentQuoteBody;
+    const { file, fileDocument, ... body} = this.paymentQuoteBody;
 
     const allowCreate = this._webUrlPermissionMethods.some(
       (permission) => permission.webApi == apiPaymentQuote && permission.methods.includes('POST')
@@ -259,10 +271,12 @@ export class PaidQuotesModalComponent implements OnInit {
         }
 
         this.onResetAfterSubmit();
-        this.btnClosePaymentQuoteModal.nativeElement.click();
+        //! código para cerrar modal y devolver una respuesta
+        // this.btnClosePaymentQuoteModal.nativeElement.click();
         this._alertService.showAlert('Pago de cuota(s) creado exitosamente', undefined, 'success');
 
-        this.paidQuoteSuccess.emit( paymentQuoteCreated );
+        this._dialogRef.close( paymentQuoteCreated );
+
 
       }, error: (err) => {
         this._isSaving.set( false);
@@ -270,6 +284,5 @@ export class PaidQuotesModalComponent implements OnInit {
     });
 
   }
-
 
 }

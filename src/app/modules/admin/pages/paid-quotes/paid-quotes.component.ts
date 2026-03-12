@@ -13,7 +13,6 @@ import { ContractQuoteService } from '../../services/contract-quote.service';
 import { PipesModule } from '@pipes/pipes.module';
 import { SpinnerComponent } from '@shared/components/spinner/spinner.component';
 import { AlertService } from '@shared/services/alert.service';
-import { PaidQuotesModalComponent } from '@modules/admin/components/paid-quotes-modal/paid-quotes-modal.component';
 import { Subscription } from 'rxjs';
 import { Store } from '@ngrx/store';
 import { AppState } from '@app/app.config';
@@ -21,6 +20,8 @@ import { WebUrlPermissionMethods } from '@app/auth/interfaces';
 import { apiPaymentQuote } from '@shared/helpers/web-apis.helper';
 import { PaymentQuoteService } from '@modules/admin/services/payment-quote.service';
 import { PaymentsByCuote } from './interfaces';
+import { MatDialog } from '@angular/material/dialog';
+import { PaymentQuotesModalComponent } from '@modules/admin/components/payment-quotes-modal/payment-quotes-modal.component';
 
 @Component({
   standalone: true,
@@ -33,7 +34,6 @@ import { PaymentsByCuote } from './interfaces';
     InputErrorsDirective,
     PipesModule,
     SpinnerComponent,
-    PaidQuotesModalComponent
   ],
   // providers: [
   //   PaidQuotesModalComponent
@@ -42,6 +42,9 @@ import { PaymentsByCuote } from './interfaces';
   styles: ``
 })
 export default class PaidQuotesComponent implements OnInit, OnDestroy {
+
+  private _dialog$?: Subscription;
+  private readonly _dialog = inject(MatDialog);
 
   private _authrx$?: Subscription;
   private _store = inject<Store<AppState>>( Store<AppState> );
@@ -96,10 +99,11 @@ export default class PaidQuotesComponent implements OnInit, OnDestroy {
 
   get contractInputIsTouched() { return this.contractInput.touched; }
   get contractInputErrors() { return this.contractInput.errors; }
+  get contractInputIsInvalid() { return this.contractInput.invalid;}
 
   ngOnInit(): void {
     // initFlowbite();
-    this.onListenAuthRx();
+    this.onLoadPermissions();
     this.onGetContract();
     this.onGetContractQuotes();
   }
@@ -110,7 +114,7 @@ export default class PaidQuotesComponent implements OnInit, OnDestroy {
     }, 400);
   }
 
-  onListenAuthRx() {
+  onLoadPermissions() {
     this._authrx$ = this._store.select('auth')
     .subscribe( (state) => {
       const { webUrlPermissionMethods } = state;
@@ -176,9 +180,22 @@ export default class PaidQuotesComponent implements OnInit, OnDestroy {
   onSetContractQuoteToPay( quote?: ContractQuote ) {
     this._contractQuoteToPay.set( quote ?? null );
 
-    if( quote )
-      this._contractQuotesAll.set( [quote] );
-    this.btnShowPaymentQuoteModal.nativeElement.click();
+    // if( quote ){
+    //   this._contractQuotesAll.set( [quote] );
+    // } else {
+
+    //   // Mostrar alerta si no se ha seleccionado un contrato
+    //   if(this.contractInputIsInvalid) {
+    //     this._alertService.showAlert( undefined, 'Primero seleccione un contrato y busque sus cuotas', 'warning' );
+    //     return ;
+    //   }
+    //   this._contractQuotesAll.set( this._contractQuotes().filter( (cuote) => !cuote.isPaid ) );
+    // }
+
+
+    //! abrir modal para pago de cuotas
+    // this.btnShowPaymentQuoteModal.nativeElement.click();
+    this.onOpenVisitModal();
   }
 
   onGetPaymentQuoteInfo( contractQuoteId: string ) {
@@ -236,8 +253,38 @@ export default class PaidQuotesComponent implements OnInit, OnDestroy {
 
   }
 
+  onOpenVisitModal() {
+
+    const dialogRef = this._dialog.open( PaymentQuotesModalComponent , {
+      width: '50vw',
+      height: '100vw',
+      maxWidth: '40vw',
+      // maxHeight: '100vh',
+      enterAnimationDuration: '0ms',
+      exitAnimationDuration: '0ms',
+      closeOnNavigation: true,
+
+      data: {
+        contractQuotes: this._contractQuotesAll(),
+        webUrlPermissionMethods: this._webUrlPermissionMethods(),
+        contractQuoteSelected: this._contractQuoteToPay()
+      }
+    });
+
+    this._dialog$ = dialogRef.afterClosed().subscribe( (paymentCuoteCreated: any | null) => {
+
+      if (paymentCuoteCreated) {
+        this.onGetContractQuotes();
+      }
+
+      this._dialog$?.unsubscribe();
+    });
+
+  }
+
   ngOnDestroy(): void {
     this._authrx$?.unsubscribe();
+    this._dialog$?.unsubscribe();
   }
 
 }

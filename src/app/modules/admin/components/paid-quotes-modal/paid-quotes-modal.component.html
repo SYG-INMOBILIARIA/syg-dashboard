@@ -45,7 +45,7 @@
                     [closeOnSelect]="contractQuotes.length == 1"
                     [hideSelected]="true"
                     [readonly]="isReadOnly()"
-                    (ngModelChange)="onUpdateSelectQuotes( $event )"
+                    (ngModelChange)="onUpdateSelectQuotes(  )"
                     bindLabel="paymentDate"
                     bindValue="id"
                     placeholder="Seleccione Cuota"
@@ -56,7 +56,7 @@
                   <ng-template ng-label-tmp let-item="item" let-clear="clear" class="">
                     <span class="ng-value-label dark:bg-slate-900">
                       <span class="font-semibold text-md  dark:text-slate-200">
-                        {{ item.code }}
+                        {{ item.order }}
                       </span>
                     </span>
                     <span class="ng-value-icon right" (click)="clear(item)" aria-hidden="true">×</span>

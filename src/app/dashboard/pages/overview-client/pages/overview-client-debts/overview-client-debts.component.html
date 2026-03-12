@@ -16,6 +16,7 @@
       </thead>
       <tbody class="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
 
+
         @for (quote of debts(); track quote.id) {
           <tr  class="hover:bg-gray-50 dark:hover:bg-gray-700 ">
 
@@ -92,10 +93,11 @@
             </td>
           </tr>
         }
+
       </tbody>
     </table>
   </div>
   <div>
-    <app-pagination [totalItems]="total()" (onChangePage)="getDebtsByClient( $event )"  ></app-pagination>
+    <app-pagination [itemsPerPage]="5" [totalItems]="total()" (onChangePage)="getDebtsByClient( $event )"  ></app-pagination>
   </div>
 </div>

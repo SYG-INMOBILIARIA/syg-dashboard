@@ -5,4 +5,7 @@ export interface PaymentQuoteBody {
   amount: number;
   observation: string;
   paymentMethodId: string;
+
+  file?: File;
+  fileDocument?: File;
 }

@@ -102,7 +102,7 @@
   </div>
   <div>
 
-    <app-pagination [totalItems]="total()" (onChangePage)="getPaymentsByClient( $event )"  ></app-pagination>
+    <app-pagination [itemsPerPage]="5" [totalItems]="total()" (onChangePage)="getPaymentsByClient( $event )"  ></app-pagination>
 
   </div>
 </div>
@@ -115,9 +115,10 @@
       <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
           <!-- Modal header -->
           <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
-              <h3 class="text-lg font-semibold text-gray-900 dark:text-white" >
-                  Pago de cuota
-              </h3>
+              <div>
+                <h3 class="text-xl font-semibold text-gray-900 dark:text-slate-100">Pago de cuota</h3>
+                <p class="text-sm text-gray-500 mt-1 dark:text-slate-400">Resumen del movimiento y archivos adjuntos</p>
+              </div>
               <button
                 #btnClosePaymentQuoteInfoModal
                 type="button"
@@ -132,79 +133,58 @@
           </div>
           <!-- Modal body -->
 
-          <div class="p-4">
-            <span class="font-semibold text-gray-800 dark:text-gray-200">
-              Detalles del pago de la cuota
-            </span>
+          <div class="px-6 py-5 space-y-6">
 
+            <div *ngFor="let payment of paymentsByCuote()">
 
-            <div class="grid gap-3 mb-1 grid-cols-12  ">
-
-              <div class="col-span-12" *ngFor="let payment of paymentsByCuote()" >
-
-                <div class="mt-4">
-
-                  <div class="flex gap-2 justify-start">
-                    <span class="italic w-32">Fecha de pago: </span>
-                    <span>
-                      {{ payment.paymentDate }}
-                    </span>
-                  </div>
-
-                  <div class="flex gap-2 justify-start">
-                    <span class="italic w-32">Cuotas: </span>
-                    <div *ngFor="let quote of payment.quotes" class="p-2 border border-gray-200 " >
-                      <div>
-                         Código: {{ quote.code }}
-                      </div>
-                      <div>
-                        Monto: S/ {{ quote.totalPaid| number:'.2-2' }}
-                      </div>
-                    </div>
-                  </div>
-
+              <div class="bg-gray-50 rounded-xl p-4 flex justify-between dark:bg-slate-600">
+                <div>
+                  <p class="text-sm text-gray-500 dark:text-slate-200">Fecha de pago</p>
+                  <p class="text-base font-medium text-gray-900 mt-1 dark:text-slate-400"> {{ payment.paymentDate | moment:'createAt' }} </p>
                 </div>
 
-                <div class="grid gap-3 mb-1 grid-cols-2">
-
-                  <div>
-                    <span class="italic w-32 pb-2">Voucher: </span>
-                    <div class="flex flex-col justify-center items-center" *ngIf="payment.photo" >
-                      <img class="w-40 h-60 border-2 border-gray-300 border-dashed" [src]="payment.photo.urlImg" alt="Rounded avatar">
-                      <div class="flex justify-center items-center pt-2">
-                        <a
-                          class="text-blue-600 underline"
-                          [href]=" payment.photo.urlImg "
-                          target="_blank"
-                          download
-                        >
-                        <i class="fa-solid fa-download"></i>
-                        </a>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div>
-                    <span class="italic w-32 pb-2">Comprobante: </span>
-                    <div class="flex flex-col justify-center items-center" *ngIf="payment.documentFile" >
-                      <img class="w-40 h-60 border-2 border-gray-300 border-dashed" [src]="payment.documentFile.urlImg" alt="Rounded avatar">
-                      <div class="flex justify-center items-center pt-2">
-                        <a
-                          class="text-blue-600 underline"
-                          [href]=" payment.documentFile.urlImg "
-                          target="_blank"
-                          download
-                        >
-                        <i class="fa-solid fa-download"></i>
-                        </a>
-                      </div>
-                    </div>
-                  </div>
-
+                <div>
+                  <p class="text-sm text-gray-500 dark:text-slate-200">Monto pagado</p>
+                  <p class="text-base font-medium text-gray-900 mt-1 dark:text-slate-400"> S/ {{ payment.amount | number:'.2-2' }} </p>
                 </div>
+              </div>
+
+              <div>
+                <p class="text-sm font-medium text-gray-900 mb-3 dark:text-slate-200">Cuotas asociadas</p>
+                <div class="flex flex-wrap gap-2" >
+                  <div class="min-w-[120px] rounded-xl border border-gray-200 bg-white px-3 py-1.5 dark:bg-slate-700 dark:border-slate-300" *ngFor="let quote of payment.quotes">
+                    <p class="text-sm text-gray-500 dark:text-slate-400">Cuota {{ quote.order }}</p>
+                    <p class="font-semibold text-gray-900 mt-1 text-sm dark:text-slate-200">S/ {{ quote.totalPaid | number:'.2-2' }} </p>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <p class="text-sm font-medium text-gray-900 mb-3 dark:text-slate-200">Archivos adjuntos</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div class="rounded-xl border border-gray-200 p-4 bg-white dark:bg-slate-700" *ngIf="payment.photo">
+                    <p class="text-sm font-medium text-gray-800 mb-3 dark:text-slate-200">Voucher</p>
+                    <div class="rounded-lg bg-gray-50 border border-dashed border-gray-200 p-3 flex justify-center dark:bg-slate-700">
+                      <img class="h-56 object-contain rounded-md" [src]="payment.photo.urlImg"  alt="">
+                    </div>
+                    <a class="mt-3 inline-flex text-sm font-medium text-blue-600 hover:text-blue-700" [href]="payment.photo.urlImg" target="_blank">
+                      Descargar archivo
+                    </a>
+                  </div>
+
+                  <div class="rounded-xl border border-gray-200 p-4 bg-white dark:bg-slate-700" *ngIf="payment.documentFile">
+                    <p class="text-sm font-medium text-gray-800 mb-3 dark:text-slate-200 dark:text-slate-200">Comprobante</p>
+                    <div class="rounded-lg bg-gray-50 border border-dashed border-gray-200 p-3 flex justify-center dark:bg-slate-700">
+                      <img class="h-56 object-contain rounded-md" [src]="payment.documentFile.urlImg" alt="">
+                    </div>
+                    <a class="mt-3 inline-flex text-sm font-medium text-blue-600 hover:text-blue-700" [href]="payment.documentFile.urlImg" target="_blank">
+                      Descargar archivo
+                    </a>
+                  </div>
+                </div>
+              </div>
 
             </div>
-
           </div>
 
       </div>

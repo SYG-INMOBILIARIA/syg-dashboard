@@ -67,7 +67,7 @@ export default class OverviewClientDebtsComponent implements OnInit, OnDestroy {
 
     this._isLoading.set( true );
 
-    this._contractQuoteService.getContractQuoteByClient( page, 10, this._clientId()!, true )
+    this._contractQuoteService.getContractQuoteByClient( page, 5, this._clientId()!, true )
     .subscribe( {
 
       next: ( { contractQuotes, total } ) => {

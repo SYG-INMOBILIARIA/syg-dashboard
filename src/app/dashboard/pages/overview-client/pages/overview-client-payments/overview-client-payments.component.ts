@@ -5,6 +5,7 @@ import { PaymentsByCuote } from '@modules/admin/pages/paid-quotes/interfaces';
 import { ContractQuoteService } from '@modules/admin/services/contract-quote.service';
 import { PaymentQuoteService } from '@modules/admin/services/payment-quote.service';
 import { Store } from '@ngrx/store';
+import { initFlowbite } from 'flowbite';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -38,6 +39,12 @@ export default class OverviewClientPaymentsComponent implements OnInit, OnDestro
     this._listenAuthRx();
   }
 
+  ngAfterViewInit() {
+    setTimeout(() => {
+      initFlowbite();
+    }, 500);
+  }
+
   private _listenAuthRx() {
     this._authRx$ = this._store.select('auth').subscribe( state  => {
 
@@ -68,7 +75,7 @@ export default class OverviewClientPaymentsComponent implements OnInit, OnDestro
 
     this._isLoading.set( true );
 
-    this._contractQuoteService.getContractQuoteByClient( 1, 10, this._clientId()!, undefined, true )
+    this._contractQuoteService.getContractQuoteByClient( page, 5, this._clientId()!, undefined, true )
     .subscribe( {
       next: ( { contractQuotes, total } ) => {
 

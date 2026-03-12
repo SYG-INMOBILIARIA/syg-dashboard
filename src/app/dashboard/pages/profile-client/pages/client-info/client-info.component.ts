@@ -7,6 +7,7 @@ import { AppState } from '@app/app.config';
 import { Client, ClientStatus, Contract, ContractQuote } from '@modules/admin/interfaces';
 import { ContractService } from '@modules/admin/services/contract.service';
 import { ProfileClientService } from '@app/dashboard/services/profile-client.service';
+import { AlertService } from '@shared/services/alert.service';
 
 @Component({
   templateUrl: './client-info.component.html',
@@ -19,6 +20,7 @@ export class ClientInfoComponent implements OnInit, OnDestroy {
 
   private _clientProfileRx$?: Subscription;
 
+  private _alertService = inject( AlertService );
   private _contractService = inject( ContractService );
   private _profileClientService = inject( ProfileClientService );
 
@@ -97,7 +99,7 @@ export class ClientInfoComponent implements OnInit, OnDestroy {
 
       const { debtIndicators, paymentIndicators } = indicatorsResponse;
 
-      this._totalDebt.set( debtIndicators.totalDebt );
+      this._totalDebt.set( debtIndicators.totalDebt - debtIndicators.totalPaid );
       this._totalPaid.set( debtIndicators.totalPaid );
 
       this._lastPayment.set( paymentIndicators.lastPayment );
@@ -123,11 +125,14 @@ export class ClientInfoComponent implements OnInit, OnDestroy {
 
     this._contractById.set( contract );
 
+    this._alertService.showLoading();
+
     this._contractService.getPaymentScheduleByContract( contract.id )
     .subscribe( ({ contractQuotes }) => {
 
       this._contractQuotes.set( contractQuotes );
       this.btnShowScheduleContractModal.nativeElement.click();
+      this._alertService.close();
     });
 
   }

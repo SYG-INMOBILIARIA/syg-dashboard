@@ -259,11 +259,11 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                   <div class="flex items-center text-gray-600 dark:text-slate-300">
                     <span class="iconify w-5 h-5 mr-2 text-gray-400" data-icon="ph:hash"></span>
-                    <div  >
+                    <div class="flex flex-wrap gap-2"  >
                       @for (lote of contract.lotes; track lote.id) {
-                        <span  class="">
-                          Lote {{ lote.code }} <small> ({{ lote.squareMeters }} m2) </small>
-                        </span>
+                        <div class="bg-cusom-gray px-1 py-0.5 border border-gay-200 rounded-sm ">
+                          {{ lote.mz }} -{{ lote.numberLote }}
+                        </div>
                       }
                     </div>
                   </div>
