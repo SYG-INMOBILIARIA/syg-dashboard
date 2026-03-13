@@ -12,12 +12,18 @@ import { ContractService } from '@modules/admin/services/contract.service';
 import { UntypedFormControl, Validators } from '@angular/forms';
 import { PaymentQuoteService } from '@modules/admin/services/payment-quote.service';
 import { PaymentsByCuote } from '@modules/admin/pages/paid-quotes/interfaces';
+import { MatDialog } from '@angular/material/dialog';
+import { PaymentQuotesModalComponent } from '@modules/admin/components/payment-quotes-modal/payment-quotes-modal.component';
+import { AuthService } from '@app/auth/services/auth.service';
 
 @Component({
   templateUrl: './client-payments.component.html',
   styles: ``
 })
 export class ClientPaymentsComponent implements OnInit, OnDestroy {
+
+  private _dialog$?: Subscription;
+  private readonly _dialog = inject(MatDialog);
 
   @ViewChild('btnShowPaymentQuoteInfoModal') btnShowPaymentQuoteInfoModal!: ElementRef<HTMLButtonElement>;
   @ViewChild('btnShowPaymentModal') btnShowPaymentModal!: ElementRef<HTMLButtonElement>;
@@ -31,10 +37,12 @@ export class ClientPaymentsComponent implements OnInit, OnDestroy {
   private _contractService = inject( ContractService );
   private _alertService = inject( AlertService );
   private _contractPaymentService = inject( PaymentQuoteService );
+  private _authService = inject( AuthService );
 
   public contractInput = new UntypedFormControl( null, [ Validators.required ] )
 
   private _isLoading = signal<boolean>( false );
+  private _allowPaidQuote = signal<boolean>( true );
   private _isRemoving = signal( false );
   private _client = signal<Client | null>( null );
   private _contracts = signal<Contract[]>( [] );
@@ -49,6 +57,7 @@ export class ClientPaymentsComponent implements OnInit, OnDestroy {
   private _countPaid = signal<number>( 0 );
 
   public isLoading = computed( () => this._isLoading() );
+  public allowPaidQuote = computed( () => this._allowPaidQuote() );
   public webUrlPermissionMethods = computed( () => this._webUrlPermissionMethods() );
   public isRemoving = computed( () => this._isRemoving() );
   public contracts = computed( () => this._contracts() );
@@ -108,6 +117,10 @@ export class ClientPaymentsComponent implements OnInit, OnDestroy {
   onGetContractsByClient() {
 
     if( !this._client() ) throw new Error('Client undefined!!!');
+
+    if( this._client()!.id == this._authService.personSession()?.client?.id ) {
+      this._allowPaidQuote.set( false );
+    }
 
     const clientId = this._client()!.id;
 
@@ -188,10 +201,43 @@ export class ClientPaymentsComponent implements OnInit, OnDestroy {
   }
 
   onSetContractQuoteToPay( quote?: ContractQuote ) {
+
+    if( !this.allowPaidQuote() ) return;
+
     this._contractQuoteToPay.set( quote ?? null );
 
-    if( quote ) this._contractQuotesAll.set( [quote] );
-    this.btnShowPaymentModal.nativeElement.click();
+    // if( quote ) this._contractQuotesAll.set( [quote] );
+    // this.btnShowPaymentModal.nativeElement.click();
+    this.onOpenPaidCuoteModal();
+  }
+
+  onOpenPaidCuoteModal() {
+
+    const dialogRef = this._dialog.open( PaymentQuotesModalComponent , {
+      width: '50vw',
+      height: '100vw',
+      maxWidth: '40vw',
+      // maxHeight: '100vh',
+      enterAnimationDuration: '0ms',
+      exitAnimationDuration: '0ms',
+      closeOnNavigation: true,
+
+      data: {
+        contractQuotes: this._contractQuotesAll(),
+        webUrlPermissionMethods: this._webUrlPermissionMethods(),
+        contractQuoteSelected: this._contractQuoteToPay()
+      }
+    });
+
+    this._dialog$ = dialogRef.afterClosed().subscribe( (paymentCuoteCreated: any | null) => {
+
+      if (paymentCuoteCreated) {
+        this.onGetContractQuotes();
+      }
+
+      this._dialog$?.unsubscribe();
+    });
+
   }
 
   onShowBoucherView( contractQuote: ContractQuote ) {
@@ -257,6 +303,7 @@ export class ClientPaymentsComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this._clientProfileRx$?.unsubscribe();
     this._authrx$?.unsubscribe();
+    this._dialog$?.unsubscribe();
   }
 
 }

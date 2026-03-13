@@ -84,40 +84,81 @@
               (change)="onChangeContractSelected($event)"
             >
 
-              <ng-template ng-option-tmp let-item="item" class="text-gray-900 whitespace-nowrap dark:text-white text-left ">
+              <ng-template ng-label-tmp let-item="item">
+                <div class="truncate text-sm text-slate-800">
+                  <!-- <span class="font-semibold">{{ item.code }}</span>
+                  <span class="text-slate-400"> · </span> -->
 
-                <div class=" flex justify-between">
-                  <div class="text-normal flex justify-center items-center gap-1.5 ">
-                    <span class="italic text-slate-500 c">
-                      Código:
-                    </span>
-                    <span class="font-semibold text-md">
-                      {{ item.code }}
-                    </span>
-                  </div>
+                  @for (lot of (item.lotes || []).slice(0, 5); track lot.id; let i = $index) {
+                    <span class="me-2 text-sm font-semibold px-1.5 border border-indigo-600 text-indigo-500" >{{ lot.mz }}-{{ lot.numberLote }}</span>
+                  }
+                  @if ((item.lotes?.length || 0) > 5) {
+                    <span class="text-slate-500"> +{{ (item.lotes?.length || 0) - 5 }} lotes</span>
+                  }
 
-                  <div class=" flex justify-end items-center gap-2.5">
+                  <span class="text-slate-400"> · </span>
 
-                    <div class="italic text-slate-500 ">
+                  <span class="font-medium uppercase">{{ item.clients?.[0]?.fullname || 'Sin cliente' }}</span>
+                  @if ((item.clients?.length || 0) > 1) {
+                    <span class="text-slate-500 dark:text-slate-200"> +{{ (item.clients?.length || 0) - 1 }} clientes</span>
+                  }
+                </div>
+              </ng-template>
 
-                      Clientes:
+              <ng-template ng-option-tmp let-item="item" class="text-gray-800 text-left">
+                <div class="border-b border-slate-200 px-2 py-2.5">
+                  <!-- fila principal -->
+                  <div class="flex  justify-between gap-3">
 
+                    <div class="min-w-0">
+                      <div >
+                        <label for="">Contrato: </label>
+                        <span class="truncate text-sm font-semibold text-slate-900 dark:text-slate-100">
+                          {{ item.code }}
+                        </span>
+                      </div>
+
+                      <!-- lotes compactos -->
+
+                      <div>
+                        <label for="">Lotes</label>
+                        <div class="mt-1 flex flex-wrap gap-1">
+                          @for (lot of (item.lotes || []).slice(0, 5); track lot.id) {
+                            <span class="rounded border border-slate-300 bg-slate-50 px-1.5 py-0.5 text-[11px] font-medium text-slate-700">
+                              {{ lot.mz }}-{{ lot.numberLote }}
+                            </span>
+                          }
+                          @if ((item.lotes?.length || 0) > 5) {
+                            <span class="rounded border border-slate-200 bg-slate-100 px-1.5 py-0.5 text-[11px] font-medium text-slate-500">
+                              +{{ (item.lotes?.length || 0) - 5 }} lotes
+                            </span>
+                          }
+                        </div>
+                      </div>
                     </div>
 
-                    <div >
+                    <!-- clientes -->
+                    <div class=" shrink-0">
+
+                      <div class="shrink-0 text-xs text-slate-500 dark:text-slate-400">
+                        {{ item.clients.length }} cliente{{ item.clients.length !== 1 ? 's' : '' }}:
+                      </div>
+
                       @for (client of item.clients; track client.id; let i = $index) {
-                        <div class="uppercase font-semibold">
+                        <div class="truncate text-xs font-semibold uppercase text-slate-800 dark:text-slate-100">
                           {{ client.fullname }}
                         </div>
-                        <div class="font-normal text-sm text-gray-500 pe-5">
-                          {{ client.identityDocument?.shortDescription ?? '---' }} : {{ client.identityNumber ?? '---' }}
+                        <div class="truncate text-[11px] text-slate-500 dark:text-slate-400">
+                          {{ client.identityDocument?.shortDescription ?? '---' }}: {{ client.identityNumber ?? '---' }}
                         </div>
+                        @if (i < (item.clients?.length || 0) - 1) {
+                          <div class="my-1 h-px bg-slate-100"></div>
+                        }
                       }
                     </div>
 
                   </div>
                 </div>
-
               </ng-template>
 
             </ng-select>
@@ -127,7 +168,10 @@
         </div>
 
         <div class="flex items-center gap-3">
+
+          <!-- si la persona que está en sesión es un cliente, no permitir mostrar este botón -->
           <button
+            *ngIf="allowPaidQuote()"
             type="button"
             class="inline-block px-6 py-2 mr-3 font-semibold text-center text-white align-middle transition-all rounded cursor-pointer bg-emerald-600 hover:bg-emerald-700 leading-normal ease-in tracking-tight-rem shadow-xs bg-150 bg-x-25 hover:-translate-y-px active:opacity-85 hover:shadow-md"
             (click)="onSetContractQuoteToPay()"
@@ -151,7 +195,7 @@
             Mostrar pago
           </button>
 
-          <button
+          <!-- <button
             #btnShowPaymentModal
             type="button"
             data-modal-target="payment-modal"
@@ -159,7 +203,7 @@
             class="hidden px-6 py-2 mr-3 font-semibold text-center text-white align-middle transition-all rounded cursor-pointer bg-emerald-600 hover:bg-emerald-700 leading-normal ease-in tracking-tight-rem shadow-xs bg-150 bg-x-25 hover:-translate-y-px active:opacity-85 hover:shadow-md"
           >
             Mostrar pago
-          </button>
+          </button> -->
         </div>
       </div>
 
@@ -169,7 +213,7 @@
             <tr class="bg-gray-50/50">
 
               <th class="px-6 py-3 font-semibold text-gray-600 ">CUOTA</th>
-              <th class="px-6 py-3 font-semibold text-gray-600 ">CONTRATO</th>
+              <th class="px-6 py-3 font-semibold text-gray-600 ">LOTES</th>
               <th class="px-6 py-3 font-semibold text-gray-600 ">CLIENTE</th>
               <th class="px-6 py-3 font-semibold text-gray-600 ">
                 <div class="flex items-center">
@@ -208,10 +252,21 @@
                 <tr class="border-b dark:border-white/40 border-gray-200 dark:text-slate-400 ">
 
                   <td class="font-medium p-4">
-                    {{ contractQuote.code }}
+                    Cuota: {{ contractQuote.order }}
                   </td>
                   <td class="font-medium ">
-                    {{ contractQuote.contract.code }}
+                    <div class="mt-1 flex flex-wrap gap-1">
+                      @for (lot of (contractQuote.contract.lotes).slice(0, 4); track lot.id) {
+                        <span class="rounded border border-indigo-600 text-indigo-700 px-1.5 py-0.5 text-[11px] font-semibold">
+                          {{ lot.mz }}-{{ lot.numberLote }}
+                        </span>
+                      }
+                      @if ((contractQuote.contract.lotes.length) > 4) {
+                        <span class="rounded border border-slate-200 bg-slate-100 px-1.5 py-0.5 text-[11px] font-medium text-slate-500">
+                          +{{ (contractQuote.contract.lotes.length || 0) - 4 }} lotes
+                        </span>
+                      }
+                    </div>
                   </td>
                   <td class="flex justify-start">
 
@@ -255,7 +310,7 @@
                   </td>
                   <td class="  ">
 
-                    @if ( !contractQuote.isPaid ) {
+                    @if ( !contractQuote.isPaid && allowPaidQuote() ) {
 
                       <div class=" flex justify-center items-center gap-3">
 
@@ -278,15 +333,16 @@
                         </button>
                       </div>
 
-                    } @else {
-                      <button
-                        type="button"
-                        class=" bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1 rounded-md"
-                        (click)="onGetPaymentQuoteInfo( contractQuote.id)"
-                      >
-                        Ver
-                      </button>
                     }
+
+                    <button
+                      *ngIf="contractQuote.isPaid"
+                      type="button"
+                      class=" bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1 rounded-md"
+                      (click)="onGetPaymentQuoteInfo( contractQuote.id)"
+                    >
+                      Ver
+                    </button>
 
 
                   </td>
@@ -323,15 +379,6 @@
 </div>
 
 
-
-<paid-quotes-modal
-  [contractQuotesData]="contractQuotesAll()"
-  [contractQuotesToPaid]="contractQuoteToPay()"
-  [webUrlPermissionMethods]="webUrlPermissionMethods()"
-  (paidQuoteSuccess)="onGetContractQuotes()" >
-</paid-quotes-modal>
-
-
 <!-- Main modal -->
 <div id="payment-quote-detail-modal" data-modal-backdrop="true" tabindex="-1" aria-hidden="false" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 mt-5 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
   <div class="relative p-4 w-full max-w-lg max-h-full">
@@ -340,9 +387,10 @@
       <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
           <!-- Modal header -->
           <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
-              <h3 class="text-lg font-semibold text-gray-900 dark:text-white" >
-                  Pago de cuota
-              </h3>
+              <div>
+                <h3 class="text-xl font-semibold text-gray-900 dark:text-slate-100">Pago de cuota</h3>
+                <p class="text-sm text-gray-500 mt-1 dark:text-slate-400">Resumen del movimiento y archivos adjuntos</p>
+              </div>
               <button
                 #btnClosePaymentQuoteInfoModal
                 type="button"
@@ -357,57 +405,58 @@
           </div>
           <!-- Modal body -->
 
-          <div class="p-4">
-            <span class="font-semibold text-gray-800 dark:text-gray-200">
-              Detalles del pago de la cuota
-            </span>
+          <div class="px-6 py-5 space-y-6">
 
+            <div *ngFor="let payment of paymentsByCuote()">
 
-            <div class="grid gap-3 mb-1 grid-cols-12  ">
-
-              <div class="col-span-12" *ngFor="let payment of paymentsByCuote()" >
-
-
-                <div class="mt-4">
-
-                  <div class="flex gap-2 justify-start">
-                    <span class="italic w-32">Fecha de pago: </span>
-                    <span>
-                      {{ payment.paymentDate }}
-                    </span>
-                  </div>
-
-                  <div class="flex gap-2 justify-start">
-                    <span class="italic w-32">Cuotas: </span>
-                    <div *ngFor="let quote of payment.quotes" class="p-2 border border-gray-200 " >
-                      <div>
-                         Código: {{ quote.code }}
-                      </div>
-                      <div>
-                        Monto: S/ {{ quote.totalPaid| number:'.2-2' }}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="flex gap-2 justify-start" *ngIf="payment.photo" >
-                    <span class="italic w-32">Descargar comprobante: </span>
-                    <div class="flex justify-center items-center">
-                      <a
-                        class="text-blue-600 underline"
-                        [href]=" payment.photo.urlImg "
-                        target="_blank"
-                        download
-                      >
-                      <i class="fa-solid fa-download"></i>
-                      </a>
-                  </div>
-
+              <div class="bg-gray-50 rounded-xl p-4 flex justify-between dark:bg-slate-600">
+                <div>
+                  <p class="text-sm text-gray-500 dark:text-slate-200">Fecha de pago</p>
+                  <p class="text-base font-medium text-gray-900 mt-1 dark:text-slate-400"> {{ payment.paymentDate | moment:'createAt' }} </p>
                 </div>
 
+                <div>
+                  <p class="text-sm text-gray-500 dark:text-slate-200">Monto pagado</p>
+                  <p class="text-base font-medium text-gray-900 mt-1 dark:text-slate-400"> S/ {{ payment.amount | number:'.2-2' }} </p>
+                </div>
+              </div>
+
+              <div>
+                <p class="text-sm font-medium text-gray-900 mb-3 dark:text-slate-200">Cuotas asociadas</p>
+                <div class="flex flex-wrap gap-2" >
+                  <div class="min-w-[120px] rounded-xl border border-gray-200 bg-white px-3 py-1.5 dark:bg-slate-700 dark:border-slate-300" *ngFor="let quote of payment.quotes">
+                    <p class="text-sm text-gray-500 dark:text-slate-400">Cuota {{ quote.order }}</p>
+                    <p class="font-semibold text-gray-900 mt-1 text-sm dark:text-slate-200">S/ {{ quote.totalPaid | number:'.2-2' }} </p>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <p class="text-sm font-medium text-gray-900 mb-3 dark:text-slate-200">Archivos adjuntos</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div class="rounded-xl border border-gray-200 p-4 bg-white dark:bg-slate-700" *ngIf="payment.photo">
+                    <p class="text-sm font-medium text-gray-800 mb-3 dark:text-slate-200">Voucher</p>
+                    <div class="rounded-lg bg-gray-50 border border-dashed border-gray-200 p-3 flex justify-center dark:bg-slate-700">
+                      <img class="h-56 object-contain rounded-md" [src]="payment.photo.urlImg"  alt="">
+                    </div>
+                    <a class="mt-3 inline-flex text-sm font-medium text-blue-600 hover:text-blue-700" [href]="payment.photo.urlImg" target="_blank">
+                      Descargar archivo
+                    </a>
+                  </div>
+
+                  <div class="rounded-xl border border-gray-200 p-4 bg-white dark:bg-slate-700" *ngIf="payment.documentFile">
+                    <p class="text-sm font-medium text-gray-800 mb-3 dark:text-slate-200 dark:text-slate-200">Comprobante</p>
+                    <div class="rounded-lg bg-gray-50 border border-dashed border-gray-200 p-3 flex justify-center dark:bg-slate-700">
+                      <img class="h-56 object-contain rounded-md" [src]="payment.documentFile.urlImg" alt="">
+                    </div>
+                    <a class="mt-3 inline-flex text-sm font-medium text-blue-600 hover:text-blue-700" [href]="payment.documentFile.urlImg" target="_blank">
+                      Descargar archivo
+                    </a>
+                  </div>
+                </div>
               </div>
 
             </div>
-
           </div>
 
       </div>

@@ -74,7 +74,7 @@ export default class ProfileLayoutComponent implements OnInit, OnDestroy {
     id:                [ 'xD',   [] ],
     sellerUserId:      [ null,   [ Validators.required ] ],
     paymentDate:       [ null, [ Validators.required ] ],
-    operationCode:     [ null, [ Validators.required, Validators.pattern( operationCodePatt ) ] ],
+    operationCode:     [ null, [ Validators.pattern( operationCodePatt ) ] ],
     amount:            [ null, [ Validators.required, Validators.min(1) ] ],
     observation:       [ '',   [ Validators.pattern( descriptionPatt ) ] ],
     paymentMethodId:   [ null, [ Validators.required ] ],

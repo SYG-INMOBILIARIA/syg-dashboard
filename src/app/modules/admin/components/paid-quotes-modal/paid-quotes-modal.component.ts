@@ -195,13 +195,9 @@ export class PaidQuotesModalComponent implements OnInit {
 
   onUpdateSelectQuotes(  ) {
 
-    console.log( 'onUpdateSelectQuotes' );
-
     const contractQuotesId: string[] = this.paymentQuoteForm.get('contractQuotes')?.value ?? [];
 
     if( !contractQuotesId ) return;
-
-    console.log( 'contractQuotesId', contractQuotesId );
 
     const quotesSelected = this._contractQuotes()?.filter( (e) => contractQuotesId.includes( e.id ) );
     const totalDebt = quotesSelected.reduce( (acc, current) => acc + current.totalDebt , 0 );

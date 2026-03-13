@@ -10,7 +10,7 @@ import { PipesModule } from '@pipes/pipes.module';
 import { InputErrorsDirective } from '@shared/directives/input-errors.directive';
 import { PaginationComponent } from '@shared/components/pagination/pagination.component';
 import { SpinnerComponent } from '@shared/components/spinner/spinner.component';
-import { PaidQuotesModalComponent } from '@modules/admin/components/paid-quotes-modal/paid-quotes-modal.component';
+// import { PaidQuotesModalComponent } from '@modules/admin/components/paid-quotes-modal/paid-quotes-modal.component';
 import { ContractDetailModalComponent } from '@modules/admin/components/contract-detail-modal/contract-detail-modal.component';
 import { PaymentScheduleModalComponent } from "../../../modules/admin/components/payment-schedule-modal/payment-schedule-modal.component";
 import { NgSelectModule } from '@ng-select/ng-select';
@@ -31,7 +31,7 @@ import { FlatpickrDirective } from 'angularx-flatpickr';
     ProfileClientRoutingModule,
     PaginationComponent,
     SpinnerComponent,
-    PaidQuotesModalComponent,
+    // PaidQuotesModalComponent,
     ContractDetailModalComponent,
     PaymentScheduleModalComponent,
     NgSelectModule,

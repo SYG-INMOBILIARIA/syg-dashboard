@@ -19,6 +19,7 @@ import { UntypedFormBuilder, Validators } from '@angular/forms';
 import { emailPatt, fullTextPatt, numberDocumentPatt, numberPatt, phonePatt } from '@shared/helpers/regex.helper';
 import { ClientValidatorService } from '@modules/admin/validators/client-validator.service';
 import { AlertService } from '@shared/services/alert.service';
+import { initFlowbite } from 'flowbite';
 
 @Component({
   templateUrl: './profile-client-layout.component.html',
@@ -138,7 +139,11 @@ export class ProfileClientLayoutComponent implements OnInit, OnDestroy {
     this.onGetSelectsData();
   }
 
-
+  ngAfterViewInit() {
+    setTimeout(() => {
+      initFlowbite();
+    }, 500);
+  }
 
   onGetClientProfile() {
 
@@ -349,14 +354,13 @@ export class ProfileClientLayoutComponent implements OnInit, OnDestroy {
     .subscribe({
       next: async ( clientUpdated ) => {
 
-        this.onResetAfterSubmit();
-        this.btnCloseClientModal.nativeElement.click();
-
         this._alertService.showAlert('Datos actualizados exitosamente', undefined, 'success');
         this._store.dispatch( autheactions.onRefreshClientInfo( { clientInfo: clientUpdated } ) );
         this._client.set( clientUpdated );
 
         this._isSaving.set( false );
+
+        this.btnCloseClientModal.nativeElement.click();
 
       }, error: (err) => {
 

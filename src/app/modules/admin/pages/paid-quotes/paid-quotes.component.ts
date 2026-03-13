@@ -195,7 +195,7 @@ export default class PaidQuotesComponent implements OnInit, OnDestroy {
 
     //! abrir modal para pago de cuotas
     // this.btnShowPaymentQuoteModal.nativeElement.click();
-    this.onOpenVisitModal();
+    this.onOpenPaidCuoteModal();
   }
 
   onGetPaymentQuoteInfo( contractQuoteId: string ) {
@@ -253,7 +253,7 @@ export default class PaidQuotesComponent implements OnInit, OnDestroy {
 
   }
 
-  onOpenVisitModal() {
+  onOpenPaidCuoteModal() {
 
     const dialogRef = this._dialog.open( PaymentQuotesModalComponent , {
       width: '50vw',
