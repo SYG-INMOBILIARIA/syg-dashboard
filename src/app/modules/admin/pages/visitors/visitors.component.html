@@ -78,12 +78,16 @@
                                                 {{ visitor.fullname }}
                                             </div>
 
-                                            <div class="flex items-center dark:text-slate-400">
+                                            <div *ngIf="visitor?.legalRepresentative">
+                                              {{ visitor.legalRepresentative }}
+                                            </div>
+
+                                            <div class="flex items-center dark:text-slate-400" *ngIf="visitor?.identityDocument">
                                                 <span class="text-xs font-semibold me-1.5">
-                                                  {{ visitor.identityDocument.shortDescription }}:
+                                                  {{ visitor?.identityDocument?.shortDescription }}:
                                                 </span>
                                                 <span>
-                                                  {{ visitor.identityNumber }}
+                                                  {{ visitor?.identityNumber }}
                                                 </span>
                                             </div>
 

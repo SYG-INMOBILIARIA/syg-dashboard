@@ -64,8 +64,8 @@ export class VisitorModalComponent implements OnInit {
     bussinessName:        [ '', [ Validators.pattern( fullTextPatt ) ] ],
     legalRepresentative:  [ '', [ Validators.pattern( fullTextPatt ) ] ],
     personType:           [ null, [ Validators.required ] ],
-    identityDocumentId:   [ null, [ Validators.required ] ],
-    identityNumber:       [ '', [ Validators.required, Validators.pattern( numberDocumentPatt ) ] ],
+    identityDocumentId:   [ null, [ ] ],
+    identityNumber:       [ '',   [ Validators.pattern( numberDocumentPatt ) ] ],
     email:                [ null, [ Validators.pattern( emailPatt ) ] ],
     phone:                [ null, [ Validators.required, Validators.pattern( phonePatt ) ] ],
     gender:               [ null, [ Validators.required ] ],
@@ -99,6 +99,8 @@ export class VisitorModalComponent implements OnInit {
   }
 
   ngOnInit(): void {
+
+    console.log( 'data para visitantes :::👈  ', {...this._data} );
 
     const { visitorToUpdate, identityDocuments, civilStatus, genders, personTypes } = this._data;
 
