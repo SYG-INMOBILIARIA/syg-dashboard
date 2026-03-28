@@ -79,10 +79,11 @@ export default class ClientProfileComponent implements OnInit, OnDestroy {
     birthDate:            [ '', [ Validators.required ] ],
     email:                [ '', [ Validators.required, Validators.pattern( emailPatt ) ] ],
     phone:                [ '', [ Validators.required, Validators.pattern( phonePatt ) ] ],
-    secondaryPhone:       [ '', [ Validators.pattern( phonePatt ) ] ],
+    profession:           [ '', [ Validators.required, Validators.pattern( fullTextPatt ) ] ],
     address:              [ '', [ Validators.required, Validators.pattern( fullTextPatt ) ] ],
     gender:               [ null, [ Validators.required ] ],
     civilStatus:          [ null, [ Validators.required ] ],
+    districtId:           [null]
   }, {
     updateOn: 'change',
     asyncValidators: [ this._clientValidatorService ],

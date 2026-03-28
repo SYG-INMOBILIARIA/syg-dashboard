@@ -10,13 +10,6 @@ export interface DashboardStats {
   clientsNeedingAttention: number;
 }
 
-export interface SellerPerformance {
-  name: string;
-  convertedClients: number;
-  conversionRatio: number;
-  commissionsGenerated: number;
-  achievements: Achievement[];
-}
 
 export interface Achievement {
   type: 'success' | 'warning' | 'info';

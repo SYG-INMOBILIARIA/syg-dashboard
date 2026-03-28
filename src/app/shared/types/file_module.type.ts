@@ -6,4 +6,5 @@ export type FileModule =
   'payment-quote' |
   'payment-quote-document' |
   'expenses' |
-  'seller-payments';
+  'seller-payments' |
+  'contract-initial';

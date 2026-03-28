@@ -24,14 +24,14 @@ import { ProyectService } from '../../services/proyect.service';
 import { WebUrlPermissionMethods } from '../../../../auth/interfaces';
 import {
   Client
-  , ContractFormOne
+  , ContractFormFour, ContractFormOne
   , ContractFormThree
   , ContractFormTwo
   , Coordinate
   , Financing
   , Lote
   , LoteSelectedInMap
-  , Proyect
+  , PaymentMethod, Proyect
   , Quota
 } from '../../interfaces';
 import { LoteService } from '../../services/lote.service';
@@ -39,12 +39,16 @@ import { ContractService } from '../../services/contract.service';
 import { FinancingService } from '../../services/financing.service';
 import { UserService } from '../../../security/services/user.service';
 import { AlertService } from '@shared/services/alert.service';
-import { descriptionPatt, fullTextPatt, numberPatt, textPatt } from '@shared/helpers/regex.helper';
+import { descriptionPatt, fullTextPatt, numberPatt, operationCodePatt, textPatt } from '@shared/helpers/regex.helper';
 import { User } from '../../../security/interfaces';
 import { FinancingType, LoteStatus, PaymentType } from '../../enum';
 import { NomenclatureService } from '@shared/services/nomenclature.service';
 import { MzByProyect } from '../lotes-by-proyect/interfaces';
 import { FlatpickrDefaultsInterface } from 'angularx-flatpickr';
+import { environments } from '@envs/environments';
+import { PaymentMethodService } from '@modules/admin/services/payment-method.service';
+import { onValidImg } from '@shared/helpers/files.helper';
+import { UploadFileService } from '@shared/services/upload-file.service';
 
 @Component({
   selector: 'app-contract-form',
@@ -94,7 +98,10 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
   private _financingService = inject( FinancingService );
   private _userService = inject( UserService );
   private _alertService = inject( AlertService );
+  private _paymentMethodService = inject( PaymentMethodService );
   private _nomenclatureService = inject( NomenclatureService );
+  private _uploadService = inject( UploadFileService );
+
 
   public searchClientInput = new FormControl('', [ Validators.pattern( fullTextPatt ) ]);
   public searchUserInput = new FormControl('', [ Validators.pattern( fullTextPatt ) ]);
@@ -129,6 +136,16 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
     firstPayDate:       [ null, [ ] ],
   });
 
+  public contractFormFour = this._formBuilder.group({
+    initialPaidDate:      [ null, [ Validators.required ] ],
+    paymentMethodInitialId: [ null, [ Validators.required ] ],
+    operationCodeInitial: [ null, [ Validators.pattern( operationCodePatt ) ] ],
+    observationInitial:   [ null, [ ] ],
+  });
+
+  public fileUrl = signal( environments.defaultImgUrl );
+  private _file?: File;
+
   private _initialAmoutDisabled = signal( false );
 
   private _isSaving = signal( false );
@@ -156,8 +173,10 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
   private _countQuotesPending = signal<number>( 0 );
 
   private _loadingClients = signal<boolean>( false );
+  private _paymentsMethod = signal<PaymentMethod[]>( [] );
 
   public paymentTypes = computed( () => this._paymentTypes() );
+  public paymentsMethod = computed( () => this._paymentsMethod() );
   public mzList = computed( () => this._mzList() );
   public initialAmoutDisabled = computed( () => this._initialAmoutDisabled() );
   public isSaving = computed( () => this._isSaving() );
@@ -193,14 +212,19 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
   inputErrorsThree( field: string ) {
     return this.contractFormThree.get(field)?.errors ?? null;
   }
+  inputErrorsFour( field: string ) {
+    return this.contractFormFour.get(field)?.errors ?? null;
+  }
 
   get formErrors() { return this.contractFormOne.errors; }
   get formErrorsTwo() { return this.contractFormTwo.errors; }
   get formErrorsThree() { return this.contractFormThree.errors; }
+  get formErrorsFour() { return this.contractFormFour.errors; }
 
   get invalidFormOne() { return this.contractFormOne.invalid; }
   get invalidFormTwo() { return this.contractFormTwo.invalid; }
   get invalidFormThree() { return this.contractFormThree.invalid; }
+  get invalidFormFour() { return this.contractFormFour.invalid; }
   get numberOfQuotesPaid() { return this.contractFormThree.get('numberOfQuotesPaid')?.value ?? 0; }
 
 
@@ -213,10 +237,14 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
   isTouchedThree( field: string ) {
     return this.contractFormThree.get(field)?.touched ?? false;
   }
+  isTouchedFour( field: string ) {
+    return this.contractFormFour.get(field)?.touched ?? false;
+  }
 
   get valueFormOne(): ContractFormOne { return this.contractFormOne.value; }
   get valueFormTwo(): ContractFormTwo { return this.contractFormTwo.value; }
   get valueFormThree(): ContractFormThree { return this.contractFormThree.value; }
+  get valueFormFour(): ContractFormFour { return this.contractFormFour.value; }
 
   get lotesIdsSelected(): string[] {
     const lotesSelected = this._lotesSelected();
@@ -230,6 +258,8 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
     const paymentType = this.contractFormThree.get('paymentType')?.value;
     return paymentType == PaymentType.cash;
   }
+
+  get file() { return this._file; }
 
   ngOnInit(): void {
     this.onLoadDataSelects();
@@ -339,12 +369,13 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
 
             // Si no hay estados especiales, usamos el loteStatus
             ['match', ['get', 'loteStatus'],
-            'SELLED',    '#FFD630',
-            'CREDIT',    '#FF6C1F',
-            'RESERVED',   '#76CC5C', //#FA2D2D -> FFDC42
-            'AVAILABLE', '#4DCDFF',
-            /* default */ '#4DCDFF'
+              'SELLED',    '#FFD630',
+              'CREDIT',    '#FF6C1F',
+              'RESERVED',   '#76CC5C', //#FA2D2D -> FFDC42
+              'AVAILABLE', '#4DCDFF',
+              /* default */ '#4DCDFF'
             ]
+
         ],
       }
     });
@@ -377,6 +408,7 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
 
       const lote = f.properties as Lote;
       const { mz, numberLote, squareMeters, price, loteStatus } = lote;
+
       let popupHtml = `
         <span class="font-extrabold text-md text-blue-500">Lote: ${mz}-${numberLote}</span>
         <p class="text-md font-semibold">
@@ -384,23 +416,28 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
           Precio: <span class="font-extrabold text-md text-green-500">S/ ${Number(price).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
         </p>`;
 
-      let color = 'green';
+      let color = 'yellow';
       let estado = 'Vendido';
 
-      switch (loteStatus) {
+      switch (lote.loteStatus) {
         case LoteStatus.Reserved:
-          color = 'yellow';
-          estado = 'Reservado';
+          color = 'green';
+          estado = 'Separado';
           break;
 
           case LoteStatus.Selled:
-            color = 'green';
+            color = 'yellow';
             estado = 'Vendido';
             break;
 
+          case LoteStatus.Credit:
+            color = 'orange';
+            estado = 'Al crédito';
+            break;
+
         default:
-          color = 'slate';
-          estado = 'En progreso';
+          color = 'blue';
+          estado = 'Libre';
           break;
       }
 
@@ -485,12 +522,14 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
       usersResponse: this._userService.getUsers( 1, pattern, 10 ),
       clientsResponse: this._clientService.getClients( 1, patternClient, 10, false, null, null, null ),
       proyectsResponse: this._proyectService.getProyects( 1, '', 900 ),
-    }).subscribe( ({ paymentTypesResponse, usersResponse, clientsResponse, proyectsResponse }) => {
+      paymentMethodResponse: this._paymentMethodService.getPaymentsMethod( 1, '', 100 )
+    }).subscribe( ({ paymentTypesResponse, usersResponse, clientsResponse, proyectsResponse, paymentMethodResponse }) => {
 
       this._paymentTypes.set( paymentTypesResponse.nomenclatures );
       this._users.set( usersResponse.users );
       this._clients.set( clientsResponse.clients );
       this._proyects.set( proyectsResponse.proyects );
+      this._paymentsMethod.set( paymentMethodResponse.paymentsMethod );
 
       this._loadingClients.set( false );
     });
@@ -810,9 +849,38 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
     this.stepper?.reset();
   }
 
+  onChangeFile( event?: any ) {
+
+    if( !event ) return;
+
+    const nombre = event.files.item(0).name.toUpperCase();
+    const size = event.files.item(0).size;
+    const extension = nombre.split('.').pop();
+
+    this._file = event.files.item(0);
+
+    if ( !onValidImg(extension, size) ) {
+      event.target.value = '';
+      this._file = undefined;
+      return
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event: any) => {
+      this.fileUrl.set( event.target.result );
+    };
+    reader.readAsDataURL( event.files.item(0) );
+
+  }
+
+  onRemoveFile() {
+    this._file = undefined;
+    this.fileUrl.set( environments.defaultImgUrl );
+  }
+
   onSubmit() {
 
-    if( this.invalidFormOne || this.invalidFormTwo || this.invalidFormThree ) return;
+    if( this.invalidFormOne || this.invalidFormTwo || this.invalidFormThree || this.invalidFormFour ) return;
 
     // const allowCreate = this.webUrlPermissionMethods.some(
     //   (permission) => permission.webApi == apiContract && permission.methods.includes( 'POST' )
@@ -826,11 +894,16 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
     const body1 = this.valueFormOne;
     const body2 = this.valueFormTwo;
     const body3 = this.valueFormThree;
+    const body4 = this.valueFormFour;
 
     this._alertService.showLoading();
 
-    this._contractService.createContract( { ...body1, ...body2, ...body3 } )
-    .subscribe( (contractCreated) => {
+    this._contractService.createContract( { ...body1, ...body2, ...body3, ...body4 } )
+    .subscribe( async(contractCreated) => {
+
+      if( this._file ) {
+        await this._uploadService.uploadFile( this._file, contractCreated.id, 'contract-initial' );
+      }
 
       this._alertService.showAlert( 'Contrato creado exitosamente', undefined, 'success' );
 
@@ -842,7 +915,6 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
   onNextLoteStep() {
 
     if( this.invalidFormOne ) {
-
       this.contractFormOne.markAllAsTouched();
       return ;
     }
@@ -882,6 +954,15 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
 
     this._lotesAmount.set( totalLotes );
 
+  }
+
+  onNextPaidInitialStep() {
+    if( this.invalidFormThree ) {
+      this.contractFormThree.markAllAsTouched();
+      return ;
+    }
+
+    this.stepper?.next();
   }
 
   onGetFinancingByProyect() {

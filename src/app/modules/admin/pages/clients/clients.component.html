@@ -646,7 +646,7 @@
                   }
                 </div>
 
-                <div class="col-span-6 md:col-span-4">
+                <div class="col-span-6">
                     <label for="txtEmail" class="block mb-1 text-sm font-medium text-gray-900 dark:text-white">
                       Email
                     </label>
@@ -670,26 +670,26 @@
                     }
                 </div>
 
-                <div class="col-span-3 md:col-span-2">
-                  <label for="txtPhone" class="block mb-1 text-sm font-medium text-gray-900 dark:text-white">
-                    Teléfono 2
+                <div class="col-span-6">
+                  <label for="txtProfesion" class="block mb-1 text-sm font-medium text-gray-900 dark:text-white">
+                    Profesión u oficio <span class="text-red-600">*</span>
                   </label>
                   <input
                     type="text"
-                    id="txtPhone"
+                    id="txtProfesion"
                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-md focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                    placeholder="+00 000 000 000"
-                    formControlName="secondaryPhone"
-                    [class.border-red-400]=" inputErrors('secondaryPhone') && isTouched('secondaryPhone') "
+                    placeholder="Ingrese la profesión u oficio"
+                    formControlName="profession"
+                    [class.border-red-400]=" inputErrors('profession') && isTouched('profession') "
                   >
 
-                  @if (isTouched('secondaryPhone')) {
+                  @if (isTouched('profession')) {
                     <span
                       class="flex items-center ms-1 mt-2 text-xs text-red-500"
                       inputErrors
-                      [errors]="inputErrors('secondaryPhone')"
-                      [class.hidden]="!inputErrors('secondaryPhone')"
-                      inputLabel="Teléfono 2" >
+                      [errors]="inputErrors('profession')"
+                      [class.hidden]="!inputErrors('profession')"
+                      inputLabel="Profesión" >
                     </span>
                   }
                 </div>

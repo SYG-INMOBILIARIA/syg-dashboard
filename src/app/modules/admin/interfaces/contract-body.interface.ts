@@ -18,3 +18,11 @@ export interface ContractFormThree {
   numberOfQuotesPaid: number;
   contractDate?: string;
 }
+
+
+export interface ContractFormFour {
+  initialPaidDate: string;
+  paymentMethodInitialId: number;
+  operationCodeInitial: string;
+  observationInitial: string;
+}

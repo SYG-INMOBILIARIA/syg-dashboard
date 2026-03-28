@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, effect, ElementRef, inject, OnInit, signal, ViewChild } from '@angular/core';
+import { Component, computed, effect, ElementRef, forwardRef, inject, OnInit, signal, ViewChild } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { Store } from '@ngrx/store';
 import { forkJoin, Subscription } from 'rxjs';
@@ -14,13 +14,13 @@ import { SpinnerComponent } from '@shared/components/spinner/spinner.component';
 import { InputErrorsDirective } from '@shared/directives/input-errors.directive';
 import { WebUrlPermissionMethods } from '@app/auth/interfaces';
 import { AlertService } from '@shared/services/alert.service';
-import { fullTextPatt, numberPatt } from '@shared/helpers/regex.helper';
+import { fullTextPatt, numberPatt, operationCodePatt } from '@shared/helpers/regex.helper';
 import { ReservationService } from '@modules/admin/services/reservation.service';
 import { apiReservation } from '@shared/helpers/web-apis.helper';
 import { ContractByReservationBody, IReservationBody, Reservation } from './interfaces';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { ClientService } from '@modules/admin/services/client.service';
-import { Client, Coordinate, Financing, Lote, LoteSelectedInMap, Proyect, Quota } from '@modules/admin/interfaces';
+import { Client, ContractFormFour, Coordinate, Financing, Lote, LoteSelectedInMap, PaymentMethod, Proyect, Quota } from '@modules/admin/interfaces';
 import { ProyectService } from '@modules/admin/services/proyect.service';
 import { LoteService } from '@modules/admin/services/lote.service';
 import { MzByProyect } from '../lotes-by-proyect/interfaces';
@@ -32,6 +32,12 @@ import { NomenclatureService } from '@shared/services/nomenclature.service';
 import { FlatpickrDefaultsInterface, FlatpickrDirective } from 'angularx-flatpickr';
 import { FinancingService } from '@modules/admin/services/financing.service';
 import { ContractService } from '@modules/admin/services/contract.service';
+import { CdkStepper, CdkStepperModule } from '@angular/cdk/stepper';
+import { CustomStepper } from '@shared/components/custom-stepper/custom-stepper.component';
+import { environments } from '@envs/environments';
+import { PaymentMethodService } from '@modules/admin/services/payment-method.service';
+import { onValidImg } from '@shared/helpers/files.helper';
+import { UploadFileService } from '@shared/services/upload-file.service';
 
 @Component({
   standalone: true,
@@ -44,7 +50,10 @@ import { ContractService } from '@modules/admin/services/contract.service';
     InputErrorsDirective,
     SpinnerComponent,
     NgSelectModule,
-    FlatpickrDirective
+    FlatpickrDirective,
+
+    forwardRef(() => CustomStepper ),
+    CdkStepperModule
   ],
   templateUrl: './reservation.component.html',
 })
@@ -59,6 +68,7 @@ export default class ReservationComponent implements OnInit {
   @ViewChild('btnShowReservationModal') btnShowReservationModal!: ElementRef<HTMLButtonElement>;
   @ViewChild('btnShowContractByReservation') btnShowContractByReservation!: ElementRef<HTMLButtonElement>;
   @ViewChild('btnCloseContractByReservationModal') btnCloseContractByReservationModal!: ElementRef<HTMLButtonElement>;
+  @ViewChild('contractByReservationStepper') stepper?: CdkStepper;
 
   @ViewChild('map') mapContainer?: ElementRef<HTMLDivElement>;
   private _map?: Map;
@@ -84,6 +94,13 @@ export default class ReservationComponent implements OnInit {
   private _nomenclatureService = inject( NomenclatureService );
   private _financingService = inject( FinancingService );
   private _contractService = inject( ContractService );
+  private _uploadService = inject( UploadFileService );
+
+
+  private _paymentMethodService = inject( PaymentMethodService );
+
+  private _paymentsMethod = signal<PaymentMethod[]>( [] );
+  public paymentsMethod = computed( () => this._paymentsMethod() );
 
   private _formBuilder = inject( UntypedFormBuilder );
 
@@ -130,6 +147,7 @@ export default class ReservationComponent implements OnInit {
   public mzList = computed( () => this._mzList() );
 
   private _polygonCoords: Coordinate[] = [];
+
 
   get isInvalidSearchInput() { return this.searchInput.invalid; }
   get isInvalidForm() { return this.reservationForm.invalid; }
@@ -180,6 +198,13 @@ export default class ReservationComponent implements OnInit {
     firstPayDate:       [ null, [ ] ],
   });
 
+  public contractInitialForm = this._formBuilder.group({
+    initialPaidDate:      [ null, [ Validators.required ] ],
+    paymentMethodInitialId: [ null, [ Validators.required ] ],
+    operationCodeInitial: [ null, [ Validators.pattern( operationCodePatt ) ] ],
+    observationInitial:   [ null, [ ] ],
+  });
+
   private _lotesAmount = signal<number>( 0 );
   private _interestPercent = signal<number>( 0 );
   private _amountToFinancing = signal<number>( 0 );
@@ -212,6 +237,22 @@ export default class ReservationComponent implements OnInit {
 
   private _financingQuota: Quota | null = null;
 
+  public fileUrl = signal( environments.defaultImgUrl );
+  private _file?: File;
+
+  inputErrorsInitial( field: string ) {
+    return this.contractInitialForm.get(field)?.errors ?? null;
+  }
+  get formErrorsInitial() { return this.contractInitialForm.errors; }
+
+  isTouchedInitial( field: string ) {
+    return this.contractInitialForm.get(field)?.touched ?? false;
+  }
+
+  get valueFormInitial(): ContractFormFour { return this.contractInitialForm.value; }
+
+  get file() { return this._file; }
+
   get contractBody(): ContractByReservationBody {
     return this.contractForm.value;
   }
@@ -224,6 +265,7 @@ export default class ReservationComponent implements OnInit {
   }
 
   get isInvalidContractForm() { return this.contractForm.invalid; }
+  get isInvalidContractInitialForm() { return this.contractInitialForm.invalid; }
 
   inputContractErrors( field: string ) {
     return this.contractForm.get(field)?.errors ?? null;
@@ -251,6 +293,8 @@ export default class ReservationComponent implements OnInit {
     this.onGetProyects();
     this.onGetUsers();
     this.onGetNomenclatures();
+    this.onGetPaymentsMethod();
+
   }
 
   ngAfterViewInit(): void {
@@ -276,6 +320,15 @@ export default class ReservationComponent implements OnInit {
       this._onAddMapboxEvents();
 
       this._buildMapInProgress.set( false );
+    });
+
+  }
+
+  onGetPaymentsMethod( ) {
+
+    this._paymentMethodService.getPaymentsMethod( 1, '', 100 )
+    .subscribe(({ paymentsMethod, total }) => {
+      this._paymentsMethod.set( paymentsMethod );
     });
 
   }
@@ -522,7 +575,12 @@ export default class ReservationComponent implements OnInit {
     this._loadingClients.set( true );
 
     const pattern = this.searchClientInput.value ?? '';
-    this._clientService.getClients( 1, pattern, 10, false , null, null, null )
+
+    let filter = `name=${ pattern }`;
+    if( numberPatt.test( pattern ) )
+      filter = `identityNumber=${ pattern }`;
+
+    this._clientService.getClients( 1, filter, 50, false , null, null, null )
     .subscribe( ({ clients }) => {
       this._clients.set( clients );
       this.searchClientInput.reset();
@@ -1035,15 +1093,71 @@ export default class ReservationComponent implements OnInit {
 
   onResetAfterSubmitContract() {
     this.contractForm.reset();
+    this.contractInitialForm.reset();
+    this._file = undefined;
+    this.fileUrl.set( environments.defaultImgUrl );
+  }
+
+  onNextInitialStep() {
+
+    if( this.isInvalidContractForm ) {
+      this.contractForm.markAllAsTouched();
+      return ;
+    }
+
+    this.stepper?.next();
+
+  }
+
+  onChangeFile( event?: any ) {
+
+    if( !event ) return;
+
+    const nombre = event.files.item(0).name.toUpperCase();
+    const size = event.files.item(0).size;
+    const extension = nombre.split('.').pop();
+
+    this._file = event.files.item(0);
+
+    if ( !onValidImg(extension, size) ) {
+      event.target.value = '';
+      this._file = undefined;
+      return
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event: any) => {
+      this.fileUrl.set( event.target.result );
+    };
+    reader.readAsDataURL( event.files.item(0) );
+
+  }
+
+  onRemoveFile() {
+    this._file = undefined;
+    this.fileUrl.set( environments.defaultImgUrl );
   }
 
   onSubmitContract() {
 
+    if( this.isInvalidContractForm || this.isInvalidContractInitialForm ) {
+      this.contractForm.markAllAsTouched();
+      this.contractInitialForm.markAllAsTouched();
+      return ;
+    }
+
     this._contractInSaving.set( true );
 
-    this._contractService.createContract( this.contractBody )
+    const contractBody = this.contractBody;
+    const contractInitialBody = this.valueFormInitial;
+
+    this._contractService.createContract( {...contractBody, ...contractInitialBody} )
     .subscribe({
-      next: (contractCreated) => {
+      next: async (contractCreated) => {
+
+        if( this._file ) {
+          await this._uploadService.uploadFile( this._file, contractCreated.id, 'contract-initial' );
+        }
 
         this._alertService.showAlert( `Contrato #${contractCreated.code} creado exitosamente`, undefined, 'success' );
         this.btnCloseContractByReservationModal.nativeElement.click();

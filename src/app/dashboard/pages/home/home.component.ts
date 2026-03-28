@@ -4,12 +4,13 @@ import { RouterModule } from '@angular/router';
 import ApexCharts from 'apexcharts';
 import { initFlowbite } from 'flowbite';
 import { forkJoin, Subscription } from 'rxjs';
-import { DashboardStats, SellerPerformance, MonthlyCommissions, ClientStatus, RecentActivity } from '../../interfaces';
+import { DashboardStats, MonthlyCommissions, ClientStatus, RecentActivity } from '../../interfaces';
 import { DashboardService } from '../../services/dashboard.service';
 import { PipesModule } from '@pipes/pipes.module';
 import { VisitPercentStatusCardComponent } from '@app/dashboard/components/visit-percent-status-card/visit-percent-status-card.component';
 import { VisitorCounterCardComponent } from '@app/dashboard/components/visitor-counter-card/visitor-counter-card.component';
 import { SellerMoreVisitCardComponent } from '@app/dashboard/components/seller-more-visit-card/seller-more-visit-card.component';
+import { TopSellersComponent } from '@app/dashboard/components/top-sellers/top-sellers.component';
 
 @Component({
   selector: 'app-home',
@@ -21,7 +22,8 @@ import { SellerMoreVisitCardComponent } from '@app/dashboard/components/seller-m
     PipesModule,
     VisitPercentStatusCardComponent,
     VisitorCounterCardComponent,
-    SellerMoreVisitCardComponent
+    SellerMoreVisitCardComponent,
+    TopSellersComponent
   ],
   styles: ``,
 })
@@ -33,7 +35,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   // Dashboard Stats
   public dashboardStats: DashboardStats | null = null;
-  public topSellers: SellerPerformance[] = [];
+  // public topSellers: SellerPerformance[] = [];
   public recentActivity: RecentActivity[] = [];
 
   // Chart Options
@@ -128,59 +130,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     }]
   };
 
-  private barChartOptions = {
-    chart: {
-      type: 'bar',
-      height: '100%',
-      fontFamily: "Inter, sans-serif",
-      toolbar: {
-        show: false,
-      },
-    },
-    plotOptions: {
-      bar: {
-        horizontal: false,
-        columnWidth: '70%',
-        borderRadius: 8,
-      },
-    },
-    dataLabels: {
-      enabled: false,
-    },
-    stroke: {
-      show: true,
-      width: 0,
-      colors: ['transparent'],
-    },
-    series: [{
-      name: 'Clientes Concretados',
-      data: []
-    }],
-    xaxis: {
-      categories: [],
-      labels: {
-        style: {
-          fontFamily: "Inter, sans-serif",
-          cssClass: 'text-xs font-normal fill-gray-500 dark:fill-gray-400'
-        }
-      },
-    },
-    yaxis: {
-      show: false,
-    },
-    fill: {
-      opacity: 1,
-    },
-    tooltip: {
-      y: {
-        formatter: function (val: number) {
-          return val + " clientes"
-        }
-      }
-    }
-  };
-
-
   ngOnInit(): void {
     this.loadDashboardData();
 
@@ -197,15 +146,15 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     forkJoin({
       stats: this._dashboardService.getDashboardStats(),
-      topSellers: this._dashboardService.getTopSellers(),
+      // topSellers: this._dashboardService.getTopSellers(),
       recentActivvity: this._dashboardService.getRecentActivity(),
       monthlyCommissions: this._dashboardService.getMonthlyCommissions(),
       clientStatus: this._dashboardService.getClientStatusDistribution()
     }).subscribe({
-      next: ({ stats, topSellers, recentActivvity, monthlyCommissions, clientStatus }) => {
+      next: ({ stats, recentActivvity, monthlyCommissions, clientStatus }) => {
 
         this.dashboardStats = stats;
-        this.topSellers = topSellers;
+        // this.topSellers = topSellers;
         this.recentActivity = recentActivvity;
         this.updateLineChart(monthlyCommissions);
         this.updatePieChart(clientStatus);
@@ -216,22 +165,6 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   }
 
-  private initializeCharts(): void {
-    if (document.getElementById("line-chart") && typeof ApexCharts !== 'undefined') {
-      const lineChart = new ApexCharts(document.getElementById("line-chart"), this.lineChartOptions);
-      lineChart.render();
-    }
-
-    if (document.getElementById("pie-chart") && typeof ApexCharts !== 'undefined') {
-      const pieChart = new ApexCharts(document.getElementById("pie-chart"), this.pieChartOptions);
-      pieChart.render();
-    }
-
-    if (document.getElementById("bar-chart") && typeof ApexCharts !== 'undefined') {
-      const barChart = new ApexCharts(document.getElementById("bar-chart"), this.barChartOptions);
-      barChart.render();
-    }
-  }
 
   private updateLineChart(commissions: MonthlyCommissions[]): void {
     if (document.getElementById("line-chart") && typeof ApexCharts !== 'undefined') {

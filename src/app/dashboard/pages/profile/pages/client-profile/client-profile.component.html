@@ -173,7 +173,7 @@
 
                 <div class="col-span-3 xs:col-span-6 mb-0">
                   <label for="cbxPersonType" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                    Tipo *
+                    Tipo <span class="text-red-600">*</span>
                   </label>
                   <ng-select
                     id="cbxPersonType"
@@ -200,7 +200,7 @@
 
                 <div class="col-span-3 xs:col-span-6 mb-0">
                   <label for="cbxIdentityDocument" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                    Documento de identidad *
+                    Documento de identidad <span class="text-red-600">*</span>
                   </label>
                   <ng-select
                     id="cbxIdentityDocument"
@@ -229,7 +229,7 @@
 
                   <div class="col-span-3 xs:col-span-6 mb-0">
                       <label for="txtNames" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                        Nombres *
+                        Nombres <span class="text-red-600">*</span>
                       </label>
                       <input
                         type="text"
@@ -252,7 +252,7 @@
 
                   <div class="col-span-3 xs:col-span-6 mb-0">
                       <label for="txtSurname" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                        Apellidos *
+                        Apellidos <span class="text-red-600">*</span>
                       </label>
                       <input
                         type="text"
@@ -277,7 +277,7 @@
 
                   <div class="col-span-6 xs:col-span-6 mb-0">
                       <label for="txtBussinessName" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                        Razón social *
+                        Razón social <span class="text-red-600">*</span>
                       </label>
                       <input
                         type="text"
@@ -302,7 +302,7 @@
 
                 <div class="col-span-6 xs:col-span-6 mb-0">
                   <label for="txtAddress" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                    Dirección *
+                    Dirección <span class="text-red-600">*</span>
                   </label>
                   <input
                     type="text"
@@ -325,7 +325,7 @@
 
                 <div class="col-span-2 xs:col-span-3 mb-0">
                     <label for="txtDocumentNumber" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                      Nro Documento *
+                      Nro Documento <span class="text-red-600">*</span>
                     </label>
                     <input
                       type="text"
@@ -346,32 +346,9 @@
                     }
                 </div>
 
-                <div class="col-span-4 xs:col-span-3 mb-0">
-                    <label for="txtEmail" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                      Email *
-                    </label>
-                    <input
-                      type="text"
-                      id="txtEmail"
-                      class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                      placeholder="example@domain.com"
-                      formControlName="email"
-                      [class.border-red-400]=" inputErrors('email') && isTouched('email') "
-                    >
-
-                    @if (isTouched('email')) {
-                      <span
-                        class="flex items-center ms-1 mt-2 text-xs text-red-500"
-                        inputErrors
-                        [errors]="inputErrors('email')"
-                        inputLabel="Email" >
-                      </span>
-                    }
-                </div>
-
                 <div class="col-span-2 xs:col-span-6 mb-0">
                   <label for="txtBirthDate" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                    Fecha de nacimiento *
+                    Fecha de nacimiento <span class="text-red-600">*</span>
                   </label>
                   <input
                     #birthDateInput
@@ -399,7 +376,7 @@
 
                 <div class="col-span-2 xs:col-span-6 mb-0">
                   <label for="txtPhone" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                    Teléfono *
+                    Teléfono <span class="text-red-600">*</span>
                   </label>
                   <input
                     type="text"
@@ -420,32 +397,55 @@
                   }
                 </div>
 
-                <div class="col-span-2 xs:col-span-6 mb-0">
-                  <label for="txtPhone" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                    Teléfono 2
+                <div class="col-span-6 mb-0">
+                    <label for="txtEmail" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                      Email <span class="text-red-600">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      id="txtEmail"
+                      class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                      placeholder="example@domain.com"
+                      formControlName="email"
+                      [class.border-red-400]=" inputErrors('email') && isTouched('email') "
+                    >
+
+                    @if (isTouched('email')) {
+                      <span
+                        class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                        inputErrors
+                        [errors]="inputErrors('email')"
+                        inputLabel="Email" >
+                      </span>
+                    }
+                </div>
+
+                <div class="col-span-6 mb-0">
+                  <label for="txtProfesion" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                    Profesión u oficio <span class="text-red-600">*</span>
                   </label>
                   <input
                     type="text"
-                    id="txtPhone"
+                    id="txtProfesion"
                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                    placeholder="+00 000 000 000"
-                    formControlName="secondaryPhone"
-                    [class.border-red-400]=" inputErrors('secondaryPhone') && isTouched('secondaryPhone') "
+                    placeholder="Ingresar profesión"
+                    formControlName="profession"
+                    [class.border-red-400]=" inputErrors('profession') && isTouched('profession') "
                   >
 
-                  @if (isTouched('secondaryPhone')) {
+                  @if (isTouched('profession')) {
                     <span
                       class="flex items-center ms-1 mt-2 text-xs text-red-500"
                       inputErrors
-                      [errors]="inputErrors('secondaryPhone')"
-                      inputLabel="Teléfono 2" >
+                      [errors]="inputErrors('profession')"
+                      inputLabel="Profesión" >
                     </span>
                   }
                 </div>
 
                 <div class="col-span-3 xs:col-span-6 mb-6">
                   <label for="cbxPersonType" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                    Estado civil *
+                    Estado civil <span class="text-red-600">*</span>
                   </label>
                   <ng-select
                     id="cbxPersonType"
@@ -471,7 +471,7 @@
 
                 <div class="col-span-3 xs:col-span-6 mb-6">
                   <label for="cbxPersonType" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                    Género *
+                    Género <span class="text-red-600">*</span>
                   </label>
                   <ng-select
                     id="cbxPersonType"

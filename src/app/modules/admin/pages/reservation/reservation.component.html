@@ -475,447 +475,415 @@
               </button>
           </div>
           <!-- Modal body -->
-          <form [formGroup]="contractForm" (ngSubmit)="onSubmitContract()" class="py-4 px-6">
+           <div class="px-6 py-4">
 
-            <div class="">
+             <custom-stepper #contractByReservationStepper [disabledHeaderChangeStep]="true" >
 
-              <div class="grid gap-4 grid-cols-12">
+              <cdk-step label="Propietario y plan de financiamiento" aria-label="Cliente propietario" [stepControl]="contractForm" >
 
-                <div class="col-span-7">
+                <form [formGroup]="contractForm" (ngSubmit)="onSubmitContract()">
 
-                  <div class="mb-2">
+                  <div class="grid gap-4 grid-cols-12">
 
-                    <div class="pb-1.5 mb-3 border-b border-b-gray-200">
-                      Propietario(s) y asesor comercial
-                    </div>
+                    <div class="col-span-7">
 
-                    <div class="mb-2 ">
-                      <label for="cbxPersonType" class="block mb-1.5 text-sm font-medium text-gray-900 dark:text-white">
-                        Cliente(s) *
-                      </label>
-                      <ng-select
-                        id="cbxPersonType"
-                        class="bg-gray-50 border text-gray-900 text-sm rounded-lg block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                        [items]="clients()"
-                        [searchable]="false"
-                        [hideSelected]="true"
-                        [multiple]="true"
-                        [closeOnSelect]="false"
-                        [loading]="loadingClients()"
-                        bindLabel="fullname"
-                        bindValue="id"
-                        placeholder="Seleccione cliente"
-                        formControlName="clientIds"
-                        [class.border-red-400]=" inputErrors('clientIds') && isTouched('clientIds') "
-                      >
+                      <div class="mb-2">
 
-                        <ng-template ng-header-tmp >
+                        <div class="pb-1.5 mb-3 border-b border-b-gray-200">
+                          Propietario(s) y asesor comercial
+                        </div>
 
-                          <div class="flex justify-between gap-3">
-
-                            <input
-                                  type="text"
-                                  id="txtSearchClient"
-                                  class="block w-full p-2 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 text-xs focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                  placeholder="Buscar cliente..."
-                                  [formControl]="searchClientInput"
-                              >
-
-                              <button type="button" class=" w-36 px-3 py-2 text-xs font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-                                (click)="onSearchClients()"
-                              >
-                                Buscar
-                              </button>
-                          </div>
-                        </ng-template>
-
-                        <ng-template ng-option-tmp let-item="item" class="text-gray-900 whitespace-nowrap dark:text-white">
-
-                          <div class="ps-3 flex justify-between">
-                            <div class="text-normal font-semibold">
-                              {{ item.fullname }}
-                            </div>
-                            <div class="font-normal text-sm text-gray-500 pe-5">
-                              {{ item?.identityDocument?.shortDescription ?? '...' }} : {{ item?.identityNumber ?? '---' }}
-                            </div>
-                          </div>
-
-                        </ng-template>
-
-                      </ng-select>
-
-                      @if (isTouched('clientIds')) {
-                        <span
-                          class="flex items-center ms-1 mt-2 text-xs text-red-500"
-                          inputErrors
-                          [errors]="inputErrors('clientIds')"
-                          inputLabel="Cliente(s)" >
-                        </span>
-                      }
-                    </div>
-
-                    <div class="grid gap-4 grid-cols-12 pb-3">
-
-                      <div class="col-span-8 xs:col-span-6 ">
-                        <label for="cbxUserSeller" class="block mb-1.5 text-sm font-medium text-gray-900 dark:text-white">
-                          Vendedor *
-                        </label>
-                        <ng-select
-                          id="cbxUserSeller"
-                          class="bg-gray-50 border text-gray-900 text-sm rounded-lg block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                          [items]="users()"
-                          [searchable]="false"
-                          bindLabel="fullname"
-                          bindValue="id"
-                          placeholder="Seleccione vendedor"
-                          formControlName="selledUserId"
-                          [class.border-red-400]=" inputErrors('selledUserId') && isTouched('selledUserId') "
-                        >
-
-                          <ng-template ng-header-tmp>
-
-                            <div class="flex justify-between gap-3">
-
-                              <input
-                                    type="text"
-                                    id="txtSearchSeller"
-                                    class="block w-full p-2 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 text-xs focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                    placeholder="Buscar vendedor..."
-                                    [formControl]="searchUserInput"
-                                >
-
-                                <button type="button" class=" w-36 px-3 py-2 text-xs font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-                                  (click)="onGetUsers()"
-                                >
-                                  Buscar
-                                </button>
-                            </div>
-                          </ng-template>
-
-                        </ng-select>
-
-                        @if (isTouched('selledUserId')) {
-                          <span
-                            class="flex items-center ms-1 mt-2 text-xs text-red-500"
-                            inputErrors
-                            [errors]="inputErrors('selledUserId')"
-                            inputLabel="Vendedor" >
-                          </span>
-                        }
-                      </div>
-
-                      <div class="col-span-4 xs:col-span-6">
-                        <label for="txtPercentComission" class="block mb-1.5 text-sm font-medium text-gray-900 dark:text-white">
-                          Comisión (%)
-                        </label>
-                        <input
-                          type="number"
-                          id="txtPercentComission"
-                          class="bg-gray-50 border text-right border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                          placeholder="0.00"
-                          formControlName="percentCommission"
-                          [class.border-red-400]=" inputErrors('percentCommission') && isTouched('percentCommission') "
-                        >
-                        @if (isTouched('percentCommission')) {
-                          <span
-                            class="flex items-center ms-1 mt-2 text-xs text-red-500"
-                            inputErrors
-                            [errors]="inputErrors('percentCommission')"
-                            inputLabel="Comisión" >
-                          </span>
-                        }
-                      </div>
-
-                    </div>
-
-                  </div>
-
-
-                  <div class="mb-2">
-
-                    <div class="pb-1.5 border-b border-b-gray-200">
-                      Plan de financiamiento
-                    </div>
-
-                    <div class="grid gap-4 grid-cols-12 py-3">
-
-                      <div class="col-span-4 xs:col-span-6">
-                        <label for="cbxPaymentType" class="block mb-1.5 text-sm font-medium text-gray-900 dark:text-white">
-                          Tipo de pago <span class="text-red-500">*</span>
-                        </label>
-                        <ng-select
-                          id="cbxPaymentType"
-                          class="bg-gray-50 border text-gray-900 text-sm rounded-lg block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                          [items]="paymentTypes()"
-                          bindLabel="label"
-                          (change)="onChangePaymentType( $event )"
-                          bindValue="value"
-                          placeholder="Seleccione Tipo de pago"
-                          formControlName="paymentType"
-                          [class.border-red-400]=" inputContractErrors('paymentType') && isContractTouched('paymentType') "
-                        >
-                        </ng-select>
-
-                        @if (isContractTouched('paymentType')) {
-                          <span
-                            class="flex items-center ms-1 mt-2 text-xs text-red-500"
-                            inputErrors
-                            [errors]="inputContractErrors('paymentType')"
-                            [class.hidden]="!inputContractErrors('paymentType')"
-                            inputLabel="Tipo de pago" >
-                          </span>
-                        }
-                      </div>
-
-                      <div class="col-span-4 xs:col-span-6" >
-                        <label for="txtContractDate" class="block mb-1.5 text-sm font-medium text-gray-900 dark:text-white">
-                          Fecha de contrato
-                        </label>
-                        <input
-                          #contractDateInput
-                          type="text"
-                          id="txtContractDate"
-                          mwlFlatpickr
-                          locale="Spanish"
-                          [altInput]="true"
-                          [maxDate]="maxDate"
-                          class="bg-gray-50 border text-center border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                          placeholder="YYYY-MM-DD"
-                          formControlName="contractDate"
-                          [class.border-red-400]=" inputContractErrors('contractDate') && isContractTouched('contractDate') "
-                        >
-
-                        @if (isContractTouched('contractDate')) {
-                          <span
-                            class="flex items-center ms-1 mt-2 text-xs text-red-500"
-                            inputErrors
-                            [errors]="inputContractErrors('contractDate')"
-                            [class.hidden]="!inputContractErrors('contractDate')"
-                            inputLabel="fecha de contrato" >
-                          </span>
-                        }
-                      </div>
-
-                      <div class="col-span-4 xs:col-span-6">
-                        <label for="txtInitialAmount" class="block mb-1.5 text-sm font-medium text-gray-900 dark:text-white">
-                          Monto Inicial <span class="text-red-500">*</span>
-                        </label>
-                        <input
-                          type="number"
-                          id="txtInitialAmount"
-                          class="bg-gray-50 border text-right border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                          placeholder="0.00"
-                          formControlName="initialAmount"
-                          [readOnly]="initialAmoutDisabled()"
-                          [class.border-red-400]=" inputContractErrors('initialAmount') && isContractTouched('initialAmount') "
-                          (change)="onCalculateAmountTotals()"
-                        >
-
-                        @if (isContractTouched('initialAmount')) {
-                          <span
-                            class="flex items-center ms-1 mt-2 text-xs text-red-500"
-                            inputErrors
-                            [errors]="inputContractErrors('initialAmount')"
-                            [class.hidden]="!inputContractErrors('initialAmount')"
-                            inputLabel="Monto inicial" >
-                          </span>
-                        }
-                      </div>
-
-                      <div class="col-span-6 xs:col-span-6">
-                        <label for="txtNumberOfQuotesPaid" class="block mb-1.5 text-sm font-medium text-gray-900 dark:text-white">
-                          Nro cuotas pagadas <span class="text-red-500">*</span>
-                        </label>
-                        <input
-                          type="number"
-                          id="txtNumberOfQuotesPaid"
-                          class="bg-gray-50 border text-right border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                          placeholder="0"
-                          formControlName="numberOfQuotesPaid"
-                          [class.border-red-400]=" inputContractErrors('numberOfQuotesPaid') && isContractTouched('numberOfQuotesPaid')"
-                          (change)="onCalculateAmountTotals()"
-                        >
-
-                        @if (isContractTouched('numberOfQuotesPaid')) {
-                          <span
-                            class="flex items-center ms-1 mt-2 text-xs text-red-500"
-                            inputErrors
-                            [errors]="inputContractErrors('numberOfQuotesPaid')"
-                            [class.hidden]="!inputContractErrors('numberOfQuotesPaid')"
-                            inputLabel="Monto inicial" >
-                          </span>
-                        }
-                      </div>
-
-                      <div class="col-span-6 xs:col-span-6" >
-                        <label for="txtContractDate" class="block mb-1.5 text-sm font-medium text-gray-900 dark:text-white">
-                          Fecha primer pago
-                        </label>
-                        <input
-                          #contractDateInput
-                          type="text"
-                          id="txtContractDate"
-                          mwlFlatpickr
-                          locale="Spanish"
-                          [altInput]="true"
-                          class="bg-gray-50 border text-center border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                          placeholder="YYYY-MM-DD"
-                          formControlName="firstPayDate"
-                          [class.border-red-400]=" inputContractErrors('firstPayDate') && isContractTouched('firstPayDate') "
-                        >
-
-                        @if (isContractTouched('firstPayDate')) {
-                          <span
-                            class="flex items-center ms-1 mt-2 text-xs text-red-500"
-                            inputErrors
-                            [errors]="inputContractErrors('firstPayDate')"
-                            [class.hidden]="!inputContractErrors('firstPayDate')"
-                            inputLabel="fecha primer pago" >
-                          </span>
-                        }
-                      </div>
-
-                      @if (!paymentTypeIsCash) {
-
-                        <div class="col-span-6 xs:col-span-12">
-                          <label for="cbxProyect" class="block mb-1.5 text-sm font-medium text-gray-900 dark:text-white">
-                            Financiamiento <span class="text-red-500">*</span>
+                        <div class="mb-2 ">
+                          <label for="cbxPersonType" class="block mb-1.5 text-sm font-medium text-gray-900 dark:text-white">
+                            Cliente(s) *
                           </label>
                           <ng-select
-                            id="cbxProyect"
+                            id="cbxPersonType"
                             class="bg-gray-50 border text-gray-900 text-sm rounded-lg block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                            [items]="financings()"
-                            bindLabel="name"
-                            (change)="onChangeFinancing( $event )"
+                            [items]="clients()"
+                            [searchable]="false"
+                            [hideSelected]="true"
+                            [multiple]="true"
+                            [closeOnSelect]="false"
+                            [loading]="loadingClients()"
+                            bindLabel="fullname"
                             bindValue="id"
-                            placeholder="Seleccione financimaiento"
-                            formControlName="financingId"
-                            [class.border-red-400]=" inputContractErrors('financingId') && isContractTouched('financingId') "
+                            placeholder="Seleccione cliente"
+                            formControlName="clientIds"
+                            [class.border-red-400]=" inputErrors('clientIds') && isTouched('clientIds') "
                           >
+
+                            <ng-template ng-header-tmp >
+
+                              <div class="flex justify-between gap-3">
+
+                                <input
+                                      type="text"
+                                      id="txtSearchClient"
+                                      class="block w-full p-2 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 text-xs focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                      placeholder="Buscar cliente..."
+                                      [formControl]="searchClientInput"
+                                  >
+
+                                  <button type="button" class=" w-36 px-3 py-2 text-xs font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                                    (click)="onSearchClients()"
+                                  >
+                                    Buscar
+                                  </button>
+                              </div>
+                            </ng-template>
+
+                            <ng-template ng-option-tmp let-item="item" class="text-gray-900 whitespace-nowrap dark:text-white">
+
+                              <div class="ps-3 flex justify-between">
+                                <div class="text-normal font-semibold">
+                                  {{ item.fullname }}
+                                </div>
+                                <div class="font-normal text-sm text-gray-500 pe-5">
+                                  {{ item?.identityDocument?.shortDescription ?? '...' }} : {{ item?.identityNumber ?? '---' }}
+                                </div>
+                              </div>
+
+                            </ng-template>
 
                           </ng-select>
 
-                          @if (isContractTouched('financingId')) {
+                          @if (isTouched('clientIds')) {
                             <span
                               class="flex items-center ms-1 mt-2 text-xs text-red-500"
                               inputErrors
-                              [errors]="inputContractErrors('financingId')"
-                              [class.hidden]="!inputContractErrors('financingId')"
-                              inputLabel="Financiamiento" >
+                              [errors]="inputErrors('clientIds')"
+                              inputLabel="Cliente(s)" >
                             </span>
                           }
                         </div>
 
-                        <div class="col-span-6 xs:col-span-12">
-                          <label for="cbxProyect" class="block mb-1.5 text-sm font-medium text-gray-900 dark:text-white">
-                            Coutas de pago <span class="text-red-500">*</span>
-                          </label>
-                          <ng-select
-                            id="cbxProyect"
-                            class="bg-gray-50 border text-gray-900 text-sm rounded-lg block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                            [items]="quotas()"
-                            bindLabel="numberOfQuotes"
-                            bindValue="id"
-                            placeholder="Seleccione cuotas"
-                            (change)="onChangeQuota( $event )"
-                            formControlName="quotaId"
-                            [class.border-red-400]=" inputContractErrors('quotaId') && isContractTouched('quotaId') "
-                          >
+                        <div class="grid gap-4 grid-cols-12 pb-3">
 
-                          </ng-select>
+                          <div class="col-span-8 xs:col-span-6 ">
+                            <label for="cbxUserSeller" class="block mb-1.5 text-sm font-medium text-gray-900 dark:text-white">
+                              Vendedor *
+                            </label>
+                            <ng-select
+                              id="cbxUserSeller"
+                              class="bg-gray-50 border text-gray-900 text-sm rounded-lg block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                              [items]="users()"
+                              [searchable]="false"
+                              bindLabel="fullname"
+                              bindValue="id"
+                              placeholder="Seleccione vendedor"
+                              formControlName="selledUserId"
+                              [class.border-red-400]=" inputErrors('selledUserId') && isTouched('selledUserId') "
+                            >
 
-                          @if (isContractTouched('quotaId')) {
-                            <span
-                              class="flex items-center ms-1 mt-2 text-xs text-red-500"
-                              inputErrors
-                              [errors]="inputContractErrors('quotaId')"
-                              [class.hidden]="!inputContractErrors('quotaId')"
-                              inputLabel="Cuotas" >
-                            </span>
-                          }
-                        </div>
-                      }
+                              <ng-template ng-header-tmp>
 
-                    </div>
+                                <div class="flex justify-between gap-3">
 
-                  </div>
+                                  <input
+                                        type="text"
+                                        id="txtSearchSeller"
+                                        class="block w-full p-2 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 text-xs focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                        placeholder="Buscar vendedor..."
+                                        [formControl]="searchUserInput"
+                                    >
 
-                </div>
+                                    <button type="button" class=" w-36 px-3 py-2 text-xs font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                                      (click)="onGetUsers()"
+                                    >
+                                      Buscar
+                                    </button>
+                                </div>
+                              </ng-template>
 
-                <div class="col-span-5">
+                            </ng-select>
 
-                  <div class="mb-2">
-
-                    <div class="pb-1.5 border-b border-b-gray-200 mb-4">
-                      Detalle de contrato
-                    </div>
-
-                    <div class="relative overflow-x-auto pb-2 ">
-                      <div class="">
-
-                        <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-                          <!-- HEADER FIJO -->
-                          <thead
-                            class="block text-xs text-gray-700 uppercase bg-gray-100 dark:bg-gray-700 dark:text-gray-400"
-                          >
-                            <tr class="table w-full table-fixed">
-                              <th class="px-6 py-3 w-3/4">
-                                Lotes a comprar
-                              </th>
-                              <th class="px-6 py-3 w-1/4 text-right">
-                                Precio
-                              </th>
-                            </tr>
-                          </thead>
-
-                          <!-- BODY CON SCROLL -->
-                          <tbody
-                            class="block max-h-28 overflow-y-auto"
-                            [ngClass]="{'!max-h-64': lotesForContract().length > 3}"
-                          >
-                            @for (lote of lotesForContract(); track $index) {
-                              <tr class="table w-full table-fixed bg-white dark:bg-gray-800">
-                                <th
-                                  scope="row"
-                                  class="px-6 py-2 text-gray-900 whitespace-nowrap dark:text-white"
-                                >
-                                  <div>
-                                    <div class="text-base font-semibold">
-                                      {{ lote.code }}
-                                    </div>
-                                    <div class="font-normal text-gray-500">
-                                      {{ lote.squareMeters }} m2
-                                    </div>
-                                  </div>
-                                </th>
-
-                                <td class="px-2 py-2 text-right">
-                                  S/ {{ lote.price | number: '.2-2' }}
-                                </td>
-                              </tr>
+                            @if (isTouched('selledUserId')) {
+                              <span
+                                class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                                inputErrors
+                                [errors]="inputErrors('selledUserId')"
+                                inputLabel="Vendedor" >
+                              </span>
                             }
-                          </tbody>
-                        </table>
+                          </div>
 
-                        <!-- <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-                            <thead class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-gray-700 dark:text-gray-400">
-                                <tr>
-                                    <th scope="col" class="px-6 py-3 rounded-s-lg">
-                                        Lotes a comprar
-                                    </th>
-                                    <th scope="col" class="px-6 py-3 rounded-e-lg text-center">
-                                        Precio
-                                    </th>
+                          <div class="col-span-4 xs:col-span-6">
+                            <label for="txtPercentComission" class="block mb-1.5 text-sm font-medium text-gray-900 dark:text-white">
+                              Comisión (%)
+                            </label>
+                            <input
+                              type="number"
+                              id="txtPercentComission"
+                              class="bg-gray-50 border text-right border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                              placeholder="0.00"
+                              formControlName="percentCommission"
+                              [class.border-red-400]=" inputErrors('percentCommission') && isTouched('percentCommission') "
+                            >
+                            @if (isTouched('percentCommission')) {
+                              <span
+                                class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                                inputErrors
+                                [errors]="inputErrors('percentCommission')"
+                                inputLabel="Comisión" >
+                              </span>
+                            }
+                          </div>
+
+                        </div>
+
+                      </div>
+
+
+                      <div class="mb-2">
+
+                        <div class="pb-1.5 border-b border-b-gray-200">
+                          Plan de financiamiento
+                        </div>
+
+                        <div class="grid gap-4 grid-cols-12 py-3">
+
+                          <div class="col-span-4 xs:col-span-6">
+                            <label for="cbxPaymentType" class="block mb-1.5 text-sm font-medium text-gray-900 dark:text-white">
+                              Tipo de pago <span class="text-red-500">*</span>
+                            </label>
+                            <ng-select
+                              id="cbxPaymentType"
+                              class="bg-gray-50 border text-gray-900 text-sm rounded-lg block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                              [items]="paymentTypes()"
+                              bindLabel="label"
+                              (change)="onChangePaymentType( $event )"
+                              bindValue="value"
+                              placeholder="Seleccione Tipo de pago"
+                              formControlName="paymentType"
+                              [class.border-red-400]=" inputContractErrors('paymentType') && isContractTouched('paymentType') "
+                            >
+                            </ng-select>
+
+                            @if (isContractTouched('paymentType')) {
+                              <span
+                                class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                                inputErrors
+                                [errors]="inputContractErrors('paymentType')"
+                                [class.hidden]="!inputContractErrors('paymentType')"
+                                inputLabel="Tipo de pago" >
+                              </span>
+                            }
+                          </div>
+
+                          <div class="col-span-4 xs:col-span-6" >
+                            <label for="txtContractDate" class="block mb-1.5 text-sm font-medium text-gray-900 dark:text-white">
+                              Fecha de contrato
+                            </label>
+                            <input
+                              #contractDateInput
+                              type="text"
+                              id="txtContractDate"
+                              mwlFlatpickr
+                              locale="Spanish"
+                              [altInput]="true"
+                              [maxDate]="maxDate"
+                              class="bg-gray-50 border text-center border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                              placeholder="YYYY-MM-DD"
+                              formControlName="contractDate"
+                              [class.border-red-400]=" inputContractErrors('contractDate') && isContractTouched('contractDate') "
+                            >
+
+                            @if (isContractTouched('contractDate')) {
+                              <span
+                                class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                                inputErrors
+                                [errors]="inputContractErrors('contractDate')"
+                                [class.hidden]="!inputContractErrors('contractDate')"
+                                inputLabel="fecha de contrato" >
+                              </span>
+                            }
+                          </div>
+
+                          <div class="col-span-4 xs:col-span-6">
+                            <label for="txtInitialAmount" class="block mb-1.5 text-sm font-medium text-gray-900 dark:text-white">
+                              Monto Inicial <span class="text-red-500">*</span>
+                            </label>
+                            <input
+                              type="number"
+                              id="txtInitialAmount"
+                              class="bg-gray-50 border text-right border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                              placeholder="0.00"
+                              formControlName="initialAmount"
+                              [readOnly]="initialAmoutDisabled()"
+                              [class.border-red-400]=" inputContractErrors('initialAmount') && isContractTouched('initialAmount') "
+                              (change)="onCalculateAmountTotals()"
+                            >
+
+                            @if (isContractTouched('initialAmount')) {
+                              <span
+                                class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                                inputErrors
+                                [errors]="inputContractErrors('initialAmount')"
+                                [class.hidden]="!inputContractErrors('initialAmount')"
+                                inputLabel="Monto inicial" >
+                              </span>
+                            }
+                          </div>
+
+                          <div class="col-span-6 xs:col-span-6">
+                            <label for="txtNumberOfQuotesPaid" class="block mb-1.5 text-sm font-medium text-gray-900 dark:text-white">
+                              Nro cuotas pagadas <span class="text-red-500">*</span>
+                            </label>
+                            <input
+                              type="number"
+                              id="txtNumberOfQuotesPaid"
+                              class="bg-gray-50 border text-right border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                              placeholder="0"
+                              formControlName="numberOfQuotesPaid"
+                              [class.border-red-400]=" inputContractErrors('numberOfQuotesPaid') && isContractTouched('numberOfQuotesPaid')"
+                              (change)="onCalculateAmountTotals()"
+                            >
+
+                            @if (isContractTouched('numberOfQuotesPaid')) {
+                              <span
+                                class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                                inputErrors
+                                [errors]="inputContractErrors('numberOfQuotesPaid')"
+                                [class.hidden]="!inputContractErrors('numberOfQuotesPaid')"
+                                inputLabel="Monto inicial" >
+                              </span>
+                            }
+                          </div>
+
+                          <div class="col-span-6 xs:col-span-6" >
+                            <label for="txtContractDate" class="block mb-1.5 text-sm font-medium text-gray-900 dark:text-white">
+                              Fecha primer pago
+                            </label>
+                            <input
+                              #contractDateInput
+                              type="text"
+                              id="txtContractDate"
+                              mwlFlatpickr
+                              locale="Spanish"
+                              [altInput]="true"
+                              class="bg-gray-50 border text-center border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                              placeholder="YYYY-MM-DD"
+                              formControlName="firstPayDate"
+                              [class.border-red-400]=" inputContractErrors('firstPayDate') && isContractTouched('firstPayDate') "
+                            >
+
+                            @if (isContractTouched('firstPayDate')) {
+                              <span
+                                class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                                inputErrors
+                                [errors]="inputContractErrors('firstPayDate')"
+                                [class.hidden]="!inputContractErrors('firstPayDate')"
+                                inputLabel="fecha primer pago" >
+                              </span>
+                            }
+                          </div>
+
+                          @if (!paymentTypeIsCash) {
+
+                            <div class="col-span-6 xs:col-span-12">
+                              <label for="cbxProyect" class="block mb-1.5 text-sm font-medium text-gray-900 dark:text-white">
+                                Financiamiento <span class="text-red-500">*</span>
+                              </label>
+                              <ng-select
+                                id="cbxProyect"
+                                class="bg-gray-50 border text-gray-900 text-sm rounded-lg block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                                [items]="financings()"
+                                bindLabel="name"
+                                (change)="onChangeFinancing( $event )"
+                                bindValue="id"
+                                placeholder="Seleccione financimaiento"
+                                formControlName="financingId"
+                                [class.border-red-400]=" inputContractErrors('financingId') && isContractTouched('financingId') "
+                              >
+
+                              </ng-select>
+
+                              @if (isContractTouched('financingId')) {
+                                <span
+                                  class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                                  inputErrors
+                                  [errors]="inputContractErrors('financingId')"
+                                  [class.hidden]="!inputContractErrors('financingId')"
+                                  inputLabel="Financiamiento" >
+                                </span>
+                              }
+                            </div>
+
+                            <div class="col-span-6 xs:col-span-12">
+                              <label for="cbxProyect" class="block mb-1.5 text-sm font-medium text-gray-900 dark:text-white">
+                                Coutas de pago <span class="text-red-500">*</span>
+                              </label>
+                              <ng-select
+                                id="cbxProyect"
+                                class="bg-gray-50 border text-gray-900 text-sm rounded-lg block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                                [items]="quotas()"
+                                bindLabel="numberOfQuotes"
+                                bindValue="id"
+                                placeholder="Seleccione cuotas"
+                                (change)="onChangeQuota( $event )"
+                                formControlName="quotaId"
+                                [class.border-red-400]=" inputContractErrors('quotaId') && isContractTouched('quotaId') "
+                              >
+
+                              </ng-select>
+
+                              @if (isContractTouched('quotaId')) {
+                                <span
+                                  class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                                  inputErrors
+                                  [errors]="inputContractErrors('quotaId')"
+                                  [class.hidden]="!inputContractErrors('quotaId')"
+                                  inputLabel="Cuotas" >
+                                </span>
+                              }
+                            </div>
+                          }
+
+                        </div>
+
+                      </div>
+
+                    </div>
+
+                    <div class="col-span-5">
+
+                      <div class="mb-2">
+
+                        <div class="pb-1.5 border-b border-b-gray-200 mb-4">
+                          Detalle de contrato
+                        </div>
+
+                        <div class="relative overflow-x-auto pb-2 ">
+                          <div class="">
+
+                            <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                              <!-- HEADER FIJO -->
+                              <thead
+                                class="block text-xs text-gray-700 uppercase bg-gray-100 dark:bg-gray-700 dark:text-gray-400"
+                              >
+                                <tr class="table w-full table-fixed">
+                                  <th class="px-6 py-3 w-3/4">
+                                    Lotes a comprar
+                                  </th>
+                                  <th class="px-6 py-3 w-1/4 text-right">
+                                    Precio
+                                  </th>
                                 </tr>
-                            </thead>
-                            <tbody class="">
-                              @for ( lote of lotesForContract(); track $index) {
-                                <tr class="bg-white dark:bg-gray-800">
+                              </thead>
 
-
-                                    <th scope="row" class="px-6 py-2 text-gray-900 whitespace-nowrap dark:text-white">
-
-                                      <div class="">
+                              <!-- BODY CON SCROLL -->
+                              <tbody
+                                class="block max-h-28 overflow-y-auto"
+                                [ngClass]="{'!max-h-64': lotesForContract().length > 3}"
+                              >
+                                @for (lote of lotesForContract(); track $index) {
+                                  <tr class="table w-full table-fixed bg-white dark:bg-gray-800">
+                                    <th
+                                      scope="row"
+                                      class="px-6 py-2 text-gray-900 whitespace-nowrap dark:text-white"
+                                    >
+                                      <div>
                                         <div class="text-base font-semibold">
                                           {{ lote.code }}
                                         </div>
@@ -923,110 +891,392 @@
                                           {{ lote.squareMeters }} m2
                                         </div>
                                       </div>
-
-
                                     </th>
 
-                                    <td class="px-6 py-2 text-right">
-                                        S/ {{ lote.price | number: '.2-2' }}
+                                    <td class="px-2 py-2 text-right">
+                                      S/ {{ lote.price | number: '.2-2' }}
                                     </td>
-                                </tr>
-                              }
-                            </tbody>
+                                  </tr>
+                                }
+                              </tbody>
+                            </table>
 
-                        </table> -->
+                            <!-- <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                                <thead class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-gray-700 dark:text-gray-400">
+                                    <tr>
+                                        <th scope="col" class="px-6 py-3 rounded-s-lg">
+                                            Lotes a comprar
+                                        </th>
+                                        <th scope="col" class="px-6 py-3 rounded-e-lg text-center">
+                                            Precio
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody class="">
+                                  @for ( lote of lotesForContract(); track $index) {
+                                    <tr class="bg-white dark:bg-gray-800">
+
+
+                                        <th scope="row" class="px-6 py-2 text-gray-900 whitespace-nowrap dark:text-white">
+
+                                          <div class="">
+                                            <div class="text-base font-semibold">
+                                              {{ lote.code }}
+                                            </div>
+                                            <div class="font-normal text-gray-500">
+                                              {{ lote.squareMeters }} m2
+                                            </div>
+                                          </div>
+
+
+                                        </th>
+
+                                        <td class="px-6 py-2 text-right">
+                                            S/ {{ lote.price | number: '.2-2' }}
+                                        </td>
+                                    </tr>
+                                  }
+                                </tbody>
+
+                            </table> -->
+                          </div>
+
+                          <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                            <tfoot>
+                                  <tr class="font-semibold text-gray-900 dark:text-white">
+                                      <th scope="row" class="px-6 pb-1 text-base">Total</th>
+                                      <td class="px-6 pb-1 text-right">
+                                        S/ {{ lotesAmount() | number: '.2-2' }}
+                                      </td>
+                                  </tr>
+                                  <tr class="font-semibold text-gray-900 dark:text-white">
+                                    <th scope="row" class="px-6 pb-1 text-base">Interés</th>
+                                    <td class="px-6 pb-1 text-right">
+                                      {{ interestPercent() }}%
+                                    </td>
+                                  </tr>
+                                  <tr class="font-semibold text-gray-900 dark:text-white">
+                                    <th scope="row" class="px-6 pb-1 text-base">Total a financiar</th>
+                                    <td class="px-6 pb-1 text-right">
+                                      S/ {{ amountToFinancing() | number: '.2-2' }}
+                                    </td>
+                                  </tr>
+
+                                  <tr class="font-semibold text-gray-900 dark:text-white">
+                                    <th scope="row" class="px-6 pb-1 text-base">Cuotas pagadas</th>
+                                    <td class="px-6 pb-1 text-right">
+                                      {{ numberOfQuotesPaid }}
+                                    </td>
+                                  </tr>
+
+                                  <tr class="font-semibold text-gray-900 dark:text-white">
+                                    <th scope="row" class="px-6 pb-1 text-base">Cuotas pendientes</th>
+                                    <td class="px-6 pb-1 text-right">
+                                      {{ countQuotesPending() }}
+                                    </td>
+                                  </tr>
+
+                                  <tr class="font-semibold text-gray-900 dark:text-white">
+                                    <th scope="row" class="px-6 pb-1 text-base">Monto pagado</th>
+                                    <td class="px-6 pb-1 text-right">
+                                      S/ {{ amountPaid() | number: '.2-2' }}
+                                    </td>
+                                  </tr>
+
+                                  <tr class="font-semibold text-gray-900 dark:text-white">
+                                    <th scope="row" class="px-6 pb-1 text-base">Monto por pagar</th>
+                                    <td class="px-6 pb-1 text-right">
+                                      S/ {{ amountPaidPending() | number: '.2-2' }}
+                                    </td>
+                                  </tr>
+
+                                  <tr class="font-semibold text-gray-900 dark:text-white">
+                                    <th scope="row" class="px-6 pb-1 text-base">Monto por cuota</th>
+                                    <td class="px-6 pb-1 text-right">
+                                      S/ {{ amountToQuota() | number: '.2-2' }}
+                                    </td>
+                                  </tr>
+                              </tfoot>
+                          </table>
+                        </div>
+
                       </div>
 
-                      <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-                        <tfoot>
-                              <tr class="font-semibold text-gray-900 dark:text-white">
-                                  <th scope="row" class="px-6 pb-1 text-base">Total</th>
-                                  <td class="px-6 pb-1 text-right">
-                                    S/ {{ lotesAmount() | number: '.2-2' }}
-                                  </td>
-                              </tr>
-                              <tr class="font-semibold text-gray-900 dark:text-white">
-                                <th scope="row" class="px-6 pb-1 text-base">Interés</th>
-                                <td class="px-6 pb-1 text-right">
-                                  {{ interestPercent() }}%
-                                </td>
-                              </tr>
-                              <tr class="font-semibold text-gray-900 dark:text-white">
-                                <th scope="row" class="px-6 pb-1 text-base">Total a financiar</th>
-                                <td class="px-6 pb-1 text-right">
-                                  S/ {{ amountToFinancing() | number: '.2-2' }}
-                                </td>
-                              </tr>
-
-                              <tr class="font-semibold text-gray-900 dark:text-white">
-                                <th scope="row" class="px-6 pb-1 text-base">Cuotas pagadas</th>
-                                <td class="px-6 pb-1 text-right">
-                                  {{ numberOfQuotesPaid }}
-                                </td>
-                              </tr>
-
-                              <tr class="font-semibold text-gray-900 dark:text-white">
-                                <th scope="row" class="px-6 pb-1 text-base">Cuotas pendientes</th>
-                                <td class="px-6 pb-1 text-right">
-                                  {{ countQuotesPending() }}
-                                </td>
-                              </tr>
-
-                              <tr class="font-semibold text-gray-900 dark:text-white">
-                                <th scope="row" class="px-6 pb-1 text-base">Monto pagado</th>
-                                <td class="px-6 pb-1 text-right">
-                                  S/ {{ amountPaid() | number: '.2-2' }}
-                                </td>
-                              </tr>
-
-                              <tr class="font-semibold text-gray-900 dark:text-white">
-                                <th scope="row" class="px-6 pb-1 text-base">Monto por pagar</th>
-                                <td class="px-6 pb-1 text-right">
-                                  S/ {{ amountPaidPending() | number: '.2-2' }}
-                                </td>
-                              </tr>
-
-                              <tr class="font-semibold text-gray-900 dark:text-white">
-                                <th scope="row" class="px-6 pb-1 text-base">Monto por cuota</th>
-                                <td class="px-6 pb-1 text-right">
-                                  S/ {{ amountToQuota() | number: '.2-2' }}
-                                </td>
-                              </tr>
-                          </tfoot>
-                      </table>
                     </div>
 
                   </div>
 
-                </div>
+                  <div class="flex justify-end gap-3 ">
 
-              </div>
 
-            </div>
+                    <!-- <button
+                      type="submit"
+                      class="px-16 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-md"
+                      [ngClass]="{'!bg-gray-200 !text-black ': contractInSaving() || isInvalidContractForm }"
+                    >
+                      <span *ngIf="!contractInSaving() else reservationSpinner" >
+                        Guardar
+                      </span>
+                    </button> -->
 
-            <div class="flex justify-end gap-3 ">
-              <button
-                type="button"
-                data-modal-toggle="contract-by-reservation-modal"
-                class="flex justify-center items-center gap-2 px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
-                (click)="onResetAfterSubmit()"
-              >
-                <i class="fa-solid fa-xmark"></i>
-                Cerrar
-              </button>
+                    <button
+                      (click)="onNextInitialStep()"
+                      type="button"
+                      class="text-white w-72 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                    >
+                        Siguiente
+                    </button>
 
-              <button
-                type="submit"
-                class="px-16 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-md"
-                [ngClass]="{'!bg-gray-200 !text-black ': contractInSaving() || isInvalidContractForm }"
-              >
-                <span *ngIf="!contractInSaving() else reservationSpinner" >
-                  Guardar
-                </span>
-              </button>
-            </div>
+                    <button
+                      type="button"
+                      data-modal-toggle="contract-by-reservation-modal"
+                      class="flex justify-center items-center gap-2 px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                      (click)="onResetAfterSubmitContract()"
+                    >
+                      <i class="fa-solid fa-xmark"></i>
+                      Cerrar
+                    </button>
 
-          </form>
+                  </div>
+
+                </form>
+
+
+                <!-- <div class="flex justify-end w-full gap-2">
+
+                  <button
+                    (click)="onNextInitialStep()"
+                    type="button"
+                    class="text-white w-72 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                  >
+                      Siguiente
+                  </button>
+
+                  <a routerLink="/dashboard/contracts" class="inline-flex items-center text-red-700 hover:text-white border border-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center  dark:border-red-500 dark:text-red-500 dark:hover:text-white dark:hover:bg-red-600 dark:focus:ring-red-900">
+                    <i class="fa fa-times me-2"> </i>
+                    Cerrar
+                  </a>
+
+              </div> -->
+
+              </cdk-step>
+
+              <cdk-step label="Pago de inicial" [stepControl]="contractInitialForm">
+
+                <form [formGroup]="contractInitialForm" >
+
+                  <div class="grid gap-4 grid-cols-12 ">
+
+                    <div  class="col-span-6">
+
+                      <div class="grid gap-4 grid-cols-2 ">
+
+                        <div class="col-span-2" >
+                          <label for="txtOaidInitialDate" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                            Fecha de pago <span class="text-red-500">*</span>
+                          </label>
+                          <input
+                            type="text"
+                            id="txtOaidInitialDate"
+                            mwlFlatpickr
+                            locale="Spanish"
+                            [altInput]="true"
+                            [maxDate]="maxDate"
+                            class="bg-gray-50 border text-center border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                            placeholder="YYYY-MM-DD"
+                            formControlName="initialPaidDate"
+                            [class.border-red-400]=" inputErrorsInitial('initialPaidDate') && isTouchedInitial('initialPaidDate') "
+                          >
+
+
+                          @if (isTouchedInitial('initialPaidDate')) {
+                            <span
+                              class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                              inputErrors
+                              [errors]="inputErrorsInitial('initialPaidDate')"
+                              [class.hidden]="!inputErrorsInitial('initialPaidDate')"
+                              inputLabel="fecha pago de inicial" >
+                            </span>
+                          }
+                        </div>
+
+                        <div>
+                          <label for="cbxPaymentType" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                            Tipo de pago <span class="text-red-500">*</span>
+                          </label>
+                          <ng-select
+                            id="cbxPaymentType"
+                            class="bg-gray-50 text-gray-900 text-sm rounded-md block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                            [items]="paymentsMethod()"
+                            bindLabel="name"
+                            bindValue="id"
+                            placeholder="-- Seleccione --"
+                            formControlName="paymentMethodInitialId"
+                            [class.border-red-400]=" inputErrorsInitial('paymentMethodInitialId') && isTouchedInitial('paymentMethodInitialId') "
+                          >
+                          </ng-select>
+
+                          @if (isTouchedInitial('paymentMethodInitialId')) {
+                            <span
+                              class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                              inputErrors
+                              [errors]="inputErrorsInitial('paymentMethodInitialId')"
+                              [class.hidden]="!inputErrorsInitial('paymentMethodInitialId')"
+                              inputLabel="Tipo de pago" >
+                            </span>
+                          }
+                        </div>
+
+                        <div>
+                          <label class="block text-sm font-medium text-gray-700 mb-2 dark:text-white">
+                            ID Transacción
+                          </label>
+                          <input
+                            type="text"
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-md focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                            placeholder="#"
+                            formControlName="operationCodeInitial"
+                            [class.border-red-400]=" inputErrorsInitial('operationCodeInitial') && isTouchedInitial('operationCodeInitial') "
+                          >
+
+                          @if (isTouchedInitial('operationCodeInitial')) {
+                            <span
+                              class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                              inputErrors
+                              [errors]="inputErrorsInitial('operationCodeInitial')"
+                              [class.hidden]="!inputErrorsInitial('operationCodeInitial')"
+                              inputLabel="Nro operación" >
+                            </span>
+                          }
+                        </div>
+
+                        <div class="col-span-2">
+                          <label class="block text-sm font-medium text-gray-700 mb-2 dark:text-white">
+                            Observaciones
+                          </label>
+                          <textarea
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-md focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                            rows="3"
+                            placeholder="Agregar comentarios adicionales aquí..."
+                            formControlName="observationInitial"
+                          >
+                          </textarea>
+
+                          @if (isTouchedInitial('observationInitial')) {
+                            <span
+                              class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                              inputErrors
+                              [errors]="inputErrorsInitial('observationInitial')"
+                              [class.hidden]="!inputErrorsInitial('observationInitial')"
+                              inputLabel="Observación" >
+                            </span>
+                          }
+                        </div>
+
+                      </div>
+
+                    </div>
+
+                    <div  class="col-span-6">
+
+                      <!-- File upload voucher -->
+                      <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2 dark:text-slate-100">
+                          Cargar voucher
+                        </label>
+
+                        @if ( !file ) {
+
+                          <div class=" mt-1 flex justify-center items-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
+                            <div class="space-y-1 text-center h-64 pt-10">
+
+                              <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
+                                <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                              </svg>
+
+                              <div class="text-sm text-gray-600">
+                                <label
+                                  for="file-upload"
+                                  class="relative cursor-pointer bg-white rounded-md font-medium text-emerald-600 hover:text-emerald-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-emerald-500 dark:bg-slate-700"
+                                >
+                                  <span>Sube un voucher</span>
+                                  <input
+                                    id="file-upload"
+                                    type="file"
+                                    [multiple]="false"
+                                    name="file-upload"
+                                    class="sr-only"
+                                    (change)="onChangeFile( $event.target )
+                                  ">
+                                </label>
+                                <!-- <p class="pl-1">o arrastra y suelta</p> -->
+                              </div>
+                              <p class="text-xs text-gray-500">PNG, JPG, PDF hasta 10MB</p>
+                            </div>
+                          </div>
+                        } @else {
+                          <div class="flex justify-center items-center ">
+                            <div class="relative w-40">
+
+                              <img class="w-44 h-64 border-2 border-gray-300 border-dashed" [src]="fileUrl()" alt="Rounded avatar">
+                              <div class="absolute cursor-pointer inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-red-500 border-2 border-white rounded-full -top-2 -end-1.5 dark:border-gray-900"
+                                (click)="onRemoveFile()"
+                              >
+                                <i class="fa-solid fa-xmark"></i>
+                              </div>
+                            </div>
+                          </div>
+                        }
+
+                      </div>
+
+                    </div>
+
+                  </div>
+
+                  <div class="flex justify-end">
+
+                    <div class="flex justify-end gap-2 pt-6 w-full">
+
+                      <button
+                        cdkStepperPrevious
+                        type="button"
+                        class="text-white inline-flex justify-center items-center w-52 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                      >
+                          Anterior
+                      </button>
+
+                      <button
+                        (click)="onSubmitContract()"
+                        type="button"
+                        class="text-white inline-flex justify-center items-center w-72 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                      >
+                        Guardar contrato
+                      </button>
+
+
+                      <button
+                        type="button"
+                        data-modal-toggle="contract-by-reservation-modal"
+                        class="flex justify-center items-center gap-2 px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                        (click)="onResetAfterSubmitContract()"
+                      >
+                        <i class="fa-solid fa-xmark"></i>
+                        Cerrar
+                      </button>
+
+                    </div>
+
+                  </div>
+
+                </form>
+
+              </cdk-step>
+
+             </custom-stepper>
+
+           </div>
+
       </div>
   </div>
 </div>

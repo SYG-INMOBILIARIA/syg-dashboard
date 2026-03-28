@@ -125,43 +125,7 @@
   </div>
 
   <!-- Top Sellers Table -->
-  <div class="mb-8">
-    <div class="p-4 bg-white rounded-lg shadow-sm dark:bg-gray-800">
-      <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Top Vendedores</h3>
-      <div class="overflow-x-auto">
-        <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-          <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-            <tr>
-              <th scope="col" class="px-6 py-3">Vendedor</th>
-              <th scope="col" class="px-6 py-3">Clientes Convertidos</th>
-              <th scope="col" class="px-6 py-3">Ratio de Conversión</th>
-              <th scope="col" class="px-6 py-3">Comisiones Generadas</th>
-              <th scope="col" class="px-6 py-3">Logros</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let seller of topSellers" class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-              <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">{{ seller.name }}</td>
-              <td class="px-6 py-4">{{ seller.convertedClients }}</td>
-              <td class="px-6 py-4">{{ seller.conversionRatio }}%</td>
-              <td class="px-6 py-4">S/ {{ seller.commissionsGenerated | number:'.2-2' }}</td>
-              <td class="px-6 py-4">
-                <span *ngFor="let achievement of seller.achievements"
-                      class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium mr-2"
-                      [ngClass]="{
-                        'bg-green-100 text-green-800': achievement.type === 'success',
-                        'bg-yellow-100 text-yellow-800': achievement.type === 'warning',
-                        'bg-blue-100 text-blue-800': achievement.type === 'info'
-                      }">
-                  {{ achievement.description }}
-                </span>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
+  <top-sellers></top-sellers>
 
   <!-- Activity Feed and Quick Actions -->
   <div class="grid grid-cols-1 gap-4 lg:grid-cols-3 mb-8">

@@ -4,13 +4,14 @@
     <div class="relative flex flex-col min-w-0 mb-6 break-words bg-white border-solid shadow-md dark:bg-slate-850 dark:shadow-dark-md rounded-2xl bg-clip-border dark:bg-gray-700">
 
       <div class="flex justify-between p-6 pb-2">
+
         <div class=" border-b-0 border-b-solid rounded-t-2xl border-b-transparen">
           <h6 class="font-bold dark:text-white">Contratos</h6>
         </div>
 
-        <div class="flex items-center ">
+        <div class="flex items-center gap-3">
 
-          <div class="pr-4">
+          <div class="">
             <div class="relative flex flex-wrap items-stretch w-full transition-all rounded-lg ease">
               <span class="text-sm ease leading-5.6 absolute z-50 -ml-px flex h-full items-center whitespace-nowrap rounded-lg rounded-tr-none rounded-br-none border border-r-0 border-transparent bg-transparent py-2 px-2.5 text-center font-normal text-slate-500 transition-all">
                 <svg
@@ -29,7 +30,7 @@
               <input
                 type="text"
                 class="pl-9 text-sm focus:shadow-primary-outline ease w-1/100 leading-5.6 relative -ml-px block min-w-0 flex-auto rounded-lg border border-solid dark:bg-gray-800 dark:text-white bg-white bg-clip-padding py-2 pr-3 text-gray-700 transition-all placeholder:text-gray-500 "
-                placeholder="Buscar..."
+                placeholder="Buscar por cliente..."
                 [formControl]="searchInput"
                 [class.border-gray-300]="isInvalidSearchInput == false"
                 [class.border-red-400]="isInvalidSearchInput == true"
@@ -37,6 +38,135 @@
               />
             </div>
           </div>
+
+          <form
+            [formGroup]="contractFilterForm"
+            class=""
+          >
+
+            <div class="relative flex flex-wrap items-stretch w-full transition-all rounded-lg ease ">
+              <span class="text-sm ease leading-5.6 absolute z-50 -ml-px flex h-full items-center whitespace-nowrap rounded-lg rounded-tr-none rounded-br-none border border-r-0 border-transparent bg-transparent py-2 px-2.5 text-center font-normal text-slate-500 transition-all">
+                <svg class="w-5 h-5 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                  <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 10h16m-8-3V4M7 7V4m10 3V4M5 20h14a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1Zm3-7h.01v.01H8V13Zm4 0h.01v.01H12V13Zm4 0h.01v.01H16V13Zm-8 4h.01v.01H8V17Zm4 0h.01v.01H12V17Zm4 0h.01v.01H16V17Z"/>
+                </svg>
+              </span>
+              <input
+                type="text"
+                class="w-[300px] pl-9 text-sm focus:shadow-primary-outline ease w-1/100 leading-5.6 relative -ml-px block min-w-0 flex-auto rounded-lg border border-slate-300 dark:bg-gray-800 dark:text-white bg-white bg-clip-padding py-2 pr-3 text-gray-700 transition-all placeholder:text-gray-500"
+                placeholder="Buscar por fecha de contrato"
+                formControlName="labelDate"
+              />
+
+              <button id="dropdownFilterContractButton" class="text-sm ease leading-5.6 absolute right-0 z-50 -ml-px flex h-full items-center whitespace-nowrap rounded-lg rounded-tr-none rounded-br-none border border-r-0 border-transparent bg-transparent py-2 px-2.5 text-center font-normal text-slate-500 transition-all focus:text-blue-600 focus:text-xl " type="button" (click)="toggleDateDropdown($event)" >
+                <svg class="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" stroke-linecap="round" stroke-width="3" d="M12 6h.01M12 12h.01M12 18h.01"/></svg>
+              </button>
+
+            </div>
+
+            <!-- Dropdown menu -->
+            <div id="dropdownDateFilters" *ngIf="showDateDropdown" class="absolute top-[72px] z-10 bg-white dark:bg-slate-700 border border-default-medium rounded-md shadow-lg w-[280px]">
+
+                <div class="p-2 text-sm text-body font-medium">
+
+                  <div class="pb-2">
+                    <label class="block mb-1 text-sm font-medium dark:text-slate-300">
+                      Tipo de filtro fecha
+                    </label>
+
+                    <select
+                      formControlName="dateMode"
+                      class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 dark:bg-slate-600 dark:border-gray-500 dark:text-slate-400"
+                    >
+                      <option value="none">Sin filtro</option>
+                      <option value="equal">Fecha igual a</option>
+                      <option value="range">Desde y hasta</option>
+                    </select>
+                  </div>
+
+                  <div class="pb-2">
+                    <!-- <div class="w-11 text-center">
+                      <i class="fa-solid fa-equals"></i>
+                    </div> -->
+                    <div *ngIf=" selectedDateMode() != 'range' " >
+                      <span class=" dark:text-slate-300">
+                        Fecha exacta
+                      </span>
+                      <input
+                        mwlFlatpickr
+                        [options]="flatpickrOptions"
+                        class="bg-gray-50 border text-center border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                        placeholder="YYYY-MM-DD"
+                        formControlName="equalToDate"
+                        [class.border-red-400]=" filterInputErrors('equalToDate') && isTouchedFilters('equalToDate') "
+                      >
+
+                      @if (isTouchedFilters('equalToDate')) {
+                        <span
+                          class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                          inputErrors
+                          [errors]="filterInputErrors('equalToDate')"
+                          [class.hidden]="!filterInputErrors('equalToDate')"
+                          inputLabel="Fecha igual a" >
+                        </span>
+                      }
+                    </div>
+
+                    <div *ngIf="selectedDateMode() === 'range'">
+                      Rango de fechas
+                      <input
+                        mwlFlatpickr
+                        [options]="flatpickrOptionsRange"
+                        class="bg-gray-50 border text-center border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                        placeholder="YYYY-MM-DD hasta YYYY-MM-DD"
+                        formControlName="rangeToDate"
+                        [class.border-red-400]=" filterInputErrors('rangeToDate') && isTouchedFilters('rangeToDate') "
+                      >
+
+                      @if (isTouchedFilters('rangeToDate')) {
+                        <span
+                          class="flex items-center ms-1 mt-2 text-xs text-red-500"
+                          inputErrors
+                          [errors]="filterInputErrors('rangeToDate')"
+                          [class.hidden]="!filterInputErrors('rangeToDate')"
+                          inputLabel="Rango de fechas" >
+                        </span>
+                      }
+                    </div>
+
+                  </div>
+
+                </div>
+
+                <div class="flex items-center justify-end gap-2 p-2 text-sm text-body font-medium border-t border-default-medium">
+
+                    <button
+                      type="button"
+                      class="px-3 py-2 text-sm rounded border border-gray-300"
+                      (click)="onClearFilters()"
+                    >
+                      Limpiar
+                    </button>
+
+                    <button
+                      type="button"
+                      class="px-3 py-2 text-sm rounded bg-red-600 text-white"
+                      (click)="onGetContracts()"
+                    >
+                      Aplicar
+                    </button>
+
+                </div>
+            </div>
+
+          </form>
+
+          <div class="flex items-center pr-4">
+              <input id="chkContractExpiredQuotes" type="checkbox" [formControl]="chkExpiredQuotesInput" (change)="onGetContracts()" class="w-4 h-4 border border-default-medium rounded-xs bg-neutral-secondary-medium focus:ring-2 focus:ring-brand-soft">
+              <label for="chkContractExpiredQuotes" class="select-none ms-2 text-sm font-medium text-heading">
+                Contratos con cuotas vencidas
+              </label>
+          </div>
+
 
           <div class="">
             <!-- data-modal-target="contract-modal"
@@ -185,7 +315,7 @@
 
                     <td  class=" text-center align-middle bg-transparent border-b dark:border-white/40 whitespace-nowrap shadow-transparent">
                       <span class="text-xs uppercase font-semibold leading-tight dark:text-gray-300 dark:opacity-80 text-slate-400">
-                        {{ contract.contractDate | moment:'createAt'  }}
+                        {{ contract?.contractDate | moment:'createAt'  }}
                       </span>
                     </td>
 

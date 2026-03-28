@@ -9,7 +9,7 @@ import { Contract, ContractQuote } from '../../interfaces';
 import { PipesModule } from '@pipes/pipes.module';
 import { MatDialog } from '@angular/material/dialog';
 import { Subscription } from 'rxjs';
-import { Store, on } from '@ngrx/store';
+import { Store } from '@ngrx/store';
 
 import { ContractDetailModalComponent } from '../../components/contract-detail-modal/contract-detail-modal.component';
 import { AppState } from '@app/app.config';
@@ -22,12 +22,15 @@ import { SpinnerComponent } from '@shared/components/spinner/spinner.component';
 import { ExcelExportService } from '@shared/services/excel-export.service';
 import { MomentPipe } from '@pipes/moment.pipe';
 import { PaymentTypePipe } from '@pipes/payment-type.pipe';
-import { LoteJoinCodesPipe } from '@pipes/lote-join-code.pipe';
+
 import { NomenclatureService } from '@shared/services/nomenclature.service';
 import { Nomenclature } from '@shared/interfaces';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { InputErrorsDirective } from '@shared/directives/input-errors.directive';
 import { WritingStatusBody } from './interfaces';
+import { DateFilterMode } from './services/contract-filter-validator.service';
+import { FlatpickrDefaultsInterface, FlatpickrDirective } from 'angularx-flatpickr';
+import moment from 'moment';
 
 @Component({
   selector: 'app-contracts',
@@ -43,6 +46,7 @@ import { WritingStatusBody } from './interfaces';
     SpinnerComponent,
     PipesModule,
     NgSelectModule,
+    FlatpickrDirective,
     InputErrorsDirective
   ],
   providers: [
@@ -55,6 +59,8 @@ import { WritingStatusBody } from './interfaces';
 export default class ContractsComponent implements OnInit, OnDestroy {
 
   private _authrx$?: Subscription;
+  private _dateModeFilterField$?: Subscription;
+  private _rangeDateFilterField$?: Subscription;
   private _store = inject<Store<AppState>>( Store<AppState> );
   private _webUrlPermissionMethods = signal<WebUrlPermissionMethods[]>([]);
 
@@ -74,6 +80,7 @@ export default class ContractsComponent implements OnInit, OnDestroy {
   readonly dialog = inject( MatDialog );
 
   public searchInput = new FormControl('', [ Validators.pattern( fullTextPatt ) ]);
+  public chkExpiredQuotesInput = new FormControl(false, []);
 
   private _isLoading = signal( true );
   private _isSaving = signal( false );
@@ -85,6 +92,17 @@ export default class ContractsComponent implements OnInit, OnDestroy {
   private _contractById = signal< Contract | null >( null );
   private _contractSchedule = signal<ContractQuote[]>( [] );
   private _writingStatuses = signal<Nomenclature[]>( [] );
+
+  public flatpickrOptions: FlatpickrDefaultsInterface = {
+    clickOpens: true,
+    maxDate: new Date(),
+  };
+
+  public flatpickrOptionsRange: FlatpickrDefaultsInterface = {
+    clickOpens: true,
+    maxDate: new Date(),
+    mode: 'range',
+  };
 
   public reportInProgress = computed( () => this._reportInProgress() );
   public isLoading = computed( () => this._isLoading() );
@@ -105,6 +123,23 @@ export default class ContractsComponent implements OnInit, OnDestroy {
     writingStatus:    [ null, [ Validators.required ] ],
   });
 
+  public contractFilterForm = this._fb.group({
+    labelDate:  [ '' ],
+    dateMode: ['none', [ Validators.required ]],
+
+    equalToDate:  [null],
+    rangeToDate:   [null],
+
+    greaterToDate:   [null],
+    lessToDate:   [null],
+  });
+
+
+  private _dateMode = signal<DateFilterMode>( 'none' );
+  public selectedDateMode = computed(
+    () => this._dateMode()
+  );
+
   get isInvalidSearchInput() { return this.searchInput.invalid; }
 
   inputErrors( field: string ) {
@@ -115,14 +150,25 @@ export default class ContractsComponent implements OnInit, OnDestroy {
     return this.writingForm.get(field)?.touched ?? false;
   }
 
+  filterInputErrors( field: string ) {
+    return this.contractFilterForm.get(field)?.errors ?? null;
+  }
+
+  isTouchedFilters( field: string ) {
+    return this.contractFilterForm.get(field)?.touched ?? false;
+  }
+
   get isFormInvalid() { return this.writingForm.invalid; }
   get writingStatusBody(): WritingStatusBody { return  this.writingForm.value as WritingStatusBody; }
 
+  public showDateDropdown = false;
 
   ngOnInit(): void {
     this.onListenAuthRx();
     this.onGetContracts();
     this.onGetWritingStatus();
+
+    this.onListenChangeFiltersValues();
   }
 
   ngAfterViewInit() {
@@ -138,6 +184,85 @@ export default class ContractsComponent implements OnInit, OnDestroy {
     });
   }
 
+  onListenChangeFiltersValues() {
+
+    this._dateModeFilterField$ = this.contractFilterForm.get('dateMode')?.valueChanges
+    .subscribe((mode: DateFilterMode) => {
+
+      const equalToDateCtrl = this.contractFilterForm.get('equalToDate');
+      const rangeToDateCtrl = this.contractFilterForm.get('rangeToDate');
+
+      equalToDateCtrl?.clearValidators();
+      rangeToDateCtrl?.clearValidators();
+
+      let validatorsEqual = [ Validators.required ];
+      let validatorsRange = [ Validators.required ];
+
+      switch (mode) {
+        case 'equal':
+          this.contractFilterForm.patchValue({
+            greaterToDate: null,
+            lessToDate: null,
+          }, { emitEvent: false });
+          validatorsRange = [];
+          break;
+
+          case 'range':
+            this.contractFilterForm.patchValue({
+              equalToDate: null,
+            }, { emitEvent: false });
+            validatorsEqual = [];
+          break;
+
+        default:
+          this.contractFilterForm.patchValue({
+            equalToDate: null,
+            greaterToDate: null,
+            lessToDate: null,
+          }, { emitEvent: false });
+
+          validatorsEqual = [];
+          validatorsRange = [];
+          break;
+      }
+
+      equalToDateCtrl?.addValidators( validatorsEqual )
+      rangeToDateCtrl?.addValidators( validatorsRange )
+
+      equalToDateCtrl?.updateValueAndValidity({ emitEvent: false });
+      rangeToDateCtrl?.updateValueAndValidity({ emitEvent: false });
+
+      this._dateMode.set( mode );
+
+      this.contractFilterForm.updateValueAndValidity();
+    });
+
+    this._rangeDateFilterField$ = this.contractFilterForm.get('rangeToDate')?.valueChanges.subscribe((value) => {
+      if (!value) {
+        this.contractFilterForm.patchValue({
+          greaterToDate: null,
+          lessToDate: null,
+        }, { emitEvent: false });
+        return;
+      }
+
+      const [from, to] = String(value).split(' a ');
+
+      this.contractFilterForm.patchValue({
+        greaterToDate: from ?? null,
+        lessToDate: to ?? null,
+
+        labelDate: moment( from ).format('DD [de] MMM YYYY') + ' a ' + moment( to ).format('DD [de] MMM YYYY')
+      }, { emitEvent: false });
+    });
+
+  }
+
+  toggleDateDropdown(event: MouseEvent) {
+    event.stopPropagation();
+    this.showDateDropdown = !this.showDateDropdown;
+  }
+
   onGetContracts( page = 1 ) {
 
     const webUrlPermissionMethods = this._webUrlPermissionMethods();
@@ -151,12 +276,13 @@ export default class ContractsComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const filter = this.searchInput.value ?? '';
+    const filterQuery = this.buildFilterQuery();
 
     this._alertService.showLoading();
+    this.showDateDropdown = false;
 
     this._isLoading.set( true );
-    this._contractService.getContracts( page, filter )
+    this._contractService.getContracts( page, filterQuery )
     .subscribe({
       next: ({ contracts, total }) => {
 
@@ -176,6 +302,50 @@ export default class ContractsComponent implements OnInit, OnDestroy {
 
   }
 
+  get filterFormInvalid() {
+    return this.contractFilterForm.invalid;
+  }
+
+  get filterBody() {
+    return this.contractFilterForm.getRawValue();
+  }
+
+
+  onClearFilters() {
+    this.contractFilterForm.reset({
+      labelDate: '',
+      dateMode: 'none',
+      equalToDate: null,
+      rangeToDate: null,
+      greaterToDate: null,
+      lessToDate: null,
+    });
+    this.showDateDropdown = false;
+    this.onGetContracts();
+  }
+
+  private buildFilterQuery(): string {
+
+    const searchText = this.searchInput.value ?? '';
+    const chkExpired = this.chkExpiredQuotesInput.value ?? '';
+    const { dateMode, equalToDate, greaterToDate, lessToDate } = this.filterBody;
+
+    const filters: string[] = [
+      `clientPattern=${searchText ?? ''};expiredQuotes=${ chkExpired }`,
+    ];
+
+    if (dateMode === 'equal' && equalToDate) {
+      filters.push(`createdAt=${equalToDate}`);
+    }
+
+    if (dateMode === 'range' && greaterToDate && lessToDate) {
+      filters.push(`createdFrom=${greaterToDate}`);
+      filters.push(`createdTo=${lessToDate}`);
+    }
+
+    return filters.join(';');
+  }
+
   onGetWritingStatus() {
     this._nomenclatureService.getWritingStatus()
     .subscribe( ( { nomenclatures } ) => {
@@ -183,9 +353,6 @@ export default class ContractsComponent implements OnInit, OnDestroy {
     });
   }
 
-  onLoadToUpdate( contract: Contract ) {
-
-  }
 
   async onRemoveConfirm( contract: Contract ) {
 
@@ -305,9 +472,10 @@ export default class ContractsComponent implements OnInit, OnDestroy {
     this.btnShowWritingStatusModal.nativeElement.click();
   }
 
-
   ngOnDestroy(): void {
     this._authrx$?.unsubscribe();
+    this._dateModeFilterField$?.unsubscribe();
+    this._rangeDateFilterField$?.unsubscribe();
   }
 
 }

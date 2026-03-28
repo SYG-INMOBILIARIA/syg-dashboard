@@ -61,7 +61,7 @@ export class ProfileClientLayoutComponent implements OnInit, OnDestroy {
     birthDate:            [ null, [] ],
     email:                [ null, [ Validators.pattern( emailPatt ) ] ],
     phone:                [ null, [ Validators.pattern( phonePatt ) ] ],
-    secondaryPhone:       [ '', [ Validators.pattern( phonePatt ) ] ],
+    profession:           [ '', [ Validators.required, Validators.pattern( fullTextPatt ) ] ],
     address:              [ '', [ Validators.required, Validators.pattern( fullTextPatt ) ] ],
     gender:               [ null, [ Validators.required ] ],
     civilStatus:          [ null, [ Validators.required ] ],

@@ -49,10 +49,8 @@ export default class PaidQuotesComponent implements OnInit, OnDestroy {
   private _authrx$?: Subscription;
   private _store = inject<Store<AppState>>( Store<AppState> );
 
-  @ViewChild('btnShowPaymentQuoteModal') btnShowPaymentQuoteModal!: ElementRef<HTMLButtonElement>;
   @ViewChild('btnClosePaymentQuoteModal') btnClosePaymentQuoteModal!: ElementRef<HTMLButtonElement>;
   @ViewChild('btnShowPaymentQuoteInfoModal') btnShowPaymentQuoteInfoModal!: ElementRef<HTMLButtonElement>;
-
 
   private _contractService = inject( ContractService );
   private _contractQuoteService = inject( ContractQuoteService );
@@ -61,6 +59,7 @@ export default class PaidQuotesComponent implements OnInit, OnDestroy {
 
   public contractInput = new UntypedFormControl( null, [ Validators.required ]);
   public searchContractInput = new UntypedFormControl(null, [ Validators.pattern( fullTextPatt ) ]);
+  public chkExpiredQuotesInput = new UntypedFormControl(false, []);
 
   private _contractQuotes = signal<ContractQuote[]>( [] );
 
@@ -78,6 +77,7 @@ export default class PaidQuotesComponent implements OnInit, OnDestroy {
 
   private _allowList = signal( true );
   private _isLoading = signal( true );
+  private _isLoadingContract = signal( true );
   private _isRemoving = false;
 
   public contracts = computed( () => this._contracts() );
@@ -93,6 +93,7 @@ export default class PaidQuotesComponent implements OnInit, OnDestroy {
   public isSaving = computed( () => this._isSaving() );
   public allowList = computed( () => this._allowList() );
   public isLoading = computed( () => this._isLoading() );
+  public isLoadingContract = computed( () => this._isLoadingContract() );
 
   get searchInputIsTouched() { return this.searchContractInput.touched; }
   get searchInputErrors() { return this.searchContractInput.errors; }
@@ -124,12 +125,16 @@ export default class PaidQuotesComponent implements OnInit, OnDestroy {
   }
 
   onGetContract() {
-    const filter = this.searchContractInput.value ?? '';
+    const clientPattern = this.searchContractInput.value ?? '';
+    const chkExpiredQuotes = this.chkExpiredQuotesInput.value ?? '';
 
+    const filter = `clientPattern=${clientPattern};expiredQuotes=${chkExpiredQuotes}`;
+    this._isLoadingContract.set( true );
     this._contractService.getContracts( 1, filter )
     .subscribe( ({ contracts, total }) => {
 
       this._contracts.set( contracts );
+      this._isLoadingContract.set( false );
 
     });
   }
@@ -180,21 +185,6 @@ export default class PaidQuotesComponent implements OnInit, OnDestroy {
   onSetContractQuoteToPay( quote?: ContractQuote ) {
     this._contractQuoteToPay.set( quote ?? null );
 
-    // if( quote ){
-    //   this._contractQuotesAll.set( [quote] );
-    // } else {
-
-    //   // Mostrar alerta si no se ha seleccionado un contrato
-    //   if(this.contractInputIsInvalid) {
-    //     this._alertService.showAlert( undefined, 'Primero seleccione un contrato y busque sus cuotas', 'warning' );
-    //     return ;
-    //   }
-    //   this._contractQuotesAll.set( this._contractQuotes().filter( (cuote) => !cuote.isPaid ) );
-    // }
-
-
-    //! abrir modal para pago de cuotas
-    // this.btnShowPaymentQuoteModal.nativeElement.click();
     this.onOpenPaidCuoteModal();
   }
 

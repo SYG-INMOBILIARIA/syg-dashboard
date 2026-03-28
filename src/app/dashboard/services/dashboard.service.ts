@@ -6,7 +6,7 @@ import { RecentActivity } from '../interfaces/dahsboard.interface';
 import { ClientStatus } from '../interfaces/dahsboard.interface';
 import { inject, Injectable } from '@angular/core';
 import { environments } from '@envs/environments';
-import { DashboardStats, MonthlyCommissions, SellerPerformance } from '../interfaces';
+import { DashboardStats, MonthlyCommissions, TopSellerResponse } from '../interfaces';
 import { firstValueFrom, Observable } from 'rxjs';
 import { VisitGrouped } from '../components/visit-percent-status-card/interfaces';
 import { VisitorsByYear } from '../components/visitor-counter-card/interfaces';
@@ -22,8 +22,11 @@ export class DashboardService {
     return this._http.get<DashboardStats>(`${this._baseUrl}/dashboard/stats`);
   }
 
-  getTopSellers(): Observable<SellerPerformance[]> {
-    return this._http.get<SellerPerformance[]>(`${this._baseUrl}/dashboard/top-sellers`);
+  getTopSellers( dateFrom: string | null = '', dateTo: string | null = '' ) {
+
+    let params = `?dateFrom=${dateFrom}&dateTo=${ dateTo }`;
+
+    return this._http.get<TopSellerResponse>(`${this._baseUrl}/dashboard/top-sellers${ params }`);
   }
 
   getMonthlyCommissions(): Observable<MonthlyCommissions[]> {

@@ -83,6 +83,17 @@ export class InputErrorsDirective {
       return;
     }
 
+    if( errors.includes( 'equalToDateequired' ) ) {
+      this._el.nativeElement.innerHTML = warningSvg + ` ${ this.inputLabel().toLowerCase() } requerido`;
+      return;
+    }
+
+    if( errors.includes( 'rangeDateRequired' ) ) {
+      this._el.nativeElement.innerHTML = warningSvg + ` ${ this.inputLabel().toLowerCase() } requerido`;
+      return;
+    }
+
+
   }
 
 }

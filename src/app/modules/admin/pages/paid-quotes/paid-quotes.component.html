@@ -10,9 +10,11 @@
     <div class="flex justify-center items-end gap-3">
 
       <div class="w-full">
+
         <label for="cbxContract" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
           Buscar Contrato: <span class="text-red-500">*</span>
         </label>
+
         <ng-select
           id="cbxContract"
           class="navbar bg-gray-50 border text-gray-900 text-sm rounded-lg block w-full dark:bg-gray-600  dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
@@ -21,6 +23,7 @@
           bindLabel="code"
           bindValue="id"
           placeholder="Seleccione contrato"
+          [loading]="isLoadingContract()"
           [formControl]="contractInput"
           [ngClass]="{'border !border-red-400': contractInputIsTouched && contractInputErrors  }"
         >
@@ -75,60 +78,10 @@
             </div>
           </ng-template>
 
-          <!-- <ng-template ng-option-tmp let-item="item" class="text-gray-900 whitespace-nowrap dark:text-white text-left ">
-
-            <div class=" flex justify-between">
-              <div class="text-normal ">
-                <div>
-                  <span class="italic text-slate-500 text-sm">
-                    Código:
-                  </span>
-                  <span class="font-bold text-sm">
-                    {{ item.code }}
-                  </span>
-                </div>
-
-                <div class="!max-w[200px]">
-                  <span class="italic text-slate-500 text-sm">
-                    Lotes:
-                  </span>
-                  <div class=" flex flex-wrap justify-start items-center gap-2 ">
-                    @for (lot of item.lotes; track lot.id;) {
-                      <span class="font-semibold text-sm px-2 py-1 border border-indigo-500 rounded-md text-indigo-600">
-                        {{ lot.mz }}-{{ lot.numberLote }}
-                      </span>
-                    }
-                  </div>
-                </div>
-              </div>
-
-              <div class=" flex justify-center items-center gap-2.5">
-
-                <div class="italic text-slate-500 ">
-
-                  Clientes:
-
-                </div>
-
-                <div class="w-64">
-                  @for (client of item.clients; track client.id; let i = $index) {
-                    <div class="uppercase font-semibold">
-                      {{ client.fullname }}
-                    </div>
-                    <div class="font-normal text-sm text-gray-500 pe-5">
-                      {{ client.identityDocument?.shortDescription ?? '---' }} : {{ client.identityNumber ?? '---' }}
-                    </div>
-                  }
-                </div>
-
-              </div>
-            </div>
-
-          </ng-template> -->
-
           <!-- Variante ultra compacta -->
           <ng-template ng-option-tmp let-item="item" class="text-gray-800 text-left">
             <div class="border-b border-slate-200 px-2 py-2.5">
+
               <!-- fila principal -->
               <div class="flex items-start justify-between gap-3">
                 <div class="min-w-0">
@@ -140,7 +93,6 @@
                   </div>
 
                   <!-- lotes compactos -->
-
                   <div>
                     <label for="">Lotes</label>
                     <div class="mt-1 flex flex-wrap gap-1">
@@ -156,6 +108,7 @@
                       }
                     </div>
                   </div>
+
                 </div>
 
                 <!-- clientes -->
@@ -176,16 +129,23 @@
                       <div class="my-1 h-px bg-slate-100"></div>
                     }
                   }
+
                 </div>
               </div>
             </div>
           </ng-template>
 
-
-
         </ng-select>
 
       </div>
+
+      <div class="flex items-center">
+          <input id="chkContractExpiredQuotes" type="checkbox" [formControl]="chkExpiredQuotesInput" (change)="onGetContract()" class="w-4 h-4 border border-default-medium rounded-xs bg-neutral-secondary-medium focus:ring-2 focus:ring-brand-soft">
+          <label for="chkContractExpiredQuotes" class="w-[200px] select-none ms-2 text-sm font-medium text-heading">
+            Contratos con cuotas vencidas
+          </label>
+      </div>
+
       <button
         type="button"
         class="flex justify-center items-end border border-gray-300 text-gray-700 px-4 py-2 mr-3 font-semibold text-center  align-middle transition-all rounded cursor-pointer leading-normal ease-in tracking-tight-rem shadow-xs bg-150 bg-x-25 hover:-translate-y-px active:opacity-75 hover:shadow-md dark:text-slate-200"

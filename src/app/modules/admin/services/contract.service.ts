@@ -34,9 +34,10 @@ export class ContractService {
     return this.decimalPipe.transform(value ?? 0, '1.2-2', 'en-US') ?? '0.00';
   }
 
-  getContracts( page: number, filter: string, limit = 10, showInactive = false ): Observable<ListContractResponse> {
+  getContracts( page: number, filter: string, limit = 10, order = 'createAt=DESC', showInactive = false ): Observable<ListContractResponse> {
 
     let queryParams = `filter=${ filter }`;
+    queryParams += `&order=${ order }`;
     queryParams += `&page=${ page }`;
     queryParams += `&limit=${ limit }`;
     queryParams += `&isActive=${ !showInactive }`;
