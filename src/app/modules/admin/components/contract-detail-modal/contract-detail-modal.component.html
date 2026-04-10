@@ -40,7 +40,7 @@
 
         <custom-stepper #myStepper class="mb-4" (selectedIndexChange)="onMapInterective( $event )"  >
 
-          <cdk-step label="Propietario" aria-label="Cliente propietario" >
+          <cdk-step label="Propietario" >
 
             <div class="grid gap-4 grid-cols-6 pb-3">
 
@@ -147,7 +147,7 @@
 
           </cdk-step>
 
-          <cdk-step label="Lotes" aria-label="Lotes Seleccionados" >
+          <cdk-step label="Lotes" >
 
             <div class="relative">
               <div id="map" #map class="border rounded bg-slate-600" ></div>
@@ -308,6 +308,57 @@
               </table>
             </div>
 
+
+          </cdk-step>
+
+          <cdk-step label="Pago de inicial"  >
+
+            <div class="grid gap-4 grid-cols-6 pb-3">
+
+              <div class="col-span-3">
+
+                <div class="font-semibold text-md dark:text-white text-left pb-2">
+                  <h1 class="text-left mb-2 text-md font-semibold tracking-tight leading-none text-gray-900 dark:text-white">
+                    Método de pago
+                  </h1>
+                  <div class="font-normal text-sm text-gray-500 dark:text-gray-400">
+                    {{ contractById()?.paymentMethodInitial?.name }}
+                  </div>
+                </div>
+
+                <div class="font-semibold text-md dark:text-white text-left pb-2">
+                  <h1 class="text-left mb-2 text-md font-semibold tracking-tight leading-none text-gray-900 dark:text-white">
+                    Fecha de pago
+                  </h1>
+                  <div class="font-normal text-sm text-gray-500 dark:text-gray-400">
+                    {{ contractById()?.initialPaidDate | moment }}
+                  </div>
+                </div>
+
+                <div class="font-semibold text-md dark:text-white text-left pb-2">
+                  <h1 class="text-left mb-2 text-md font-semibold tracking-tight leading-none text-gray-900 dark:text-white">
+                    Observación
+                  </h1>
+                  <div class="font-normal text-sm text-gray-500 dark:text-gray-400">
+                    {{ contractById()?.observationInitial }}
+                  </div>
+                </div>
+
+              </div>
+              <div class="col-span-3 min-h-[300px] ">
+                Boucher
+
+                <div class="h-[420px] w-full overflow-hidden rounded-lg border bg-gray-50">
+                  <img
+                    [src]="contractById()?.voucherInitial ?? null | networkImage"
+                    alt="Voucher de pago inicial"
+                    class="w-full h-auto  object-cover rounded-lg border"
+                  />
+                </div>
+
+              </div>
+
+            </div>
 
           </cdk-step>
 
