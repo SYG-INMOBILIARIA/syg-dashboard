@@ -262,10 +262,12 @@ export class ContractDetailModalComponent implements AfterViewInit, OnDestroy {
     if( !this._map ) throw new Error(`Div map container not found!!!`);
     const { urlImg } = flatImage;
 
-    const points = this._polygonCoords.reduce<any>( (acc: number[][], current) => {
-      acc.push( [ current.lng, current.lat ] );
-      return acc;
-    }, []);
+    const points = this._polygonCoords
+        .sort((a, b) => a.order - b.order)
+        .reduce<any>( (acc: number[][], current) => {
+          acc.push( [ current.lng, current.lat ] );
+          return acc;
+        }, []);
 
     const imgSourceId = uuid();
 

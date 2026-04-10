@@ -4,4 +4,6 @@ export interface Coordinate {
   id:       string;
   lng:      number;
   lat:      number;
+
+  order:   number;
 }
