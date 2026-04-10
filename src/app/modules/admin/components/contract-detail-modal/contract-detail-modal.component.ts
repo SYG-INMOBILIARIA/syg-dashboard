@@ -340,6 +340,18 @@ export class ContractDetailModalComponent implements AfterViewInit, OnDestroy {
 
   }
 
+  downloadVoucher(): void {
+    const imageUrl = this.contractById()?.voucherInitial;
+
+    if (!imageUrl) return;
+
+    const link = document.createElement('a');
+    link.href = imageUrl.urlImg;
+    link.download = 'voucher-pago-inicial';
+    link.target = '_blank';
+    link.click();
+  }
+
   ngOnDestroy(): void {
     this._map?.remove();
   }
