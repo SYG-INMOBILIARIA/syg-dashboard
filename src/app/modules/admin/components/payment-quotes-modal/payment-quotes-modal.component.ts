@@ -109,6 +109,14 @@ export class PaymentQuotesModalComponent implements OnInit {
     return this.paymentQuoteForm.get(field)?.touched ?? false;
   }
 
+  isPdf(): boolean {
+    return this.file?.type === 'application/pdf';
+  }
+
+  isPdfDocument(): boolean {
+    return this.fileDocument?.type === 'application/pdf';
+  }
+
   ngOnInit(): void {
 
     const { contractQuotes, webUrlPermissionMethods, contractQuoteSelected } = this._data;

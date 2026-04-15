@@ -252,10 +252,25 @@
                           </div>
                         </div>
                       } @else {
+
+                        <!-- * hacer una condición si es imagen mostrar mediante un img, pero si es pdf en un iframe -->
                         <div class="flex justify-center items-center ">
                           <div class="relative w-40">
 
-                            <img class="w-40 h-60 border-2 border-gray-300 border-dashed" [src]="fileUrl()" alt="Rounded avatar">
+                            <!-- <img class="w-40 h-60 border-2 border-gray-300 border-dashed" [src]="fileUrl()" alt="Rounded avatar"> -->
+                            @if (isPdf()) {
+                              <iframe
+                                class="w-40 h-60 border-2 border-gray-300 border-dashed bg-white"
+                                [src]="fileUrl() | sanitizeUrl"
+                              ></iframe>
+                            } @else {
+                              <img
+                                class="w-40 h-60 border-2 border-gray-300 border-dashed"
+                                [src]="fileUrl() | sanitizeUrl"
+                                alt="Vista previa del archivo"
+                              >
+                            }
+
                             <div class="absolute cursor-pointer inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-red-500 border-2 border-white rounded-full -top-2 -end-1.5 dark:border-gray-900"
                               (click)="onRemoveFile()"
                             >
@@ -263,6 +278,8 @@
                             </div>
                           </div>
                         </div>
+
+
                       }
 
                     </div>
@@ -306,7 +323,21 @@
                         <div class="flex justify-center items-center ">
                           <div class="relative w-40">
 
-                            <img class="w-40 h-60 border-2 border-gray-300 border-dashed" [src]="fileDocumentUrl()" alt="Rounded avatar">
+                            <!-- <img class="w-40 h-60 border-2 border-gray-300 border-dashed" [src]="fileDocumentUrl()" alt="Rounded avatar"> -->
+
+                            @if (isPdfDocument()) {
+                              <iframe
+                                class="w-40 h-60 border-2 border-gray-300 border-dashed bg-white"
+                                [src]="fileDocumentUrl() | sanitizeUrl"
+                              ></iframe>
+                            } @else {
+                              <img
+                                class="w-40 h-60 border-2 border-gray-300 border-dashed"
+                                [src]="fileDocumentUrl() | sanitizeUrl"
+                                alt="Vista previa del documento"
+                              >
+                            }
+
                             <div class="absolute cursor-pointer inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-red-500 border-2 border-white rounded-full -top-2 -end-1.5 dark:border-gray-900"
                               (click)="onRemoveFileDocument()"
                             >

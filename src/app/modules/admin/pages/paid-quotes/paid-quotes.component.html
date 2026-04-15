@@ -722,7 +722,18 @@
                   <div class="rounded-xl border border-gray-200 p-4 bg-white dark:bg-slate-700" *ngIf="payment.photo">
                     <p class="text-sm font-medium text-gray-800 mb-3 dark:text-slate-200">Voucher</p>
                     <div class="rounded-lg bg-gray-50 border border-dashed border-gray-200 p-3 flex justify-center dark:bg-slate-700">
-                      <img class="h-56 object-contain rounded-md" [src]="payment.photo.urlImg"  alt="">
+
+
+                      @if (isPdf( payment.photo.urlImg )) {
+                        <iframe
+                        id="lorem"
+                        class="w-40 h-56 border-2 border-gray-300 border-dashed bg-white"
+                        [src]="payment.photo.urlImg | sanitizeUrl"
+                        ></iframe>
+                      } @else {
+                        <img class="h-56 object-contain rounded-md" [src]="payment.photo.urlImg | sanitizeUrl"  alt="">
+                      }
+
                     </div>
                     <a class="mt-3 inline-flex text-sm font-medium text-blue-600 hover:text-blue-700" [href]="payment.photo.urlImg" target="_blank">
                       Descargar archivo
@@ -730,9 +741,18 @@
                   </div>
 
                   <div class="rounded-xl border border-gray-200 p-4 bg-white dark:bg-slate-700" *ngIf="payment.documentFile">
-                    <p class="text-sm font-medium text-gray-800 mb-3 dark:text-slate-200 dark:text-slate-200">Comprobante</p>
+                    <p class="text-sm font-medium text-gray-800 mb-3 dark:text-slate-200">Comprobante</p>
                     <div class="rounded-lg bg-gray-50 border border-dashed border-gray-200 p-3 flex justify-center dark:bg-slate-700">
-                      <img class="h-56 object-contain rounded-md" [src]="payment.documentFile.urlImg" alt="">
+                      <!-- <img class="h-56 object-contain rounded-md" [src]="payment.documentFile.urlImg | sanitizeUrl" alt=""> -->
+
+                      @if (isPdf( payment.documentFile.urlImg )) {
+                        <iframe
+                        class="w-40 h-56 border-2 border-gray-300 border-dashed bg-white"
+                        [src]="payment.documentFile.urlImg | sanitizeUrl"
+                        ></iframe>
+                      } @else {
+                        <img class="h-56 object-contain rounded-md" [src]="payment.documentFile.urlImg | sanitizeUrl"  alt="">
+                      }
                     </div>
                     <a class="mt-3 inline-flex text-sm font-medium text-blue-600 hover:text-blue-700" [href]="payment.documentFile.urlImg" target="_blank">
                       Descargar archivo

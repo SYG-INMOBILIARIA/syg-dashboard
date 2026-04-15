@@ -138,6 +138,14 @@ export default class PaidQuotesComponent implements OnInit, OnDestroy {
 
   }
 
+  isPdf(fileUrl: string): boolean {
+    if (!fileUrl) return false;
+
+    return /(\.pdf|%2F[^?#]+\.pdf)(?=($|[?#]))/i.test(fileUrl);
+  }
+
+
+
   ngAfterViewInit(): void {
     setTimeout(() => {
       initFlowbite();

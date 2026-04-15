@@ -12,6 +12,7 @@ import { LeadStatusPipe } from './lead-status.pipe';
 import { MomentDiffPipe } from './moment-diff.pipe';
 import { CivilStatusPipe } from './civil-status.pipe';
 import { GenderPipe } from './gender.pipe';
+import { SanitizeUrlPipe } from './sanitize-url.pipe';
 
 @NgModule({
   imports: [
@@ -27,7 +28,8 @@ import { GenderPipe } from './gender.pipe';
     LeadStatusPipe,
     MomentDiffPipe,
     CivilStatusPipe,
-    GenderPipe
+    GenderPipe,
+    SanitizeUrlPipe
   ],
   exports: [
     MomentPipe,
@@ -42,7 +44,8 @@ import { GenderPipe } from './gender.pipe';
     LeadStatusPipe,
     MomentDiffPipe,
     CivilStatusPipe,
-    GenderPipe
+    GenderPipe,
+    SanitizeUrlPipe
   ],
 })
 export class PipesModule {}

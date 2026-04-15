@@ -31,6 +31,7 @@ import { apiPaymentQuote } from '@shared/helpers/web-apis.helper';
     SpinnerComponent,
     FlatpickrDirective,
     PipesModule,
+
   ],
   templateUrl: './paid-quotes-modal.component.html',
   styles: ``
@@ -83,7 +84,7 @@ export class PaidQuotesModalComponent implements OnInit {
     paymentMethodId:   [ null, [ Validators.required ] ],
   });
 
-  public fileUrl = signal( environments.defaultImgUrl );
+  public fileUrl = signal<string>( environments.defaultImgUrl );
   private _file?: File;
 
   public fileDocumentUrl = signal( environments.defaultImgUrl );
@@ -125,6 +126,14 @@ export class PaidQuotesModalComponent implements OnInit {
     initFlowbite();
     this.onGetPaymentsMethod();
 
+  }
+
+  isPdf(): boolean {
+    return this.file?.type === 'application/pdf';
+  }
+
+  isPdfDocument(): boolean {
+    return this.fileDocument?.type === 'application/pdf';
   }
 
   onGetPaymentsMethod( ) {
