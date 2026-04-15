@@ -4,7 +4,8 @@ import { Observable } from 'rxjs';
 
 import { environments } from '@envs/environments';
 import { PaymentQuoteBody } from '../interfaces';
-import { PaymentQuoteListResponse } from '../pages/paid-quotes/interfaces';
+import { IPaymentsQuoteListresponse, PaymentQuoteListResponse, PaymentsByCuote } from '../pages/paid-quotes/interfaces';
+import { PaymentQuote } from '@app/dashboard/interfaces';
 
 @Injectable({providedIn: 'root'})
 export class PaymentQuoteService {
@@ -16,8 +17,22 @@ export class PaymentQuoteService {
     return this._http.post<any>(`${ this._baseUrl }/payment-quote`, body );
   }
 
+  getPaymentQuotes( page: number, filter = '', order = 'createdAt', limit = 10 ): Observable<IPaymentsQuoteListresponse> {
+
+    let params = `page=${ page }`;
+    params += `&limit=${ limit }`;
+    params += `&filter=${ filter }`;
+    params += `&order=${ order }`;
+    return this._http.get<IPaymentsQuoteListresponse>(`${ this._baseUrl }/payment-quote?${ params }`);
+
+  }
+
   getPaymentQuoteByContractQuote( contractQuoteId: string ): Observable<PaymentQuoteListResponse> {
     return this._http.get<PaymentQuoteListResponse>(`${ this._baseUrl }/payment-quote/by-contract-quote/${ contractQuoteId }`);
+  }
+
+  onRemove( id: string ) {
+    return this._http.delete<PaymentQuote>(`${ this._baseUrl }/payment-quote/${ id }`);
   }
 
 }

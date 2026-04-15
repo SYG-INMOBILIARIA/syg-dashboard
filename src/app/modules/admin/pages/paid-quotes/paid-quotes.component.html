@@ -157,6 +157,16 @@
         Filtrar
       </button>
 
+      <button
+              #btnShowPaymentQuoteInfoModal
+              type="button"
+              data-modal-target="payment-quote-detail-modal"
+              data-modal-toggle="payment-quote-detail-modal"
+              class="hidden px-6 py-2 mr-3 font-semibold text-center text-white align-middle transition-all rounded cursor-pointer bg-emerald-600 hover:bg-emerald-700 leading-normal ease-in tracking-tight-rem shadow-xs bg-150 bg-x-25 hover:-translate-y-px active:opacity-85 hover:shadow-md"
+            >
+              Mostrar pago
+            </button>
+
     </div>
 
     <div>
@@ -213,234 +223,394 @@
 
 </div>
 
+
+
+<!-- Tap cuotas de pago -->
 <div class="flex flex-wrap ">
   <div class="flex-none w-full max-w-full px-3">
     <div class="relative flex flex-col min-w-0 mb-6 break-words bg-white border-solid shadow-md dark:bg-slate-850 dark:shadow-dark-md rounded-2xl bg-clip-border dark:bg-gray-700">
 
-      <div class="flex flex-col gap-2 md:flex-row md:items-center justify-between py-6 px-4">
-        <div>
-          <h1 class="text-3xl font-bold text-gray-800 dark:text-slate-100">
-            Cuotas pendientes
-          </h1>
-        </div>
-        <div class="flex items-center gap-3">
+      <div class="border-b border-gray-200 px-4 pt-4">
+        <div class="flex items-center gap-2">
           <button
             type="button"
-            class="inline-block px-6 py-2 mr-3 font-semibold text-center text-white align-middle transition-all rounded cursor-pointer bg-emerald-600 hover:bg-emerald-700 leading-normal ease-in tracking-tight-rem shadow-xs bg-150 bg-x-25 hover:-translate-y-px active:opacity-85 hover:shadow-md"
-            (click)="onSetContractQuoteToPay()"
+            class="rounded-t-lg px-4 py-2 text-sm font-semibold border-b-2 transition-all"
+            [ngClass]="activeTab() === 'pending'
+              ? 'border-blue-600 text-blue-600 bg-blue-50'
+              : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50'"
+            (click)="onChangeTab('pending')"
           >
-            <i class="fa-solid fa-plus mr-1"></i>
-            Pagar múltiples cuotas
-          </button>
-
-          <button class="border border-gray-300 text-gray-700 inline-block px-4 py-2 mr-3 font-semibold text-center  align-middle transition-all rounded cursor-pointer leading-normal ease-in tracking-tight-rem shadow-xs bg-150 bg-x-25 hover:-translate-y-px active:opacity-75 hover:shadow-md dark:text-slate-200">
-            <i class="fa-solid fa-download h-5 w-5 mr-1"></i>
-            Descargar Reporte PDF
+            Lista de cuotas de pago
+            <!-- <span class="ml-2 rounded-full bg-white px-2 py-0.5 text-xs">
+              {{ pendingContractQuotesTotal() }}
+            </span> -->
           </button>
 
           <button
-            #btnShowPaymentQuoteInfoModal
             type="button"
-            data-modal-target="payment-quote-detail-modal"
-            data-modal-toggle="payment-quote-detail-modal"
-            class="hidden px-6 py-2 mr-3 font-semibold text-center text-white align-middle transition-all rounded cursor-pointer bg-emerald-600 hover:bg-emerald-700 leading-normal ease-in tracking-tight-rem shadow-xs bg-150 bg-x-25 hover:-translate-y-px active:opacity-85 hover:shadow-md"
+            class="rounded-t-lg px-4 py-2 text-sm font-semibold border-b-2 transition-all"
+            [ngClass]="activeTab() === 'paid'
+              ? 'border-blue-600 text-blue-600 bg-blue-50'
+              : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50'"
+            (click)="onChangeTab('paid')"
           >
-            Mostrar pago
+            Lista de pagos realizados
+            <!-- <span class="ml-2 rounded-full bg-white px-2 py-0.5 text-xs">
+              {{ paidContractQuotesTotal() }}
+            </span> -->
           </button>
-
         </div>
       </div>
 
-      <div class=" overflow-hidden">
-        <table class="w-full text-sm text-left">
-          <thead >
-            <tr class="bg-gray-50/50">
+      <!-- cuotas pendientes -->
+      <div *ngIf="activeTab() != 'paid'" >
+        <div class="flex flex-col gap-2 md:flex-row md:items-center justify-between py-6 px-4">
+          <div>
+            <h1 class="text-3xl font-bold text-gray-800 dark:text-slate-100">
+              Cuotas pendientes
+            </h1>
+          </div>
+          <div class="flex items-center gap-3">
+            <button
+              type="button"
+              class="inline-block px-6 py-2 mr-3 font-semibold text-center text-white align-middle transition-all rounded cursor-pointer bg-emerald-600 hover:bg-emerald-700 leading-normal ease-in tracking-tight-rem shadow-xs bg-150 bg-x-25 hover:-translate-y-px active:opacity-85 hover:shadow-md"
+              (click)="onSetContractQuoteToPay()"
+            >
+              <i class="fa-solid fa-plus mr-1"></i>
+              Pagar múltiples cuotas
+            </button>
 
-              <th class="px-6 py-3 font-semibold text-gray-600 ">CUOTA</th>
-              <th class="px-6 py-3 font-semibold text-gray-600 ">LOTES</th>
-              <th class="px-6 py-3 font-semibold text-gray-600 ">CLIENTE</th>
-              <th class="px-6 py-3 font-semibold text-gray-600 ">
-                <div class="flex items-center">
-                  FECHA DE PAGO
-                  <svg xmlns="http://www.w3.org/2000/svg" class="ml-1 h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="6 9 12 15 18 9"></polyline>
-                  </svg>
-                </div>
-              </th>
-              <th class="px-6 py-3 font-semibold text-gray-600 ">STATUS</th>
-              <th class="px-6 py-3 font-semibold text-gray-600 w-32 ">MONTO</th>
-              <th class="px-6 py-3 font-semibold text-gray-600 w-32 ">MORA</th>
-              <th class="px-6 py-3 font-semibold text-gray-600 w-32 ">ABONADO</th>
-              <th class="px-6 py-3 font-semibold text-gray-600 w-32 ">DEUDA</th>
-              <th class="px-6 py-3 font-semibold text-gray-600  text-right">
-                ACCIONES
-              </th>
-            </tr>
-          </thead>
-          <tbody>
+            <button class="border border-gray-300 text-gray-700 inline-block px-4 py-2 mr-3 font-semibold text-center  align-middle transition-all rounded cursor-pointer leading-normal ease-in tracking-tight-rem shadow-xs bg-150 bg-x-25 hover:-translate-y-px active:opacity-75 hover:shadow-md dark:text-slate-200">
+              <i class="fa-solid fa-download h-5 w-5 mr-1"></i>
+              Descargar Reporte PDF
+            </button>
 
-            @if ( allowList() ) {
+          </div>
+        </div>
 
-              @for ( contractQuote of contractQuotes(); track $index) {
+        <div class=" overflow-hidden">
+          <table class="w-full text-sm text-left">
+            <thead >
+              <tr class="bg-gray-50/50">
 
-                <!-- Row 1 hover:bg-gray-50/50-->
-                <tr class="border-b dark:border-white/40 border-gray-200 dark:text-slate-400 ">
+                <th class="px-6 py-3 font-semibold text-gray-600 ">CUOTA</th>
+                <th class="px-6 py-3 font-semibold text-gray-600 ">LOTES</th>
+                <th class="px-6 py-3 font-semibold text-gray-600 ">CLIENTE</th>
+                <th class="px-6 py-3 font-semibold text-gray-600 ">
+                  <div class="flex items-center">
+                    FECHA DE PAGO
+                    <svg xmlns="http://www.w3.org/2000/svg" class="ml-1 h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                  </div>
+                </th>
+                <th class="px-6 py-3 font-semibold text-gray-600 ">STATUS</th>
+                <th class="px-6 py-3 font-semibold text-gray-600 w-32 ">MONTO</th>
+                <th class="px-6 py-3 font-semibold text-gray-600 w-32 ">MORA</th>
+                <th class="px-6 py-3 font-semibold text-gray-600 w-32 ">ABONADO</th>
+                <th class="px-6 py-3 font-semibold text-gray-600 w-32 ">DEUDA</th>
+                <th class="px-6 py-3 font-semibold text-gray-600  text-right">
+                  ACCIONES
+                </th>
+              </tr>
+            </thead>
+            <tbody>
 
-                  <td class="font-medium p-4">
-                    {{ contractQuote.order }}
-                  </td>
-                  <td class="font-medium ">
-                    <div class="mt-1 flex flex-wrap gap-1">
-                      @for (lot of (contractQuote.contract.lotes).slice(0, 4); track lot.id) {
-                        <span class="rounded border border-indigo-600 text-indigo-700 px-1.5 py-0.5 text-[11px] font-semibold">
-                          {{ lot.mz }}-{{ lot.numberLote }}
+              @if ( allowList() ) {
+
+                @for ( contractQuote of contractQuotes(); track $index) {
+
+                  <!-- Row 1 hover:bg-gray-50/50-->
+                  <tr class="border-b dark:border-white/40 border-gray-200 dark:text-slate-400 ">
+
+                    <td class="font-medium p-4">
+                      {{ contractQuote.order }}
+                    </td>
+                    <td class="font-medium ">
+                      <div class="mt-1 flex flex-wrap gap-1">
+                        @for (lot of (contractQuote.contract.lotes).slice(0, 4); track lot.id) {
+                          <span class="rounded border border-indigo-600 text-indigo-700 px-1.5 py-0.5 text-[11px] font-semibold">
+                            {{ lot.mz }}-{{ lot.numberLote }}
+                          </span>
+                        }
+                        @if ((contractQuote.contract.lotes.length) > 4) {
+                          <span class="rounded border border-slate-200 bg-slate-100 px-1.5 py-0.5 text-[11px] font-medium text-slate-500">
+                            +{{ (contractQuote.contract.lotes.length || 0) - 4 }} lotes
+                          </span>
+                        }
+                      </div>
+                    </td>
+                    <!-- Si clients SIEMPRE existe (array no nullable) -->
+                    <td>
+                      <span class="font-medium uppercase">
+                        {{ contractQuote.contract.clients[0].fullname || 'Sin cliente' }}
+                      </span>
+                      @if (contractQuote.contract.clients.length > 1) {
+                        <span class="text-slate-500">
+                          +{{ contractQuote.contract.clients.length - 1 }} clientes
                         </span>
                       }
-                      @if ((contractQuote.contract.lotes.length) > 4) {
-                        <span class="rounded border border-slate-200 bg-slate-100 px-1.5 py-0.5 text-[11px] font-medium text-slate-500">
-                          +{{ (contractQuote.contract.lotes.length || 0) - 4 }} lotes
-                        </span>
+                    </td>
+
+                    <td class="">
+                      {{ contractQuote.paymentDate | moment:'createAt' }}
+                    </td>
+                    <td class="">
+                      <span
+                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium "
+                        [ngClass]="{
+                          'bg-[#F2FCE2] text-[#16a34a]': contractQuote.isPaid,
+                          'bg-[#FFDEE2] text-[#ea384c]': !contractQuote.isPaid
+                          }"
+                      >
+                        @if (contractQuote.isPaid) {
+                          Pagado
+                        } @else {
+                          No pagado
+                        }
+                      </span>
+                    </td>
+                    <td class="  font-semibold">
+                      S/ {{ contractQuote.amountToPay | number: '.2-2' }}
+                    </td>
+                    <td class="  font-semibold">
+                      S/ {{ contractQuote.tardinessAmount | number: '.2-2' }}
+                    </td>
+                    <td class="  font-semibold">
+                      S/ {{ contractQuote.totalPaid| number: '.2-2' }}
+                    </td>
+                    <td class="  font-semibold">
+                      S/ {{ contractQuote.totalDebt| number: '.2-2' }}
+                    </td>
+                    <td class="  ">
+
+                      @if ( !contractQuote.isPaid ) {
+
+                        <div class=" flex justify-center items-center gap-3">
+
+                          @if ( !contractQuote.isExoneratedTardiness ) {
+                            <button
+                              type="button"
+                              class="bg-gray-100 text-gray-600 hover:bg-gray-200 border border-gray-200 px-3 py-1 rounded-md"
+                              (click)="onExonerateTardinessConfirm( contractQuote )"
+                            >
+                              Exo. Mora
+                            </button>
+                          }
+
+                          <button
+                            [id]="'btnShowQuoteModal-' + contractQuote.id"
+                            type="button"
+                            class=" bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1 rounded-md"
+                            (click)="onSetContractQuoteToPay( contractQuote )"
+                          >
+                            Pagar
+                          </button>
+                        </div>
+
+                      } @else {
+
+                          <button
+                            type="button"
+                            class=" bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1 rounded-md"
+                            (click)="onGetPaymentQuoteInfo( contractQuote.id)"
+                          >
+                            Ver
+                          </button>
+
                       }
+
+                    </td>
+                  </tr>
+
+                } @empty {
+
+                  @if (!isLoading()) {
+                    <tr>
+                      <td colspan="7">
+                        <div class="text-center p-4 border-b text-xl text-slate-400">
+                          Sin registros
+                        </div>
+                      </td>
+                    </tr>
+                  } @else {
+                    <tr>
+                      <td colspan="7">
+                        <div class=" py-6 flex justify-center items-center gap-2 ">
+                          <spinner></spinner>
+                          <h3 >Espere por favor</h3>
+                        </div>
+                      </td>
+                    </tr>
+                  }
+                }
+
+
+              } @else {
+                <tr>
+                  <td colspan="10">
+                    <div class="text-center p-4 border-b text-xl text-slate-400">
+                      <h3>No tiene permiso para listar <span class="font-bold">Cuotas pendientes</span> </h3>
                     </div>
                   </td>
-                  <!-- Si clients SIEMPRE existe (array no nullable) -->
-                  <td>
-                    <span class="font-medium uppercase">
-                      {{ contractQuote.contract.clients[0].fullname || 'Sin cliente' }}
-                    </span>
-                    @if (contractQuote.contract.clients.length > 1) {
-                      <span class="text-slate-500">
-                        +{{ contractQuote.contract.clients.length - 1 }} clientes
-                      </span>
-                    }
-                  </td>
+                </tr>
+              }
 
-                  <td class="">
-                    {{ contractQuote.paymentDate | moment:'createAt' }}
-                  </td>
-                  <td class="">
-                    <span
-                      class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium "
-                      [ngClass]="{
-                        'bg-[#F2FCE2] text-[#16a34a]': contractQuote.isPaid,
-                        'bg-[#FFDEE2] text-[#ea384c]': !contractQuote.isPaid
-                        }"
-                    >
-                      @if (contractQuote.isPaid) {
-                        Pagado
-                      } @else {
-                        No pagado
-                      }
-                    </span>
-                  </td>
-                  <td class="  font-semibold">
-                    S/ {{ contractQuote.amountToPay | number: '.2-2' }}
-                  </td>
-                  <td class="  font-semibold">
-                    S/ {{ contractQuote.tardinessAmount | number: '.2-2' }}
-                  </td>
-                  <td class="  font-semibold">
-                    S/ {{ contractQuote.totalPaid| number: '.2-2' }}
-                  </td>
-                  <td class="  font-semibold">
-                    S/ {{ contractQuote.totalDebt| number: '.2-2' }}
-                  </td>
-                  <td class="  ">
+            </tbody>
+          </table>
 
-                    @if ( !contractQuote.isPaid ) {
+          <div class="" >
+
+            <!-- (onChangePage)="" -->
+            <app-pagination [totalItems]="contractQuotesTotal()" (onChangePage)="onGetContractQuotes( $event )"  >
+            </app-pagination>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- pagos registrados -->
+      <div *ngIf="activeTab() === 'paid'">
+
+        <div class="flex flex-col gap-2 md:flex-row md:items-center justify-between py-6 px-4">
+          <div>
+            <h1 class="text-3xl font-bold text-gray-800 dark:text-slate-100">
+              Pagos realizados
+            </h1>
+          </div>
+          <div class="flex items-center gap-3">
+            <button
+              type="button"
+              class="inline-block px-6 py-2 mr-3 font-semibold text-center text-white align-middle transition-all rounded cursor-pointer bg-emerald-600 hover:bg-emerald-700 leading-normal ease-in tracking-tight-rem shadow-xs bg-150 bg-x-25 hover:-translate-y-px active:opacity-85 hover:shadow-md"
+              (click)="onSetContractQuoteToPay()"
+            >
+              <i class="fa-solid fa-plus mr-1"></i>
+              Pagar múltiples cuotas
+            </button>
+
+            <button class="border border-gray-300 text-gray-700 inline-block px-4 py-2 mr-3 font-semibold text-center  align-middle transition-all rounded cursor-pointer leading-normal ease-in tracking-tight-rem shadow-xs bg-150 bg-x-25 hover:-translate-y-px active:opacity-75 hover:shadow-md dark:text-slate-200">
+              <i class="fa-solid fa-download h-5 w-5 mr-1"></i>
+              Descargar Reporte PDF
+            </button>
+
+          </div>
+        </div>
+
+        <div class=" overflow-hidden">
+          <table class="w-full text-sm text-left">
+            <thead >
+              <tr class="bg-gray-50/50">
+                <th class="px-6 py-3 font-semibold text-gray-600 ">CUOTAS</th>
+                <th class="px-6 py-3 font-semibold text-gray-600 ">FECHA DE PAGO</th>
+                <th class="px-6 py-3 font-semibold text-gray-600 ">MONTO</th>
+                <th class="px-6 py-3 font-semibold text-gray-600 ">
+                  FECHA DE REGISTRO
+                </th>
+                <th class="px-6 py-3 font-semibold text-gray-600  text-right">
+                  ACCIONES
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+
+              @if ( allowList() ) {
+
+                @for ( paymentQuote of paymentsQuote(); track $index) {
+
+                  <!-- Row 1 hover:bg-gray-50/50-->
+                  <tr class="border-b dark:border-white/40 border-gray-200 dark:text-slate-400 ">
+
+                    <td class="font-medium ">
+                      <div class="mt-1 flex justify-center gap-1">
+                        @for ( quote of paymentQuote.quotes; track quote.id) {
+                          <span class="rounded border border-indigo-600 text-indigo-700 px-1.5 py-0.5 text-[11px] font-semibold">
+                            {{ quote.order }}
+                          </span>
+                        }
+                      </div>
+                    </td>
+
+                    <td class="font-medium p-4">
+                      {{ paymentQuote.paymentDate | moment }}
+                    </td>
+
+                    <td class="font-medium ">
+                      S/ {{ paymentQuote.amount | number: '.2-2' }}
+                    </td>
+
+                    <td class="">
+                      {{ paymentQuote.createAt | moment:'createAt' }}
+                    </td>
+
+                    <td class="  ">
 
                       <div class=" flex justify-center items-center gap-3">
 
-                        @if ( !contractQuote.isExoneratedTardiness ) {
-                          <button
-                            type="button"
-                            class="bg-gray-100 text-gray-600 hover:bg-gray-200 border border-gray-200 px-3 py-1 rounded-md"
-                            (click)="onExonerateTardinessConfirm( contractQuote )"
-                          >
-                            Exo. Mora
-                          </button>
-                        }
-
                         <button
-                          [id]="'btnShowQuoteModal-' + contractQuote.id"
                           type="button"
-                          class=" bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1 rounded-md"
-                          (click)="onSetContractQuoteToPay( contractQuote )"
+                          class=" bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-md"
+                          (click)="onRemoveConfirm( paymentQuote )"
                         >
-                          Pagar
+                          Eliminar
                         </button>
                       </div>
 
-                    } @else {
+                  </tr>
 
-                        <button
-                          type="button"
-                          class=" bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1 rounded-md"
-                          (click)="onGetPaymentQuoteInfo( contractQuote.id)"
-                        >
-                          Ver
-                        </button>
+                } @empty {
 
-                    }
+                  @if (!isLoading()) {
+                    <tr>
+                      <td colspan="7">
+                        <div class="text-center p-4 border-b text-xl text-slate-400">
+                          Sin registros
+                        </div>
+                      </td>
+                    </tr>
+                  } @else {
+                    <tr>
+                      <td colspan="7">
+                        <div class=" py-6 flex justify-center items-center gap-2 ">
+                          <spinner></spinner>
+                          <h3 >Espere por favor</h3>
+                        </div>
+                      </td>
+                    </tr>
+                  }
+                }
 
+
+              } @else {
+                <tr>
+                  <td colspan="10">
+                    <div class="text-center p-4 border-b text-xl text-slate-400">
+                      <h3>No tiene permiso para listar <span class="font-bold">Cuotas pendientes</span> </h3>
+                    </div>
                   </td>
                 </tr>
-
-              } @empty {
-
-                @if (!isLoading()) {
-                  <tr>
-                    <td colspan="7">
-                      <div class="text-center p-4 border-b text-xl text-slate-400">
-                        Sin registros
-                      </div>
-                    </td>
-                  </tr>
-                } @else {
-                  <tr>
-                    <td colspan="7">
-                      <div class=" py-6 flex justify-center items-center gap-2 ">
-                        <spinner></spinner>
-                        <h3 >Espere por favor</h3>
-                      </div>
-                    </td>
-                  </tr>
-                }
               }
 
+            </tbody>
+          </table>
 
-            } @else {
-              <tr>
-                <td colspan="10">
-                  <div class="text-center p-4 border-b text-xl text-slate-400">
-                    <h3>No tiene permiso para listar <span class="font-bold">Cuotas pendientes</span> </h3>
-                  </div>
-                </td>
-              </tr>
-            }
+          <div class="" >
 
-          </tbody>
-        </table>
+            <!-- (onChangePage)="" -->
+            <app-pagination [totalItems]="totalPaymentQuote()" (onChangePage)="onGetPaymentQuotes( $event )"  >
+            </app-pagination>
 
-        <div class="" >
-
-          <!-- (onChangePage)="" -->
-          <app-pagination [totalItems]="contractQuotesTotal()" (onChangePage)="onGetContractQuotes( $event )"  >
-          </app-pagination>
-
+          </div>
         </div>
+
       </div>
 
     </div>
   </div>
 </div>
 
-<!-- <paid-quotes-modal
-  [contractQuotesData]="contractQuotesAll()"
-  [contractQuotesToPaid]="contractQuoteToPay()"
-  [webUrlPermissionMethods]="webUrlPermissionMethods()"
-  (paidQuoteSuccess)="onGetQuotesByContract()" >
-</paid-quotes-modal> -->
+<!-- *New: tap para mostrar los pagos registrados -->
+<!-- * Por implementar -->
+
 
 <!-- Main modal -->
 <div id="payment-quote-detail-modal" data-modal-backdrop="true" tabindex="-1" aria-hidden="false" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 mt-5 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
@@ -468,9 +638,9 @@
           </div>
           <!-- Modal body -->
 
-          <div class="px-6 py-5 space-y-6">
+          <div class="px-6 py-5 space-y-6 max-h-[600px] overflow-y-auto">
 
-            <div *ngFor="let payment of paymentsByCuote()">
+            <div *ngFor="let payment of paymentsByCuote()" >
 
               <div class="bg-gray-50 rounded-xl p-4 flex justify-between dark:bg-slate-600">
                 <div>
@@ -484,12 +654,64 @@
                 </div>
               </div>
 
-              <div>
-                <p class="text-sm font-medium text-gray-900 mb-3 dark:text-slate-200">Cuotas asociadas</p>
+              <div class="pt-1">
+                <!-- <p class="text-sm font-medium text-gray-900 mb-3 dark:text-slate-200">Cuotas asociadas</p>
                 <div class="flex flex-wrap gap-2" >
                   <div class="min-w-[120px] rounded-xl border border-gray-200 bg-white px-3 py-1.5 dark:bg-slate-700 dark:border-slate-300" *ngFor="let quote of payment.quotes">
                     <p class="text-sm text-gray-500 dark:text-slate-400">Cuota {{ quote.order }}</p>
                     <p class="font-semibold text-gray-900 mt-1 text-sm dark:text-slate-200">S/ {{ quote.totalPaid | number:'.2-2' }} </p>
+                  </div>
+                </div> -->
+
+                <div class="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-slate-600 dark:bg-slate-800">
+                  <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-600">
+                      <thead class="bg-gray-50 dark:bg-slate-700">
+                        <tr>
+                          <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600 dark:text-slate-300">
+                            Nro cuota
+                          </th>
+                          <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600 dark:text-slate-300">
+                            Monto pagado
+                          </th>
+                          <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600 dark:text-slate-300">
+                            Deuda antes del pago
+                          </th>
+                          <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600 dark:text-slate-300">
+                            Deuda actual
+                          </th>
+                        </tr>
+                      </thead>
+
+                      <tbody class="divide-y divide-gray-100 dark:divide-slate-700">
+                        <tr
+                          *ngFor="let detail of payment.paymentQuoteDetails"
+                          class="hover:bg-gray-50 dark:hover:bg-slate-700/40"
+                        >
+                          <td class="px-4 py-3 text-sm font-medium text-gray-900 dark:text-slate-200">
+                            {{ onGetQuoteByDetail( payment.quotes, detail)}}
+                          </td>
+                          <td class="px-4 py-3 text-sm text-gray-700 dark:text-slate-300">
+                            S/ {{ detail.paidAmount | number:'1.2-2' }}
+                          </td>
+                          <td class="px-4 py-3 text-sm text-gray-700 dark:text-slate-300">
+                            S/ {{ detail.quoteDebtBeforePayment | number:'1.2-2' }}
+                          </td>
+                          <td class="px-4 py-3 text-sm text-gray-700 dark:text-slate-300">
+                            S/ {{ detail.quoteDebtAfterPayment | number:'1.2-2' }}
+                          </td>
+                        </tr>
+
+                        <tr *ngIf="!payment.paymentQuoteDetails?.length">
+                          <td
+                            colspan="4"
+                            class="px-4 py-4 text-center text-sm text-gray-500 dark:text-slate-400"
+                          >
+                            No hay cuotas asociadas
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
                   </div>
                 </div>
               </div>

@@ -3,6 +3,7 @@ import { FormsModule, ReactiveFormsModule, UntypedFormControl, Validators } from
 import { initFlowbite } from 'flowbite';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { CommonModule } from '@angular/common';
+import { validate as ISUUID } from 'uuid';
 
 import { InputErrorsDirective } from '@shared/directives/input-errors.directive';
 import { PaginationComponent } from '@shared/components/pagination/pagination.component';
@@ -19,9 +20,12 @@ import { AppState } from '@app/app.config';
 import { WebUrlPermissionMethods } from '@app/auth/interfaces';
 import { apiPaymentQuote } from '@shared/helpers/web-apis.helper';
 import { PaymentQuoteService } from '@modules/admin/services/payment-quote.service';
-import { PaymentsByCuote } from './interfaces';
+import { PaymentQuote, PaymentQuoteDetail, PaymentsByCuote } from './interfaces';
 import { MatDialog } from '@angular/material/dialog';
 import { PaymentQuotesModalComponent } from '@modules/admin/components/payment-quotes-modal/payment-quotes-modal.component';
+import { Quote } from '@app/dashboard/interfaces';
+
+type PaidQuotesTab = 'pending' | 'paid';
 
 @Component({
   standalone: true,
@@ -70,13 +74,16 @@ export default class PaidQuotesComponent implements OnInit, OnDestroy {
   private _contractQuotesSelected = signal<ContractQuote[]>( [] );
   private _contractQuotesAll = signal<ContractQuote[]>( [] );
   private _paymentsByCuote = signal<PaymentsByCuote[]>( [] );
+  private _paymentsQuote = signal<PaymentQuote[]>( [] );
   private _contractQuoteToPay = signal<ContractQuote | null>( null );
   private _contractQuotesTotal = signal<number>( 0 );
   private _totalDebt = signal<number>( 0 );
+  private _totalPaymentQuote = signal<number>( 0 );
   private _isSaving = signal( false );
 
   private _allowList = signal( true );
   private _isLoading = signal( true );
+  private _isLoadingPayments = signal( true );
   private _isLoadingContract = signal( true );
   private _isRemoving = false;
 
@@ -87,12 +94,15 @@ export default class PaidQuotesComponent implements OnInit, OnDestroy {
   public contractQuotesSelected = computed( () => this._contractQuotesSelected() );
   public contractQuotesAll = computed( () => this._contractQuotesAll() );
   public paymentsByCuote = computed( () => this._paymentsByCuote() );
+  public paymentsQuote = computed( () => this._paymentsQuote() );
   public contractQuoteToPay = computed( () => this._contractQuoteToPay() );
   public contractQuotesTotal = computed( () => this._contractQuotesTotal() );
   public totalDebt = computed( () => this._totalDebt() );
+  public totalPaymentQuote = computed( () => this._totalPaymentQuote() );
   public isSaving = computed( () => this._isSaving() );
   public allowList = computed( () => this._allowList() );
   public isLoading = computed( () => this._isLoading() );
+  public isLoadingPayments = computed( () => this._isLoadingPayments() );
   public isLoadingContract = computed( () => this._isLoadingContract() );
 
   get searchInputIsTouched() { return this.searchContractInput.touched; }
@@ -102,17 +112,44 @@ export default class PaidQuotesComponent implements OnInit, OnDestroy {
   get contractInputErrors() { return this.contractInput.errors; }
   get contractInputIsInvalid() { return this.contractInput.invalid;}
 
+  private _activeTab = signal<PaidQuotesTab>('pending');
+
+  public activeTab = computed(() => this._activeTab());
+
+  public pendingContractQuotes = computed(() =>
+    this._contractQuotes().filter((quote) => !quote.isPaid)
+  );
+
+  public paidContractQuotes = computed(() =>
+    this._contractQuotes().filter((quote) => quote.isPaid)
+  );
+
+  public pendingContractQuotesTotal = computed(() => this.pendingContractQuotes().length);
+  public paidContractQuotesTotal = computed(() => this.paidContractQuotes().length);
+
+  private _currentPage = 1;
+
   ngOnInit(): void {
     // initFlowbite();
     this.onLoadPermissions();
     this.onGetContract();
     this.onGetContractQuotes();
+    this.onGetPaymentQuotes()
+
   }
 
   ngAfterViewInit(): void {
     setTimeout(() => {
       initFlowbite();
     }, 400);
+  }
+
+  onGetQuoteByDetail( quotes: Quote[], detail: PaymentQuoteDetail ) {
+    return quotes.find( (q) => q.id == detail.contractQuoteId )?.order;
+  }
+
+  onChangeTab(tab: PaidQuotesTab) {
+    this._activeTab.set(tab);
   }
 
   onLoadPermissions() {
@@ -141,6 +178,7 @@ export default class PaidQuotesComponent implements OnInit, OnDestroy {
 
   onGetContractQuotes( page = 1 ) {
 
+    this._currentPage = page;
     const contractId = this.contractInput.value;
 
     this._isLoading.set( true );
@@ -164,6 +202,26 @@ export default class PaidQuotesComponent implements OnInit, OnDestroy {
 
   }
 
+  onGetPaymentQuotes( page = 1 ) {
+
+    this._isLoadingPayments.set( true );
+
+    const contractId = this.contractInput.value;
+    let filter = '';
+
+    if(  ISUUID( contractId ) ) filter = `contractId=${contractId}`;
+
+    this._contractPaymentService.getPaymentQuotes( page, filter, 'createAt=DESC' )
+    .subscribe( ( response ) => {
+
+      this._paymentsQuote.set( response.paymentQuotes );
+      this._totalPaymentQuote.set( response.total );
+      this._isLoadingPayments.set( false );
+
+    });
+
+  }
+
   onGetQuotesToSelect() {
 
     const contractId = this.contractInput.value;
@@ -179,6 +237,7 @@ export default class PaidQuotesComponent implements OnInit, OnDestroy {
 
     this.onGetContractQuotes();
     this.onGetQuotesToSelect();
+    this.onGetPaymentQuotes();
 
   }
 
@@ -193,9 +252,14 @@ export default class PaidQuotesComponent implements OnInit, OnDestroy {
     this._contractPaymentService.getPaymentQuoteByContractQuote( contractQuoteId )
     .subscribe( ( { paymentsByCuote } ) => {
 
-      this._paymentsByCuote.set( paymentsByCuote );
+      if( Object.keys(paymentsByCuote).length === 0 ){
+        this._alertService.showAlert( undefined, 'Esta cuota ha sido pagada en la creación del contraro', 'info' );
+        return;
+      }
 
+      this._paymentsByCuote.set( paymentsByCuote );
       this.btnShowPaymentQuoteInfoModal.nativeElement.click();
+
     });
 
   }
@@ -255,7 +319,7 @@ export default class PaidQuotesComponent implements OnInit, OnDestroy {
       closeOnNavigation: true,
 
       data: {
-        contractQuotes: this._contractQuotesAll(),
+        contractQuotes: this._contractQuotesAll().filter( (p) => !p.isPaid ),
         webUrlPermissionMethods: this._webUrlPermissionMethods(),
         contractQuoteSelected: this._contractQuoteToPay()
       }
@@ -264,10 +328,40 @@ export default class PaidQuotesComponent implements OnInit, OnDestroy {
     this._dialog$ = dialogRef.afterClosed().subscribe( (paymentCuoteCreated: any | null) => {
 
       if (paymentCuoteCreated) {
-        this.onGetContractQuotes();
+        this.onGetContractQuotes( this._currentPage );
+        this.onGetQuotesToSelect();
+        this.onGetPaymentQuotes();
       }
 
       this._dialog$?.unsubscribe();
+    });
+
+  }
+
+  async onRemoveConfirm( paymentQuote: PaymentQuote ) {
+
+    const responseConfirm = await this._alertService.showConfirmAlert(
+      undefined,
+      `¿Está seguro de eliminar pago de cuota(s) ${ paymentQuote.quotes.map(q => q.order ).join(', ') }?`
+    );
+
+    if( responseConfirm.isConfirmed ) {
+      this._onRemovePaymentQuote( paymentQuote.id );
+    }
+
+  }
+
+  private _onRemovePaymentQuote( paymentQuoteId: string ) {
+
+    this._alertService.showLoading();
+    this._contractPaymentService.onRemove( paymentQuoteId )
+    .subscribe( (visitDeleted) => {
+      this._alertService.close();
+      this.onGetContractQuotes( this._currentPage );
+      this.onGetQuotesToSelect();
+      this.onGetPaymentQuotes();
+      this._alertService.showAlert(`Pago eliminado exitosamente`, undefined, 'success');
+
     });
 
   }
