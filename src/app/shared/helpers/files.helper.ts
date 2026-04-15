@@ -1,4 +1,4 @@
-const _fileValid = ['PNG', 'JPG', 'JPEG'];
+const _fileValid = ['PNG', 'JPG', 'JPEG', 'PDF'];
 
 export const onValidImg = ( extension: string, size: number ): boolean => {
 
