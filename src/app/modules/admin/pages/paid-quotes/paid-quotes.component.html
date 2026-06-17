@@ -654,6 +654,18 @@
                 </div>
               </div>
 
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-3">
+                <div class="bg-gray-50 rounded-xl p-4 dark:bg-slate-600">
+                  <p class="text-sm text-gray-500 dark:text-slate-200">ID Transacción</p>
+                  <p class="text-base font-medium text-gray-900 mt-1 dark:text-slate-400 break-all"> {{ payment.operationCode || '—' }} </p>
+                </div>
+
+                <div class="bg-gray-50 rounded-xl p-4 dark:bg-slate-600">
+                  <p class="text-sm text-gray-500 dark:text-slate-200">Observaciones</p>
+                  <p class="text-base font-medium text-gray-900 mt-1 dark:text-slate-400 whitespace-pre-line"> {{ payment.observation || 'Sin observaciones' }} </p>
+                </div>
+              </div>
+
               <div class="pt-1">
                 <!-- <p class="text-sm font-medium text-gray-900 mb-3 dark:text-slate-200">Cuotas asociadas</p>
                 <div class="flex flex-wrap gap-2" >
