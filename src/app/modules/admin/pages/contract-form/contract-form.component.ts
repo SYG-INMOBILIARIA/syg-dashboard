@@ -715,6 +715,8 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
       this.contractFormThree.get('initialAmount')?.addValidators([ Validators.required ]); //Validators.min(totalLote)
       this.contractFormThree.get('numberOfQuotesPaid')?.addValidators([ Validators.required, Validators.pattern( numberPatt ), Validators.min(0), Validators.max(1) ]);
       this.contractFormThree.get('initialAmount')?.setValue( 0 );
+      //* Al contado => la única cuota se paga en su totalidad al crear el contrato
+      this.contractFormThree.get('numberOfQuotesPaid')?.setValue( 1 );
       this._initialAmoutDisabled.set( true );
 
 
@@ -724,6 +726,7 @@ export default class ContractFormComponent implements OnInit, AfterViewInit, OnD
       this.contractFormThree.get('quotaId')?.addValidators( [ Validators.required ] );
       this._initialAmoutDisabled.set( false );
       this.contractFormThree.get('initialAmount')?.setValue( 0 );
+      this.contractFormThree.get('numberOfQuotesPaid')?.setValue( 0 );
     }
 
     this.contractFormThree.get('financingId')?.updateValueAndValidity();
