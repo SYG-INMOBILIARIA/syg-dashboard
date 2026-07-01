@@ -8,8 +8,13 @@
 
   <div class="col-span-8 bg-white shadow rounded-md dark:bg-gray-700 px-6 py-6 ">
 
-    <div class="text-lg font-bold text-slate-800 dark:text-slate-100 mb-4">
-      Información del cliente
+    <div class="mb-4">
+      <div class="text-lg font-bold text-slate-800 dark:text-slate-100">
+        Buscar otro contrato
+      </div>
+      <p class="text-xs text-slate-500">
+        Acceso directo a cualquier contrato — incluye pagados/terminados que no aparecen en la cartera de cobranza.
+      </p>
     </div>
 
     <div class="flex justify-center items-end gap-3">
@@ -142,13 +147,6 @@
 
         </ng-select>
 
-      </div>
-
-      <div class="flex items-center">
-          <input id="chkContractExpiredQuotes" type="checkbox" [formControl]="chkExpiredQuotesInput" (change)="onGetContract()" class="w-4 h-4 border border-default-medium rounded-xs bg-neutral-secondary-medium focus:ring-2 focus:ring-brand-soft">
-          <label for="chkContractExpiredQuotes" class="w-[200px] select-none ms-2 text-sm font-medium text-heading">
-            Contratos con cuotas vencidas
-          </label>
       </div>
 
       <button
