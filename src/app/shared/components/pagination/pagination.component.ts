@@ -3,6 +3,11 @@ import { Component, Input, ViewChild, output } from '@angular/core';
 
 import { NgxPaginationModule, PaginationInstance, PaginationControlsDirective } from 'ngx-pagination';
 
+//* Contador a nivel de módulo para asignar un id único de ngx-pagination por instancia.
+//* Sin esto, varias <app-pagination> en la misma página comparten el id 'custom' y
+//* ngx-pagination entra en un bucle de detección de cambios ("Maximum call stack size exceeded").
+let _paginationInstanceCounter = 0;
+
 @Component({
   selector: 'app-pagination',
   standalone: true,
@@ -34,7 +39,7 @@ export class PaginationComponent {
   @ViewChild('paginateElement') paginateElement!: PaginationControlsDirective;
 
   public config: PaginationInstance = {
-      id: 'custom',
+      id: `pagination-${ _paginationInstanceCounter++ }`,
       currentPage: 1,
       itemsPerPage: 10,
       totalItems: 0,
