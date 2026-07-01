@@ -2,7 +2,7 @@
 
   <div class="mb-4 flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
     <div>
-      <h1 class="text-2xl font-bold text-slate-800 dark:text-slate-100">Cartera de cobranza</h1>
+      <h1 class="text-2xl font-bold text-slate-800 dark:text-slate-100">Control de pagos</h1>
       <p class="text-sm text-slate-500">Contratos activos segmentados por estado de pago.</p>
     </div>
     <button type="button" (click)="onExport()" [disabled]="isExporting() || total() === 0"
@@ -25,6 +25,11 @@
         [ngClass]="status() === 'current' ? 'bg-white shadow text-slate-800' : 'text-slate-500'">
         <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Al día
       </button>
+      <button type="button" (click)="setStatus('all')"
+        class="px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition-all"
+        [ngClass]="status() === 'all' ? 'bg-white shadow text-slate-800' : 'text-slate-500'">
+        <span class="w-2 h-2 rounded-full bg-slate-400"></span> Todos
+      </button>
     </div>
 
     <div class="relative w-full md:w-80">
@@ -44,10 +49,15 @@
       <div class="border border-slate-200 rounded-xl p-4"><div class="text-xs text-slate-500">Contratos vencidos</div><div class="text-xl font-bold text-slate-800">{{ summary().overdueContracts ?? 0 }}</div></div>
       <div class="border border-slate-200 rounded-xl p-4"><div class="text-xs text-slate-500">Cuotas vencidas</div><div class="text-xl font-bold text-slate-800">{{ summary().overdueQuotes ?? 0 }}</div></div>
       <div class="border border-slate-200 rounded-xl p-4"><div class="text-xs text-slate-500">Atraso máximo</div><div class="text-xl font-bold text-amber-600">{{ summary().maxDaysLate ?? 0 }} días</div></div>
-    } @else {
+    } @else if (status() === 'current') {
       <div class="border border-slate-200 rounded-xl p-4"><div class="text-xs text-slate-500">Contratos al día</div><div class="text-xl font-bold text-emerald-600">{{ summary().currentContracts ?? 0 }}</div></div>
       <div class="border border-slate-200 rounded-xl p-4"><div class="text-xs text-slate-500">Deuda pendiente total</div><div class="text-xl font-bold text-slate-800">S/ {{ summary().totalPendingDebt ?? 0 | number:'.2-2' }}</div></div>
       <div class="border border-slate-200 rounded-xl p-4"><div class="text-xs text-slate-500">Próximo vencimiento</div><div class="text-xl font-bold text-slate-800">{{ summary().nextDueInDays ?? '—' }} días</div></div>
+    } @else {
+      <div class="border border-slate-200 rounded-xl p-4"><div class="text-xs text-slate-500">Total de contratos</div><div class="text-xl font-bold text-slate-800">{{ summary().allContracts ?? 0 }}</div></div>
+      <div class="border border-slate-200 rounded-xl p-4"><div class="text-xs text-slate-500">Vencidos</div><div class="text-xl font-bold text-red-600">{{ summary().overdueContracts ?? 0 }}</div></div>
+      <div class="border border-slate-200 rounded-xl p-4"><div class="text-xs text-slate-500">Al día</div><div class="text-xl font-bold text-emerald-600">{{ summary().currentContracts ?? 0 }}</div></div>
+      <div class="border border-slate-200 rounded-xl p-4"><div class="text-xs text-slate-500">Pagados</div><div class="text-xl font-bold text-slate-800">{{ summary().paidContracts ?? 0 }}</div></div>
     }
   </div>
 
@@ -63,9 +73,12 @@
             <th class="px-4 py-3 font-semibold text-right">Cuotas vencidas</th>
             <th class="px-4 py-3 font-semibold text-right">Deuda vencida</th>
             <th class="px-4 py-3 font-semibold text-right">Atraso</th>
-          } @else {
+          } @else if (status() === 'current') {
             <th class="px-4 py-3 font-semibold text-right">Cuotas pendientes</th>
             <th class="px-4 py-3 font-semibold text-right">Fecha próx. pago</th>
+          } @else {
+            <th class="px-4 py-3 font-semibold">Estado</th>
+            <th class="px-4 py-3 font-semibold text-right">Cuotas pendientes</th>
           }
           <th class="px-4 py-3 font-semibold text-right">Deuda total</th>
           <th class="px-4 py-3 font-semibold text-right">Acciones</th>
@@ -92,9 +105,18 @@
                 <td class="px-4 py-3 text-right font-semibold">{{ c.overdueQuotesCount }}</td>
                 <td class="px-4 py-3 text-right font-bold text-red-600">S/ {{ c.overdueDebt | number:'.2-2' }}</td>
                 <td class="px-4 py-3 text-right"><span class="text-[11px] bg-amber-100 text-amber-700 rounded-full px-2 py-0.5 font-semibold">{{ c.maxDaysLate }} días</span></td>
-              } @else {
+              } @else if (status() === 'current') {
                 <td class="px-4 py-3 text-right font-semibold">{{ c.pendingQuotesCount }}</td>
                 <td class="px-4 py-3 text-right">{{ c.nextPaymentDate | moment:'createAt' }}</td>
+              } @else {
+                <td class="px-4 py-3">
+                  @switch (c.state) {
+                    @case ('overdue') { <span class="text-[11px] bg-red-100 text-red-700 rounded-full px-2 py-0.5 font-semibold">Vencido</span> }
+                    @case ('current') { <span class="text-[11px] bg-emerald-100 text-emerald-700 rounded-full px-2 py-0.5 font-semibold">Al día</span> }
+                    @default { <span class="text-[11px] bg-slate-100 text-slate-600 rounded-full px-2 py-0.5 font-semibold">Pagado</span> }
+                  }
+                </td>
+                <td class="px-4 py-3 text-right font-semibold">{{ c.pendingQuotesCount }}</td>
               }
               <td class="px-4 py-3 text-right font-semibold">S/ {{ c.totalDebt | number:'.2-2' }}</td>
               <td class="px-4 py-3 text-right">
@@ -107,7 +129,11 @@
             </tr>
           } @empty {
             <tr><td colspan="8"><div class="text-center p-6 text-slate-400">
-              {{ status() === 'overdue' ? 'Sin contratos con cuotas vencidas 🎉' : 'Sin contratos al día' }}
+              @switch (status()) {
+                @case ('overdue') { Sin contratos con cuotas vencidas 🎉 }
+                @case ('current') { Sin contratos al día }
+                @default { Sin contratos }
+              }
             </div></td></tr>
           }
         }

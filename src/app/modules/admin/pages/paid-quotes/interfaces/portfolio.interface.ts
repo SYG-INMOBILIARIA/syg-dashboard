@@ -1,4 +1,4 @@
-export type PortfolioStatus = 'overdue' | 'current';
+export type PortfolioStatus = 'overdue' | 'current' | 'all';
 
 export interface PortfolioClient { id: string; fullname: string; }
 export interface PortfolioLote { id: string; mz: string; numberLote: string; }
@@ -15,6 +15,7 @@ export interface PortfolioContract {
   pendingQuotesCount?: number;
   nextQuoteNumber?: number;
   nextPaymentDate?: string | null;
+  state?: 'overdue' | 'current' | 'paid';
 }
 
 export interface PortfolioSummary {
@@ -25,6 +26,8 @@ export interface PortfolioSummary {
   currentContracts?: number;
   totalPendingDebt?: number;
   nextDueInDays?: number | null;
+  allContracts?: number;
+  paidContracts?: number;
 }
 
 export interface PortfolioResponse {
