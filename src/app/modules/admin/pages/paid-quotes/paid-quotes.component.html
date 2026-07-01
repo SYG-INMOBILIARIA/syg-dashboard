@@ -1,4 +1,9 @@
 
+<div class="px-4 pt-6">
+  <app-collections-portfolio (contractSelected)="onSelectContractFromPortfolio($event)"></app-collections-portfolio>
+</div>
+
+<div id="contract-detail" [class.hidden]="!contractInput.value">
 <div class="grid gap-4 grid-cols-12 py-6 px-4">
 
   <div class="col-span-8 bg-white shadow rounded-md dark:bg-gray-700 px-6 py-6 ">
@@ -606,6 +611,7 @@
 
     </div>
   </div>
+</div>
 </div>
 
 <!-- *New: tap para mostrar los pagos registrados -->

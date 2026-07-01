@@ -24,6 +24,7 @@ import { PaymentQuote, PaymentQuoteDetail, PaymentsByCuote } from './interfaces'
 import { MatDialog } from '@angular/material/dialog';
 import { PaymentQuotesModalComponent } from '@modules/admin/components/payment-quotes-modal/payment-quotes-modal.component';
 import { Quote } from '@app/dashboard/interfaces';
+import { CollectionsPortfolioComponent } from '@modules/admin/components/collections-portfolio/collections-portfolio.component';
 
 type PaidQuotesTab = 'pending' | 'paid';
 
@@ -38,6 +39,7 @@ type PaidQuotesTab = 'pending' | 'paid';
     InputErrorsDirective,
     PipesModule,
     SpinnerComponent,
+    CollectionsPortfolioComponent,
   ],
   // providers: [
   //   PaidQuotesModalComponent
@@ -247,6 +249,14 @@ export default class PaidQuotesComponent implements OnInit, OnDestroy {
     this.onGetQuotesToSelect();
     this.onGetPaymentQuotes();
 
+  }
+
+  onSelectContractFromPortfolio(selected: { id: string; code: string; name: string }): void {
+    this.contractInput.setValue(selected.id);
+    this.onGetQuotesByContract();
+    setTimeout(() => {
+      document.getElementById('contract-detail')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 150);
   }
 
   onSetContractQuoteToPay( quote?: ContractQuote ) {
