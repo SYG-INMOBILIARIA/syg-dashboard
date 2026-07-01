@@ -3,7 +3,7 @@
   <app-collections-portfolio (contractSelected)="onSelectContractFromPortfolio($event)"></app-collections-portfolio>
 </div>
 
-<div id="contract-detail" [class.hidden]="!contractInput.value">
+<!-- Buscador + Resumen (el buscador queda siempre visible; el Resumen se oculta hasta seleccionar contrato) -->
 <div class="grid gap-4 grid-cols-12 py-6 px-4">
 
   <div class="col-span-8 bg-white shadow rounded-md dark:bg-gray-700 px-6 py-6 ">
@@ -188,7 +188,7 @@
 
   </div>
 
-  <div class="col-span-4 bg-white shadow rounded-md dark:bg-gray-700 px-4 py-4 dark:text-slate-400">
+  <div class="col-span-4 bg-white shadow rounded-md dark:bg-gray-700 px-4 py-4 dark:text-slate-400" [class.hidden]="!contractInput.value">
 
     <span class="text-lg font-bold text-slate-800 dark:text-slate-100 ">
       Resumen
@@ -230,7 +230,8 @@
 
 
 
-<!-- Tap cuotas de pago -->
+<!-- Tap cuotas de pago (detalle: se muestra al seleccionar un contrato) -->
+<div id="contract-detail" [class.hidden]="!contractInput.value">
 <div class="flex flex-wrap ">
   <div class="flex-none w-full max-w-full px-3">
     <div class="relative flex flex-col min-w-0 mb-6 break-words bg-white border-solid shadow-md dark:bg-slate-850 dark:shadow-dark-md rounded-2xl bg-clip-border dark:bg-gray-700">
