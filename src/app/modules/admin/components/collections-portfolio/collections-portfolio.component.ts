@@ -27,7 +27,9 @@ export class CollectionsPortfolioComponent {
   private _total = signal<number>(0);
   private _isLoading = signal<boolean>(true);
   private _isExporting = signal<boolean>(false);
+  private _filter = signal<string>('');
   private _page = 1;
+  private _searchTimer: any = null;
 
   public status = computed(() => this._status());
   public contracts = computed(() => this._contracts());
@@ -47,10 +49,19 @@ export class CollectionsPortfolioComponent {
     this.load();
   }
 
+  onSearch(term: string): void {
+    if (this._searchTimer) clearTimeout(this._searchTimer);
+    this._searchTimer = setTimeout(() => {
+      this._filter.set((term ?? '').trim());
+      this._page = 1;
+      this.load();
+    }, 350);
+  }
+
   load(page = 1): void {
     this._page = page;
     this._isLoading.set(true);
-    this._cobranzaService.getPortfolio(this._status(), page).subscribe({
+    this._cobranzaService.getPortfolio(this._status(), page, this._filter()).subscribe({
       next: (res) => {
         this._contracts.set(res.contracts);
         this._summary.set(res.summary);
@@ -78,8 +89,8 @@ export class CollectionsPortfolioComponent {
     this._isExporting.set(true);
 
     const status = this._status();
-    //* Traemos hasta 1000 registros del estado activo para exportar la cartera completa
-    this._cobranzaService.getPortfolio(status, 1, '', 1000).subscribe({
+    //* Traemos hasta 1000 registros del estado activo (respetando el filtro) para exportar
+    this._cobranzaService.getPortfolio(status, 1, this._filter(), 1000).subscribe({
       next: (res) => {
         const rows = res.contracts.map((c) => {
           const cliente = c.clients?.[0]?.fullname ?? 'Sin cliente';
