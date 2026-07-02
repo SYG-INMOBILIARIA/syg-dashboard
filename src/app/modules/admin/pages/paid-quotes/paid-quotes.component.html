@@ -20,9 +20,15 @@
 
   <div class="col-span-4 bg-white shadow rounded-md dark:bg-gray-700 px-4 py-4 dark:text-slate-400" [class.hidden]="!contractInput.value">
 
-    <span class="text-lg font-bold text-slate-800 dark:text-slate-100 ">
+    <div class="text-lg font-bold text-slate-800 dark:text-slate-100">
       Resumen
-    </span>
+      @if (selectedContract(); as sc) {
+        <span class="text-sm font-semibold text-blue-600">— {{ sc.code }}</span>
+      }
+    </div>
+    @if (selectedContract(); as sc) {
+      <p class="text-xs text-slate-500 uppercase mb-2">{{ sc.name }}</p>
+    }
 
     <div class="mt-4">
       <div class="flex gap-2 justify-start">

@@ -70,6 +70,7 @@ export default class PaidQuotesComponent implements OnInit, OnDestroy {
   private _contractQuotes = signal<ContractQuote[]>( [] );
 
   private _quoteResumen = signal<QuotesResumen | null>( null );
+  private _selectedContract = signal<{ code: string; name: string } | null>( null );
 
   private _contracts = signal<Contract[]>( [] );
   private _webUrlPermissionMethods = signal<WebUrlPermissionMethods[]>( [] );
@@ -93,6 +94,7 @@ export default class PaidQuotesComponent implements OnInit, OnDestroy {
   public webUrlPermissionMethods = computed( () => this._webUrlPermissionMethods() );
   public contractQuotes = computed( () => this._contractQuotes() );
   public quoteResumen = computed( () => this._quoteResumen() );
+  public selectedContract = computed( () => this._selectedContract() );
   public contractQuotesSelected = computed( () => this._contractQuotesSelected() );
   public contractQuotesAll = computed( () => this._contractQuotesAll() );
   public paymentsByCuote = computed( () => this._paymentsByCuote() );
@@ -253,6 +255,7 @@ export default class PaidQuotesComponent implements OnInit, OnDestroy {
 
   onSelectContractFromPortfolio(selected: { id: string; code: string; name: string }): void {
     this.contractInput.setValue(selected.id);
+    this._selectedContract.set({ code: selected.code, name: selected.name });
     this.onGetQuotesByContract();
     setTimeout(() => {
       document.getElementById('contract-detail')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
