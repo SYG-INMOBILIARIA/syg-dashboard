@@ -22,6 +22,7 @@ import { apiPaymentQuote } from '@shared/helpers/web-apis.helper';
 import { PaymentQuoteService } from '@modules/admin/services/payment-quote.service';
 import { PaymentQuote, PaymentQuoteDetail, PaymentsByCuote } from './interfaces';
 import { MatDialog } from '@angular/material/dialog';
+import { Overlay } from '@angular/cdk/overlay';
 import { PaymentQuotesModalComponent } from '@modules/admin/components/payment-quotes-modal/payment-quotes-modal.component';
 import { Quote } from '@app/dashboard/interfaces';
 import { CollectionsPortfolioComponent } from '@modules/admin/components/collections-portfolio/collections-portfolio.component';
@@ -51,6 +52,7 @@ export default class PaidQuotesComponent implements OnInit, OnDestroy {
 
   private _dialog$?: Subscription;
   private readonly _dialog = inject(MatDialog);
+  private readonly _overlay = inject(Overlay);
 
   private _authrx$?: Subscription;
   private _store = inject<Store<AppState>>( Store<AppState> );
@@ -338,6 +340,9 @@ export default class PaidQuotesComponent implements OnInit, OnDestroy {
       enterAnimationDuration: '0ms',
       exitAnimationDuration: '0ms',
       closeOnNavigation: true,
+      // El BlockScrollStrategy por defecto fija <html> con top negativo, lo que desplaza
+      // el calendario de flatpickr (montado en <body>) fuera de la pantalla.
+      scrollStrategy: this._overlay.scrollStrategies.noop(),
 
       data: {
         contractQuotes: this._contractQuotesAll().filter( (p) => !p.isPaid ),
